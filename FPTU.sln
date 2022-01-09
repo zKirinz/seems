@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEEMS", "SEEMS\SEEMS.csproj", "{17BAC792-CD58-43F7-8F40-AEAFEC48AD0E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{17BAC792-CD58-43F7-8F40-AEAFEC48AD0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17BAC792-CD58-43F7-8F40-AEAFEC48AD0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17BAC792-CD58-43F7-8F40-AEAFEC48AD0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17BAC792-CD58-43F7-8F40-AEAFEC48AD0E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3453EF80-A599-4602-AA98-6BB491EC6F05}
+	EndGlobalSection
+EndGlobal
