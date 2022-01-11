@@ -172,6 +172,7 @@ BundleArtifacts/
 
 # Others
 ClientBin/
+Migrations/
 ~$*
 *~
 *.dbmdl
