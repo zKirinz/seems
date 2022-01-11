@@ -26,7 +26,7 @@ module.exports = {
     parserOptions: {
         ecmaVersion: 2018,
         sourceType: 'module',
-        babelOptions: { configFile: './SEEMS/Client/.babelrc' },
+        babelOptions: { configFile: `${__dirname}/.babelrc` },
     },
     rules: {
         'prettier/prettier': 'error',
