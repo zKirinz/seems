@@ -27,5 +27,7 @@ namespace SEEMS.Database
         public DbSet<Reservation> Reservation { get; set; }
 
         public DbSet<FeedBack> FeedBack { get; set; }
+
+        public DbSet<InvoiceUser> InvoiceUser { get; set; }
     }
 }

@@ -31,11 +31,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="appsettings.Development.Example.json" />
+    <Content Remove="appsettings.Example.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="appsettings.Development.Example.json" />
+    <None Include="appsettings.Example.json" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
