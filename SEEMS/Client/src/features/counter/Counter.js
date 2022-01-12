@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 
 import { useSelector, useDispatch } from 'react-redux'
 
+import { Button, Input } from '@mui/material'
+
 import styles from './Counter.module.css'
 import {
     decrement,
@@ -22,47 +24,53 @@ export function Counter() {
     return (
         <div>
             <div className={styles.row}>
-                <button
+                <Button
+                    variant="contained"
                     className={styles.button}
                     aria-label="Decrement value"
                     onClick={() => dispatch(decrement())}
                 >
                     -
-                </button>
+                </Button>
                 <span className={styles.value}>{count}</span>
-                <button
+                <Button
+                    variant="contained"
+                    color="secondary"
                     className={styles.button}
                     aria-label="Increment value"
                     onClick={() => dispatch(increment())}
                 >
                     +
-                </button>
+                </Button>
             </div>
             <div className={styles.row}>
-                <input
+                <Input
                     className={styles.textbox}
                     aria-label="Set increment amount"
                     value={incrementAmount}
                     onChange={(e) => setIncrementAmount(e.target.value)}
                 />
-                <button
+                <Button
+                    variant="outlined"
                     className={styles.button}
                     onClick={() => dispatch(incrementByAmount(incrementValue))}
                 >
                     Add Amount
-                </button>
-                <button
+                </Button>
+                <Button
+                    variant="outlined"
                     className={styles.asyncButton}
                     onClick={() => dispatch(incrementAsync(incrementValue))}
                 >
                     Add Async
-                </button>
-                <button
+                </Button>
+                <Button
+                    variant="outlined"
                     className={styles.button}
                     onClick={() => dispatch(incrementIfOdd(incrementValue))}
                 >
                     Add If Odd
-                </button>
+                </Button>
             </div>
         </div>
     )
