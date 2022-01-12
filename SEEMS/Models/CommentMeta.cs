@@ -9,6 +9,9 @@ namespace SEEMS.Models
         [Key]
         public int Id { get; set; }
 
+        [ForeignKey("Comment")]
+        public int CommentsId { get; set; }
+
         public String MetaKey { get; set; }
 
         public String MetaValue { get; set; }

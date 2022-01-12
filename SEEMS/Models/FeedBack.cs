@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SEEMS.Models
 {
@@ -10,6 +11,9 @@ namespace SEEMS.Models
 
         [StringLength(100)]
         public String Content { get; set; }
+
+        [ForeignKey("Reservation")]
+        public int ReservationId { get; set; }
 
         public int Rating { get; set; }
 

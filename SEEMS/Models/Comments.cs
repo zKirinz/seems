@@ -14,13 +14,18 @@ namespace SEEMS.Models
 
         public int CommentRating { get; set; }
 
-        public Comments? ParentComment { get; set; }
+        [ForeignKey("Comments")]
+        public int? ParentCommentId { get; set; }
+
+        [ForeignKey("Event")]
+        public int EventId { get; set; }
 
         public DateTime CreateAt { get; set; }
 
         public DateTime LastUpDateAt { get; set; }
 
-        public User User { get; set; }
+        public Event Event { get; set; }
 
+        public Comments? ParentComment { get; set; }
     }
 }

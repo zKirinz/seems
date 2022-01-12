@@ -8,7 +8,10 @@ namespace SEEMS.Models
 
         [Key]
         public int Id { get; set; }
-        
+
+        [ForeignKey("Event")]
+        public int EventId { get; set; }
+
         [StringLength(20)]
         public String MetaKey { get; set; }
 

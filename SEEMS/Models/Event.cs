@@ -12,10 +12,12 @@ namespace SEEMS.Models
         [StringLength(100)]
         public String EventTittle { get; set; }
 
+
         [StringLength(255)]
         public String EventDescription { get; set; }
 
-        public ChainOfEvent? ChainOfEvent { get; set; }
+        [ForeignKey("ChainOfEvent")]
+        public int? ChainOfEventId { get; set; }
 
         public bool IsPrivate { get; set; }
 
@@ -36,9 +38,12 @@ namespace SEEMS.Models
 
         public DateTime LastUpdateAt { get; set; }
 
-        public User? User { get; set; }
+        public ChainOfEvent? ChainOfEvent { get; set; }
 
         public List<Reservation>? Reservations { get; set; }
+
+        public List<Comments>? Comments { get; set; }
+
 
     }
 }

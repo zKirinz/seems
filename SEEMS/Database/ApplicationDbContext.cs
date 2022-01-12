@@ -10,22 +10,22 @@ namespace SEEMS.Database
 
         }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<User> User { get; set; }
 
-        public DbSet<UserMeta> UserMetas { get; set; }
+        public DbSet<UserMeta> UserMeta { get; set; }
 
         public DbSet<Comments> Comments { get; set; }
 
-        public DbSet<CommentMeta> CommentMetas { get; set; }
+        public DbSet<CommentMeta> CommentMeta { get; set; }
 
-        public DbSet<ChainOfEvent> ChainOfEvents { get; set; }
+        public DbSet<ChainOfEvent> ChainOfEvent { get; set; }
 
-        public DbSet<Event> Events { get; set; }
+        public DbSet<Event> Event { get; set; }
 
-        public DbSet<EventMeta> EventMetas { get; set; }
+        public DbSet<EventMeta> EventMeta { get; set; }
 
-        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<Reservation> Reservation { get; set; }
 
-        public DbSet<FeedBack> FeedBacks { get; set; }
+        public DbSet<FeedBack> FeedBack { get; set; }
     }
 }
