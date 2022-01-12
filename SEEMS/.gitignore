@@ -172,6 +172,8 @@ BundleArtifacts/
 
 # Others
 ClientBin/
+Migrations/
+appsettings.Development.json
 ~$*
 *~
 *.dbmdl
