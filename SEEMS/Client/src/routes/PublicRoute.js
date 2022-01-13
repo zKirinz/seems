@@ -1,6 +1,6 @@
 import { Route, Redirect } from 'react-router-dom'
 
-import LocalStorageUtils from 'src/utils/LocalStorageUtils'
+import LocalStorageUtils from '../utils/LocalStorageUtils'
 
 const PublicRoute = (props) => {
     const user = LocalStorageUtils.getUser()
