@@ -2,8 +2,7 @@ import { lazy, Suspense } from 'react'
 
 import { Switch } from 'react-router-dom'
 
-import { CircularProgress } from '@mui/material'
-
+import LoadingPage from '../pages/Loading'
 import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
 
@@ -18,7 +17,7 @@ const publicRoutes = [
 const privateRoutes = []
 
 const Routes = (
-    <Suspense fallback={<CircularProgress />}>
+    <Suspense fallback={<LoadingPage />}>
         <Switch>
             {publicRoutes.map((route) => (
                 <PublicRoute key={route.name} exact={true} {...route} />
