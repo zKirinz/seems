@@ -55,7 +55,7 @@ const Login = () => {
                         alignItems: 'center',
                     }}
                 >
-                    <Typography component="h1" variant="h4" color="primary.main">
+                    <Typography component="h1" variant="h4" textAlign="center" color="primary.main">
                         LOOKING FOR <strong>EVENTS?</strong>
                     </Typography>
                     <Avatar src={Logo} alt="SEEMS logo" sx={{ width: 200, height: 80 }}></Avatar>
