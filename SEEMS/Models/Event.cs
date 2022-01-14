@@ -10,7 +10,7 @@ namespace SEEMS.Models
         public int Id { get; set; }
 
         [StringLength(100)]
-        public String EventTittle { get; set; }
+        public String EventTitle { get; set; }
 
 
         [StringLength(255)]
