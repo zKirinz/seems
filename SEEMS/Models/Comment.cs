@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SEEMS.Models
 {
-    public class Comments
+    public class Comment
     {
 
         [Key]
@@ -14,7 +14,7 @@ namespace SEEMS.Models
 
         public int CommentRating { get; set; }
 
-        [ForeignKey("Comments")]
+        [ForeignKey("Comment")]
         public int? ParentCommentId { get; set; }
 
         [ForeignKey("Event")]
@@ -26,6 +26,6 @@ namespace SEEMS.Models
 
         public Event Event { get; set; }
 
-        public Comments? ParentComment { get; set; }
+        public Comment? ParentComment { get; set; }
     }
 }

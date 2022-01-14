@@ -76,6 +76,7 @@ namespace SEEMS.Database
             modelBuilder.Entity<ChainOfEvent>().HasData(
                 new ChainOfEvent { Id = 1, CategoryName = "Telescope", ImageUrl = "https://cdn.britannica.com/60/190760-050-61999AEC/space-background-telescope-silhouette-NASA-image-elements.jpg" });
 
+
             //Event's Seed Data
             modelBuilder.Entity<Event>().HasData(
                 new Event
@@ -132,7 +133,7 @@ namespace SEEMS.Database
 
         public DbSet<UserMeta> UserMeta { get; set; }
 
-        public DbSet<Comments> Comments { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         public DbSet<CommentMeta> CommentMeta { get; set; }
 

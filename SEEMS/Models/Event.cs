@@ -42,7 +42,7 @@ namespace SEEMS.Models
 
         public List<Reservation>? Reservations { get; set; }
 
-        public List<Comments>? Comments { get; set; }
+        public List<Comment>? Comments { get; set; }
 
 
     }
