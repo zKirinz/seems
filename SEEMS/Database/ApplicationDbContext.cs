@@ -76,6 +76,48 @@ namespace SEEMS.Database
             modelBuilder.Entity<ChainOfEvent>().HasData(
                 new ChainOfEvent { Id = 1, CategoryName = "Telescope", ImageUrl = "https://cdn.britannica.com/60/190760-050-61999AEC/space-background-telescope-silhouette-NASA-image-elements.jpg" });
 
+            //Comment's Seed Data
+            modelBuilder.Entity<Comment>().HasData(
+                new Comment
+                {
+                    Id = 1,
+                    CommentContent = "Ad cho mình hỏi đăng ký thế nào vậy ạ",
+                    CreateAt = DateTime.Now,
+                    EventId = 2,
+                    LastUpDateAt = DateTime.Now,
+                    UserId = 1,
+                },
+                new Comment
+                {
+                    Id = 2,
+                    CommentContent = "Bạn đọc đi kìa, hỏi hỏi gì ?",
+                    CreateAt = DateTime.Now,
+                    EventId = 2,
+                    LastUpDateAt = DateTime.Now,
+                    UserId = 2,
+                    ParentCommentId = 1,
+                },
+                new Comment
+                {
+                    Id = 3,
+                    CommentContent = "Đọc chưa hết thôi, làm gì căng ?",
+                    CreateAt = DateTime.Now,
+                    EventId = 2,
+                    LastUpDateAt = DateTime.Now,
+                    UserId = 1,
+                    ParentCommentId = 1,
+                },
+                new Comment
+                {
+                    Id = 4,
+                    CommentContent = "Sự kiện này hay quá, tớ phải rủ Xuka tham gia thôi",
+                    CreateAt = DateTime.Now,
+                    EventId = 3,
+                    LastUpDateAt = DateTime.Now,
+                    UserId = 5,
+                }
+            );
+
 
             //Event's Seed Data
             modelBuilder.Entity<Event>().HasData(
