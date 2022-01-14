@@ -20,6 +20,10 @@ namespace SEEMS.Models
         [ForeignKey("Event")]
         public int EventId { get; set; }
 
+
+        [ForeignKey("User")]
+        public int UserId { get; set; }
+
         public DateTime CreateAt { get; set; }
 
         public DateTime LastUpDateAt { get; set; }
