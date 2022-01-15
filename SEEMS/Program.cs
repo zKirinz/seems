@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SEEMS.Configs;
 using SEEMS.Database;
-using SEEMS.Handlers.Options;
 using SEEMS.Models;
 using SEEMS.Models.Identities;
 using System.Text;
@@ -20,15 +19,15 @@ var configuration = builder.Configuration;
 
 services.AddControllersWithViews();
 
-/*services.AddIdentity<ApplicationUser, ApplicationRole>()
-     .AddEntityFrameworkStores<ApplicationDbContext>();
-*/
+services.AddIdentity<ApplicationUser, ApplicationRole>()
+     .AddEntityFrameworkStores<IdentityDbContext>();
+
 // Add database services to the container.
-services.AddDbContext<ApplicationDbContext>(options =>
+services.AddDbContext<IdentityDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnection"));
 });
-services.AddIdentity<User, ApplicationRole>(options =>
+services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
     options.Password.RequiredLength = 8;
     options.Password.RequireLowercase = true;
@@ -42,7 +41,7 @@ services.AddIdentity<User, ApplicationRole>(options =>
 })
 /*services.AddDefaultIdentity<User>(options =>
                                  options.SignIn.RequireConfirmedAccount = true)*/
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<IdentityDbContext>();
 
 services.AddAuthentication(options =>
 {
@@ -57,7 +56,7 @@ services.AddAuthentication(options =>
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-/*            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration.GetValue<string>("SecretKey"))),*/
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("SecretKey"))),
             ValidateLifetime = true,
             ValidateAudience = false,
             ValidateIssuer = false,
@@ -83,6 +82,7 @@ services.AddAuthentication(options =>
         options.ClientSecret = googleAuthNSection["ClientSecret"];
         options.SignInScheme = IdentityConstants.ExternalScheme;
         options.SaveTokens = true;
+        options.ReturnUrlParameter = "~/";
         options.Events.OnCreatingTicket = ctx =>
         {
             List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();
@@ -104,7 +104,6 @@ services.Configure<CookiePolicyOptions>(options =>
     options.CheckConsentNeeded = context => true;
     options.MinimumSameSitePolicy = SameSiteMode.Strict;
 });
-services.AddOptions<ExternalAuthOptions>();
 
 var app = builder.Build();
 app.UseCookiePolicy(new CookiePolicyOptions

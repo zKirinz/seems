@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SEEMS.Models;
 using SEEMS.Models.Identities;
 using System;
 using System.Collections.Generic;
@@ -38,5 +39,21 @@ namespace SEEMS.Database
                 builder.AddFilter((category, level) =>
                 category == DbLoggerCategory.Database.Command.Name && (level == LogLevel.Warning))
                 .AddConsole());
+
+        public DbSet<Comments> Comments { get; set; }
+
+        public DbSet<CommentMeta> CommentMeta { get; set; }
+
+        public DbSet<ChainOfEvent> ChainOfEvent { get; set; }
+
+        public DbSet<Event> Event { get; set; }
+
+        public DbSet<EventMeta> EventMeta { get; set; }
+
+        public DbSet<Reservation> Reservation { get; set; }
+
+        public DbSet<FeedBack> FeedBack { get; set; }
+
+        public DbSet<InvoiceUser> InvoiceUser { get; set; }
     }
 }

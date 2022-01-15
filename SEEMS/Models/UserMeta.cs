@@ -9,13 +9,13 @@ namespace SEEMS.Models
         [Key]
         public int Id { get; set; }
 
-        [ForeignKey("User")]
+/*        [ForeignKey("User")]
         public int UserId { get; set; }
-
+*/
         public String MetaKey { get; set; }
 
         public String MetaValue { get; set; }
-
-        public User User { get; set; }
+/*
+        public User User { get; set; }*/
     }
 }
