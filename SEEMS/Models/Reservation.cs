@@ -15,8 +15,10 @@ namespace SEEMS.Models
 
         public DateTime LastUpdateAt { get; set; }
 
+        [Column(TypeName = "decimal(7,2)")]
         public decimal DiscountPercent { get; set; }
 
+        [Column(TypeName = "decimal(7,2)")]
         public decimal TotalPrice { get; set; }
 
         [ForeignKey("Event")]

@@ -1,12 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace SEEMS.Models
 {
-    public class User
+    public class User : IdentityUser<Guid>
     {
 
-        [Key]
-        public int Id { get; set; }
+/*        [Key]
+        public int Id { get; set; }*/
 
         [StringLength(50)]
         public String FullName { get; set; }
