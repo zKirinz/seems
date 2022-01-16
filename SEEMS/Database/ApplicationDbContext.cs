@@ -1,41 +1,74 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore;
 using SEEMS.Models;
-using SEEMS.Models.Identities;
 
 namespace SEEMS.Database
 {
-    public class IdentityDbContext : IdentityDbContext<
-        ApplicationUser,
-        ApplicationRole,
-        Guid,
-        ApplicationUserClaim,
-        ApplicationUserRole,
-        ApplictionUserLogin,
-        ApplicationRoleClaim,
-        ApplicationUserToken>
+    public class ApplicationDbContext : DbContext
     {
-        public DbSet<ApplicationUserDevice> ApplicationUserDevices { get; set; }
-
-        public IdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
 
-        //IPersistedGrantDbContext Interface
-
-        public static readonly ILoggerFactory PropertyAppLoggerFactory =
-            LoggerFactory.Create(builder =>
-                builder.AddFilter((category, level) =>
-                category == DbLoggerCategory.Database.Command.Name && (level == LogLevel.Warning))
-                .AddConsole());
-
-        protected override void OnModelCreating(ModelBuilder builder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(builder);
-            builder.UseIdentityColumns();
+            //User's Seed Data
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 1,
+                    FullName = "Lê Tiến Thịnh",
+                    EmailAddress = "thinhltse151082@fpt.edu.vn",
+                    CreateAt = DateTime.Now,
+                    LastUpDateAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = 2,
+                    FullName = "Trần Trung Kiên",
+                    EmailAddress = "kienttse151340@fptu.edu.vn",
+                    CreateAt = DateTime.Now,
+                    LastUpDateAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = 3,
+                    FullName = "Dương Gia Phát",
+                    EmailAddress = "phatdgse140409@fpt.edu.vn",
+                    CreateAt = DateTime.Now,
+
+                    LastUpDateAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = 4,
+                    FullName = "Nguyễn Khôi Nguyên",
+                    EmailAddress = "nguyennkse140132@fpt.edu.vn",
+                    CreateAt = DateTime.Now,
+                    LastUpDateAt = DateTime.Now,
+                },
+                new User
+                {
+                    Id = 5,
+                    FullName = "Bùi Thế Hiển",
+                    EmailAddress = "hienbtse150763@fpt.edu.vn",
+                    CreateAt = DateTime.Now,
+                    LastUpDateAt = DateTime.Now,
+                }
+            );
+
+
+            //UserMeta's Seed Data
+            modelBuilder.Entity<UserMeta>().HasData(
+                new UserMeta { Id = 1, UserId = 1, MetaKey = "role", MetaValue = "Admin" },
+                new UserMeta { Id = 2, UserId = 2, MetaKey = "role", MetaValue = "Admin" },
+                new UserMeta { Id = 3, UserId = 3, MetaKey = "role", MetaValue = "Admin" },
+                new UserMeta { Id = 4, UserId = 4, MetaKey = "role", MetaValue = "Admin" },
+                new UserMeta { Id = 5, UserId = 5, MetaKey = "role", MetaValue = "Admin" }
+            );
 
             //Reservation's Seed Data
-            builder.Entity<Reservation>().HasData(
+            modelBuilder.Entity<Reservation>().HasData(
                 new Reservation
                 {
                     Id = 1,
@@ -49,7 +82,7 @@ namespace SEEMS.Database
             );
 
             //ChainOfEvent's Seed Data
-            builder.Entity<ChainOfEvent>().HasData(
+            modelBuilder.Entity<ChainOfEvent>().HasData(
                 new ChainOfEvent
                 {
                     Id = 1,
@@ -58,7 +91,7 @@ namespace SEEMS.Database
                 });
 
             //Comment's Seed Data
-            builder.Entity<Comment>().HasData(
+            modelBuilder.Entity<Comment>().HasData(
                 new Comment
                 {
                     Id = 1,
@@ -66,6 +99,7 @@ namespace SEEMS.Database
                     CreateAt = DateTime.Now,
                     EventId = 2,
                     LastUpDateAt = DateTime.Now,
+                    UserId = 1,
                 },
                 new Comment
                 {
@@ -74,6 +108,7 @@ namespace SEEMS.Database
                     CreateAt = DateTime.Now,
                     EventId = 2,
                     LastUpDateAt = DateTime.Now,
+                    UserId = 2,
                     ParentCommentId = 1,
                 },
                 new Comment
@@ -83,6 +118,7 @@ namespace SEEMS.Database
                     CreateAt = DateTime.Now,
                     EventId = 2,
                     LastUpDateAt = DateTime.Now,
+                    UserId = 1,
                     ParentCommentId = 1,
                 },
                 new Comment
@@ -92,12 +128,13 @@ namespace SEEMS.Database
                     CreateAt = DateTime.Now,
                     EventId = 3,
                     LastUpDateAt = DateTime.Now,
+                    UserId = 5,
                 }
             );
 
 
             //Event's Seed Data
-            builder.Entity<Event>().HasData(
+            modelBuilder.Entity<Event>().HasData(
                 new Event
                 {
                     Id = 1,
@@ -148,6 +185,9 @@ namespace SEEMS.Database
             );
         }
 
+        public DbSet<User> User { get; set; }
+
+        public DbSet<UserMeta> UserMeta { get; set; }
 
         public DbSet<Comment> Comments { get; set; }
 
