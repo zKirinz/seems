@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material'
 
-const Introduction = ({ src, size }) => {
+const Introduction = ({ src, size, desc, title }) => {
     return (
         <Box
             sx={{
@@ -50,12 +50,12 @@ const Introduction = ({ src, size }) => {
                         sx={{
                             fontSize: { xs: '64px', md: '90px' },
                             fontWeight: '900',
-                            letterSpacing: (theme) => theme.spacing(1),
+                            letterSpacing: (theme) => theme.spacing(2),
                             mt: { xs: '24px' },
                         }}
                         color="secondary"
                     >
-                        SEEMS
+                        {title}
                     </Typography>
                     <Typography
                         paragraph
@@ -67,8 +67,7 @@ const Introduction = ({ src, size }) => {
                         }}
                         align="center"
                     >
-                        Nơi các bạn trẻ sinh viên có thể tìm kiếm các sự kiện vui nhộn, giải trí,
-                        hấp dẫn kinh doanh và học thuật thuộc vấn đề tài Software.
+                        {desc}
                     </Typography>
                 </Box>
             </Box>

@@ -1,6 +1,6 @@
 .anchorLink{
     text-decoration: none;
-    color: #fefefe;
+    color: #333;
 }
 .anchorLink span{
     transition: all 0.4s linear;
@@ -12,7 +12,7 @@
     position: absolute;
     left: 0;
     bottom: 0;
-    background-color: #fefefe;
+    background-color: #333;
     transition: all 0.3s linear;
     opacity: 0;
     width: 0;
@@ -24,4 +24,11 @@
 }
 .anchorLink:hover{
     opacity: 0.8;
+}
+
+.isActive{
+    color: #fefefe;
+}
+.isActive span::after{
+    background-color: #fefefe;
 }

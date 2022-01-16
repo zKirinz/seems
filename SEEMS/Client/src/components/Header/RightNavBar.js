@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 import { Logout, Notifications } from '@mui/icons-material'
 import {
@@ -18,7 +18,7 @@ import {
 
 import style from './RightNavBar.module.css'
 
-const RightNavBar = () => {
+const RightNavBar = ({ paths }) => {
     const [myAccountSettings, setMyAccountSetting] = useState(null)
     const open = Boolean(myAccountSettings)
 
@@ -40,26 +40,18 @@ const RightNavBar = () => {
                     pb: '10px',
                 }}
             >
-                <Link className={style.anchorLink} to="/about">
-                    <Typography sx={{ mr: 3 }} align="center" component="span">
-                        About
-                    </Typography>
-                </Link>
-                <Link className={style.anchorLink} to="/home">
-                    <Typography sx={{ mr: 3 }} align="center" component="span">
-                        Home
-                    </Typography>
-                </Link>
-                <Link className={style.anchorLink} to="/event">
-                    <Typography sx={{ mr: 3 }} align="center" component="span">
-                        Events
-                    </Typography>
-                </Link>
-                <Link className={style.anchorLink} to="/event">
-                    <Typography sx={{ mr: 3 }} align="center" component="span">
-                        Contact Us
-                    </Typography>
-                </Link>
+                {paths.map((path) => (
+                    <NavLink
+                        key={path.name}
+                        className={style.anchorLink}
+                        to={path.path}
+                        activeClassName={style.isActive}
+                    >
+                        <Typography sx={{ mr: 3 }} align="center" component="span">
+                            {path.text}
+                        </Typography>
+                    </NavLink>
+                ))}
                 <IconButton sx={{ mr: 1, minWidth: 60 }}>
                     <Badge badgeContent={4} color="secondary" overlap="circular">
                         <Notifications sx={{ color: '#fefefe' }} />

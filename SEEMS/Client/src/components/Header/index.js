@@ -1,41 +1,32 @@
-import { Link } from 'react-router-dom'
+import React from 'react'
 
-import { Avatar, CssBaseline, Grid } from '@mui/material'
+import { CssBaseline, Grid } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
-import { Box } from '@mui/system'
 
 import logo from '../../assets/images/logo.png'
+import Introduction from './Introduction'
+import LeftNavBar from './LeftNavBar'
 import RightNavBar from './RightNavBar'
 
-const Header = () => {
+const Header = ({ paths, src, title, size, desc }) => {
     return (
-        <AppBar position="fixed">
-            <Toolbar>
-                <Grid container>
-                    <CssBaseline />
-                    <Grid item xs={12} sm={6} md={6}>
-                        <Box
-                            sx={{
-                                display: { xs: 'flex' },
-                                justifyContent: { xs: 'center', sm: 'flex-start' },
-                            }}
-                        >
-                            <Link to="/home">
-                                <Avatar
-                                    sx={{ height: 80, width: 200 }}
-                                    src={logo}
-                                    alt="logo"
-                                ></Avatar>
-                            </Link>
-                        </Box>
+        <React.Fragment>
+            <AppBar position="fixed" color="primary">
+                <Toolbar>
+                    <Grid container>
+                        <CssBaseline />
+                        <Grid item xs={12} sm={6} md={6}>
+                            <LeftNavBar logo={logo} />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={6}>
+                            <RightNavBar paths={paths} />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6}>
-                        <RightNavBar />
-                    </Grid>
-                </Grid>
-            </Toolbar>
-        </AppBar>
+                </Toolbar>
+            </AppBar>
+            <Introduction src={src} size={size} title={title} desc={desc} />
+        </React.Fragment>
     )
 }
 
