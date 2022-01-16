@@ -69,12 +69,26 @@ namespace SEEMS.Database
 
             //Reservation's Seed Data
             modelBuilder.Entity<Reservation>().HasData(
-                new Reservation { Id = 1, Attend = true, CreateAt = DateTime.Now, LastUpdateAt = DateTime.Now, DiscountPercent = 0, TotalPrice = 0, EventId = 2 }
+                new Reservation
+                {
+                    Id = 1,
+                    Attend = true,
+                    CreateAt = DateTime.Now,
+                    LastUpdateAt = DateTime.Now,
+                    DiscountPercent = 0,
+                    TotalPrice = 0,
+                    EventId = 2
+                }
             );
 
             //ChainOfEvent's Seed Data
             modelBuilder.Entity<ChainOfEvent>().HasData(
-                new ChainOfEvent { Id = 1, CategoryName = "Telescope", ImageUrl = "https://cdn.britannica.com/60/190760-050-61999AEC/space-background-telescope-silhouette-NASA-image-elements.jpg" });
+                new ChainOfEvent
+                {
+                    Id = 1,
+                    CategoryName = "Telescope",
+                    ImageUrl = "https://cdn.britannica.com/60/190760-050-61999AEC/space-background-telescope-silhouette-NASA-image-elements.jpg"
+                });
 
             //Comment's Seed Data
             modelBuilder.Entity<Comment>().HasData(
