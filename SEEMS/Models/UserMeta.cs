@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SEEMS.Models.Identities;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SEEMS.Models
@@ -8,14 +9,10 @@ namespace SEEMS.Models
 
         [Key]
         public int Id { get; set; }
-
-/*        [ForeignKey("User")]
-        public int UserId { get; set; }
-*/
         public String MetaKey { get; set; }
 
         public String MetaValue { get; set; }
-/*
-        public User User { get; set; }*/
+        
+        public ApplicationUser? User { get; set; }
     }
 }

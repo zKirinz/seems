@@ -17,10 +17,14 @@ var configuration = builder.Configuration;
 
 // Add services to the container.
 
-services.AddControllersWithViews();
+services.AddControllersWithViews().AddJsonOptions(options =>
+{
+    // True to indent the JSON output
+    options.JsonSerializerOptions.WriteIndented = true;
+});
 
-services.AddIdentity<ApplicationUser, ApplicationRole>()
-     .AddEntityFrameworkStores<IdentityDbContext>();
+/*services.AddIdentity<ApplicationUser, ApplicationRole>()
+     .AddEntityFrameworkStores<IdentityDbContext>();*/
 
 // Add database services to the container.
 services.AddDbContext<IdentityDbContext>(options =>

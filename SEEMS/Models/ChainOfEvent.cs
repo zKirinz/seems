@@ -5,6 +5,7 @@ namespace SEEMS.Models
     public class ChainOfEvent
     {
         [Key]
+        [Required]
         public int Id { get; set; }
 
         [StringLength(20)]
