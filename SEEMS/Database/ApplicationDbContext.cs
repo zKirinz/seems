@@ -26,7 +26,7 @@ namespace SEEMS.Database
                 {
                     Id = 2,
                     FullName = "Trần Trung Kiên",
-                    EmailAddress = "thinhltse151082@fpt.edu.vn",
+                    EmailAddress = "kienttse151340@fptu.edu.vn",
                     CreateAt = DateTime.Now,
                     LastUpDateAt = DateTime.Now,
                 },
@@ -43,7 +43,7 @@ namespace SEEMS.Database
                 {
                     Id = 4,
                     FullName = "Nguyễn Khôi Nguyên",
-                    EmailAddress = "thinhltse151082@fpt.edu.vn",
+                    EmailAddress = "nguyennkse140132@fpt.edu.vn",
                     CreateAt = DateTime.Now,
                     LastUpDateAt = DateTime.Now,
                 },
@@ -51,7 +51,7 @@ namespace SEEMS.Database
                 {
                     Id = 5,
                     FullName = "Bùi Thế Hiển",
-                    EmailAddress = "thinhltse151082@fpt.edu.vn",
+                    EmailAddress = "hienbtse150763@fpt.edu.vn",
                     CreateAt = DateTime.Now,
                     LastUpDateAt = DateTime.Now,
                 }
