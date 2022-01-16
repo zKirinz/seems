@@ -12,6 +12,11 @@ const publicRoutes = [
         name: 'login',
         component: lazy(() => import('../pages/Login')),
     },
+    {
+        path: '/home',
+        name: 'home',
+        component: lazy(() => import('../pages/HomePage')),
+    },
 ]
 
 const privateRoutes = []

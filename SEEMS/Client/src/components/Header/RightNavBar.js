@@ -1,0 +1,124 @@
+import React, { useState } from 'react'
+
+import { Link } from 'react-router-dom'
+
+import { Logout, Notifications } from '@mui/icons-material'
+import {
+    Badge,
+    IconButton,
+    Avatar,
+    Tooltip,
+    Box,
+    Menu,
+    MenuItem,
+    Divider,
+    ListItemIcon,
+    Typography,
+} from '@mui/material'
+
+import style from './RightNavBar.module.css'
+
+const RightNavBar = () => {
+    const [myAccountSettings, setMyAccountSetting] = useState(null)
+    const open = Boolean(myAccountSettings)
+
+    const openAccountSettings = (event) => {
+        setMyAccountSetting(event.currentTarget)
+    }
+    const closeAccountSettings = () => {
+        setMyAccountSetting(null)
+    }
+
+    return (
+        <React.Fragment>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: { xs: 'center', sm: 'flex-end' },
+                    height: '100%',
+                    pb: '10px',
+                }}
+            >
+                <Link className={style.anchorLink} to="/about">
+                    <Typography sx={{ mr: 3 }} align="center" component="span">
+                        About
+                    </Typography>
+                </Link>
+                <Link className={style.anchorLink} to="/home">
+                    <Typography sx={{ mr: 3 }} align="center" component="span">
+                        Home
+                    </Typography>
+                </Link>
+                <Link className={style.anchorLink} to="/event">
+                    <Typography sx={{ mr: 3 }} align="center" component="span">
+                        Events
+                    </Typography>
+                </Link>
+                <Link className={style.anchorLink} to="/event">
+                    <Typography sx={{ mr: 3 }} align="center" component="span">
+                        Contact Us
+                    </Typography>
+                </Link>
+                <IconButton sx={{ mr: 1, minWidth: 60 }}>
+                    <Badge badgeContent={4} color="secondary" overlap="circular">
+                        <Notifications sx={{ color: '#fefefe' }} />
+                    </Badge>
+                </IconButton>
+                <Tooltip title="Account Settings">
+                    <IconButton onClick={openAccountSettings} size="small" sx={{ ml: 2 }}>
+                        <Avatar sx={{ width: 32, height: 32 }}>H</Avatar>
+                    </IconButton>
+                </Tooltip>
+            </Box>
+            <Menu
+                anchorEl={myAccountSettings}
+                id="account-menu"
+                open={open}
+                onClose={closeAccountSettings}
+                onClick={closeAccountSettings}
+                PaperProps={{
+                    elevation: 0,
+                    sx: {
+                        overflow: 'visible',
+                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                        mt: 1.5,
+                        '& .MuiAvatar-root': {
+                            width: 32,
+                            height: 32,
+                            ml: -0.5,
+                            mr: 1,
+                        },
+                        '&:before': {
+                            content: '""',
+                            display: 'block',
+                            position: 'absolute',
+                            top: 0,
+                            right: 14,
+                            width: 10,
+                            height: 10,
+                            bgcolor: 'background.paper',
+                            transform: 'translateY(-50%) rotate(45deg)',
+                            zIndex: 0,
+                        },
+                    },
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+                <MenuItem>
+                    <Avatar /> Profile
+                </MenuItem>
+                <Divider />
+                <MenuItem>
+                    <ListItemIcon>
+                        <Logout fontSize="small" />
+                    </ListItemIcon>
+                    Logout
+                </MenuItem>
+            </Menu>
+        </React.Fragment>
+    )
+}
+
+export default RightNavBar
