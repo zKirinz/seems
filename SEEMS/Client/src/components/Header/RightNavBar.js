@@ -15,6 +15,7 @@ import {
     ListItemIcon,
     Typography,
 } from '@mui/material'
+import { deepOrange } from '@mui/material/colors'
 
 import style from './RightNavBar.module.css'
 
@@ -37,7 +38,6 @@ const RightNavBar = ({ paths }) => {
                     alignItems: 'center',
                     justifyContent: { xs: 'center', sm: 'flex-end' },
                     height: '100%',
-                    pb: '10px',
                 }}
             >
                 {paths.map((path) => (
@@ -47,19 +47,23 @@ const RightNavBar = ({ paths }) => {
                         to={path.path}
                         activeClassName={style.isActive}
                     >
-                        <Typography sx={{ mr: 3 }} align="center" component="span">
+                        <Typography
+                            sx={{ mr: 3, fontSize: { sm: 14 } }}
+                            align="center"
+                            component="span"
+                        >
                             {path.text}
                         </Typography>
                     </NavLink>
                 ))}
                 <IconButton sx={{ mr: 1, minWidth: 60 }}>
-                    <Badge badgeContent={4} color="secondary" overlap="circular">
-                        <Notifications sx={{ color: '#fefefe' }} />
+                    <Badge badgeContent={4} color="primary" overlap="circular" variant="dot">
+                        <Notifications sx={{ color: (theme) => theme.palette.grey[100] }} />
                     </Badge>
                 </IconButton>
                 <Tooltip title="Account Settings">
-                    <IconButton onClick={openAccountSettings} size="small" sx={{ ml: 2 }}>
-                        <Avatar sx={{ width: 32, height: 32 }}>H</Avatar>
+                    <IconButton onClick={openAccountSettings} size="small">
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: deepOrange[500] }}>H</Avatar>
                     </IconButton>
                 </Tooltip>
             </Box>

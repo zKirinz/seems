@@ -5,14 +5,13 @@ import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 
 import logo from '../../assets/images/logo.png'
-import Introduction from './Introduction'
 import LeftNavBar from './LeftNavBar'
 import RightNavBar from './RightNavBar'
 
-const Header = ({ paths, src, title, size, desc }) => {
+const Header = ({ paths }) => {
     return (
         <React.Fragment>
-            <AppBar position="fixed" color="primary">
+            <AppBar position="fixed" color="secondary">
                 <Toolbar>
                     <Grid container>
                         <CssBaseline />
@@ -25,7 +24,6 @@ const Header = ({ paths, src, title, size, desc }) => {
                     </Grid>
                 </Toolbar>
             </AppBar>
-            <Introduction src={src} size={size} title={title} desc={desc} />
         </React.Fragment>
     )
 }

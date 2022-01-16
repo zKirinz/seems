@@ -1,5 +1,13 @@
 import { Box, Typography } from '@mui/material'
 
+const fullScreenAbsolute = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+}
+
 const Introduction = ({ src, size, desc, title }) => {
     return (
         <Box
@@ -7,7 +15,6 @@ const Introduction = ({ src, size, desc, title }) => {
                 marginTop: (theme) => theme.spacing(10),
                 height: '400px',
                 backgroundImage: `url(${src})`,
-                width: '100%',
                 backgroundPosition: 'center',
                 backgroundSize: size,
                 backgroundRepeat: 'no-repeat',
@@ -16,23 +23,15 @@ const Introduction = ({ src, size, desc, title }) => {
         >
             <Box
                 sx={{
-                    top: 0,
-                    right: 0,
-                    left: 0,
-                    bottom: 0,
+                    ...fullScreenAbsolute,
                     backgroundColor: 'rgba(0,0,0,.7)',
                     zIndex: 1,
                 }}
-                position="absolute"
             ></Box>
             <Box
-                position="absolute"
                 sx={{
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 3,
+                    ...fullScreenAbsolute,
+                    zIndex: 2,
                     py: 5,
                     px: 10,
                 }}
@@ -48,12 +47,17 @@ const Introduction = ({ src, size, desc, title }) => {
                     <Typography
                         component="h1"
                         sx={{
-                            fontSize: { xs: '64px', md: '90px' },
-                            fontWeight: '900',
                             letterSpacing: (theme) => theme.spacing(2),
-                            mt: { xs: '24px' },
+                            mt: (theme) => theme.spacing(2),
                         }}
-                        color="secondary"
+                        fontSize={{
+                            lg: 90,
+                            md: 70,
+                            sm: 50,
+                            xs: 40,
+                        }}
+                        color="primary"
+                        fontWeight={900}
                     >
                         {title}
                     </Typography>
@@ -61,9 +65,12 @@ const Introduction = ({ src, size, desc, title }) => {
                         paragraph
                         color="secondary"
                         sx={{
-                            fontSize: { xs: '16px', sm: '24px' },
                             maxWidth: '800px',
                             mt: (theme) => theme.spacing(3),
+                        }}
+                        fontSize={{
+                            sm: 24,
+                            xs: 16,
                         }}
                         align="center"
                     >
