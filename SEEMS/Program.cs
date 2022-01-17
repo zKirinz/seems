@@ -109,6 +109,12 @@ services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.Strict;
 });
 
+services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Admin"));
+    options.AddPolicy("Organizer", policy => policy.RequireClaim("Organizer"));
+});
+
 var app = builder.Build();
 app.UseCookiePolicy(new CookiePolicyOptions
 {
