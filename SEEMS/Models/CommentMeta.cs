@@ -16,7 +16,7 @@ namespace SEEMS.Models
 
         public String MetaValue { get; set; }
 
-        public Comments Comments { get; set; }
+        public Comment Comments { get; set; }
 
     }
 }

@@ -10,7 +10,7 @@ namespace SEEMS.Models
         public int Id { get; set; }
 
         [StringLength(100)]
-        public String EventTittle { get; set; }
+        public String EventTitle { get; set; }
 
 
         [StringLength(255)]
@@ -42,7 +42,7 @@ namespace SEEMS.Models
 
         public List<Reservation>? Reservations { get; set; }
 
-        public List<Comments>? Comments { get; set; }
+        public List<Comment>? Comments { get; set; }
 
 
     }
