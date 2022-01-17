@@ -8,10 +8,10 @@ const Gallery = ({ gallery }) => {
     return (
         <React.Fragment>
             <TitleHomePage
-                color="secondary"
+                color="primary"
                 variant="h4"
                 title="Gallery"
-                mt={3}
+                mt={5}
                 mb={2}
                 align="center"
             />
@@ -25,7 +25,12 @@ const Gallery = ({ gallery }) => {
                             <Avatar
                                 src={item.src}
                                 alt="gallery-item"
-                                sx={{ width: '100%', height: '450px', overflow: 'unset' }}
+                                sx={{
+                                    maxWidth: '450px',
+                                    height: '450px',
+                                    overflow: 'unset',
+                                    width: '100%',
+                                }}
                             ></Avatar>
                             <Card
                                 className="dropdown"
@@ -45,7 +50,7 @@ const Gallery = ({ gallery }) => {
                                 <CardContent>
                                     <TitleHomePage
                                         color="primary.contrastText"
-                                        variant="h3"
+                                        variant="h4"
                                         title="Title here"
                                         align="left"
                                     />

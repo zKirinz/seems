@@ -10,7 +10,7 @@ import RightDetail from './RightDetail'
 const CurrentEvent = ({ currentEvents }) => {
     return (
         <React.Fragment>
-            <TitleHomePage title="Event" variant="h4" color="secondary" align="center" />
+            <TitleHomePage title="Event" variant="h4" color="primary" align="center" />
             <TimeText variant="h3" color="#ce1446" time="16/01/2022" component="h1" stroke={true} />
             <Box>
                 {currentEvents.map((currentEvent) => (

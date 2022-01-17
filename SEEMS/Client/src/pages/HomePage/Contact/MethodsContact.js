@@ -9,7 +9,7 @@ const MethodsContact = ({ name, content }) => {
     return (
         <Card elevation={3}>
             <CardContent sx={{ textAlign: 'center' }}>
-                <IconButton color="secondary" size="large">
+                <IconButton color="primary" size="large">
                     {name === 'Email' ? <EmailIcon /> : name === 'Phone' ? <Phone /> : <HomeIcon />}
                 </IconButton>
                 <Typography>{name}</Typography>

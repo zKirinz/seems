@@ -13,7 +13,7 @@ const publicRoutes = [
         component: lazy(() => import('../pages/Login')),
     },
     {
-        path: '/home',
+        path: '/',
         name: 'home',
         component: lazy(() => import('../pages/HomePage')),
     },

@@ -14,12 +14,13 @@ import {
     Divider,
     ListItemIcon,
     Typography,
+    Link,
 } from '@mui/material'
-import { deepOrange } from '@mui/material/colors'
+import { orange } from '@mui/material/colors'
 
 import style from './RightNavBar.module.css'
 
-const RightNavBar = ({ paths }) => {
+const RightNavBar = ({ paths, internalLinks }) => {
     const [myAccountSettings, setMyAccountSetting] = useState(null)
     const open = Boolean(myAccountSettings)
 
@@ -29,6 +30,37 @@ const RightNavBar = ({ paths }) => {
     const closeAccountSettings = () => {
         setMyAccountSetting(null)
     }
+
+    const NavLinks = paths.map((path) => (
+        <NavLink
+            key={path.name}
+            className={style.anchorLink}
+            to={path.path}
+            activeClassName={style.isActive}
+        >
+            <Typography
+                sx={{ mr: 3, fontSize: { sm: 14 } }}
+                align="center"
+                component="span"
+                fontWeight={700}
+            >
+                {path.text}
+            </Typography>
+        </NavLink>
+    ))
+
+    const InternalLinks = internalLinks.map((link) => (
+        <Link key={link.name} className={style.anchorLink} href={link.link}>
+            <Typography
+                sx={{ mr: 3, fontSize: { sm: 14 } }}
+                align="center"
+                component="span"
+                fontWeight={700}
+            >
+                {link.text}
+            </Typography>
+        </Link>
+    ))
 
     return (
         <React.Fragment>
@@ -40,30 +72,16 @@ const RightNavBar = ({ paths }) => {
                     height: '100%',
                 }}
             >
-                {paths.map((path) => (
-                    <NavLink
-                        key={path.name}
-                        className={style.anchorLink}
-                        to={path.path}
-                        activeClassName={style.isActive}
-                    >
-                        <Typography
-                            sx={{ mr: 3, fontSize: { sm: 14 } }}
-                            align="center"
-                            component="span"
-                        >
-                            {path.text}
-                        </Typography>
-                    </NavLink>
-                ))}
+                {NavLinks}
+                {InternalLinks}
                 <IconButton sx={{ mr: 1, minWidth: 60 }}>
-                    <Badge badgeContent={4} color="primary" overlap="circular" variant="dot">
+                    <Badge badgeContent={4} color="secondary" overlap="circular" variant="dot">
                         <Notifications sx={{ color: (theme) => theme.palette.grey[100] }} />
                     </Badge>
                 </IconButton>
                 <Tooltip title="Account Settings">
                     <IconButton onClick={openAccountSettings} size="small">
-                        <Avatar sx={{ width: 32, height: 32, bgcolor: deepOrange[500] }}>H</Avatar>
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: orange[500] }}>H</Avatar>
                     </IconButton>
                 </Tooltip>
             </Box>

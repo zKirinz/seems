@@ -3,7 +3,7 @@ import { Box, Avatar, Typography } from '@mui/material'
 
 const LeftDetail = ({ speaker, major, roomNum, time }) => {
     return (
-        <Box sx={{ backgroundColor: 'secondary.light', pt: 3 }}>
+        <Box sx={{ backgroundColor: 'primary.light', pt: 3 }}>
             <TimeText
                 color="primary.contrastText"
                 variant="h5"

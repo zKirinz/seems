@@ -8,18 +8,18 @@ import logo from '../../assets/images/logo.png'
 import LeftNavBar from './LeftNavBar'
 import RightNavBar from './RightNavBar'
 
-const Header = ({ paths }) => {
+const Header = ({ paths, internalLinks }) => {
     return (
         <React.Fragment>
-            <AppBar position="fixed" color="secondary">
+            <AppBar position="fixed">
                 <Toolbar>
                     <Grid container>
                         <CssBaseline />
-                        <Grid item xs={12} sm={6} md={6}>
+                        <Grid item xs={12} sm={4} md={4}>
                             <LeftNavBar logo={logo} />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={6}>
-                            <RightNavBar paths={paths} />
+                        <Grid item xs={12} sm={8} md={8}>
+                            <RightNavBar paths={paths} internalLinks={internalLinks} />
                         </Grid>
                     </Grid>
                 </Toolbar>

@@ -7,7 +7,7 @@ const RightDetail = ({ title, content, topics }) => {
                 <Typography
                     component="h1"
                     fontWeight={700}
-                    color="secondary"
+                    color="primary.dark"
                     sx={{ fontSize: { md: 20, lg: 24, sm: 18 } }}
                 >
                     {title}

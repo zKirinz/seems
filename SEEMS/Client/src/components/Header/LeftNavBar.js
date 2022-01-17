@@ -11,7 +11,14 @@ const LeftNavBar = ({ logo }) => {
             }}
         >
             <Link to="/home">
-                <Avatar sx={{ height: 80, width: 200 }} src={logo} alt="logo"></Avatar>
+                <Box
+                    sx={{
+                        backgroundColor: (theme) => theme.palette.grey[100],
+                        borderRadius: (theme) => theme.shape.borderRadius,
+                    }}
+                >
+                    <Avatar sx={{ height: 80, width: 200 }} src={logo} alt="logo"></Avatar>
+                </Box>
             </Link>
         </Box>
     )

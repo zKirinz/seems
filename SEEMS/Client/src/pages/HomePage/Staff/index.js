@@ -9,7 +9,7 @@ const Staffs = ({ staffs }) => {
     return (
         <React.Fragment>
             <TitleHomePage
-                color="secondary"
+                color="primary"
                 variant="h4"
                 title="Our Staffs"
                 mt={5}
@@ -18,7 +18,9 @@ const Staffs = ({ staffs }) => {
             />
             <Grid container spacing={5} columns={{ md: 12, sm: 8, xs: 6 }} id="staff">
                 {staffs.map((staff) => (
-                    <StaffMember {...staff} key={staff.id} />
+                    <Grid item sm={4} xs={6} md={4} key={staff.id}>
+                        <StaffMember {...staff} />
+                    </Grid>
                 ))}
             </Grid>
         </React.Fragment>

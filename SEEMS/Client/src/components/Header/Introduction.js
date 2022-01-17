@@ -47,16 +47,16 @@ const Introduction = ({ src, size, desc, title }) => {
                     <Typography
                         component="h1"
                         sx={{
-                            letterSpacing: (theme) => theme.spacing(2),
+                            letterSpacing: (theme) => theme.spacing(1),
                             mt: (theme) => theme.spacing(2),
                         }}
                         fontSize={{
                             lg: 90,
                             md: 70,
-                            sm: 50,
-                            xs: 40,
+                            sm: 60,
+                            xs: 50,
                         }}
-                        color="primary"
+                        color="secondary"
                         fontWeight={900}
                     >
                         {title}

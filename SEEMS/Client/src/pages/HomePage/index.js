@@ -1,15 +1,19 @@
 import { Fragment } from 'react'
 
+import Footer from '../../components/Footer'
 import Header from '../../components/Header'
 import Introduction from '../../components/Header/Introduction'
 import { Box } from '@mui/material'
 
+import AboutUs from './AboutUs/index'
+import Contact from './Contact'
 import CurrentEvent from './CurrentEvent'
 import Gallery from './Gallery'
+import Staffs from './Staff'
 
 const introHeaderImage = {
     title: 'SEEMS',
-    desc: 'Nơi các bạn trẻ sinh viên FPT có thể tìm kiếm các sự kiện vui nhộn, giải trí, hấp dẫn kinh doanh và học thuật thuộc đề tài Software.',
+    desc: 'Nơi các bạn trẻ sinh viên FPT sẽ được tìm kiếm và tiếp xúc với nhiều sự kiện, hoạt động liên quan tới lĩnh vực kinh doanh và học thuật của ngành phần mềm.',
     src: 'https://media-exp1.licdn.com/dms/image/C5616AQEMxYQLodosUA/profile-displaybackgroundimage-shrink_200_800/0/1630122993980?e=1648080000&v=beta&t=qRUkeRz5I8u5kb9NweehGZPucpXkmJ6FIEwPCfdZ0Os',
     size: '100% 100%',
 }
@@ -36,19 +40,22 @@ const paths = [
         text: 'Home',
     },
     {
-        path: '/about',
+        path: '/events',
+        name: 'events',
+        text: 'Events',
+    },
+]
+
+const internalLinks = [
+    {
+        link: '#about',
         name: 'about',
         text: 'About',
     },
     {
-        path: '/contact',
+        link: '#contact',
         name: 'contact',
         text: 'Contact Us',
-    },
-    {
-        path: '/events',
-        name: 'events',
-        text: 'Events',
     },
 ]
 
@@ -78,7 +85,7 @@ const currentEvents = [
         ],
     },
     {
-        id: 1,
+        id: 2,
         speaker: 'Joseph John',
         time: '10.00 AM - 11.30PM',
         roomNum: '01',
@@ -103,10 +110,68 @@ const currentEvents = [
     },
 ]
 
+const staffs = [
+    {
+        id: 1,
+        src: 'https://scontent.fsgn8-2.fna.fbcdn.net/v/t1.6435-9/103443255_2761752794044416_7990135765714193388_n.jpg?_nc_cat=105&ccb=1-5&_nc_sid=174925&_nc_ohc=4qWmtQTcT24AX977Wmn&_nc_ht=scontent.fsgn8-2.fna&oh=00_AT_UlBxRZARTMta7ceMoDkO3ja6NmXbldI5XRERD8hRsnw&oe=620ABA7C',
+        name: 'Hachiman Hikigaya',
+        description: 'Description here',
+        role: 'Role here',
+    },
+    {
+        id: 2,
+        src: 'https://scontent.fsgn8-2.fna.fbcdn.net/v/t1.6435-9/103443255_2761752794044416_7990135765714193388_n.jpg?_nc_cat=105&ccb=1-5&_nc_sid=174925&_nc_ohc=4qWmtQTcT24AX977Wmn&_nc_ht=scontent.fsgn8-2.fna&oh=00_AT_UlBxRZARTMta7ceMoDkO3ja6NmXbldI5XRERD8hRsnw&oe=620ABA7C',
+        name: 'Hachiman Hikigaya',
+        description: 'Description here',
+        role: 'Role here',
+    },
+    {
+        id: 3,
+        src: 'https://scontent.fsgn8-2.fna.fbcdn.net/v/t1.6435-9/103443255_2761752794044416_7990135765714193388_n.jpg?_nc_cat=105&ccb=1-5&_nc_sid=174925&_nc_ohc=4qWmtQTcT24AX977Wmn&_nc_ht=scontent.fsgn8-2.fna&oh=00_AT_UlBxRZARTMta7ceMoDkO3ja6NmXbldI5XRERD8hRsnw&oe=620ABA7C',
+        name: 'Hachiman Hikigaya',
+        description: 'Description here',
+        role: 'Role here',
+    },
+]
+
+const methodsContact = [
+    {
+        name: 'Location',
+        content: 'XYZ Address',
+    },
+    {
+        name: 'Phone',
+        content: '0904******',
+    },
+    {
+        name: 'Email',
+        content: 'XYZ@event.com',
+    },
+]
+
+const imageList = [
+    {
+        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png',
+        size: 'cover',
+    },
+    {
+        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134780/Zoohackathon.png',
+        size: 'contain',
+    },
+    {
+        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Telescope.jpg',
+        size: 'contain',
+    },
+    {
+        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
+        size: 'contain',
+    },
+]
+
 const HomePage = () => {
     return (
         <Fragment>
-            <Header paths={paths} />
+            <Header paths={paths} internalLinks={internalLinks} />
             <Introduction
                 src={introHeaderImage.src}
                 size={introHeaderImage.size}
@@ -119,7 +184,11 @@ const HomePage = () => {
             >
                 <CurrentEvent currentEvents={currentEvents} />
                 <Gallery gallery={gallery} />
+                <Staffs staffs={staffs} />
+                <AboutUs imageList={imageList} />
+                <Contact contacts={methodsContact} />
             </Box>
+            <Footer />
         </Fragment>
     )
 }
