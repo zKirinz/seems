@@ -1,6 +1,7 @@
 ﻿using SEEMS.Models.Identities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
@@ -15,7 +16,7 @@ namespace SEEMS.Models
         [Column(TypeName = ("nvarchar(200)"))]
         public String CommentContent { get; set; }
 
-        public int CommentRating { get; set; }
+        public int? CommentRating { get; set; }
 
         [ForeignKey("Comment")]
         public int? ParentCommentId { get; set; }
@@ -25,12 +26,15 @@ namespace SEEMS.Models
 
         public DateTime CreateAt { get; set; }
 
-        public DateTime LastUpDateAt { get; set; }
+        public DateTime? LastUpDateAt { get; set; }
 
+        [JsonIgnore]
         public Event? Event { get; set; }
 
+        [JsonIgnore]
         public ApplicationUser? User { get; set; }
 
+        [JsonIgnore]
         public Comment? ParentComment { get; set; }
     }
 }

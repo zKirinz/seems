@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
@@ -22,6 +23,7 @@ namespace SEEMS.Models
 
         public DateTime LastUpdateAt { get; set; }
 
+        [JsonIgnore]
         public Reservation Reservation { get; set; }
 
     }

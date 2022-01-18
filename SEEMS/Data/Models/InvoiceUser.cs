@@ -1,6 +1,7 @@
 ﻿using SEEMS.Models.Identities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
@@ -21,8 +22,10 @@ namespace SEEMS.Models
 
         public String PaymentMethods { get; set; }
 
+        [JsonIgnore]
         public ApplicationUser? User { get; set; }
 
+        [JsonIgnore]
         public Reservation Reservation { get; set; }
     }
 }
