@@ -23,24 +23,31 @@ namespace SEEMS.Controller
         [HttpPost("add-event")]
         public IActionResult Post([FromBody] EventDTO eventDTO)
         {
-            try
+            //try
+            //{
+            if (!ModelState.IsValid)
+            {
+                //throw new InvalidOperationException();
+                return BadRequest();
+            }
+            else
             {
                 var _event = _mapper.Map<Event>(eventDTO);
                 _context.Events.Add(_event);
                 _context.SaveChanges();
+                return Ok(eventDTO);
             }
-            catch (Exception ex)
-        {
-                return BadRequest();
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //}
 
-            return Ok(eventDTO);
         }
 
-        [HttpGet("test")]
+        [HttpGet()]
         public IActionResult Get()
         {
-            return Ok("Ditme");
+            return Ok();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
@@ -16,6 +17,7 @@ namespace SEEMS.Models
         [StringLength(255)]
         public String EventDescription { get; set; }
 
+        [JsonIgnore]
         [ForeignKey("ChainOfEvent")]
         public int? ChainOfEventId { get; set; }
 
