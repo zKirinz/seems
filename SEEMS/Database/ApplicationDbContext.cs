@@ -15,7 +15,7 @@ namespace SEEMS.Database
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
-                    Id = 1,
+                    Id = -1,
                     FullName = "Lê Tiến Thịnh",
                     EmailAddress = "thinhltse151082@fpt.edu.vn",
                     CreateAt = DateTime.Now,
@@ -23,7 +23,7 @@ namespace SEEMS.Database
                 },
                 new User
                 {
-                    Id = 2,
+                    Id = -2,
                     FullName = "Trần Trung Kiên",
                     EmailAddress = "kienttse151340@fptu.edu.vn",
                     CreateAt = DateTime.Now,
@@ -31,7 +31,7 @@ namespace SEEMS.Database
                 },
                 new User
                 {
-                    Id = 3,
+                    Id = -3,
                     FullName = "Dương Gia Phát",
                     EmailAddress = "phatdgse140409@fpt.edu.vn",
                     CreateAt = DateTime.Now,
@@ -40,7 +40,7 @@ namespace SEEMS.Database
                 },
                 new User
                 {
-                    Id = 4,
+                    Id = -4,
                     FullName = "Nguyễn Khôi Nguyên",
                     EmailAddress = "nguyennkse140132@fpt.edu.vn",
                     CreateAt = DateTime.Now,
@@ -48,7 +48,7 @@ namespace SEEMS.Database
                 },
                 new User
                 {
-                    Id = 5,
+                    Id = -5,
                     FullName = "Bùi Thế Hiển",
                     EmailAddress = "hienbtse150763@fpt.edu.vn",
                     CreateAt = DateTime.Now,
@@ -184,24 +184,24 @@ namespace SEEMS.Database
             );
         }
 
-        public DbSet<User> User { get; set; }
+        public DbSet<User> Users { get; set; }
 
-        public DbSet<UserMeta> UserMeta { get; set; }
+        public DbSet<UserMeta> UserMetas { get; set; }
 
         public DbSet<Comment> Comments { get; set; }
 
-        public DbSet<CommentMeta> CommentMeta { get; set; }
+        public DbSet<CommentMeta> CommentMetas { get; set; }
 
-        public DbSet<ChainOfEvent> ChainOfEvent { get; set; }
+        public DbSet<ChainOfEvent> ChainOfEvents { get; set; }
 
-        public DbSet<Event> Event { get; set; }
+        public DbSet<Event> Events { get; set; }
 
-        public DbSet<EventMeta> EventMeta { get; set; }
+        public DbSet<EventMeta> EventMetas { get; set; }
 
-        public DbSet<Reservation> Reservation { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
 
-        public DbSet<FeedBack> FeedBack { get; set; }
+        public DbSet<FeedBack> FeedBacks { get; set; }
 
-        public DbSet<InvoiceUser> InvoiceUser { get; set; }
+        public DbSet<InvoiceUser> InvoiceUsers { get; set; }
     }
 }
