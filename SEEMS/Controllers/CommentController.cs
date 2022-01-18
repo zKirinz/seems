@@ -21,8 +21,33 @@ namespace SEEMS.Controller
             this._mapper = mapper;
         }
 
+        // GET api/<CommentController>
+        // Get all comment by EventId
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+
+            var events = _context.Events.FirstOrDefault(e => e.Id == id);
+
+            if(events == null)
+            {
+                return BadRequest();
+            }
+
+            var listComment = _context.Comments.Where(c => c.EventId == id).ToList();
+
+            if (!listComment.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(listComment);
+
+        }
 
         // POST api/<CommentController>
+        // Create a comment
         [HttpPost]
         public IActionResult Post([FromBody] CommentDto item)
         {
@@ -45,10 +70,13 @@ namespace SEEMS.Controller
             }
 
             return Ok(newComment);
+
+
         }
 
 
-        // DELETE api/<CommentController>/5
+        // DELETE api/<CommentController>/
+        // Delete comment by Id
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
@@ -68,7 +96,7 @@ namespace SEEMS.Controller
 
             try
             {
-                _context.Remove(events);
+                _context.Comments.Remove(comment);
                 _context.SaveChanges(true);
             }
             catch (Exception ex)
