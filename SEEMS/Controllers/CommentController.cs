@@ -36,7 +36,7 @@ namespace SEEMS.Controller
 
             try
             {
-                _context.Add(newComment);
+                _context.Comments.Add(newComment);
                 _context.SaveChanges();
             }
             catch (Exception ex)
@@ -45,8 +45,6 @@ namespace SEEMS.Controller
             }
 
             return Ok(newComment);
-
-
         }
 
 
@@ -61,7 +59,7 @@ namespace SEEMS.Controller
                 return BadRequest();
             }
 
-            var events = _context.Event.FirstOrDefault(e => e.Id == comment.EventId);
+            var events = _context.Events.FirstOrDefault(e => e.Id == comment.EventId);
 
             if (events == null)
             {

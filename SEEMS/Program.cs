@@ -119,7 +119,7 @@ services.AddSingleton<IAuthService, AuthService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(typeof(MapperProfiles));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 var app = builder.Build();
 app.UseCookiePolicy(new CookiePolicyOptions
