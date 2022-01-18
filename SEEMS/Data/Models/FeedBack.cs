@@ -7,6 +7,7 @@ namespace SEEMS.Models
     {
 
         [Key]
+        [Required]
         public int Id { get; set; }
 
         [StringLength(100)]
