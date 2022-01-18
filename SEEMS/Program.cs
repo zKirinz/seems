@@ -4,7 +4,6 @@ using SEEMS.Configs;
 using SEEMS.Data.DTO;
 using SEEMS.Database;
 using SEEMS.Models;
-using SEEMS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +12,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnection"));
 });
-builder.Services.AddTransient<EventService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(MappingProfile));

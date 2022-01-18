@@ -59,11 +59,11 @@ namespace SEEMS.Database
 
             //UserMeta's Seed Data
             modelBuilder.Entity<UserMeta>().HasData(
-                new UserMeta { Id = 1, UserId = 1, MetaKey = "role", MetaValue = "Admin" },
-                new UserMeta { Id = 2, UserId = 2, MetaKey = "role", MetaValue = "Admin" },
-                new UserMeta { Id = 3, UserId = 3, MetaKey = "role", MetaValue = "Admin" },
-                new UserMeta { Id = 4, UserId = 4, MetaKey = "role", MetaValue = "Admin" },
-                new UserMeta { Id = 5, UserId = 5, MetaKey = "role", MetaValue = "Admin" }
+                new UserMeta { Id = 1, UserId = -1, MetaKey = "role", MetaValue = "Admin" },
+                new UserMeta { Id = 2, UserId = -2, MetaKey = "role", MetaValue = "Admin" },
+                new UserMeta { Id = 3, UserId = -3, MetaKey = "role", MetaValue = "Admin" },
+                new UserMeta { Id = 4, UserId = -4, MetaKey = "role", MetaValue = "Admin" },
+                new UserMeta { Id = 5, UserId = -5, MetaKey = "role", MetaValue = "Admin" }
             );
 
             //Reservation's Seed Data
@@ -186,11 +186,11 @@ namespace SEEMS.Database
 
         public DbSet<User> Users { get; set; }
 
-        public DbSet<UserMeta> UserMetas { get; set; }
+        public DbSet<UserMeta> UserMetas{ get; set; }
 
         public DbSet<Comment> Comments { get; set; }
 
-        public DbSet<CommentMeta> CommentMetas { get; set; }
+        public DbSet<CommentMeta> CommentMetas{ get; set; }
 
         public DbSet<ChainOfEvent> ChainOfEvents { get; set; }
 
@@ -198,7 +198,7 @@ namespace SEEMS.Database
 
         public DbSet<EventMeta> EventMetas { get; set; }
 
-        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<Reservation> Reservations{ get; set; }
 
         public DbSet<FeedBack> FeedBacks { get; set; }
 
