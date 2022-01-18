@@ -7,11 +7,6 @@ using SEEMS.Models;
 using SEEMS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var mapperConfig = new MapperConfiguration(cfg =>
-{
-    cfg.AddProfile(new MappingProfile());
-});
-var mapper = mapperConfig.CreateMapper();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -21,6 +16,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddTransient<EventService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 var app = builder.Build();
 
