@@ -41,7 +41,6 @@ namespace SEEMS.Controller
                 return BadRequest();
             }
             return Ok(eventDTO);
-
         }
 
         [HttpGet()]
