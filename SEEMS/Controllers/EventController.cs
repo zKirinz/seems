@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SEEMS.Data.DTO;
-using SEEMS.Services;
+using SEEMS.Database;
+using SEEMS.Models;
 
 namespace SEEMS.Controller
 {
