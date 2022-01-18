@@ -13,9 +13,9 @@ namespace SEEMS.Controller
     public class CommentController : ControllerBase
     {
 
-        private readonly ApplicationDbContext _context;
+        private readonly IdentityDbContext _context;
         private readonly IMapper _mapper;
-        public CommentController(ApplicationDbContext context, IMapper mapper)
+        public CommentController(IdentityDbContext context, IMapper mapper)
         {
             this._context = context;
             this._mapper = mapper;

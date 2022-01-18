@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SEEMS.Models.Identities;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -8,11 +9,11 @@ namespace SEEMS.Models
     {
 
         [Key]
+        [Required]
         public int Id { get; set; }
 
         [StringLength(100)]
         public String EventTitle { get; set; }
-
 
         [StringLength(255)]
         public String EventDescription { get; set; }
@@ -26,6 +27,7 @@ namespace SEEMS.Models
         [StringLength(255)]
         public String ImageUrl { get; set; }
 
+        [Column(TypeName = "decimal(7,2)")]
         public decimal ExpectPrice { get; set; }
 
         public bool Active { get; set; }
@@ -40,12 +42,13 @@ namespace SEEMS.Models
 
         public DateTime LastUpdateAt { get; set; }
 
+        public ApplicationUser? Client { get; set; }
+
         public ChainOfEvent? ChainOfEvent { get; set; }
 
         public List<Reservation>? Reservations { get; set; }
 
         public List<Comment>? Comments { get; set; }
-
 
     }
 }
