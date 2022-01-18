@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SEEMS.Data.DTO;
 using SEEMS.Services;
@@ -10,19 +11,35 @@ namespace SEEMS.Controller
     public class EventController : ControllerBase
 
     {
-        public EventService _eventService;
-
-        public EventController(EventService eventService)
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
+        public EventController(ApplicationDbContext context, IMapper mapper)
         {
-            _eventService = eventService;
+            this._context = context;
+            this._mapper = mapper;
         }
 
         [HttpPost("add-event")]
-        public IActionResult AddEvent([FromBody] EventDTO eventDTO)
+        public IActionResult Post([FromBody] EventDTO eventDTO)
         {
-            _eventService.AddEvent(eventDTO);
+            try
+            {
+                var _event = _mapper.Map<Event>(eventDTO);
+                _context.Events.Add(_event);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+        {
+                return BadRequest();
+            }
 
-            return Ok();
+            return Ok(eventDTO);
+        }
+
+        [HttpGet("test")]
+        public IActionResult Get()
+        {
+            return Ok("Ditme");
         }
     }
 }
