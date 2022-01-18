@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SEEMS.Data.DTO;
-using SEEMS.Database;
-using SEEMS.Models;
+using SEEMS.Services;
 
 namespace SEEMS.Controller
 {
@@ -30,7 +29,7 @@ namespace SEEMS.Controller
                 _context.SaveChanges();
             }
             catch (Exception ex)
-            {
+        {
                 return BadRequest();
             }
 
