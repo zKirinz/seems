@@ -9,6 +9,8 @@ using SEEMS.Configs;
 using SEEMS.Database;
 using SEEMS.Models;
 using SEEMS.Models.Identities;
+using SEEMS.Services;
+using SEEMS.Services.Interfaces;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,9 +25,6 @@ services.AddControllersWithViews().AddJsonOptions(options =>
     options.JsonSerializerOptions.WriteIndented = true;
 });
 
-/*services.AddIdentity<ApplicationUser, ApplicationRole>()
-     .AddEntityFrameworkStores<IdentityDbContext>();*/
-
 // Add database services to the container.
 services.AddDbContext<IdentityDbContext>(options =>
 {
@@ -33,15 +32,15 @@ services.AddDbContext<IdentityDbContext>(options =>
 });
 services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
-    options.Password.RequiredLength = 8;
+/*    options.Password.RequiredLength = 8;
     options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
+    options.Password.RequireUppercase = true;*/
 
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-
+/*
     options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = true;
+    options.SignIn.RequireConfirmedEmail = true;*/
 })
 /*services.AddDefaultIdentity<User>(options =>
                                  options.SignIn.RequireConfirmedAccount = true)*/
@@ -114,6 +113,13 @@ services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Admin"));
     options.AddPolicy("Organizer", policy => policy.RequireClaim("Organizer"));
 });
+
+services.AddSingleton<IAuthService, AuthService>();
+/*services.AddHttpContextAccessor();*/
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(MapperProfiles));
 
 var app = builder.Build();
 app.UseCookiePolicy(new CookiePolicyOptions

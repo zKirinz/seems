@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SEEMS.Models.Identities;
 using SEEMS.Services;
+using SEEMS.Services.Interfaces;
 using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -16,9 +17,9 @@ namespace SEEMS.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly AuthService _service;
+        private readonly IAuthService _service;
 
-        public AuthenticationController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuthService service)
+        public AuthenticationController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAuthService service)
         {
             this._signInManager = signInManager;
             this._userManager = userManager;
@@ -42,16 +43,22 @@ namespace SEEMS.Controllers
 
             var user = _service.GetUserInfo(info);
 
-            await _userManager.CreateAsync(user);
+            var foundUser = await _userManager.FindByEmailAsync(user.Email);
+            if (foundUser == null)
+            {
+                await _userManager.CreateAsync(user);
+                await _signInManager.SignInAsync(user, false);
+
+            }
             await _userManager.AddLoginAsync(user, info);
-            await _signInManager.SignInAsync(user, false);
+
 
             var claims = _service.GetUserClaims(user);
 
             return Ok(new
             {
                 access_token = _service.GenerateToken(claims),
-                expire_at = _service.EXPIRED_AT
+                expire_at = _service.GetExpiration()
             });
         }
     }

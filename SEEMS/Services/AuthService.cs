@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using SEEMS.Models.Identities;
+using SEEMS.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace SEEMS.Services
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
 
         private readonly IConfiguration _configuration;
@@ -38,13 +39,12 @@ namespace SEEMS.Services
         public ApplicationUser GetUserInfo(ExternalLoginInfo info)
         {
             var emailClaim = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
-            var userClaim = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
 
             return new ApplicationUser
             #pragma warning disable CS8602 // Dereference of a possibly null reference.
             {
                 Email = emailClaim.Value,
-                UserName = userClaim.Value,
+                UserName = emailClaim.Value,
             };
             #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
@@ -57,6 +57,11 @@ namespace SEEMS.Services
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email)
             };
+        }
+
+        public DateTime GetExpiration()
+        {
+            return EXPIRED_AT;
         }
     }
 }
