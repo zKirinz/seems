@@ -1,4 +1,4 @@
-﻿{
+{
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -11,11 +11,12 @@
     "SEEMS": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:5148",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
-      }
+      },
+      "nativeDebugging": true,
+      "applicationUrl": "http://localhost:5148"
     },
     "IIS Express": {
       "commandName": "IISExpress",

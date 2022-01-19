@@ -1,0 +1,21 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SEEMS.DTOs
+{
+    public class CommentDto
+    {
+        public Guid? UserId { get; set; }
+
+        public int EventId { get; set; }
+
+        [StringLength(500)]
+        public String CommentContent { get; set; }
+
+        public int? ParentCommentId { get; set; }
+
+        public DateTime CreateAt { get; set; }
+
+        public DateTime? UpdateAt { get; set; }
+
+    }
+}
