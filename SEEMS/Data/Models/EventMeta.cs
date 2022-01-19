@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
@@ -18,6 +19,8 @@ namespace SEEMS.Models
 
         [StringLength(20)]
         public String MetaValue { get; set; }
+
+        [JsonIgnore]
         public Event Event { get; set; }
 
     }

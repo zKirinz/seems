@@ -42,12 +42,16 @@ namespace SEEMS.Models
 
         public DateTime LastUpdateAt { get; set; }
 
+        [JsonIgnore]
         public ApplicationUser? Client { get; set; }
 
+        [JsonIgnore]
         public ChainOfEvent? ChainOfEvent { get; set; }
 
+        [JsonIgnore]
         public List<Reservation>? Reservations { get; set; }
 
+        [JsonIgnore]
         public List<Comment>? Comments { get; set; }
 
     }

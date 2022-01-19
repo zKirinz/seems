@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
@@ -14,6 +15,7 @@ namespace SEEMS.Models
         [StringLength(255)]
         public String? ImageUrl { get; set; }
 
+        [JsonIgnore]
         public List<Event> Events { get; set; }
 
     }
