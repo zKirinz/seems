@@ -4,7 +4,7 @@ namespace SEEMS.DTOs
 {
     public class CommentDto
     {
-        public int UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         public int EventId { get; set; }
 
