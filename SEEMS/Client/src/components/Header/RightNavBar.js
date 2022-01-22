@@ -1,96 +1,56 @@
 import React, { useState } from 'react'
 
-import { NavLink } from 'react-router-dom'
-
 import { Logout, Notifications } from '@mui/icons-material'
 import {
-    Badge,
+    Box,
+    Tooltip,
     IconButton,
     Avatar,
-    Tooltip,
-    Box,
     Menu,
     MenuItem,
-    Divider,
     ListItemIcon,
-    Typography,
-    Link,
+    Badge,
 } from '@mui/material'
-import { orange } from '@mui/material/colors'
 
-import style from './RightNavBar.module.css'
-
-const RightNavBar = ({ paths, internalLinks }) => {
-    const [myAccountSettings, setMyAccountSetting] = useState(null)
-    const open = Boolean(myAccountSettings)
-
-    const openAccountSettings = (event) => {
-        setMyAccountSetting(event.currentTarget)
+const RightNavBar = () => {
+    const [anchorEl, setAnchorEl] = useState(null)
+    const open = Boolean(anchorEl)
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget)
     }
-    const closeAccountSettings = () => {
-        setMyAccountSetting(null)
+    const handleClose = () => {
+        setAnchorEl(null)
     }
-
-    const NavLinks = paths.map((path) => (
-        <NavLink
-            key={path.name}
-            className={style.anchorLink}
-            to={path.path}
-            activeClassName={style.isActive}
-        >
-            <Typography
-                sx={{ mr: 3, fontSize: { sm: 14 } }}
-                align="center"
-                component="span"
-                fontWeight={700}
-            >
-                {path.text}
-            </Typography>
-        </NavLink>
-    ))
-
-    const InternalLinks = internalLinks.map((link) => (
-        <Link key={link.name} className={style.anchorLink} href={link.link}>
-            <Typography
-                sx={{ mr: 3, fontSize: { sm: 14 } }}
-                align="center"
-                component="span"
-                fontWeight={700}
-            >
-                {link.text}
-            </Typography>
-        </Link>
-    ))
-
     return (
         <React.Fragment>
             <Box
                 sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: { xs: 'center', sm: 'flex-end' },
-                    height: '100%',
+                    display: { xs: 'none', sm: 'flex' },
+                    justifyContent: 'flex-end',
                 }}
             >
-                {NavLinks}
-                {InternalLinks}
-                <IconButton sx={{ mr: 1, minWidth: 60 }}>
-                    <Badge badgeContent={4} color="secondary" overlap="circular" variant="dot">
-                        <Notifications sx={{ color: (theme) => theme.palette.grey[100] }} />
-                    </Badge>
-                </IconButton>
-                <Tooltip title="Account Settings">
-                    <IconButton onClick={openAccountSettings} size="small">
-                        <Avatar sx={{ width: 32, height: 32, bgcolor: orange[500] }}>H</Avatar>
+                <Tooltip title="Notification">
+                    <IconButton size="large">
+                        <Badge badgeContent={3} color="info">
+                            <Notifications
+                                fontSize="large"
+                                sx={{ color: (theme) => theme.palette.grey[100] }}
+                            />
+                        </Badge>
+                    </IconButton>
+                </Tooltip>
+                <Tooltip title="Account settings">
+                    <IconButton onClick={handleClick} size="large">
+                        <Avatar sx={{ width: 40, height: 40 }}>H</Avatar>
                     </IconButton>
                 </Tooltip>
             </Box>
             <Menu
-                anchorEl={myAccountSettings}
+                anchorEl={anchorEl}
                 id="account-menu"
                 open={open}
-                onClose={closeAccountSettings}
-                onClick={closeAccountSettings}
+                onClose={handleClose}
+                onClick={handleClose}
                 PaperProps={{
                     elevation: 0,
                     sx: {
@@ -121,12 +81,11 @@ const RightNavBar = ({ paths, internalLinks }) => {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 <MenuItem>
-                    <Avatar /> Profile
+                    <Avatar /> My profile
                 </MenuItem>
-                <Divider />
                 <MenuItem>
                     <ListItemIcon>
-                        <Logout fontSize="small" />
+                        <Logout fontSize="large" />
                     </ListItemIcon>
                     Logout
                 </MenuItem>

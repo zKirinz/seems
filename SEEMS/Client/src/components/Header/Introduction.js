@@ -1,18 +1,13 @@
-import { Box, Typography } from '@mui/material'
-
-const fullScreenAbsolute = {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-}
+import { Box, Typography, useMediaQuery } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 
 const Introduction = ({ src, size, desc, title }) => {
+    const theme = useTheme()
+    const matchs = useMediaQuery(theme.breakpoints.up('sm'))
     return (
         <Box
             sx={{
-                marginTop: (theme) => theme.spacing(10),
+                mt: { sm: 8.5 },
                 height: '400px',
                 backgroundImage: `url(${src})`,
                 backgroundPosition: 'center',
@@ -23,60 +18,27 @@ const Introduction = ({ src, size, desc, title }) => {
         >
             <Box
                 sx={{
-                    ...fullScreenAbsolute,
-                    backgroundColor: 'rgba(0,0,0,.7)',
-                    zIndex: 1,
-                }}
-            ></Box>
-            <Box
-                sx={{
-                    ...fullScreenAbsolute,
-                    zIndex: 2,
-                    py: 5,
-                    px: 10,
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    left: 0,
+                    backgroundColor: 'rgba(0,0,0,.6)',
+                    p: 5,
                 }}
             >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexDirection: 'column',
-                    }}
+                <Typography
+                    sx={{ letterSpacing: 2, my: 2 }}
+                    variant={`${matchs ? 'h1' : 'h2'}`}
+                    color="secondary"
+                    fontWeight={900}
+                    align="center"
                 >
-                    <Typography
-                        component="h1"
-                        sx={{
-                            letterSpacing: (theme) => theme.spacing(1),
-                            mt: (theme) => theme.spacing(2),
-                        }}
-                        fontSize={{
-                            lg: 90,
-                            md: 70,
-                            sm: 60,
-                            xs: 50,
-                        }}
-                        color="secondary"
-                        fontWeight={900}
-                    >
-                        {title}
-                    </Typography>
-                    <Typography
-                        paragraph
-                        color="secondary"
-                        sx={{
-                            maxWidth: '800px',
-                            mt: (theme) => theme.spacing(3),
-                        }}
-                        fontSize={{
-                            sm: 24,
-                            xs: 16,
-                        }}
-                        align="center"
-                    >
-                        {desc}
-                    </Typography>
-                </Box>
+                    {title}
+                </Typography>
+                <Typography paragraph color="secondary" variant={`${matchs ? 'h5' : 'subtitle1'}`}>
+                    {desc}
+                </Typography>
             </Box>
         </Box>
     )

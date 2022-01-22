@@ -1,25 +1,28 @@
 import React from 'react'
 
-import { CssBaseline, Grid } from '@mui/material'
+import { Grid } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 
 import logo from '../../assets/images/logo.png'
 import LeftNavBar from './LeftNavBar'
+import MiddleNavBar from './MiddleNavBar'
 import RightNavBar from './RightNavBar'
 
-const Header = ({ paths, internalLinks }) => {
+const Header = () => {
     return (
         <React.Fragment>
-            <AppBar position="fixed">
+            <AppBar sx={{ position: { sm: 'fixed', xs: 'static' } }}>
                 <Toolbar>
                     <Grid container>
-                        <CssBaseline />
-                        <Grid item xs={12} sm={4} md={4}>
+                        <Grid item sm={3} xs={12}>
                             <LeftNavBar logo={logo} />
                         </Grid>
-                        <Grid item xs={12} sm={8} md={8}>
-                            <RightNavBar paths={paths} internalLinks={internalLinks} />
+                        <Grid item sm={6} xs={0}>
+                            <MiddleNavBar />
+                        </Grid>
+                        <Grid item sm={3} xs={0}>
+                            <RightNavBar />
                         </Grid>
                     </Grid>
                 </Toolbar>
