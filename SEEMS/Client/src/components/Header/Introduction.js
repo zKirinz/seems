@@ -36,7 +36,12 @@ const Introduction = ({ src, size, desc, title }) => {
                 >
                     {title}
                 </Typography>
-                <Typography paragraph color="secondary" variant={`${matchs ? 'h5' : 'subtitle1'}`}>
+                <Typography
+                    paragraph
+                    color="secondary"
+                    variant={`${matchs ? 'h5' : 'subtitle1'}`}
+                    align="center"
+                >
                     {desc}
                 </Typography>
             </Box>

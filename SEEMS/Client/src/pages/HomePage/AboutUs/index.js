@@ -1,11 +1,12 @@
 import React from 'react'
 
-import Carousel from '../../../components/Carousel'
-import { Card, CardContent, Grid, Typography, Paper } from '@mui/material'
+// import Carousel from '../../../components/Carousel'
+import { Card, CardContent, Grid, Typography, Paper, Avatar } from '@mui/material'
+import { grey } from '@mui/material/colors'
 
 import TitleHomePage from '../TitleHomePage'
 
-const AboutUs = ({ imageList }) => {
+const AboutUs = ({ image }) => {
     return (
         <React.Fragment>
             <TitleHomePage
@@ -16,27 +17,22 @@ const AboutUs = ({ imageList }) => {
                 mb={2}
                 align="center"
             />
-            <Grid container columns={{ md: 10, xs: 12 }} id="about">
-                <Grid item xs={0} md={6} position="relative" component={Paper}>
-                    <Carousel imageList={imageList} />
+            <Grid container columns={{ md: 10, xs: 12 }}>
+                <Grid item xs={0} md={6} position="relative" component={Paper} overflow="hidden">
+                    <Avatar
+                        sx={{ width: '100%', height: '100%' }}
+                        src={image.src}
+                        alt={image.alt}
+                        variant="square"
+                    />
                 </Grid>
                 <Grid item xs={12} md={4}>
                     <Card sx={{ height: '100%' }}>
                         <CardContent>
-                            <Typography
-                                component="h1"
-                                fontWeight={700}
-                                color="primary.dark"
-                                variant="h5"
-                            >
+                            <Typography fontWeight={700} color="primary.dark" variant="h5">
                                 Tại sao chúng tôi xây dựng hệ thống này?
                             </Typography>
-                            <Typography
-                                component="p"
-                                mt={2}
-                                sx={{ color: (theme) => theme.palette.grey[600] }}
-                                fontWeight={500}
-                            >
+                            <Typography paragraph mt={2} sx={{ color: grey[600] }} fontWeight={500}>
                                 Chúng tôi đã từng có một ý tưởng, 1 suy nghĩ về việc tập hợp một
                                 nhóm những người ưu tú với niềm đam mê lớn về lập trình và tổ chức
                                 sự kiện, để xem liệu chúng ta có thể tạo ra một thứ gì đó mới để

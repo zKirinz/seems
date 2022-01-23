@@ -1,16 +1,14 @@
-import TimeText from '../../../components/TimeText'
-import { Box, Avatar, Typography } from '@mui/material'
+import { Box, Avatar, Typography, useMediaQuery } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 
 const LeftDetail = ({ speaker, major, roomNum, time }) => {
+    const theme = useTheme()
+    const matchs = useMediaQuery(theme.breakpoints.up('sm'))
     return (
         <Box sx={{ backgroundColor: 'primary.light', pt: 3 }}>
-            <TimeText
-                color="primary.contrastText"
-                variant="h5"
-                time={time}
-                stroke={false}
-                component="h1"
-            />
+            <Typography color="primary.contrastText" variant="h5" align="center">
+                {time}
+            </Typography>
             <Typography
                 align="center"
                 color="primary.contrastText"
@@ -22,31 +20,21 @@ const LeftDetail = ({ speaker, major, roomNum, time }) => {
                 <Avatar
                     src="https://demo-egenslab.b-cdn.net/html/eventlab/assets/images/speaker/speaker-sm2.png"
                     alt="person"
-                    sx={{
-                        width: '171px',
-                        height: '168px',
-                        overflow: 'unset',
-                    }}
+                    sx={{ width: '100%', maxWidth: '171px', height: '168px', overflow: 'unset' }}
                 ></Avatar>
-                <Box ml={3}>
+                <Box ml={2}>
                     <Typography
                         mb={1}
                         color="primary.contrastText"
                         fontWeight={(theme) => theme.typography.fontWeightBold}
-                        sx={{ fontSize: { sm: 12, md: 14, lg: 18 } }}
+                        variant={`${matchs ? 'h5' : 'body2'}`}
                     >
                         {speaker}
                     </Typography>
                     <Typography
                         color="primary.contrastText"
                         fontWeight={(theme) => theme.typography.fontWeightMedium}
-                        letterSpacing={1}
-                        variant="h6"
-                        fontSize={{
-                            xs: 12,
-                            sm: 14,
-                            lg: 16,
-                        }}
+                        variant={`${matchs ? 'h6' : 'body1'}`}
                     >
                         {major}
                     </Typography>

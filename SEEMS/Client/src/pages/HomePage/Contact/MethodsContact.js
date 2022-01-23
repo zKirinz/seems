@@ -12,7 +12,7 @@ const MethodsContact = ({ name, content }) => {
                 <IconButton color="primary" size="large">
                     {name === 'Email' ? <EmailIcon /> : name === 'Phone' ? <Phone /> : <HomeIcon />}
                 </IconButton>
-                <Typography>{name}</Typography>
+                <Typography variant="h6">{name}</Typography>
                 <Typography paragraph>{content}</Typography>
             </CardContent>
         </Card>

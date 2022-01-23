@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 
+import BottomNavigationMobile from '../../components/BottomNavgation'
 import Footer from '../../components/Footer'
 import Header from '../../components/Header'
 import Introduction from '../../components/Header/Introduction'
@@ -7,57 +8,15 @@ import { Box } from '@mui/material'
 
 import AboutUs from './AboutUs/index'
 import Contact from './Contact'
-import CurrentEvent from './CurrentEvent'
-import Gallery from './Gallery'
 import Staffs from './Staff'
+import CurrentEvent from './UpcomingEvents'
 
 const introHeaderImage = {
     title: 'SEEMS',
-    desc: 'Nơi các bạn trẻ sinh viên FPT sẽ được tìm kiếm và tiếp xúc với nhiều sự kiện, hoạt động liên quan tới lĩnh vực kinh doanh và học thuật của ngành phần mềm.',
+    desc: 'Where FPT students will have the opportunity to enhance technical skills as well as soft skill through  many software academic events and activities related to modern technologies.',
     src: 'https://media-exp1.licdn.com/dms/image/C5616AQEMxYQLodosUA/profile-displaybackgroundimage-shrink_200_800/0/1630122993980?e=1648080000&v=beta&t=qRUkeRz5I8u5kb9NweehGZPucpXkmJ6FIEwPCfdZ0Os',
     size: '100% 100%',
 }
-
-const gallery = [
-    {
-        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Telescope.jpg',
-        size: 'cover',
-    },
-    {
-        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Telescope.jpg',
-        size: 'cover',
-    },
-    {
-        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Telescope.jpg',
-        size: 'cover',
-    },
-]
-
-const paths = [
-    {
-        path: '/',
-        name: 'home',
-        text: 'Home',
-    },
-    {
-        path: '/events',
-        name: 'events',
-        text: 'Events',
-    },
-]
-
-const internalLinks = [
-    {
-        link: '#about',
-        name: 'about',
-        text: 'About',
-    },
-    {
-        link: '#contact',
-        name: 'contact',
-        text: 'Contact Us',
-    },
-]
 
 const currentEvents = [
     {
@@ -109,7 +68,10 @@ const currentEvents = [
         ],
     },
 ]
-
+const aboutImage = {
+    src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png',
+    alt: 'school image',
+}
 const staffs = [
     {
         id: 1,
@@ -149,29 +111,10 @@ const methodsContact = [
     },
 ]
 
-const imageList = [
-    {
-        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png',
-        size: 'cover',
-    },
-    {
-        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134780/Zoohackathon.png',
-        size: 'contain',
-    },
-    {
-        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Telescope.jpg',
-        size: 'contain',
-    },
-    {
-        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
-        size: 'contain',
-    },
-]
-
 const HomePage = () => {
     return (
         <Fragment>
-            <Header paths={paths} internalLinks={internalLinks} />
+            <Header />
             <Introduction
                 src={introHeaderImage.src}
                 size={introHeaderImage.size}
@@ -183,10 +126,12 @@ const HomePage = () => {
                 sx={{ paddingTop: (theme) => theme.spacing(10), backgroundColor: '#fafafa', px: 5 }}
             >
                 <CurrentEvent currentEvents={currentEvents} />
-                <Gallery gallery={gallery} />
                 <Staffs staffs={staffs} />
-                <AboutUs imageList={imageList} />
+                <AboutUs image={aboutImage} />
                 <Contact contacts={methodsContact} />
+            </Box>
+            <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                <BottomNavigationMobile />
             </Box>
             <Footer />
         </Fragment>

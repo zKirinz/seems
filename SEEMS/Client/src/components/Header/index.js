@@ -14,14 +14,14 @@ const Header = () => {
         <React.Fragment>
             <AppBar sx={{ position: { sm: 'fixed', xs: 'static' } }}>
                 <Toolbar>
-                    <Grid container>
-                        <Grid item sm={3} xs={12}>
+                    <Grid container alignItems="center">
+                        <Grid item sm={3} xs={6}>
                             <LeftNavBar logo={logo} />
                         </Grid>
                         <Grid item sm={6} xs={0}>
                             <MiddleNavBar />
                         </Grid>
-                        <Grid item sm={3} xs={0}>
+                        <Grid item sm={3} xs={6}>
                             <RightNavBar />
                         </Grid>
                     </Grid>

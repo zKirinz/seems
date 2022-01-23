@@ -16,7 +16,7 @@ const Staffs = ({ staffs }) => {
                 mb={2}
                 align="center"
             />
-            <Grid container spacing={5} columns={{ md: 12, sm: 8, xs: 6 }} id="staff">
+            <Grid container spacing={5} columns={{ md: 12, sm: 8, xs: 6 }}>
                 {staffs.map((staff) => (
                     <Grid item sm={4} xs={6} md={4} key={staff.id}>
                         <StaffMember {...staff} />

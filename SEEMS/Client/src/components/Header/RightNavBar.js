@@ -25,7 +25,7 @@ const RightNavBar = () => {
         <React.Fragment>
             <Box
                 sx={{
-                    display: { xs: 'none', sm: 'flex' },
+                    display: 'flex',
                     justifyContent: 'flex-end',
                 }}
             >

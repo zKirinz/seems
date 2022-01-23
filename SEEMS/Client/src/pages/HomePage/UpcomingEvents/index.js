@@ -1,7 +1,6 @@
 import React from 'react'
 
-import TimeText from '../../../components/TimeText'
-import { Box, Grid, Paper } from '@mui/material'
+import { Grid, Typography, Card } from '@mui/material'
 
 import TitleHomePage from '../TitleHomePage'
 import LeftDetail from './LeftDetail'
@@ -10,18 +9,13 @@ import RightDetail from './RightDetail'
 const CurrentEvent = ({ currentEvents }) => {
     return (
         <React.Fragment>
-            <TitleHomePage title="Event" variant="h4" color="primary" align="center" />
-            <TimeText variant="h3" color="#ce1446" time="16/01/2022" component="h1" stroke={true} />
-            <Box>
+            <TitleHomePage title="Upcoming events" variant="h4" color="primary" align="center" />
+            <Typography variant="h3" color="secondary" align="center" fontWeight={500} mb={1}>
+                16/01/2022
+            </Typography>
+            <Grid container rowGap={5}>
                 {currentEvents.map((currentEvent) => (
-                    <Grid
-                        container
-                        mt={4}
-                        key={currentEvent.id}
-                        component={Paper}
-                        elevation={2}
-                        overflow="hidden"
-                    >
+                    <Grid item xs={12} container key={currentEvent.id} component={Card}>
                         <Grid item sm={12} xs={12} md={4}>
                             <LeftDetail {...currentEvent} />
                         </Grid>
@@ -34,7 +28,7 @@ const CurrentEvent = ({ currentEvents }) => {
                         </Grid>
                     </Grid>
                 ))}
-            </Box>
+            </Grid>
         </React.Fragment>
     )
 }
