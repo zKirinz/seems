@@ -1,16 +1,13 @@
-﻿using SEEMS.Models.Identities;
+﻿using SEEMS.Data.Entities;
+using SEEMS.Data.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
-    public class InvoiceUser
+    public class InvoiceUser : AbstractEntity<int>
     {
-        [Key]
-        [Required]
-        public int Id { get; set; }
-
         [ForeignKey("Reservation")]
         public int ReservationId { get; set; }
 
@@ -18,12 +15,10 @@ namespace SEEMS.Models
                 
         public DateTime PaidAt { get; set; }
 
-        public DateTime CanceledAt { get; set; }
-
         public String PaymentMethods { get; set; }
 
         [JsonIgnore]
-        public ApplicationUser? User { get; set; }
+        public User? User { get; set; }
 
         [JsonIgnore]
         public Reservation Reservation { get; set; }

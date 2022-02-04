@@ -1,14 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SEEMS.Data.Entities;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
-    public class ChainOfEvent
+    public class ChainOfEvent : AbstractEntity<int>
     {
-        [Key]
-        [Required]
-        public int Id { get; set; }
-
         [StringLength(20)]
         public String CategoryName { get; set; }
 
