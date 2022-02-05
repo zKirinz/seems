@@ -9,7 +9,7 @@ const index = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                mt: 2,
+                mt: 3,
                 bgcolor: (theme) => theme.palette.grey[900],
                 p: 2,
             }}

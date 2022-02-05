@@ -15,7 +15,7 @@ import {
 const contactFields = [
     {
         id: 'outlined-adornment-fullName',
-        inputLabel: 'Họ và tên',
+        inputLabel: 'FullName',
         outLinedInput: function () {
             return {
                 startAdornment: <InputAdornment position="start">{this.inputLabel}</InputAdornment>,
@@ -35,7 +35,7 @@ const contactFields = [
     },
     {
         id: 'outlined-adornment-phone',
-        inputLabel: 'Số điện thoại',
+        inputLabel: 'Phone number',
         outLinedInput: function () {
             return {
                 startAdornment: <InputAdornment position="start">{this.inputLabel}</InputAdornment>,
@@ -66,7 +66,7 @@ const ContactForm = () => {
                         </FormControl>
                     ))}
                     <FormControl sx={{ m: 1 }} fullWidth>
-                        <TextField label="Ý kiến của bạn" id="message" minRows={11} multiline />
+                        <TextField label="Your opinion" id="message" minRows={11} multiline />
                     </FormControl>
                     <Button variant="contained" sx={{ m: 1 }}>
                         Submit

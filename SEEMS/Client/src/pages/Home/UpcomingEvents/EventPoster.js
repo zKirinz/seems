@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 
-const LeftDetail = ({ src }) => {
+const EventPoster = ({ src }) => {
     return (
         <Box
             sx={{
@@ -14,4 +14,4 @@ const LeftDetail = ({ src }) => {
     )
 }
 
-export default LeftDetail
+export default EventPoster

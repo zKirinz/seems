@@ -1,10 +1,9 @@
-import { Fragment } from 'react'
+import React from 'react'
 
 import { Box } from '@mui/material'
-import { grey } from '@mui/material/colors'
 
 import Introduction from './Introduction'
-import CurrentEvent from './UpcomingEvents'
+import UpComingEvents from './UpcomingEvents'
 
 const introHeaderImage = {
     title: 'SEEMS',
@@ -13,7 +12,7 @@ const introHeaderImage = {
     alt: 'introduction-image',
 }
 
-const currentEvents = [
+const upComingEvents = [
     {
         id: 1,
         banner: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
@@ -36,7 +35,7 @@ const currentEvents = [
 
 const HomePage = () => {
     return (
-        <Fragment>
+        <React.Fragment>
             <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }}>
                 <Introduction
                     src={introHeaderImage.src}
@@ -44,11 +43,11 @@ const HomePage = () => {
                     title={introHeaderImage.title}
                     desc={introHeaderImage.desc}
                 />
-                <Box sx={{ pt: 10, backgroundColor: grey[200], px: 5 }}>
-                    <CurrentEvent currentEvents={currentEvents} />
+                <Box sx={{ pt: 10, px: 5 }}>
+                    <UpComingEvents upComingEvents={upComingEvents} />
                 </Box>
             </Box>
-        </Fragment>
+        </React.Fragment>
     )
 }
 

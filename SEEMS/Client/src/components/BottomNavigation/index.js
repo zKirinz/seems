@@ -1,5 +1,3 @@
-import React from 'react'
-
 import { Link, useLocation } from 'react-router-dom'
 
 import { Home, Info, Event } from '@mui/icons-material'
@@ -25,7 +23,7 @@ const BottomNavigationMobile = () => {
     const location = useLocation()
     const value = getPageIndex(location.pathname)
 
-    const NavLinks = (
+    return (
         <Box
             sx={{
                 backgroundColor: 'primary.main',
@@ -80,7 +78,6 @@ const BottomNavigationMobile = () => {
             </BottomNavigation>
         </Box>
     )
-    return <React.Fragment>{NavLinks}</React.Fragment>
 }
 
 export default BottomNavigationMobile

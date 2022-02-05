@@ -4,7 +4,7 @@ import { Typography, useMediaQuery, CardContent, Button } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { useTheme } from '@mui/material/styles'
 
-const RightDetail = ({ title, content, mode, time }) => {
+const RightDetail = ({ title, content, mode, time, eventId }) => {
     const theme = useTheme()
     const matchs = useMediaQuery(theme.breakpoints.up('sm'))
     return (
@@ -30,7 +30,7 @@ const RightDetail = ({ title, content, mode, time }) => {
                 sx={{ mt: 6.5 }}
                 size="large"
                 component={NavLink}
-                to="/eventId"
+                to={`/events/${eventId}`}
             >
                 Read more
             </Button>

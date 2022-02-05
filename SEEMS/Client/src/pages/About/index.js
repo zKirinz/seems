@@ -43,16 +43,16 @@ const methodsContact = [
 const staffs = [
     {
         id: 1,
-        src: NKN,
-        name: 'Nguyễn Khôi Nguyên',
-        grade: 'K13',
+        src: LTT,
+        name: 'Lê Tiến Thịnh',
+        grade: 'K15',
         role: 'Leader Backend Developer',
     },
     {
         id: 2,
-        src: LTT,
-        name: 'Lê Tiến Thịnh',
-        grade: 'K15',
+        src: NKN,
+        name: 'Nguyễn Khôi Nguyên',
+        grade: 'K13',
         role: 'Backend Developer',
     },
     {
