@@ -1,21 +1,12 @@
-import { Box, Typography, useMediaQuery } from '@mui/material'
+import { Avatar, Box, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
-const Introduction = ({ src, size, desc, title }) => {
+const Introduction = ({ src, desc, title, alt }) => {
     const theme = useTheme()
     const matchs = useMediaQuery(theme.breakpoints.up('sm'))
     return (
-        <Box
-            sx={{
-                mt: { sm: 8.5 },
-                height: '400px',
-                backgroundImage: `url(${src})`,
-                backgroundPosition: 'center',
-                backgroundSize: size,
-                backgroundRepeat: 'no-repeat',
-            }}
-            position="relative"
-        >
+        <Box position="relative">
+            <Avatar sx={{ height: '400px', width: '100%' }} src={src} variant="square" alt={alt} />
             <Box
                 sx={{
                     position: 'absolute',
@@ -41,6 +32,7 @@ const Introduction = ({ src, size, desc, title }) => {
                     color="secondary"
                     variant={`${matchs ? 'h5' : 'subtitle1'}`}
                     align="center"
+                    sx={{ maxWidth: 1000, m: '0 auto' }}
                 >
                     {desc}
                 </Typography>

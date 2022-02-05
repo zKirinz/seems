@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 
-import { Event, Home, Receipt } from '@mui/icons-material'
-import { Box, IconButton, Tooltip } from '@mui/material'
+import { Event, Home, Info } from '@mui/icons-material'
+import { Box, Button, IconButton, Tooltip } from '@mui/material'
 import { yellow, grey } from '@mui/material/colors'
 
 const MiddleNavBar = () => {
@@ -25,27 +25,32 @@ const MiddleNavBar = () => {
                 },
             }}
         >
-            <Box component={NavLink} to="/" sx={{ px: 2, py: 1.25 }} position="relative">
+            <Button
+                component={NavLink}
+                to="/"
+                sx={{ px: 2, py: 1.25, position: 'relative' }}
+                exact={true}
+            >
                 <Tooltip title="Home">
                     <IconButton size="medium">
                         <Home fontSize="large" sx={{ color: grey[100] }} />
                     </IconButton>
                 </Tooltip>
-            </Box>
-            <Box component={NavLink} to="/events" sx={{ px: 2, py: 1.25 }} position="relative">
+            </Button>
+            <Button component={NavLink} to="/events" sx={{ px: 2, py: 1.25, position: 'relative' }}>
                 <Tooltip title="Event">
                     <IconButton size="medium">
                         <Event fontSize="large" sx={{ color: grey[100] }} />
                     </IconButton>
                 </Tooltip>
-            </Box>
-            <Box component={NavLink} to="/receipt" sx={{ px: 2, py: 1.25 }} position="relative">
-                <Tooltip title="Event">
+            </Button>
+            <Button component={NavLink} to="/about" sx={{ px: 2, py: 1.25, position: 'relative' }}>
+                <Tooltip title="About">
                     <IconButton size="medium">
-                        <Receipt fontSize="large" sx={{ color: grey[100] }} />
+                        <Info fontSize="large" sx={{ color: grey[100] }} />
                     </IconButton>
                 </Tooltip>
-            </Box>
+            </Button>
         </Box>
     )
 }

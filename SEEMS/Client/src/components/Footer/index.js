@@ -11,11 +11,11 @@ const index = () => {
                 alignItems: 'center',
                 mt: 2,
                 bgcolor: (theme) => theme.palette.grey[900],
-                p: 4,
+                p: 2,
             }}
             component="footer"
         >
-            <Box>
+            <Box mt={2}>
                 <Copyright />
             </Box>
         </Box>

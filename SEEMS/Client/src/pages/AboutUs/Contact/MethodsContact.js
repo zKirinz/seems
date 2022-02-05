@@ -13,7 +13,9 @@ const MethodsContact = ({ name, content }) => {
                     {name === 'Email' ? <EmailIcon /> : name === 'Phone' ? <Phone /> : <HomeIcon />}
                 </IconButton>
                 <Typography variant="h6">{name}</Typography>
-                <Typography paragraph>{content}</Typography>
+                <Typography paragraph variant="body2">
+                    {content}
+                </Typography>
             </CardContent>
         </Card>
     )

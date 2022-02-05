@@ -1,43 +1,39 @@
-import { Typography, useMediaQuery, Box, CardContent } from '@mui/material'
+import { NavLink } from 'react-router-dom'
+
+import { Typography, useMediaQuery, CardContent, Button } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { useTheme } from '@mui/material/styles'
 
-const RightDetail = ({ title, content, topics }) => {
+const RightDetail = ({ title, content, mode, time }) => {
     const theme = useTheme()
     const matchs = useMediaQuery(theme.breakpoints.up('sm'))
     return (
         <CardContent>
             <Typography
                 fontWeight={700}
-                color="primary.dark"
+                color="secondary"
                 variant={`${matchs ? 'h5' : 'subtitle1'}`}
             >
                 {title}
             </Typography>
-            <Typography component="p" mt={2} sx={{ color: grey[500] }} fontWeight={500}>
+            <Typography component="p" mt={1.5} sx={{ color: grey[500] }} fontWeight={500}>
                 {content}
             </Typography>
-            <Typography mt={1} color="secondary" fontWeight={700}>
-                Topic
+            <Typography mt={1.5} color="secondary" fontWeight={700} variant="h5">
+                {mode}
             </Typography>
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    mt: 1,
-                }}
+            <Typography color="secondary" variant="h6" sx={{ textDecoration: 'underline' }}>
+                {time}
+            </Typography>
+            <Button
+                variant="contained"
+                sx={{ mt: 6.5 }}
+                size="large"
+                component={NavLink}
+                to="/eventId"
             >
-                {topics.map((topic) => (
-                    <Typography
-                        key={topic.id}
-                        variant={`${matchs ? 'body1' : 'body2'}`}
-                        sx={{ color: grey[800] }}
-                    >
-                        {topic.title}
-                    </Typography>
-                ))}
-            </Box>
+                Read more
+            </Button>
         </CardContent>
     )
 }

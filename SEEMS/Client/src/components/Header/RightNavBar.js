@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { Logout, Notifications } from '@mui/icons-material'
+import { AccountCircle, Logout, Notifications, Receipt } from '@mui/icons-material'
 import {
     Box,
     Tooltip,
@@ -10,6 +10,7 @@ import {
     MenuItem,
     ListItemIcon,
     Badge,
+    Typography,
 } from '@mui/material'
 
 const RightNavBar = () => {
@@ -23,14 +24,9 @@ const RightNavBar = () => {
     }
     return (
         <React.Fragment>
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                }}
-            >
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Tooltip title="Notification">
-                    <IconButton size="large">
+                    <IconButton size="large" sx={{ mr: 1 }}>
                         <Badge badgeContent={3} color="info">
                             <Notifications
                                 fontSize="large"
@@ -81,13 +77,22 @@ const RightNavBar = () => {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 <MenuItem>
-                    <Avatar /> My profile
+                    <ListItemIcon>
+                        <AccountCircle fontSize="large" />
+                    </ListItemIcon>
+                    <Typography ml={1}>My Profile</Typography>
+                </MenuItem>
+                <MenuItem>
+                    <ListItemIcon>
+                        <Receipt fontSize="large" />
+                    </ListItemIcon>
+                    <Typography ml={1}>Receipt</Typography>
                 </MenuItem>
                 <MenuItem>
                     <ListItemIcon>
                         <Logout fontSize="large" />
                     </ListItemIcon>
-                    Logout
+                    <Typography ml={1}>Logout</Typography>
                 </MenuItem>
             </Menu>
         </React.Fragment>
