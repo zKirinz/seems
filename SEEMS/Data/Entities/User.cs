@@ -1,7 +1,9 @@
-﻿using SEEMS.Data.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using SEEMS.Data.Entities;
 
 namespace SEEMS.Data.Models
 {
+    [Index(nameof(Email), IsUnique = true)]
     public class User : AbstractEntity<int>
     {
         public string Email { get; internal set; }

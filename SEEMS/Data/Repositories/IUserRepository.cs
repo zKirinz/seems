@@ -8,7 +8,9 @@ namespace SEEMS.Data.Repositories
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<User>> GetAll();
+        Task<IEnumerable<User>> GetAllUsersAsync(bool trackChanges);
+
+        Task<User> GetUserAsync(string email, bool trackChanges);
 
         void CreateUser(User user);
     }

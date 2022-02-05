@@ -1,4 +1,5 @@
-﻿using SEEMS.Contexts;
+﻿using Microsoft.EntityFrameworkCore;
+using SEEMS.Contexts;
 using SEEMS.Data.Models;
 using System;
 using System.Collections.Generic;
@@ -15,11 +16,17 @@ namespace SEEMS.Data.Repositories.Implements
 
         }
 
-        public void CreateUser(User user) => Create(user); 
+        public void CreateUser(User user) => Create(user);
 
-        public Task<IEnumerable<User>> GetAll()
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<IEnumerable<User>> GetAllUsersAsync(bool trackChanges) =>
+            await FindAll(trackChanges)
+            .OrderBy(u => u.Email)
+            .ToListAsync();
+
+        public async Task<User> GetUserAsync(string email, bool trackChanges) =>
+        #pragma warning disable CS8603 // Possible null reference return.
+           await FindByCondition(u => u.Email.Equals(email), trackChanges)
+            .SingleOrDefaultAsync();
+        #pragma warning restore CS8603 // Possible null reference return.
     }
 }

@@ -12,14 +12,12 @@ namespace SEEMS.Services
     {
 
         private readonly IConfiguration _configuration;
-        private readonly IRepositoryManager _repository;
 
         public readonly DateTime EXPIRED_AT = DateTime.UtcNow.AddMinutes(20);
 
-        public AuthManager(IRepositoryManager repository, IConfiguration config)
+        public AuthManager(IConfiguration config)
         {
             this._configuration = config;
-            this._repository = repository;
         }
 
 

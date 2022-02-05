@@ -10,6 +10,6 @@ namespace SEEMS.Services.Interfaces
     {
         IUserRepository User { get; }
 
-        void Save();
+        Task SaveAsync();
     }
 }

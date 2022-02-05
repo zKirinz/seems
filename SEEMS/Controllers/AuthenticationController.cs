@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using SEEMS.Contexts;
 using SEEMS.Data.Models;
 using SEEMS.Services.Interfaces;
 using System.Security.Claims;
@@ -38,12 +40,15 @@ namespace SEEMS.Controllers
         {
             var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var user = _authService.GetUserInfo(info);
+            var currentUser = _authService.GetUserInfo(info);
+           
+            if (await _repoService.User.GetUserAsync(currentUser.Email, trackChanges: false) == null) 
+            {
+                 _repoService.User.CreateUser(currentUser);
+                await _repoService.SaveAsync();
+            }
 
-            _repoService.User.CreateUser(user);
-            _repoService.Save();
-
-            return Ok(new { Token = await _authService.GenerateToken(user) });
+            return Ok(new { Token = await _authService.GenerateToken(currentUser) });
         }
     }
 }
