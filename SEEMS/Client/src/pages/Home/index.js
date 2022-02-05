@@ -1,6 +1,5 @@
 import { Fragment } from 'react'
 
-import BottomNavigationMobile from '../../components/BottomNavigation'
 import { Box } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
@@ -47,9 +46,6 @@ const HomePage = () => {
                 />
                 <Box sx={{ pt: 10, backgroundColor: grey[200], px: 5 }}>
                     <CurrentEvent currentEvents={currentEvents} />
-                </Box>
-                <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
-                    <BottomNavigationMobile />
                 </Box>
             </Box>
         </Fragment>
