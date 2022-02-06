@@ -7,7 +7,7 @@ import { Card, CardContent, IconButton, Typography } from '@mui/material'
 
 const MethodsContact = ({ name, content }) => {
     return (
-        <Card elevation={3}>
+        <Card elevation={3} sx={{ height: '100%' }}>
             <CardContent sx={{ textAlign: 'center' }}>
                 <IconButton color="primary" size="large">
                     {name === 'Email' ? <EmailIcon /> : name === 'Phone' ? <Phone /> : <HomeIcon />}

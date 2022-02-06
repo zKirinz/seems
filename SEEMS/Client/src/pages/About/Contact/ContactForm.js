@@ -47,7 +47,7 @@ const contactFields = [
 
 const ContactForm = () => {
     return (
-        <Box component={Paper} elevation={3} sx={{ p: 4 }}>
+        <Box component={Paper} elevation={3} sx={{ p: 5 }}>
             <Box component="form" mb={1}>
                 <Box
                     display="flex"

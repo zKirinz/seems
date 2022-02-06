@@ -15,7 +15,11 @@ const introHeaderImage = {
 const upComingEvents = [
     {
         id: 1,
-        banner: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
+        poster: {
+            src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
+            height: 300,
+            size: '100% 100%',
+        },
         time: '20-10-2022',
         mode: 'Offline',
         title: 'Nulla nisl tellus hendrerit nec dignissim pellentesqu posu in est Suspendisse ',
@@ -24,7 +28,11 @@ const upComingEvents = [
     },
     {
         id: 2,
-        banner: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
+        poster: {
+            src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
+            height: 300,
+            size: '100% 100%',
+        },
         time: '20-10-2022',
         mode: 'Online',
         title: 'Nulla nisl tellus hendrerit nec dignissim pellentesqu posu in est Suspendisse ',
@@ -35,19 +43,17 @@ const upComingEvents = [
 
 const HomePage = () => {
     return (
-        <React.Fragment>
-            <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }}>
-                <Introduction
-                    src={introHeaderImage.src}
-                    size={introHeaderImage.size}
-                    title={introHeaderImage.title}
-                    desc={introHeaderImage.desc}
-                />
-                <Box sx={{ pt: 10, px: 5 }}>
-                    <UpComingEvents upComingEvents={upComingEvents} />
-                </Box>
+        <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }}>
+            <Introduction
+                src={introHeaderImage.src}
+                size={introHeaderImage.size}
+                title={introHeaderImage.title}
+                desc={introHeaderImage.desc}
+            />
+            <Box sx={{ pt: 10, px: 5 }}>
+                <UpComingEvents upComingEvents={upComingEvents} />
             </Box>
-        </React.Fragment>
+        </Box>
     )
 }
 

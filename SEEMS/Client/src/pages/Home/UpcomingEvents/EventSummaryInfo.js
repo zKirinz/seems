@@ -4,7 +4,7 @@ import { Typography, useMediaQuery, CardContent, Button } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { useTheme } from '@mui/material/styles'
 
-const RightDetail = ({ title, content, mode, time, eventId }) => {
+const EventSummaryInfo = ({ title, content, mode, time, eventId }) => {
     const theme = useTheme()
     const matchs = useMediaQuery(theme.breakpoints.up('sm'))
     return (
@@ -38,4 +38,4 @@ const RightDetail = ({ title, content, mode, time, eventId }) => {
     )
 }
 
-export default RightDetail
+export default EventSummaryInfo

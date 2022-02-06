@@ -1,9 +1,9 @@
 import React from 'react'
 
+import EventPoster from '../../../components/EventPoster'
 import { Grid, Card, Typography } from '@mui/material'
 
-import EventPoster from './EventPoster'
-import RightDetail from './RightDetail'
+import EventSummaryInfo from './EventSummaryInfo'
 
 const UpComingEvents = ({ upComingEvents }) => {
     return (
@@ -22,10 +22,10 @@ const UpComingEvents = ({ upComingEvents }) => {
                         elevation={2}
                     >
                         <Grid item sm={12} xs={12} md={4}>
-                            <EventPoster src={upComingEvent.banner} />
+                            <EventPoster poster={upComingEvent.poster} />
                         </Grid>
                         <Grid item sm={12} xs={12} md={8}>
-                            <RightDetail
+                            <EventSummaryInfo
                                 title={upComingEvent.title}
                                 content={upComingEvent.content}
                                 time={upComingEvent.time}
