@@ -40,7 +40,7 @@ const methodsContact = [
     },
 ]
 
-const staffs = [
+const members = [
     {
         id: 1,
         src: LTT,
@@ -129,7 +129,7 @@ const About = () => {
                     </CardContent>
                 </Grid>
             </Grid>
-            <Members staffs={staffs} />
+            <Members members={members} />
             <Contact contacts={methodsContact} />
         </Box>
     )
