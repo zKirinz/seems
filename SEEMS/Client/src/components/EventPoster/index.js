@@ -1,8 +1,6 @@
 import { Box } from '@mui/material'
 
-const EventPoster = ({ poster }) => {
-    const { src, height, size } = poster
-
+const EventPoster = ({ src, height, size }) => {
     return (
         <Box
             sx={{

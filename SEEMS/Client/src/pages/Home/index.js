@@ -15,11 +15,7 @@ const introHeaderImage = {
 const upComingEvents = [
     {
         id: 1,
-        poster: {
-            src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
-            height: 300,
-            size: '100% 100%',
-        },
+        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
         time: '20-10-2022',
         mode: 'Offline',
         title: 'Nulla nisl tellus hendrerit nec dignissim pellentesqu posu in est Suspendisse ',
@@ -28,11 +24,7 @@ const upComingEvents = [
     },
     {
         id: 2,
-        poster: {
-            src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
-            height: 300,
-            size: '100% 100%',
-        },
+        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
         time: '20-10-2022',
         mode: 'Online',
         title: 'Nulla nisl tellus hendrerit nec dignissim pellentesqu posu in est Suspendisse ',

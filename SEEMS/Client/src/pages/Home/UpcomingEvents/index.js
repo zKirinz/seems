@@ -22,7 +22,7 @@ const UpComingEvents = ({ upComingEvents }) => {
                         elevation={2}
                     >
                         <Grid item sm={12} xs={12} md={4}>
-                            <EventPoster poster={upComingEvent.poster} />
+                            <EventPoster src={upComingEvent.src} height={300} size="100% 100%" />
                         </Grid>
                         <Grid item sm={12} xs={12} md={8}>
                             <EventSummaryInfo
