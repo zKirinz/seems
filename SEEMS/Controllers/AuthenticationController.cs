@@ -26,8 +26,7 @@ namespace SEEMS.Controllers
             this._service = service;
         }
 
-        [HttpGet]
-
+        [HttpGet("")]
         public IActionResult ExternalLogin(string provider, string returnUrl=null)
         {
             var props = _signInManager.ConfigureExternalAuthenticationProperties(provider, returnUrl);
@@ -36,6 +35,7 @@ namespace SEEMS.Controllers
             return Challenge(props, provider);
         }
 
+        [HttpGet]
         [Route("~/sigin-google")]
         public async Task<IActionResult> ExternalLoginCallBack()
         {
