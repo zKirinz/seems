@@ -28,7 +28,7 @@ const Login = () => {
     return (
         <Grid container component="main" height="100vh" overflow="hidden">
             <CssBaseline />
-            <Grid item xs={0} sm={4} md={7} position="relative">
+            <Grid item xs={0} sm={4} md={7} position="relative" overflow="hidden">
                 <Carousel imageList={imageList} />
             </Grid>
             <Grid

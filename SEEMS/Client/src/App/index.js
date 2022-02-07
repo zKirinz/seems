@@ -1,6 +1,7 @@
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 
+import Layout from '../components/Layout'
 import { ThemeProvider } from '@mui/material'
 
 import Routes from '../routes'
@@ -11,7 +12,9 @@ const App = () => {
     return (
         <ThemeProvider theme={seemsTheme}>
             <Provider store={store}>
-                <BrowserRouter>{Routes}</BrowserRouter>
+                <BrowserRouter>
+                    <Layout>{Routes}</Layout>
+                </BrowserRouter>
             </Provider>
         </ThemeProvider>
     )
