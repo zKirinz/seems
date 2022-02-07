@@ -1,17 +1,13 @@
-﻿using SEEMS.Models.Identities;
+﻿using SEEMS.Data.Entities;
+using SEEMS.Data.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
-    public class Comment
+    public class Comment : AbstractEntity<int>
     {
-
-        [Key]
-        [Required]
-        public int Id { get; set; }
-
         [StringLength(500)]
         [Column(TypeName = ("nvarchar(200)"))]
         public String CommentContent { get; set; }
@@ -24,15 +20,11 @@ namespace SEEMS.Models
         [ForeignKey("Event")]
         public int EventId { get; set; }
 
-        public DateTime CreateAt { get; set; }
-
-        public DateTime? LastUpDateAt { get; set; }
-
         [JsonIgnore]
         public Event? Event { get; set; }
 
         [JsonIgnore]
-        public ApplicationUser? User { get; set; }
+        public User? User { get; set; }
 
         [JsonIgnore]
         public Comment? ParentComment { get; set; }

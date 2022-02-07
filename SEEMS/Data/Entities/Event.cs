@@ -1,17 +1,13 @@
-﻿using SEEMS.Models.Identities;
+﻿using SEEMS.Data.Entities;
+using SEEMS.Data.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
-    public class Event
+    public class Event : AbstractEntity<int>
     {
-
-        [Key]
-        [Required]
-        public int Id { get; set; }
-
         [StringLength(100)]
         public String EventTitle { get; set; }
 
@@ -38,12 +34,8 @@ namespace SEEMS.Models
 
         public DateTime EndDate { get; set; }
 
-        public DateTime CreateAt { get; set; }
-
-        public DateTime LastUpdateAt { get; set; }
-
         [JsonIgnore]
-        public ApplicationUser? Client { get; set; }
+        public User? Client { get; set; }
 
         [JsonIgnore]
         public ChainOfEvent? ChainOfEvent { get; set; }

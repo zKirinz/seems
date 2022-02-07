@@ -1,16 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SEEMS.Data.Entities;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace SEEMS.Models
 {
-    public class CommentMeta
+    [Table("CommentMeta")]
+    public class CommentMeta : AbstractEntity<int>
     {
-
-        [Key]
-        [Required]
-        public int Id { get; set; }
-
         [ForeignKey("Comment")]
         public int CommentsId { get; set; }
 

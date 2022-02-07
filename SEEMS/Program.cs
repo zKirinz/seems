@@ -6,11 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SEEMS.Configs;
-using SEEMS.Database;
-using SEEMS.Models;
-using SEEMS.Models.Identities;
+using SEEMS.Contexts;
+using SEEMS.Data.Models;
+using SEEMS.Data.Repositories;
+using SEEMS.Data.Repositories.Implements;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,25 +28,12 @@ services.AddControllersWithViews().AddJsonOptions(options =>
 });
 
 // Add database services to the container.
-services.AddDbContext<IdentityDbContext>(options =>
+services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnection"));
 });
-services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
-{
-/*    options.Password.RequiredLength = 8;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;*/
 
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-/*
-    options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedEmail = true;*/
-})
-/*services.AddDefaultIdentity<User>(options =>
-                                 options.SignIn.RequireConfirmedAccount = true)*/
-    .AddEntityFrameworkStores<IdentityDbContext>();
+var jwtSettings = configuration.GetSection("JwtSettings");
 
 services.AddAuthentication(options =>
 {
@@ -61,9 +50,11 @@ services.AddAuthentication(options =>
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("SecretKey"))),
             ValidateLifetime = true,
-            ValidateAudience = false,
-            ValidateIssuer = false,
-            ClockSkew = TimeSpan.Zero
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            ClockSkew = TimeSpan.Zero,
+            ValidIssuer = jwtSettings.GetSection("ValidIssuer").Value,
+            ValidAudience = jwtSettings.GetSection("ValidAudience").Value
         };
         options.Events = new JwtBearerEvents
         {
@@ -78,28 +69,23 @@ services.AddAuthentication(options =>
             }
         };
     })
+    .AddCookie()
     .AddGoogle(options =>
     {
         IConfigurationSection googleAuthNSection = configuration.GetSection("Authentication:Google");
         options.ClientId = googleAuthNSection["ClientId"];
         options.ClientSecret = googleAuthNSection["ClientSecret"];
-        options.SignInScheme = IdentityConstants.ExternalScheme;
-        options.SaveTokens = true;
-        options.ReturnUrlParameter = "~/";
-        options.Events.OnCreatingTicket = ctx =>
+        options.Scope.Add("profile");
+        options.Events.OnCreatingTicket = (context) =>
         {
-            List<AuthenticationToken> tokens = ctx.Properties.GetTokens().ToList();
-
-            tokens.Add(new AuthenticationToken()
-            {
-                Name = "TicketCreated",
-                Value = DateTime.UtcNow.ToString()
-            });
-
-            ctx.Properties.StoreTokens(tokens);
+            var picture = context.User.GetProperty("picture").GetString();
+            context.Identity.AddClaim(new Claim("picture", picture));
 
             return Task.CompletedTask;
         };
+        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.SaveTokens = true;
+        options.ReturnUrlParameter = "~/";
     });
 
 services.Configure<CookiePolicyOptions>(options =>
@@ -114,8 +100,8 @@ services.AddAuthorization(options =>
     options.AddPolicy("Organizer", policy => policy.RequireClaim("Organizer"));
 });
 
-services.AddSingleton<IAuthService, AuthService>();
-/*services.AddHttpContextAccessor();*/
+services.AddScoped<IAuthManager, AuthManager>();
+services.AddScoped<IRepositoryManager, RepositoryManager>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
