@@ -36,15 +36,15 @@ namespace SEEMS.Controllers
         }
 
         [Route("~/sigin-google")]
-        public async Task<IActionResult> ExternalLoginCallBack()
+        internal async Task<IActionResult> ExternalLoginCallBack()
         {
             var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             var currentUser = _authService.GetUserInfo(info);
-           
-            if (await _repoService.User.GetUserAsync(currentUser.Email, trackChanges: false) == null) 
+
+            if (await _repoService.User.GetUserAsync(currentUser.Email, trackChanges: false) == null)
             {
-                 _repoService.User.CreateUser(currentUser);
+                _repoService.User.CreateUser(currentUser);
                 await _repoService.SaveAsync();
             }
 

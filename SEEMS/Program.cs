@@ -113,10 +113,12 @@ app.UseCookiePolicy(new CookiePolicyOptions
     Secure = CookieSecurePolicy.Always
 });
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-
-} else
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
 {
     /*app.UseMigrationsEndPoint();*/
 }
