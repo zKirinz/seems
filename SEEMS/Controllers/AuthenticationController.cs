@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SEEMS.Models.Identities;
-using SEEMS.Services;
+using Microsoft.Data.SqlClient;
+using SEEMS.Contexts;
+using SEEMS.Data.Models;
 using SEEMS.Services.Interfaces;
 using System.Security.Claims;
 
@@ -15,21 +17,19 @@ namespace SEEMS.Controllers
     [Route("/api/[controller]")]
     public class AuthenticationController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IAuthService _service;
+        private readonly IAuthManager _authService;
+        private readonly IRepositoryManager _repoService;
 
-        public AuthenticationController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAuthService service)
+        public AuthenticationController(IAuthManager authService, IRepositoryManager repoService)
         {
-            this._signInManager = signInManager;
-            this._userManager = userManager;
-            this._service = service;
+            this._authService = authService;
+            this._repoService = repoService;
         }
 
         [HttpGet("")]
         public IActionResult ExternalLogin(string provider, string returnUrl=null)
         {
-            var props = _signInManager.ConfigureExternalAuthenticationProperties(provider, returnUrl);
+            var props = new AuthenticationProperties();
             var callback = Url.Action("ExternalLoginCallBack");
             props.RedirectUri = callback;
             return Challenge(props, provider);
@@ -39,27 +39,17 @@ namespace SEEMS.Controllers
         [Route("~/sigin-google")]
         public async Task<IActionResult> ExternalLoginCallBack()
         {
-            var info = await _signInManager.GetExternalLoginInfoAsync();
+            var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var user = _service.GetUserInfo(info);
-
-            var foundUser = await _userManager.FindByEmailAsync(user.Email);
-            if (foundUser == null)
+            var currentUser = _authService.GetUserInfo(info);
+           
+            if (await _repoService.User.GetUserAsync(currentUser.Email, trackChanges: false) == null) 
             {
-                await _userManager.CreateAsync(user);
-                await _signInManager.SignInAsync(user, false);
-
+                 _repoService.User.CreateUser(currentUser);
+                await _repoService.SaveAsync();
             }
-            await _userManager.AddLoginAsync(user, info);
 
-
-            var claims = _service.GetUserClaims(user);
-
-            return Ok(new
-            {
-                access_token = _service.GenerateToken(claims),
-                expire_at = _service.GetExpiration()
-            });
+            return Ok(new { Token = await _authService.GenerateToken(currentUser) });
         }
     }
 }

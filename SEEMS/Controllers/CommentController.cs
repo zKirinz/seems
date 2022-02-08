@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SEEMS.Database;
+using SEEMS.Contexts;
 using SEEMS.DTOs;
 using SEEMS.Models;
 
@@ -14,9 +14,9 @@ namespace SEEMS.Controller
     public class CommentController : ControllerBase
     {
 
-        private readonly IdentityDbContext _context;
+        private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public CommentController(IdentityDbContext context, IMapper mapper)
+        public CommentController(ApplicationDbContext context, IMapper mapper)
         {
             this._context = context;
             this._mapper = mapper;
