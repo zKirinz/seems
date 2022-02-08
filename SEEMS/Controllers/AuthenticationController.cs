@@ -27,17 +27,17 @@ namespace SEEMS.Controllers
         }
 
         [HttpGet("")]
-        public IActionResult ExternalLogin(string provider, string returnUrl=null)
+        public IActionResult ExternalLogin()
         {
             var props = new AuthenticationProperties();
             var callback = Url.Action("ExternalLoginCallBack");
             props.RedirectUri = callback;
-            return Challenge(props, provider);
+            return Challenge(props, "Google");
         }
 
         [HttpGet]
         [Route("~/sigin-google")]
-        internal async Task<IActionResult> ExternalLoginCallBack()
+        public async Task<IActionResult> ExternalLoginCallBack()
         {
             var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
