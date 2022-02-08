@@ -9,6 +9,7 @@ namespace SEEMS.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "v1")]
     public class EventController : ControllerBase
 
     {
