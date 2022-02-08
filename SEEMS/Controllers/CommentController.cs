@@ -56,7 +56,6 @@ namespace SEEMS.Controller
                 return BadRequest();
             }
 
-            item.CreateAt = DateTime.Now;
             var newComment = _mapper.Map<Comment>(item);
 
             try
@@ -75,36 +74,5 @@ namespace SEEMS.Controller
         }
 
 
-        // DELETE api/<CommentController>/
-        // Delete comment by Id
-        [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
-        {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
-
-            if (comment == null)
-            {
-                return BadRequest();
-            }
-
-            var events = _context.Events.FirstOrDefault(e => e.Id == comment.EventId);
-
-            if (events == null)
-            {
-                return BadRequest();
-            }
-
-            try
-            {
-                _context.Comments.Remove(comment);
-                _context.SaveChanges(true);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest();
-            }
-
-            return Ok();
-        }
     }
 }
