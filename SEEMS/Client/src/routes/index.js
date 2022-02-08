@@ -8,6 +8,16 @@ import PublicRoute from './PublicRoute'
 
 const publicRoutes = [
     {
+        path: '/about',
+        name: 'about',
+        component: lazy(() => import('../pages/About')),
+    },
+    {
+        path: '/',
+        name: 'home',
+        component: lazy(() => import('../pages/Home')),
+    },
+    {
         path: '/login',
         name: 'login',
         component: lazy(() => import('../pages/Login')),
