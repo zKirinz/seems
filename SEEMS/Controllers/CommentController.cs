@@ -74,6 +74,57 @@ namespace SEEMS.Controller
 
         }
 
+        // PUT api/<CommentController>/
+        // Edit comment by Id
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody] CommentDto newComment)
+        {
+            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+
+            if (comment == null)
+            {
+                return BadRequest();
+            }
+
+            comment.CommentContent = newComment.CommentContent;
+
+            try
+            {
+                _context.Comments.Update(comment);
+                _context.SaveChanges(true);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
+
+            return Ok(comment);
+        }
+
+        // DELETE api/<CommentController>/
+        // Delete comment by Id
+        [HttpDelete("{id}")]
+        public ActionResult Delete(int id)
+        {
+            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+
+            if (comment == null)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                _context.Comments.Remove(comment);
+                _context.SaveChanges(true);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
 
     }
 }
