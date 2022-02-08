@@ -26,8 +26,8 @@ namespace SEEMS.Controllers
             this._repoService = repoService;
         }
 
-        [HttpGet]
-        public IActionResult ExternalLogin(string provider)
+        [HttpGet("")]
+        public IActionResult ExternalLogin(string provider, string returnUrl=null)
         {
             var props = new AuthenticationProperties();
             var callback = Url.Action("ExternalLoginCallBack");
@@ -35,6 +35,7 @@ namespace SEEMS.Controllers
             return Challenge(props, provider);
         }
 
+        [HttpGet]
         [Route("~/sigin-google")]
         internal async Task<IActionResult> ExternalLoginCallBack()
         {
