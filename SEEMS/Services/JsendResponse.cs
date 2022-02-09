@@ -1,9 +1,12 @@
-﻿namespace SEEMS.Services
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace SEEMS.Services
 {
 	public class JsendResponse
 	{
 		public String Status { get; protected set; }
 		public Object Data { get; protected set; }
+
 	}
 
 	public class SuccessResponse : JsendResponse
