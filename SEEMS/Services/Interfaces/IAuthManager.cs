@@ -10,7 +10,7 @@ namespace SEEMS.Services.Interfaces
 
         public Task<string> GenerateToken(User user);
 
-        public User GetUserInfo(AuthenticateResult info);
+        public User? GetUserInfo(AuthenticateResult info);
 
     }
 }

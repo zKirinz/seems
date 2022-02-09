@@ -1,21 +1,20 @@
-import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
+import { RecoilRoot } from 'recoil'
 
 import Layout from '../components/Layout'
 import { ThemeProvider } from '@mui/material'
 
 import Routes from '../routes'
 import seemsTheme from '../theme/seemsTheme'
-import store from './store'
 
 const App = () => {
     return (
         <ThemeProvider theme={seemsTheme}>
-            <Provider store={store}>
+            <RecoilRoot>
                 <BrowserRouter>
                     <Layout>{Routes}</Layout>
                 </BrowserRouter>
-            </Provider>
+            </RecoilRoot>
         </ThemeProvider>
     )
 }

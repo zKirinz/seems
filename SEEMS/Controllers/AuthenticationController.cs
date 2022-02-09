@@ -1,12 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using SEEMS.Contexts;
-using SEEMS.Data.Models;
 using SEEMS.Services.Interfaces;
-using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,6 +12,7 @@ namespace SEEMS.Controllers
     [Route("/api/[controller]")]
     public class AuthenticationController : ControllerBase
     {
+        private const string BaseUiDomain = "http://localhost:44449/oauth-google";
         private readonly IAuthManager _authService;
         private readonly IRepositoryManager _repoService;
 
@@ -26,21 +22,27 @@ namespace SEEMS.Controllers
             this._repoService = repoService;
         }
 
-        [HttpGet]
-        public IActionResult ExternalLogin(string provider)
+        [HttpGet("")]
+        public IActionResult ExternalLogin()
         {
             var props = new AuthenticationProperties();
             var callback = Url.Action("ExternalLoginCallBack");
             props.RedirectUri = callback;
-            return Challenge(props, provider);
+            return Challenge(props, "Google");
         }
 
+        [HttpGet]
         [Route("~/sigin-google")]
-        internal async Task<IActionResult> ExternalLoginCallBack()
+        public async Task<IActionResult> ExternalLoginCallBack()
         {
             var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             var currentUser = _authService.GetUserInfo(info);
+
+            if (currentUser == null)
+            {
+                return Redirect($"{BaseUiDomain}?error=fpt-invalid-email");
+            }
 
             if (await _repoService.User.GetUserAsync(currentUser.Email, trackChanges: false) == null)
             {
@@ -48,7 +50,14 @@ namespace SEEMS.Controllers
                 await _repoService.SaveAsync();
             }
 
-            return Ok(new { Token = await _authService.GenerateToken(currentUser) });
+            var accessToken = await _authService.GenerateToken(currentUser);
+
+            Response.Cookies.Append("jwt", accessToken, new CookieOptions
+            {
+                HttpOnly = true
+            });
+
+            return Redirect($"{BaseUiDomain}?token={accessToken}");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using SEEMS.Contexts;
@@ -9,9 +10,10 @@ using SEEMS.Services;
 
 namespace SEEMS.Controller
 {
-	[Route("api/[controller]")]
-	[ApiController]
-	public class EventController : ControllerBase
+    [Route("api/[controller]")]
+    [ApiController]
+    [ApiExplorerSettings(GroupName = "v1")]
+    public class EventController : ControllerBase
 
 	{
 		private readonly ApplicationDbContext _context;
