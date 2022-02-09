@@ -1,12 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using SEEMS.Contexts;
-using SEEMS.Data.Models;
 using SEEMS.Services.Interfaces;
-using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,6 +12,7 @@ namespace SEEMS.Controllers
     [Route("/api/[controller]")]
     public class AuthenticationController : ControllerBase
     {
+        private const string BaseUiDomain = "http://localhost:44449";
         private readonly IAuthManager _authService;
         private readonly IRepositoryManager _repoService;
 
@@ -61,9 +57,7 @@ namespace SEEMS.Controllers
                 HttpOnly = true
             });
 
-            return Ok(new { 
-                message = "success"
-            });
+            return Redirect($"{BaseUiDomain}/oauth-google?token={accessToken}");
         }
     }
 }
