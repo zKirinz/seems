@@ -1,15 +1,9 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using SEEMS.Configs;
 using SEEMS.Contexts;
-using SEEMS.Data.Models;
-using SEEMS.Data.Repositories;
-using SEEMS.Data.Repositories.Implements;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 using System.Security.Claims;
