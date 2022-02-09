@@ -12,7 +12,7 @@ namespace SEEMS.Controllers
     [Route("/api/[controller]")]
     public class AuthenticationController : ControllerBase
     {
-        private const string BaseUiDomain = "http://localhost:44449";
+        private const string BaseUiDomain = "http://localhost:44449/oauth-google";
         private readonly IAuthManager _authService;
         private readonly IRepositoryManager _repoService;
 
@@ -41,7 +41,7 @@ namespace SEEMS.Controllers
 
             if (currentUser == null)
             {
-                return Redirect(Url.Action("ExternalLogin"));
+                return Redirect($"{BaseUiDomain}?error=fpt-invalid-email");
             }
 
             if (await _repoService.User.GetUserAsync(currentUser.Email, trackChanges: false) == null)
@@ -57,7 +57,7 @@ namespace SEEMS.Controllers
                 HttpOnly = true
             });
 
-            return Redirect($"{BaseUiDomain}/oauth-google?token={accessToken}");
+            return Redirect($"{BaseUiDomain}?token={accessToken}");
         }
     }
 }
