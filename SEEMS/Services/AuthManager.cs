@@ -43,7 +43,7 @@ namespace SEEMS.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.Email, user.Email)
             };
 
             return claims;
@@ -65,9 +65,14 @@ namespace SEEMS.Services
             return tokenOptions;
         }
 
-        public User GetUserInfo(AuthenticateResult info)
+        public User? GetUserInfo(AuthenticateResult info)
         {
             var email = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+            
+            if (!email.Value.EndsWith("fpt.edu.vn")) {
+                return null;
+            }
+
             var name = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
             var image = info.Principal.Claims.FirstOrDefault(x => x.Type == "picture");
 

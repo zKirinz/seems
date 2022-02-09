@@ -43,13 +43,27 @@ namespace SEEMS.Controllers
 
             var currentUser = _authService.GetUserInfo(info);
 
+            if (currentUser == null)
+            {
+                return Redirect(Url.Action("ExternalLogin"));
+            }
+
             if (await _repoService.User.GetUserAsync(currentUser.Email, trackChanges: false) == null)
             {
                 _repoService.User.CreateUser(currentUser);
                 await _repoService.SaveAsync();
             }
 
-            return Ok(new { Token = await _authService.GenerateToken(currentUser) });
+            var accessToken = await _authService.GenerateToken(currentUser);
+
+            Response.Cookies.Append("jwt", accessToken, new CookieOptions
+            {
+                HttpOnly = true
+            });
+
+            return Ok(new { 
+                message = "success"
+            });
         }
     }
 }
