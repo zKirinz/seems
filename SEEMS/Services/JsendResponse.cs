@@ -2,6 +2,13 @@
 
 namespace SEEMS.Services
 {
+	public enum ResponseStatusEnum
+	{
+		Success,
+		Fail,
+		Error
+	}
+
 	public class JsendResponse
 	{
 		public String Status { get; protected set; }
@@ -9,7 +16,16 @@ namespace SEEMS.Services
 
 	}
 
-	public class SuccessResponse : JsendResponse
+	public class Response : JsendResponse
+	{
+		public Response(ResponseStatusEnum status, Object data)
+		{
+			Status = Enum.GetName(status).ToLower();
+			Data = data;
+		}
+	}
+
+	/*public class SuccessResponse : JsendResponse
 	{
 		public SuccessResponse(Object data)
 		{
@@ -47,6 +63,6 @@ namespace SEEMS.Services
 			Code = code;
 			Data = data;
 		}
-	}
+	}*/
 
 }

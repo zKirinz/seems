@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,10 @@ using SEEMS.Services;
 
 namespace SEEMS.Controller
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [ApiExplorerSettings(GroupName = "v1")]
-    public class EventController : ControllerBase
+	[Route("api/[controller]")]
+	[ApiController]
+	[ApiExplorerSettings(GroupName = "v1")]
+	public class EventController : ControllerBase
 
 	{
 		private readonly ApplicationDbContext _context;
@@ -56,11 +57,11 @@ namespace SEEMS.Controller
 			try
 			{
 
-				return Ok(new SuccessResponse(_context.Events.ToList()));
+				return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
 			}
 			catch (Exception ex)
 			{
-				return Ok(new ErrorResponse(ex.Message));
+				return Ok(new Response(ResponseStatusEnum.Error, ex.Message));
 			}
 		}
 
@@ -79,20 +80,20 @@ namespace SEEMS.Controller
 		{
 			try
 			{
-				if (anEvent.EventTitle == "")
+				if (anEvent.EventTitle == "3")
 				{
-					return BadRequest(new FailResponse(new { Title = "Id cannot null" }));
+					return BadRequest(new Response(ResponseStatusEnum.Fail, new { Title = "Id cannot null" }));
 				}
 				else
 				{
 					_context.Events.Add(_mapper.Map<Event>(anEvent));
 					_context.SaveChanges();
-					return Ok(new SuccessResponse(_context.Events.ToList()));
+					return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
 				}
 			}
 			catch (Exception ex)
 			{
-				return Ok(new ErrorResponse(ex.Message));
+				return Ok(new Response(ResponseStatusEnum.Error, ex.Message));
 			}
 		}
 
