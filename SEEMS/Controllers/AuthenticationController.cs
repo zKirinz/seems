@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using SEEMS.Infrastructures.Commons;
+using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -68,7 +69,7 @@ namespace SEEMS.Controllers
         [Route("auth")]
         public IActionResult IsAuthenticated()
         {
-            string message = "invalid";
+            ResponseStatusEnum status = ResponseStatusEnum.Fail;
             if (Request.Headers.TryGetValue("token", out var headers))
             {
                 string token = headers.First();
@@ -79,11 +80,11 @@ namespace SEEMS.Controllers
 
                 if ( _repoService.User.GetUserAsync(emailClaim, false) != null)
                 {
-                    message = "success";
+                    status = ResponseStatusEnum.Success;
                 }
             }
 
-            return Ok(message);
+            return Ok(new Response(status, ""));
         }
 
     }
