@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Services.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -18,10 +20,10 @@ namespace SEEMS.Controllers
 
         public AuthenticationController(IAuthManager authService, IRepositoryManager repoService)
         {
-            this._authService = authService;
-            this._repoService = repoService;
+            _authService = authService;
+            _repoService = repoService;
         }
-
+        
         [HttpGet("")]
         public IActionResult ExternalLogin()
         {
@@ -47,10 +49,12 @@ namespace SEEMS.Controllers
             if (await _repoService.User.GetUserAsync(currentUser.Email, trackChanges: false) == null)
             {
                 _repoService.User.CreateUser(currentUser);
+                _repoService.UserMeta.RegisterRole(currentUser, RoleTypes.CUSR);
                 await _repoService.SaveAsync();
             }
 
-            var accessToken = await _authService.GenerateToken(currentUser);
+            var currentRole = await _repoService.UserMeta.GetRolesAsync(currentUser.Email, false);
+            var accessToken = await _authService.GenerateToken(currentUser, currentRole);
 
             Response.Cookies.Append("jwt", accessToken, new CookieOptions
             {
@@ -59,5 +63,29 @@ namespace SEEMS.Controllers
 
             return Redirect($"{BaseUiDomain}?token={accessToken}");
         }
+        
+        [HttpPost]
+        [Route("auth")]
+        public IActionResult IsAuthenticated()
+        {
+            string message = "invalid";
+            if (Request.Headers.TryGetValue("token", out var headers))
+            {
+                string token = headers.First();
+                var jwtToken = _authService.DecodeToken(token);
+
+                var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
+                var roleClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "role");
+
+                if ( _repoService.User.GetUserAsync(emailClaim, false) != null)
+                {
+                    message = "success";
+                }
+            }
+
+            return Ok(message);
+        }
+
     }
+    
 }

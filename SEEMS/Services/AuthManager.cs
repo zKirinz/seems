@@ -5,6 +5,7 @@ using SEEMS.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using SEEMS.Models;
 
 namespace SEEMS.Services
 {
@@ -21,14 +22,21 @@ namespace SEEMS.Services
         }
 
 
-        public async Task<string> GenerateToken(User user)
+        public async Task<string> GenerateToken(User user, UserMeta roleMeta)
         {
             var signinCredentials = GetSigninCredentials();
-            var claims = await GetClaims(user);
+            var claims = await GetClaims(user, roleMeta);
             var tokenOptions = GenerateTokenOptions(signinCredentials, claims);
 
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
 
+        }
+
+        public JwtSecurityToken DecodeToken(string token)
+        {
+            var parsedToken = token.Replace("Bearer", string.Empty);
+            var handler = new JwtSecurityTokenHandler();
+            return handler.ReadJwtToken(parsedToken);
         }
 
         private SigningCredentials GetSigninCredentials()
@@ -39,11 +47,12 @@ namespace SEEMS.Services
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
 
-        private async Task<List<Claim>> GetClaims(User user)
+        private async Task<List<Claim>> GetClaims(User user, UserMeta roleMeta)
         {
             var claims = new List<Claim>
             {
-               new Claim("email", user.Email)
+               new Claim("email", user.Email),
+               new Claim("role", roleMeta.MetaValue)
             };
 
             return claims;
