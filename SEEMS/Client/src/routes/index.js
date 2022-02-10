@@ -13,6 +13,11 @@ const publicRoutes = [
         component: lazy(() => import('../pages/About')),
     },
     {
+        path: '/event/create',
+        name: 'eventCreation',
+        component: lazy(() => import('../pages/EventRegistration')),
+    },
+    {
         path: '/',
         name: 'home',
         component: lazy(() => import('../pages/Home')),

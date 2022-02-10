@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 
-import { AccountCircle, Logout, Notifications, Receipt } from '@mui/icons-material'
+import { Link } from 'react-router-dom'
+
+import { AccountCircle, Add, Logout, Notifications, Receipt } from '@mui/icons-material'
 import {
     Box,
     Tooltip,
@@ -11,6 +13,7 @@ import {
     ListItemIcon,
     Badge,
     Typography,
+    Fab,
 } from '@mui/material'
 
 const RightNavBar = () => {
@@ -24,7 +27,20 @@ const RightNavBar = () => {
     }
     return (
         <React.Fragment>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                <Tooltip title="Create Event">
+                    <Fab
+                        variant="circular"
+                        color="secondary"
+                        component={Link}
+                        to="/event/create"
+                        aria-label="add"
+                        size="medium"
+                        sx={{ mr: 2 }}
+                    >
+                        <Add fontSize="large" />
+                    </Fab>
+                </Tooltip>
                 <Tooltip title="Notification">
                     <IconButton size="large" sx={{ mr: 1 }}>
                         <Badge badgeContent={3} color="info">

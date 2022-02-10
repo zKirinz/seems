@@ -8,7 +8,7 @@ import EventSummaryInfo from './EventSummaryInfo'
 const UpComingEvents = ({ upComingEvents }) => {
     return (
         <React.Fragment>
-            <Typography variant="h3" color="primary" align="center" mb={2} mt={3} fontWeight={700}>
+            <Typography variant="h3" color="primary" align="center" mb={4} mt={3} fontWeight={700}>
                 Upcoming events
             </Typography>
             <Grid container rowGap={5}>
@@ -21,10 +21,10 @@ const UpComingEvents = ({ upComingEvents }) => {
                         component={Card}
                         elevation={2}
                     >
-                        <Grid item sm={12} xs={12} md={4}>
-                            <EventPoster src={upComingEvent.src} height={300} size="100% 100%" />
+                        <Grid item sm={6} xs={12} md={3}>
+                            <EventPoster src={upComingEvent.src} size="contain" />
                         </Grid>
-                        <Grid item sm={12} xs={12} md={8}>
+                        <Grid item sm={6} xs={12} md={9}>
                             <EventSummaryInfo
                                 title={upComingEvent.title}
                                 content={upComingEvent.content}
