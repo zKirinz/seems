@@ -30,8 +30,6 @@ namespace SEEMS.Services
 			Message = msg;
 			Code = code;
 		}
-
-
 	}
 
 	/*public class SuccessResponse : JsendResponse

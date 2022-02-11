@@ -19,51 +19,22 @@ namespace SEEMS.Controller
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IMapper _mapper;
-		public EventController(ApplicationDbContext context, IMapper mapper)
+		public EventController()
 		{
-			this._context = context;
-			this._mapper = mapper;
 		}
 
-		/*private static List<Event> events = new List<Event>
-				{
-				 new Event{
-					  EventTitle = "Tech Talk",
-					 EventDescription = "This tech talk description",
-					 IsPrivate = true,
-					 ImageUrl = "this",
-					 ExpectPrice = 5,
-					 Active = true,
-					 Location = "FPTU",
-					 StartDate = DateTime.Now,
-					 EndDate = DateTime.Now,
-				 },
-			 new Event{
-					 EventTitle = "Tech Talk 2",
-					 EventDescription = "This tech talk description",
-					 IsPrivate = true,
-					 ImageUrl = "this",
-					 ExpectPrice = 5,
-					 Active = true,
-					 Location = "FPTU",
-					 StartDate = DateTime.Now,
-					 EndDate = DateTime.Now,
-				 }
-			 };*/
-
-		[HttpGet()]
-		public async Task<ActionResult<List<Event>>> Get()
-		{
-			try
-			{
-
-				return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
-			}
-			catch (Exception ex)
-			{
-				return Ok(new Response(ResponseStatusEnum.Error, ex.Message));
-			}
-		}
+		//[HttpGet()]
+		//public async Task<ActionResult<List<Event>>> Get()
+		//{
+		//	try
+		//	{
+		//		return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		return Ok(new Response(ResponseStatusEnum.Error, ex.Message));
+		//	}
+		//}
 
 		//[HttpGet("{id}")]
 		//public async Task<ActionResult<Event>> Get(int id)
