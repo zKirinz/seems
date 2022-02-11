@@ -1,3 +1,8 @@
+import { useEffect, useState } from 'react'
+
+import queryString from 'query-string'
+import { useLocation } from 'react-router-dom'
+
 import GoogleButton from '../../components/Buttons/GoogleButton'
 import Carousel from '../../components/Carousel'
 import Copyright from '../../components/Copyright'
@@ -26,6 +31,18 @@ const imageList = [
 ]
 
 const Login = () => {
+    const { search } = useLocation()
+    const { error } = queryString.parse(search)
+    const [loginError, setLoginError] = useState('')
+
+    useEffect(() => {
+        if (error && error === 'fpt-email-invalid') {
+            setLoginError('Your email is not valid')
+        } else if (error && error === 'unexpected') {
+            setLoginError('Something went wrong, please try again later.')
+        }
+    }, [error])
+
     const googleClickHandler = () => {
         window.location.assign(`${APP_API_URL}/api/Authentication`)
     }
@@ -69,6 +86,9 @@ const Login = () => {
                     </Typography>
                     <Box sx={{ mt: 1 }}>
                         <GoogleButton onClick={googleClickHandler} />
+                        <Typography variant="subtitle1" textAlign="center" color="error.main">
+                            {loginError}
+                        </Typography>
                         <Grid container>
                             <Grid item xs={12}>
                                 <Typography
