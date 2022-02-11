@@ -1,9 +1,10 @@
-import GoogleButton from '../components/Buttons/GoogleButton'
-import Carousel from '../components/Carousel'
-import Copyright from '../components/Copyright'
+import GoogleButton from '../../components/Buttons/GoogleButton'
+import Carousel from '../../components/Carousel'
+import Copyright from '../../components/Copyright'
 import { Typography, Grid, CssBaseline, Box, Avatar, Paper } from '@mui/material'
 
-import Logo from '../assets/images/logo.png'
+import Logo from '../../assets/images/logo.png'
+import { APP_API_URL } from '../../config'
 
 const imageList = [
     {
@@ -25,6 +26,10 @@ const imageList = [
 ]
 
 const Login = () => {
+    const googleClickHandler = () => {
+        window.location.assign(`${APP_API_URL}/api/Authentication`)
+    }
+
     return (
         <Grid container component="main" height="100vh" overflow="hidden">
             <CssBaseline />
@@ -63,7 +68,7 @@ const Login = () => {
                         The SE Event Management System
                     </Typography>
                     <Box sx={{ mt: 1 }}>
-                        <GoogleButton />
+                        <GoogleButton onClick={googleClickHandler} />
                         <Grid container>
                             <Grid item xs={12}>
                                 <Typography
