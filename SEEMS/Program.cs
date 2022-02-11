@@ -1,15 +1,10 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using SEEMS.Configs;
 using SEEMS.Contexts;
-using SEEMS.Data.Models;
-using SEEMS.Data.Repositories;
-using SEEMS.Data.Repositories.Implements;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 using System.Security.Claims;
@@ -99,28 +94,69 @@ services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Admin"));
     options.AddPolicy("Organizer", policy => policy.RequireClaim("Organizer"));
 });
-
 services.AddScoped<IAuthManager, AuthManager>();
 services.AddScoped<IRepositoryManager, RepositoryManager>();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen(s =>
+{
+    s.SwaggerDoc("v1", new OpenApiInfo { Title = "Seem API", Version = "v1" });
+
+    s.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows()
+        {
+            Implicit = new OpenApiOAuthFlow()
+            {
+                AuthorizationUrl = new Uri("http://localhost:5148/api/authentication"),
+                Scopes = new Dictionary<string, string>
+                {
+                    { "readAccess", "Access Read Operations" },
+                    { "writeAccess", "Access Write Operations" }
+                }
+            }
+        }
+    });
+
+    s.AddSecurityRequirement(new OpenApiSecurityRequirement()
+      {
+        {
+          new OpenApiSecurityScheme
+          {
+            Reference = new OpenApiReference
+              {
+                Type = ReferenceType.SecurityScheme,
+                Id = "oauth2"
+              },
+            },
+            new [] { "readAccess", "writeAccess" }
+          }
+        });
+});
+services.AddAutoMapper(typeof(MappingProfile));
 
 var app = builder.Build();
+app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseCookiePolicy(new CookiePolicyOptions
 {
     Secure = CookieSecurePolicy.Always
 });
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 else
 {
-    /*app.UseMigrationsEndPoint();*/
+    app.UseSwagger();
+    app.UseSwaggerUI(s =>
+    {
+        s.SwaggerEndpoint("/swagger/v1/swagger.json", "Seem API v1");
+        s.OAuthClientId(configuration.GetSection("Authentication:Google")["ClientId"]);
+        s.OAuthClientSecret(configuration.GetSection("Authentication:Google")["ClientSecret"]);
+        s.OAuthAppName("Google");
+        s.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+    });
 }
 
 /*app.UseHttpsRedirection();*/
@@ -130,7 +166,6 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.Use((httpContext, next) => // For the oauth2-less!
 {
     if (httpContext.Request.Headers["X-Authorization"].Any())
