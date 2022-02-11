@@ -19,8 +19,10 @@ namespace SEEMS.Controller
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IMapper _mapper;
+		private EventsServices _eventsServices;
 		public EventController()
 		{
+			_eventsServices = new EventsServices(_context, _mapper);
 		}
 
 		//[HttpGet()]
