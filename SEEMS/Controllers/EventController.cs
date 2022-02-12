@@ -22,8 +22,8 @@ namespace SEEMS.Controller
 		private readonly IMapper _mapper;
 		public EventController(ApplicationDbContext context, IMapper mapper)
 		{
-			this._mapper = mapper;
 			this._context = context;
+			this._mapper = mapper;
 		}
 
 		/*[HttpGet()]

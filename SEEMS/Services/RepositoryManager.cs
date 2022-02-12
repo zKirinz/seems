@@ -10,6 +10,7 @@ namespace SEEMS.Services
 
         private ApplicationDbContext _context;
         private IUserRepository _userRepository;
+        private IUserMetaRepository _userMetaRepository;
 
         public RepositoryManager(ApplicationDbContext context)
         {
@@ -27,6 +28,24 @@ namespace SEEMS.Services
 
                 return _userRepository; 
             } 
+        }
+
+        public IUserMetaRepository UserMeta
+        {
+            get
+            {
+                if (_userMetaRepository == null)
+                {
+                    _userMetaRepository = new UserMetaRepository(_context);
+                }
+
+                return _userMetaRepository;
+            }
+        }
+
+        private void RegisterRepositories()
+        {
+            
         }
 
         public Task SaveAsync() => _context.SaveChangesAsync(); 

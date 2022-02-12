@@ -1,9 +1,12 @@
 ﻿
 namespace SEEMS.Infrastructures.Commons
 {
-    public static class RoleTypes
+    public class RoleTypes
     {
+        public const string CUSR = "User";
         public const string ADM = "Admin";
         public const string ORG = "Organizer";
+        
+        
     }
 }
