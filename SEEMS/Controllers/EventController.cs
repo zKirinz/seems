@@ -12,7 +12,7 @@ using SEEMS.Services;
 
 namespace SEEMS.Controller
 {
-	[Route("api/[controller]")]
+	[Route("api/Events")]
 	[ApiController]
 	[ApiExplorerSettings(GroupName = "v1")]
 	public class EventController : ControllerBase
