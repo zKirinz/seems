@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Microsoft.OpenApi.Extensions;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
@@ -15,7 +16,7 @@ namespace SEEMS.Controllers
     [Route("/api/[controller]")]
     public class AuthenticationController : ControllerBase
     {
-        private const string BaseUiDomain = "http://localhost:44449/oauth-google";
+        private const string BaseUiDomain = "http://localhost:44449/login";
         private readonly IAuthManager _authService;
         private readonly IRepositoryManager _repoService;
 
@@ -70,23 +71,33 @@ namespace SEEMS.Controllers
         public IActionResult IsAuthenticated()
         {
             ResponseStatusEnum status = ResponseStatusEnum.Fail;
-            if (Request.Headers.TryGetValue("token", out var headers))
+            try
             {
-                string token = headers.First();
-                var jwtToken = _authService.DecodeToken(token);
-
-                var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
-                var roleClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "role");
-
-                if ( _repoService.User.GetUserAsync(emailClaim, false) != null)
+                if (Request.Headers.TryGetValue("token", out var headers))
                 {
-                    status = ResponseStatusEnum.Success;
+                    string token = headers.First();
+                    var jwtToken = _authService.DecodeToken(token);
+
+                    var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
+                    Console.WriteLine(emailClaim);
+                    
+                    if (_repoService.User.GetUserAsync(emailClaim, false).IsCompleted)
+                    {
+                        status = ResponseStatusEnum.Success;
+                    }
+                    else
+                    {
+                        return BadRequest(new Response(status, "invalid token"));
+                    }
                 }
             }
-
+            catch (Exception e)
+            {
+                return BadRequest(new Response(status, e.Message));
+            }
+            
             return Ok(new Response(status, ""));
         }
-
     }
     
 }
