@@ -32,10 +32,15 @@ namespace SEEMS.Services
 				failedCheck = true;
 				validationInfo.ExpectPrice = $"Price can not smaller than {EventValidationInfo.MinPrice}";
 			}
-			if (eventDTO.EndDate.Subtract(eventDTO.StartDate).Hours < 2)
+			if (eventDTO.StartDate.Subtract(DateTime.Now).Days < EventValidationInfo.MinDayBeforeStarted)
+			{
+				failedCheck=true;
+				validationInfo.StartDate = $"Start date must after current time at least {EventValidationInfo.MinDayBeforeStarted} days";
+			}
+			if (eventDTO.EndDate.Subtract(eventDTO.StartDate).Minutes < EventValidationInfo.MinMinutesOfEvent)
 			{
 				failedCheck = true;
-				validationInfo.EndDate = $"End time must behind start time";
+				validationInfo.EndDate = $"End time must behind start time at least {EventValidationInfo.MinMinutesOfEvent} minutes";
 			}
 			return failedCheck ? validationInfo : null;
 		}
