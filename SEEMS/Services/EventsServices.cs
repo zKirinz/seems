@@ -37,7 +37,7 @@ namespace SEEMS.Services
 				failedCheck=true;
 				validationInfo.StartDate = $"Start date must after current time at least {EventValidationInfo.MinDayBeforeStarted} days";
 			}
-			if (eventDTO.EndDate.Subtract(eventDTO.StartDate).Minutes < EventValidationInfo.MinMinutesOfEvent)
+			if (eventDTO.EndDate.Subtract(eventDTO.StartDate).TotalMinutes < EventValidationInfo.MinMinutesOfEvent)
 			{
 				failedCheck = true;
 				validationInfo.EndDate = $"End time must behind start time at least {EventValidationInfo.MinMinutesOfEvent} minutes";
