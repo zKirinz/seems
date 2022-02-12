@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Extensions;
 using SEEMS.Infrastructures.Commons;
+using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 
@@ -68,7 +69,7 @@ namespace SEEMS.Controllers
         
         [HttpPost]
         [Route("auth")]
-        public IActionResult IsAuthenticated()
+        public async Task<IActionResult> IsAuthenticated()
         {
             ResponseStatusEnum status = ResponseStatusEnum.Fail;
             try
@@ -79,21 +80,27 @@ namespace SEEMS.Controllers
                     var jwtToken = _authService.DecodeToken(token);
 
                     var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
-                    Console.WriteLine(emailClaim);
-                    
-                    if (_repoService.User.GetUserAsync(emailClaim, false).IsCompleted)
+                    var roleClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "role").Value;
+
+                    UserMeta roleBasedEmail = await _repoService.UserMeta.GetRolesAsync(emailClaim, false);
+                        
+                    if (await _repoService.User.GetUserAsync(emailClaim, false) != null)
                     {
+                        if (!roleBasedEmail.MetaValue.Equals(roleClaim))
+                        {
+                            return Unauthorized(new Response(status, "", "You don't have permission for this request"));
+                        }
                         status = ResponseStatusEnum.Success;
                     }
                     else
                     {
-                        return BadRequest(new Response(status, "invalid token"));
+                        return BadRequest(new Response(status, "", "invalid token"));
                     }
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(new Response(status, e.Message));
+                return BadRequest(new Response(status, "", e.Message));
             }
             
             return Ok(new Response(status, ""));
