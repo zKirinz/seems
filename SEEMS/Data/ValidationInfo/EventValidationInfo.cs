@@ -9,6 +9,8 @@
 		public const int MinPrice = 0;
 		public const int MinLocationLength = 5;
 		public const int MaxLocationLength = 50;
+		public const int MinDayBeforeStarted = 1;
+		public const int MinMinutesOfEvent = 5;
 		public string Title { get; set; }
 		public string Description { get; set; }
 		public string ExpectPrice { get; set; }
