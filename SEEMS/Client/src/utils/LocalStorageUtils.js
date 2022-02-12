@@ -1,6 +1,7 @@
 import jwt_decode from 'jwt-decode'
 
-const LOCALSTORAGE_TOKEN_NAME = 'token'
+import { LOCALSTORAGE_TOKEN_NAME } from '../config'
+
 class LocalStorageUtils {
     getItem(key) {
         if (typeof localStorage !== 'undefined') {

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
+using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
 
@@ -25,38 +26,11 @@ namespace SEEMS.Controller
 			this._mapper = mapper;
 		}
 
-		/*private static List<Event> events = new List<Event>
-				{
-				 new Event{
-					  EventTitle = "Tech Talk",
-					 EventDescription = "This tech talk description",
-					 IsPrivate = true,
-					 ImageUrl = "this",
-					 ExpectPrice = 5,
-					 Active = true,
-					 Location = "FPTU",
-					 StartDate = DateTime.Now,
-					 EndDate = DateTime.Now,
-				 },
-			 new Event{
-					 EventTitle = "Tech Talk 2",
-					 EventDescription = "This tech talk description",
-					 IsPrivate = true,
-					 ImageUrl = "this",
-					 ExpectPrice = 5,
-					 Active = true,
-					 Location = "FPTU",
-					 StartDate = DateTime.Now,
-					 EndDate = DateTime.Now,
-				 }
-			 };*/
-
-		[HttpGet()]
+		/*[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get()
 		{
 			try
 			{
-
 				return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
 			}
 			catch (Exception ex)
@@ -65,24 +39,25 @@ namespace SEEMS.Controller
 			}
 		}
 
-		//[HttpGet("{id}")]
-		//public async Task<ActionResult<Event>> Get(int id)
-		//{
-		//need to replace by EF 
-		//var anEvent = events.Find(h => h.Id == id);
-		//if (anEvent == null)
-		//    return BadRequest("Event not found.");
-		//return Ok(anEvent);
-		//}
+		[HttpGet("{id}")]
+		public async Task<ActionResult<Event>> Get(int id)
+		{
+			//need to replace by EF
+			var anEvent = events.Find(h => h.Id == id);
+			if (anEvent == null)
+				return BadRequest("Event not found.");
+			return Ok(anEvent);
+		}*/
 
 		[HttpPost]
 		public async Task<ActionResult> AddEvent(EventDTO anEvent)
 		{
+			EventValidationInfo eventValidationInfo = EventsServices.GetValidatedEventInfo(anEvent);
 			try
 			{
-				if (anEvent.EventTitle == "3")
+				if (eventValidationInfo != null)
 				{
-					return BadRequest(new Response(ResponseStatusEnum.Fail, new { Title = "Id cannot null" }));
+					return BadRequest(new Response(ResponseStatusEnum.Fail, eventValidationInfo, "Some fields didn't match requirements"));
 				}
 				else
 				{
@@ -91,11 +66,10 @@ namespace SEEMS.Controller
 					return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
-				return Ok(new Response(ResponseStatusEnum.Error, ex.Message));
+				return StatusCode(StatusCodes.Status500InternalServerError, eventValidationInfo);
 			}
 		}
-
 	}
 }
