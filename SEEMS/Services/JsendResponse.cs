@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
+using System.Runtime.InteropServices;
+
 namespace SEEMS.Services
 {
 	public enum ResponseStatusEnum
@@ -14,14 +16,19 @@ namespace SEEMS.Services
 		public String Status { get; protected set; }
 		public Object Data { get; protected set; }
 
+		public String? Message { get; protected set; }
+
+		public int? Code { get; protected set; }
 	}
 
 	public class Response : JsendResponse
 	{
-		public Response(ResponseStatusEnum status, Object data)
+		public Response(ResponseStatusEnum status, Object data, [Optional] String msg, [Optional] int code)
 		{
 			Status = Enum.GetName(status).ToLower();
 			Data = data;
+			Message = msg;
+			Code = code;
 		}
 	}
 
