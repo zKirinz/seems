@@ -57,7 +57,7 @@ namespace SEEMS.Controller
 			{
 				if (eventValidationInfo != null)
 				{
-					return BadRequest(new Response(ResponseStatusEnum.Fail, eventValidationInfo));
+					return BadRequest(new Response(ResponseStatusEnum.Fail, eventValidationInfo, "Some fields didn't match requirements"));
 				}
 				else
 				{
@@ -66,7 +66,7 @@ namespace SEEMS.Controller
 					return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError, eventValidationInfo);
 			}
