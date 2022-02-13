@@ -15,11 +15,6 @@ const publicRoutes = [
         name: 'login',
         component: lazy(() => import('../pages/Login')),
     },
-    {
-        path: '/oauth-google',
-        name: 'auth',
-        component: lazy(() => import('../pages/Auth')),
-    },
 ]
 
 const hybridRoutes = [
@@ -84,6 +79,7 @@ const Routes = (
                                     <HybridRoute key={route.name} exact={true} {...route} />
                                 )
                         )}
+                        <Redirect to="/admin" />
                     </Switch>
                 </AdminLayout>
             </Route>
@@ -108,10 +104,10 @@ const Routes = (
                                     <HybridRoute key={route.name} exact={true} {...route} />
                                 )
                         )}
+                        <Redirect to="/" />
                     </Switch>
                 </CommonLayout>
             </Route>
-            <Redirect to="/" />
         </Switch>
     </Suspense>
 )
