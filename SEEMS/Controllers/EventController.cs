@@ -41,12 +41,12 @@ namespace SEEMS.Controller
 		}*/
 
 		[HttpGet()]
-		public async Task<ActionResult<List<Event>>> Get([Optional] string? orderBy)
+		public async Task<ActionResult<List<Event>>> Get([FromQuery] string? orderBy)
 		{
 			try
 			{
 				var allEvents = _context.Events.ToList();
-				var result = allEvents.OrderBy(e => e.StartDate);
+				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 1).OrderBy(e => e.EndDate);
 				if (orderBy != null)
 				{
 					switch (orderBy)
@@ -61,7 +61,9 @@ namespace SEEMS.Controller
 							throw new Exception($"No such '{orderBy}' query");
 					}
 				}
-				return Ok(new Response(ResponseStatusEnum.Success, result));
+
+				var resMsg = result.Count() == 0 ? "No event was found" : "Successfully get your events";
+				return Ok(new Response(ResponseStatusEnum.Success, result, resMsg));
 			}
 			catch (Exception ex)
 			{
