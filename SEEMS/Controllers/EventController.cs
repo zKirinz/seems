@@ -40,7 +40,20 @@ namespace SEEMS.Controller
 			return Ok(anEvent);
 		}*/
 
-		[HttpGet()]
+		[HttpGet("all")]
+		public async Task<ActionResult<List<Event>>> Get()
+		{
+			try
+			{
+				return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+			}
+		}
+
+		[HttpGet("upcoming")]
 		public async Task<ActionResult<List<Event>>> Get([FromQuery] string? orderBy)
 		{
 			try
