@@ -36,7 +36,6 @@ class LocalStorageUtils {
     setUser(token) {
         if (typeof localStorage !== 'undefined') {
             this.setItem(LOCALSTORAGE_TOKEN_NAME, token)
-            this.setItem('user', JSON.stringify(jwt_decode(token)))
         }
         return undefined
     }

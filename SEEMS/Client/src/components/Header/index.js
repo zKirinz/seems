@@ -10,11 +10,14 @@ import LeftNavBar from './LeftNavBar'
 import MiddleNavBar from './MiddleNavBar'
 import RightNavBar from './RightNavBar'
 
-const Header = () => {
+const Header = ({ isAdmin }) => {
     const auth = useRecoilValue(authAtom)
 
     return (
-        <AppBar sx={{ position: { sm: 'fixed', xs: 'static' } }}>
+        <AppBar
+            color={!isAdmin ? 'primary' : 'secondary'}
+            sx={{ position: { sm: 'fixed', xs: 'static' } }}
+        >
             <Toolbar>
                 <Grid container alignItems="center">
                     <Grid item sm={3} xs={6}>

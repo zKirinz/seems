@@ -9,7 +9,7 @@ import Header from '../Header'
 const AdminLayout = ({ children }) => {
     return (
         <React.Fragment>
-            <Header />
+            <Header isAdmin />
             {children}
             <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
                 <BottomNavigationMobile />
