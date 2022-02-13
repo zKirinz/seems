@@ -1,9 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
-import jwt_decode from 'jwt-decode'
 import queryString from 'query-string'
-import { useHistory, useLocation } from 'react-router-dom'
-import { useSetRecoilState } from 'recoil'
+import { useLocation } from 'react-router-dom'
 
 import GoogleButton from '../../components/Buttons/GoogleButton'
 import Carousel from '../../components/Carousel'
@@ -12,10 +10,9 @@ import { Typography, Grid, CssBaseline, Box, Avatar, Paper } from '@mui/material
 
 import { useSnackbar } from '../../HOCs/SnackbarContext'
 import Logo from '../../assets/images/logo.png'
-import { APP_API_URL, LOCALSTORAGE_TOKEN_NAME } from '../../config'
-import authAtom from '../../recoil/auth'
-import { post } from '../../utils/ApiCaller'
-import usePersistedState from '../../utils/usePersistedState'
+import { APP_API_URL } from '../../config'
+import { useAuthAction } from '../../recoil/auth'
+import Loading from '../Loading'
 
 const imageList = [
     {
@@ -37,34 +34,11 @@ const imageList = [
 ]
 
 const Login = () => {
-    const history = useHistory()
     const { search } = useLocation()
-    const setAuth = useSetRecoilState(authAtom)
+    const authAction = useAuthAction()
     const { token, error } = queryString.parse(search)
-    // eslint-disable-next-line unused-imports/no-unused-vars
-    const [user, setUser] = usePersistedState(LOCALSTORAGE_TOKEN_NAME, '')
+    const [isLoading, setIsLoading] = useState(token ? true : false)
     const showSnackbar = useSnackbar()
-
-    const verifyToken = async () => {
-        try {
-            const response = await post({
-                endpoint: '/api/authentication/auth',
-                headers: { token },
-            })
-
-            if (response?.data?.status === 'success') {
-                setUser(token)
-                const { email, role, exp } = jwt_decode(token)
-                setAuth({ token, email, role, exp })
-                history.push('/')
-            }
-        } catch (_) {
-            showSnackbar({
-                severity: 'error',
-                children: 'Something went wrong, please try again later.',
-            })
-        }
-    }
 
     useEffect(() => {
         if (error && error === 'fpt-invalid-email') {
@@ -75,7 +49,13 @@ const Login = () => {
                 children: 'Something went wrong, please try again later.',
             })
         } else if (token) {
-            verifyToken()
+            authAction.login(token).catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
+                setIsLoading(false)
+            })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -84,7 +64,9 @@ const Login = () => {
         window.location.assign(`${APP_API_URL}/api/Authentication`)
     }
 
-    return (
+    return isLoading ? (
+        <Loading />
+    ) : (
         <Grid container component="main" height="100vh" overflow="hidden">
             <CssBaseline />
             <Grid item xs={0} sm={4} md={7} position="relative" overflow="hidden">
