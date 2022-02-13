@@ -1,11 +1,41 @@
-﻿using AutoMapper;
-using SEEMS.Contexts;
+﻿using SEEMS.Data.DTO;
+using SEEMS.Data.ValidationInfo;
 
 namespace SEEMS.Services
 {
 	public class EventsServices
 	{
-		private readonly ApplicationDbContext _context;
-		private readonly IMapper _mapper;
+		public static EventValidationInfo? GetValidatedEventInfo(EventDTO eventDTO)
+		{
+			EventValidationInfo validationInfo = new EventValidationInfo();
+			bool failedCheck = false;
+
+			validationInfo.Title = ValidationMessageGenerator.GetIntRangeValidateMsg("Event title", eventDTO.EventTitle.Length, EventValidationInfo.MinTitleLength, EventValidationInfo.MaxTitleLength);
+			validationInfo.Description = ValidationMessageGenerator.GetIntRangeValidateMsg("Event description", eventDTO.EventDescription.Length,
+				EventValidationInfo.MinDescriptionLength, EventValidationInfo.MaxDescriptionLength);
+			validationInfo.Location = ValidationMessageGenerator.GetIntRangeValidateMsg("Event location", eventDTO.Location.Length,
+				EventValidationInfo.MinLocationLength, EventValidationInfo.MaxLocationLength);
+
+			if (validationInfo.Title != null || validationInfo.Location != null || validationInfo.Description != null)
+			{
+				failedCheck = true;
+			}
+			if (!eventDTO.IsFree && eventDTO.ExpectPrice < EventValidationInfo.MinPrice)
+			{
+				failedCheck = true;
+				validationInfo.ExpectPrice = $"Price can not smaller than {EventValidationInfo.MinPrice} VNĐ";
+			}
+			if (eventDTO.StartDate.Subtract(DateTime.Now).TotalDays <= EventValidationInfo.MinDayBeforeStarted)
+			{
+				failedCheck = true;
+				validationInfo.StartDate = $"Start date must after current time at least {EventValidationInfo.MinDayBeforeStarted} days";
+			}
+			if (eventDTO.EndDate.Subtract(eventDTO.StartDate).TotalMinutes < EventValidationInfo.MinMinutesOfEvent)
+			{
+				failedCheck = true;
+				validationInfo.EndDate = $"End time must behind start time at least {EventValidationInfo.MinMinutesOfEvent} minutes";
+			}
+			return failedCheck ? validationInfo : null;
+		}
 	}
 }

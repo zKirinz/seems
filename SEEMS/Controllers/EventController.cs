@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
+using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
 
 namespace SEEMS.Controller
 {
-	[Route("api/[controller]")]
+	[Route("api/Events")]
 	[ApiController]
 	[ApiExplorerSettings(GroupName = "v1")]
 	public class EventController : ControllerBase
@@ -19,48 +20,18 @@ namespace SEEMS.Controller
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IMapper _mapper;
-		public EventController()
+		public EventController(ApplicationDbContext context, IMapper mapper)
 		{
+			this._context = context;
+			this._mapper = mapper;
 		}
 
-		//[HttpGet()]
-		//public async Task<ActionResult<List<Event>>> Get()
-		//{
-		//	try
-		//	{
-		//		return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		return Ok(new Response(ResponseStatusEnum.Error, ex.Message));
-		//	}
-		//}
-
-		//[HttpGet("{id}")]
-		//public async Task<ActionResult<Event>> Get(int id)
-		//{
-		//need to replace by EF 
-		//var anEvent = events.Find(h => h.Id == id);
-		//if (anEvent == null)
-		//    return BadRequest("Event not found.");
-		//return Ok(anEvent);
-		//}
-
-		[HttpPost]
-		public async Task<ActionResult> AddEvent(EventDTO anEvent)
+		/*[HttpGet()]
+		public async Task<ActionResult<List<Event>>> Get()
 		{
 			try
 			{
-				if (anEvent.EventTitle == "3")
-				{
-					return BadRequest(new Response(ResponseStatusEnum.Fail, new { Title = "Id cannot null" }));
-				}
-				else
-				{
-					_context.Events.Add(_mapper.Map<Event>(anEvent));
-					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
-				}
+				return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
 			}
 			catch (Exception ex)
 			{
@@ -68,5 +39,40 @@ namespace SEEMS.Controller
 			}
 		}
 
+		[HttpGet("{id}")]
+		public async Task<ActionResult<Event>> Get(int id)
+		{
+			//need to replace by EF
+			var anEvent = events.Find(h => h.Id == id);
+			if (anEvent == null)
+				return BadRequest("Event not found.");
+			return Ok(anEvent);
+		}*/
+
+		[HttpPost]
+		public async Task<ActionResult> AddEvent(EventDTO anEvent)
+		{
+			EventValidationInfo eventValidationInfo = EventsServices.GetValidatedEventInfo(anEvent);
+			try
+			{
+				if (eventValidationInfo != null)
+				{
+					return BadRequest(new Response(ResponseStatusEnum.Fail, eventValidationInfo, "Some fields didn't match requirements"));
+				}
+				else
+				{
+					anEvent.Active = true;
+					if (anEvent.IsFree) anEvent.ExpectPrice = 0;
+					var newEvent = _mapper.Map<Event>(anEvent);
+					_context.Events.Add(newEvent);
+					_context.SaveChanges();
+					return Ok(new Response(ResponseStatusEnum.Success, newEvent));
+				}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+			}
+		}
 	}
 }

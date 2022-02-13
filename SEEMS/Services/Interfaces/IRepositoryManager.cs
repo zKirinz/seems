@@ -9,6 +9,7 @@ namespace SEEMS.Services.Interfaces
     public interface IRepositoryManager
     {
         IUserRepository User { get; }
+        IUserMetaRepository UserMeta { get; }
 
         Task SaveAsync();
     }
