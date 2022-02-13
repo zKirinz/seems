@@ -1,10 +1,12 @@
 import { Route, Redirect } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
 
-import LocalStorageUtils from '../utils/LocalStorageUtils'
+import authAtom from '../recoil/auth'
 
 const PublicRoute = (props) => {
-    const user = LocalStorageUtils.getUser()
-    if (!user?.email) {
+    const auth = useRecoilValue(authAtom)
+
+    if (!auth.email) {
         return <Route {...props} />
     }
 

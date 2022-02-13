@@ -33,6 +33,13 @@ class LocalStorageUtils {
         }
     }
 
+    setUser(token) {
+        if (typeof localStorage !== 'undefined') {
+            this.setItem(LOCALSTORAGE_TOKEN_NAME, token)
+        }
+        return undefined
+    }
+
     getUser() {
         if (typeof localStorage !== 'undefined') {
             const token = this.getItem(LOCALSTORAGE_TOKEN_NAME)
@@ -46,13 +53,10 @@ class LocalStorageUtils {
         return undefined
     }
 
-    setUser(token) {
-        if (typeof localStorage !== 'undefined') {
-            this.setItem(LOCALSTORAGE_TOKEN_NAME, token)
-            this.setItem('user', JSON.stringify(jwt_decode(token)))
-        }
-        return undefined
+    deleteUser() {
+        this.removeItem(LOCALSTORAGE_TOKEN_NAME)
     }
+
     getToken() {
         return this.getItem(LOCALSTORAGE_TOKEN_NAME)
     }
