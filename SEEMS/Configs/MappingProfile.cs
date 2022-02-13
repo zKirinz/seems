@@ -1,18 +1,19 @@
 ﻿using AutoMapper;
+
 using SEEMS.Data.DTO;
 using SEEMS.DTOs;
 using SEEMS.Models;
 
 namespace SEEMS.Configs
 {
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
+	public class MappingProfile : Profile
+	{
+		public MappingProfile()
+		{
 
-            CreateMap<Event, EventDTO>();
-            CreateMap<EventDTO, Event>();
-            CreateMap<CommentDto, Comment>();
-        }
-    }
+			CreateMap<Event, EventDTO>().ForMember(x => x.IsFree, opt => opt.Ignore());
+			CreateMap<EventDTO, Event>();
+			CreateMap<CommentDto, Comment>();
+		}
+	}
 }
