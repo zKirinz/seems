@@ -20,7 +20,7 @@ namespace SEEMS.Services
 			{
 				failedCheck = true;
 			}
-			if (eventDTO.ExpectPrice < EventValidationInfo.MinPrice)
+			if (!eventDTO.IsFree && eventDTO.ExpectPrice < EventValidationInfo.MinPrice)
 			{
 				failedCheck = true;
 				validationInfo.ExpectPrice = $"Price can not smaller than {EventValidationInfo.MinPrice} VNĐ";

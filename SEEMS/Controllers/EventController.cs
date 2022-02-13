@@ -62,6 +62,7 @@ namespace SEEMS.Controller
 				else
 				{
 					anEvent.Active = true;
+					if (anEvent.IsFree) anEvent.ExpectPrice = 0;
 					_context.Events.Add(_mapper.Map<Event>(anEvent));
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
