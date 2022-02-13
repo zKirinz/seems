@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
 
 import {
     AccountCircle as AccountCircleIcon,
@@ -22,9 +23,10 @@ import {
     Button,
 } from '@mui/material'
 
-import { useAuthAction } from '../../recoil/auth'
+import authAtom, { useAuthAction } from '../../recoil/auth'
 
-const RightNavBar = ({ isAuth }) => {
+const RightNavBar = () => {
+    const auth = useRecoilValue(authAtom)
     const history = useHistory()
     const authAction = useAuthAction()
     const [anchorEl, setAnchorEl] = useState(null)
@@ -46,7 +48,7 @@ const RightNavBar = ({ isAuth }) => {
     return (
         <React.Fragment>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                {isAuth ? (
+                {auth.email ? (
                     <React.Fragment>
                         <Tooltip title="Notification">
                             <IconButton size="large" sx={{ mr: 1 }}>

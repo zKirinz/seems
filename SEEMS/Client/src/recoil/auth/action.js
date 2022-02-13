@@ -31,8 +31,8 @@ const useAuthAction = () => {
                 const { email, role, exp } = jwt_decode(token)
                 setAuth(authAtom, { token, email, role, exp })
                 if (role === 'Admin') {
-                    history.push('/admin')
-                } else history.push('/')
+                    window.location.reload(false)
+                } else window.location.reload(false)
             } else {
                 throw new Error('Something went wrong')
             }
@@ -40,10 +40,8 @@ const useAuthAction = () => {
 
     const logout = () => {
         LocalStorageUtils.deleteUser()
-        history.push('/')
-        setTimeout(() => {
-            setAuth({ token: null, email: '', role: '', exp: 0 })
-        }, 1000)
+        window.location.reload(false)
+        setAuth({ token: null, email: '', role: '', exp: 0 })
     }
 
     return {
