@@ -37,8 +37,25 @@ namespace SEEMS.Services
                     }, out SecurityToken validatedToken);
 
                     var jwtToken = (JwtSecurityToken)validatedToken;
-                    var role = jwtToken.Claims.First(x => x.Type == "role").Value;
-                    context.Items["role"] = role;
+                    var roleFromToken = jwtToken.Claims.First(x => x.Type == "role").Value;
+                    var emailFromToken = jwtToken.Claims.First(x => x.Type == "email").Value;
+                    //Get user from dbContext
+                    var user = dbContext.Users.FirstOrDefault(x => x.Email == emailFromToken);
+                    if (user != null)
+                    {
+                        //Get userMeta from dbContext
+                        var userMeta = dbContext.UserMetas.FirstOrDefault(x => x.User == user);
+                        if (userMeta != null)
+                        {
+                            //Compare role from token and role from dbContext
+                            if (userMeta.MetaValue.Contains(roleFromToken))
+                            {
+                                //Add role to httpContext if role from token and role from dbContext are same
+                                context.Items["role"] = roleFromToken;
+                                context.Items["email"] = emailFromToken;
+                            }
+                        }
+                    }                    
                 }
                 catch
                 {
