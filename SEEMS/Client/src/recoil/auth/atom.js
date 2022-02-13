@@ -2,7 +2,7 @@ import { atom } from 'recoil'
 
 const authAtom = atom({
     key: 'authAtom',
-    default: { token: null, userId: null, error: null, loading: false, authRedirectPath: '/' },
+    default: { token: null, email: '', role: '', exp: 0 },
 })
 
 export default authAtom

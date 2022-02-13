@@ -15,11 +15,6 @@ const publicRoutes = [
         name: 'login',
         component: lazy(() => import('../pages/Login')),
     },
-    {
-        path: '/oauth-google',
-        name: 'auth',
-        component: lazy(() => import('../pages/Auth')),
-    },
 ]
 
 const hybridRoutes = [
@@ -70,53 +65,58 @@ const Routes = (
             )}
             <Route path="/admin">
                 <AdminLayout>
-                    <Switch>
-                        {publicRoutes.map(
-                            ({ layout, ...route }) =>
-                                layout === 'admin' && (
-                                    <PublicRoute key={route.name} exact={true} {...route} />
-                                )
-                        )}
-                        {privateRoutes.map(
-                            ({ layout, ...route }) =>
-                                layout === 'admin' && (
-                                    <PrivateRoute key={route.name} exact={true} {...route} />
-                                )
-                        )}
-                        {hybridRoutes.map(
-                            ({ layout, ...route }) =>
-                                layout === 'admin' && (
-                                    <HybridRoute key={route.name} exact={true} {...route} />
-                                )
-                        )}
-                    </Switch>
+                    <Suspense fallback={<LoadingPage />}>
+                        <Switch>
+                            {publicRoutes.map(
+                                ({ layout, ...route }) =>
+                                    layout === 'admin' && (
+                                        <PublicRoute key={route.name} exact={true} {...route} />
+                                    )
+                            )}
+                            {privateRoutes.map(
+                                ({ layout, ...route }) =>
+                                    layout === 'admin' && (
+                                        <PrivateRoute key={route.name} exact={true} {...route} />
+                                    )
+                            )}
+                            {hybridRoutes.map(
+                                ({ layout, ...route }) =>
+                                    layout === 'admin' && (
+                                        <HybridRoute key={route.name} exact={true} {...route} />
+                                    )
+                            )}
+                            <Redirect to="/admin" />
+                        </Switch>
+                    </Suspense>
                 </AdminLayout>
             </Route>
             <Route>
                 <CommonLayout>
-                    <Switch>
-                        {publicRoutes.map(
-                            ({ layout, ...route }) =>
-                                layout === 'common' && (
-                                    <PublicRoute key={route.name} exact={true} {...route} />
-                                )
-                        )}
-                        {privateRoutes.map(
-                            ({ layout, ...route }) =>
-                                layout === 'common' && (
-                                    <PrivateRoute key={route.name} exact={true} {...route} />
-                                )
-                        )}
-                        {hybridRoutes.map(
-                            ({ layout, ...route }) =>
-                                layout === 'common' && (
-                                    <HybridRoute key={route.name} exact={true} {...route} />
-                                )
-                        )}
-                    </Switch>
+                    <Suspense fallback={<LoadingPage />}>
+                        <Switch>
+                            {publicRoutes.map(
+                                ({ layout, ...route }) =>
+                                    layout === 'common' && (
+                                        <PublicRoute key={route.name} exact={true} {...route} />
+                                    )
+                            )}
+                            {privateRoutes.map(
+                                ({ layout, ...route }) =>
+                                    layout === 'common' && (
+                                        <PrivateRoute key={route.name} exact={true} {...route} />
+                                    )
+                            )}
+                            {hybridRoutes.map(
+                                ({ layout, ...route }) =>
+                                    layout === 'common' && (
+                                        <HybridRoute key={route.name} exact={true} {...route} />
+                                    )
+                            )}
+                            <Redirect to="/" />
+                        </Switch>
+                    </Suspense>
                 </CommonLayout>
             </Route>
-            <Redirect to="/" />
         </Switch>
     </Suspense>
 )

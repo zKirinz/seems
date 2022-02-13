@@ -1,8 +1,15 @@
 import React, { useState } from 'react'
 
-import { Link } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
 
-import { AccountCircle, Add, Logout, Notifications, Receipt } from '@mui/icons-material'
+import {
+    AccountCircle as AccountCircleIcon,
+    Login as LoginIcon,
+    Logout as LogoutIcon,
+    Notifications as NotificationsIcon,
+    Receipt as ReceiptIcon,
+} from '@mui/icons-material'
 import {
     Box,
     Tooltip,
@@ -13,49 +20,69 @@ import {
     ListItemIcon,
     Badge,
     Typography,
-    Fab,
+    Button,
 } from '@mui/material'
 
+import authAtom, { useAuthAction } from '../../recoil/auth'
+
 const RightNavBar = () => {
+    const auth = useRecoilValue(authAtom)
+    const history = useHistory()
+    const authAction = useAuthAction()
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget)
     }
     const handleClose = () => {
         setAnchorEl(null)
     }
+    const handleClickLogin = () => {
+        history.push('/login')
+    }
+    const handleClickLogout = () => {
+        authAction.logout()
+    }
+
     return (
         <React.Fragment>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                <Tooltip title="Create Event">
-                    <Fab
-                        variant="circular"
-                        color="secondary"
-                        component={Link}
-                        to="/event/create"
-                        aria-label="add"
-                        size="medium"
-                        sx={{ mr: 2 }}
-                    >
-                        <Add fontSize="large" />
-                    </Fab>
-                </Tooltip>
-                <Tooltip title="Notification">
-                    <IconButton size="large" sx={{ mr: 1 }}>
-                        <Badge badgeContent={3} color="info">
-                            <Notifications
-                                fontSize="large"
-                                sx={{ color: (theme) => theme.palette.grey[100] }}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                {auth.email ? (
+                    <React.Fragment>
+                        <Tooltip title="Notification">
+                            <IconButton size="large" sx={{ mr: 1 }}>
+                                <Badge badgeContent={3} color="info">
+                                    <NotificationsIcon
+                                        fontSize="large"
+                                        sx={{ color: (theme) => theme.palette.grey[100] }}
+                                    />
+                                </Badge>
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Account settings">
+                            <IconButton onClick={handleClick} size="large">
+                                <Avatar sx={{ width: 40, height: 40 }}>H</Avatar>
+                            </IconButton>
+                        </Tooltip>
+                    </React.Fragment>
+                ) : (
+                    <Button
+                        variant="outlined"
+                        sx={{ fontSize: '1.1rem', color: (theme) => theme.palette.grey[100] }}
+                        startIcon={
+                            <LoginIcon
+                                sx={{
+                                    fontSize: '1.6rem!important',
+                                    color: (theme) => theme.palette.grey[100],
+                                }}
                             />
-                        </Badge>
-                    </IconButton>
-                </Tooltip>
-                <Tooltip title="Account settings">
-                    <IconButton onClick={handleClick} size="large">
-                        <Avatar sx={{ width: 40, height: 40 }}>H</Avatar>
-                    </IconButton>
-                </Tooltip>
+                        }
+                        onClick={handleClickLogin}
+                    >
+                        Login
+                    </Button>
+                )}
             </Box>
             <Menu
                 anchorEl={anchorEl}
@@ -94,19 +121,19 @@ const RightNavBar = () => {
             >
                 <MenuItem>
                     <ListItemIcon>
-                        <AccountCircle fontSize="large" />
+                        <AccountCircleIcon fontSize="large" />
                     </ListItemIcon>
                     <Typography ml={1}>My Profile</Typography>
                 </MenuItem>
                 <MenuItem>
                     <ListItemIcon>
-                        <Receipt fontSize="large" />
+                        <ReceiptIcon fontSize="large" />
                     </ListItemIcon>
                     <Typography ml={1}>Receipt</Typography>
                 </MenuItem>
-                <MenuItem>
+                <MenuItem onClick={handleClickLogout}>
                     <ListItemIcon>
-                        <Logout fontSize="large" />
+                        <LogoutIcon fontSize="large" />
                     </ListItemIcon>
                     <Typography ml={1}>Logout</Typography>
                 </MenuItem>
