@@ -61,14 +61,17 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					_context.Events.Add(_mapper.Map<Event>(anEvent));
+					anEvent.Active = true;
+					if (anEvent.IsFree) anEvent.ExpectPrice = 0;
+					var newEvent = _mapper.Map<Event>(anEvent);
+					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
+					return Ok(new Response(ResponseStatusEnum.Success, newEvent));
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, eventValidationInfo);
+				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
 			}
 		}
 	}
