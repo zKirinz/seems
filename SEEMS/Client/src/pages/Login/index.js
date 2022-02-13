@@ -8,8 +8,11 @@ import Carousel from '../../components/Carousel'
 import Copyright from '../../components/Copyright'
 import { Typography, Grid, CssBaseline, Box, Avatar, Paper } from '@mui/material'
 
+import { useSnackbar } from '../../HOCs/SnackbarContext'
 import Logo from '../../assets/images/logo.png'
 import { APP_API_URL } from '../../config'
+import { useAuthAction } from '../../recoil/auth'
+import Loading from '../Loading'
 
 const imageList = [
     {
@@ -32,22 +35,38 @@ const imageList = [
 
 const Login = () => {
     const { search } = useLocation()
-    const { error } = queryString.parse(search)
-    const [loginError, setLoginError] = useState('')
+    const authAction = useAuthAction()
+    const { token, error } = queryString.parse(search)
+    const [isLoading, setIsLoading] = useState(token ? true : false)
+    const showSnackbar = useSnackbar()
 
     useEffect(() => {
-        if (error && error === 'fpt-email-invalid') {
-            setLoginError('Your email is not valid')
-        } else if (error && error === 'unexpected') {
-            setLoginError('Something went wrong, please try again later.')
+        if (error && error === 'fpt-invalid-email') {
+            showSnackbar({ severity: 'error', children: 'Your email is not allowed to access.' })
+        } else if (error) {
+            showSnackbar({
+                severity: 'error',
+                children: 'Something went wrong, please try again later.',
+            })
+        } else if (token) {
+            authAction.login(token).catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
+                setIsLoading(false)
+            })
         }
-    }, [error])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const googleClickHandler = () => {
         window.location.assign(`${APP_API_URL}/api/Authentication`)
     }
 
-    return (
+    return isLoading ? (
+        <Loading />
+    ) : (
         <Grid container component="main" height="100vh" overflow="hidden">
             <CssBaseline />
             <Grid item xs={0} sm={4} md={7} position="relative" overflow="hidden">
@@ -86,9 +105,6 @@ const Login = () => {
                     </Typography>
                     <Box sx={{ mt: 1 }}>
                         <GoogleButton onClick={googleClickHandler} />
-                        <Typography variant="subtitle1" textAlign="center" color="error.main">
-                            {loginError}
-                        </Typography>
                         <Grid container>
                             <Grid item xs={12}>
                                 <Typography
