@@ -1,5 +1,4 @@
 import jwt_decode from 'jwt-decode'
-import { useHistory } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
 
 import { post } from '../../utils/ApiCaller'
@@ -7,7 +6,6 @@ import LocalStorageUtils from '../../utils/LocalStorageUtils'
 import authAtom from './atom'
 
 const useAuthAction = () => {
-    const history = useHistory()
     const setAuth = useSetRecoilState(authAtom)
 
     const autoLogin = () => {
@@ -15,7 +13,11 @@ const useAuthAction = () => {
         const user = LocalStorageUtils.getUser()
 
         if (user && typeof user === 'object') {
-            setAuth({ token, email: user.email, role: user.role, exp: user.exp })
+            if (user?.exp && user?.exp * 1000 > Date.now()) {
+                setAuth({ token, email: user.email, role: user.role, exp: user.exp })
+            } else {
+                logout()
+            }
         } else {
             setAuth({ token: null, email: '', role: '', exp: 0 })
         }
