@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SEEMS.Authorization;
 using SEEMS.Contexts;
 using SEEMS.DTOs;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -26,6 +28,7 @@ namespace SEEMS.Controller
         // Get all comment by EventId
 
         [HttpGet("{id}")]
+        [AuthorizationFilter(RoleTypes.CUSR , RoleTypes.ORG , RoleTypes.ADM)]
         public IActionResult Get(int id)
         {
 
