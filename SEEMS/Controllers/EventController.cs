@@ -63,9 +63,10 @@ namespace SEEMS.Controller
 				{
 					anEvent.Active = true;
 					if (anEvent.IsFree) anEvent.ExpectPrice = 0;
-					_context.Events.Add(_mapper.Map<Event>(anEvent));
+					var newEvent = _mapper.Map<Event>(anEvent);
+					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
+					return Ok(new Response(ResponseStatusEnum.Success, newEvent));
 				}
 			}
 			catch (Exception ex)
