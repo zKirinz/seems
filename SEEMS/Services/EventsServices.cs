@@ -5,36 +5,29 @@ namespace SEEMS.Services
 {
 	public class EventsServices
 	{
-		public static EventValidationInfo GetValidatedEventInfo(EventDTO eventDTO)
+		public static EventValidationInfo? GetValidatedEventInfo(EventDTO eventDTO)
 		{
 			EventValidationInfo validationInfo = new EventValidationInfo();
 			bool failedCheck = false;
-			if (eventDTO.EventTitle.Length < EventValidationInfo.MinTitleLength ||
-				eventDTO.EventTitle.Length > EventValidationInfo.MaxTitleLength)
+
+			validationInfo.Title = ValidationMessageGenerator.GetIntRangeValidateMsg("Event title", eventDTO.EventTitle.Length, EventValidationInfo.MinTitleLength, EventValidationInfo.MaxTitleLength);
+			validationInfo.Description = ValidationMessageGenerator.GetIntRangeValidateMsg("Event description", eventDTO.EventDescription.Length,
+				EventValidationInfo.MinDescriptionLength, EventValidationInfo.MaxDescriptionLength);
+			validationInfo.Location = ValidationMessageGenerator.GetIntRangeValidateMsg("Event location", eventDTO.Location.Length,
+				EventValidationInfo.MinLocationLength, EventValidationInfo.MaxLocationLength);
+
+			if (validationInfo.Title != null || validationInfo.Location != null || validationInfo.Description != null)
 			{
 				failedCheck = true;
-				validationInfo.Title = $"Event title must from {EventValidationInfo.MinTitleLength} to {EventValidationInfo.MaxTitleLength} length";
 			}
-			if (eventDTO.EventDescription.Length < EventValidationInfo.MinDescriptionLength ||
-				eventDTO.EventDescription.Length > EventValidationInfo.MaxDescriptionLength)
+			if (!eventDTO.IsFree && eventDTO.ExpectPrice < EventValidationInfo.MinPrice)
 			{
 				failedCheck = true;
-				validationInfo.Description = $"Event description must from {EventValidationInfo.MinDescriptionLength} to {EventValidationInfo.MaxDescriptionLength} length";
+				validationInfo.ExpectPrice = $"Price can not smaller than {EventValidationInfo.MinPrice} VNĐ";
 			}
-			if (eventDTO.Location.Length < EventValidationInfo.MinLocationLength ||
-				eventDTO.Location.Length > EventValidationInfo.MaxLocationLength)
+			if (eventDTO.StartDate.Subtract(DateTime.Now).TotalDays <= EventValidationInfo.MinDayBeforeStarted)
 			{
 				failedCheck = true;
-				validationInfo.Location = $"Event location must from {EventValidationInfo.MinLocationLength} to {EventValidationInfo.MaxLocationLength} length";
-			}
-			if (eventDTO.ExpectPrice < EventValidationInfo.MinPrice)
-			{
-				failedCheck = true;
-				validationInfo.ExpectPrice = $"Price can not smaller than {EventValidationInfo.MinPrice}";
-			}
-			if (eventDTO.StartDate.Subtract(DateTime.Now).Days < EventValidationInfo.MinDayBeforeStarted)
-			{
-				failedCheck=true;
 				validationInfo.StartDate = $"Start date must after current time at least {EventValidationInfo.MinDayBeforeStarted} days";
 			}
 			if (eventDTO.EndDate.Subtract(eventDTO.StartDate).TotalMinutes < EventValidationInfo.MinMinutesOfEvent)
