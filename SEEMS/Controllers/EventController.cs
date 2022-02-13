@@ -54,7 +54,7 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("upcoming")]
-		public async Task<ActionResult<List<Event>>> Get([FromQuery] string? orderBy)
+		public async Task<ActionResult<List<Event>>> Get([FromQuery] int? pageNum, [FromQuery] string? orderBy)
 		{
 			try
 			{
@@ -75,8 +75,31 @@ namespace SEEMS.Controller
 					}
 				}
 
-				var resMsg = result.Count() == 0 ? "No event was found" : "Successfully get your events";
-				return Ok(new Response(ResponseStatusEnum.Success, result, resMsg));
+				//Paging
+				int pageSize = 5;
+				var paginatedResult = PaginatedList<Event>.Create(result.AsQueryable(), pageNum ?? 1, pageSize);
+
+				string? resMsg;
+				if (result.Count() == 0 || pageNum < 1 || pageNum > paginatedResult.TotalPages)
+				{
+					resMsg = "No event was found";
+				}
+				else
+				{
+					resMsg = "Successfully get your events";
+				}
+
+				return Ok(new Response(ResponseStatusEnum.Success,
+					new
+					{
+						pageNum = pageNum,
+						pageSize = pageSize,
+						itemCount = paginatedResult.Count(),
+						hasPreviousPage = paginatedResult.HasPreviousPage,
+						hasNextPage = paginatedResult.HasNextPage,
+						events = paginatedResult
+					},
+					resMsg));
 			}
 			catch (Exception ex)
 			{

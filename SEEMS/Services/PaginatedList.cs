@@ -14,7 +14,7 @@
 
 		public bool HasPreviousPage
 		{
-			get { return PageIndex > 1; }
+			get { return PageIndex > 1 && PageIndex <= TotalPages; }
 		}
 
 		public bool HasNextPage
