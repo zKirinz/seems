@@ -40,7 +40,7 @@ namespace SEEMS.Controller
 			return Ok(anEvent);
 		}*/
 
-		[HttpGet("all")]
+		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get()
 		{
 			try
@@ -54,52 +54,27 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("upcoming")]
-		public async Task<ActionResult<List<Event>>> Get([FromQuery] int? pageNum, [FromQuery] string? orderBy)
+		public async Task<ActionResult<List<Event>>> Get(string? search)
 		{
 			try
 			{
 				var allEvents = _context.Events.ToList();
-				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 1).OrderBy(e => e.EndDate);
-				if (orderBy != null)
+				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 1);
+
+				//Filter by title
+				if (!string.IsNullOrEmpty(search))
 				{
-					switch (orderBy)
-					{
-						case "title_asc":
-							result = allEvents.OrderBy(e => e.EventTitle);
-							break;
-						case "title_desc":
-							result = allEvents.OrderByDescending(e => e.EventTitle);
-							break;
-						default:
-							throw new Exception($"No such '{orderBy}' query");
-					}
+					result = result.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 				}
 
-				//Paging
-				int pageSize = pageNum == null ? 100 : 5;
-				var paginatedResult = PaginatedList<Event>.Create(result.AsQueryable(), pageNum ?? 1, pageSize);
-
-				string? resMsg;
-				if (result.Count() == 0 || pageNum < 1 || pageNum > paginatedResult.TotalPages)
-				{
-					resMsg = "No event was found";
-				}
-				else
-				{
-					resMsg = "Successfully get your events";
-				}
-
-				return Ok(new Response(ResponseStatusEnum.Success,
+				return Ok(
+					new Response(ResponseStatusEnum.Success,
 					new
 					{
-						pageNum = pageNum,
-						pageSize = pageSize,
-						itemCount = paginatedResult.Count(),
-						hasPreviousPage = paginatedResult.HasPreviousPage,
-						hasNextPage = paginatedResult.HasNextPage,
-						events = paginatedResult
-					},
-					resMsg));
+						Count = result.Count(),
+						listEvents = result.OrderByDescending(e => e.StartDate)
+					})
+				);
 			}
 			catch (Exception ex)
 			{
@@ -130,8 +105,7 @@ namespace SEEMS.Controller
 					var newEvent = _mapper.Map<Event>(anEvent);
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success,
-						anEvent));
+					return Ok(new Response(ResponseStatusEnum.Success, anEvent));
 				}
 			}
 			catch (Exception ex)
