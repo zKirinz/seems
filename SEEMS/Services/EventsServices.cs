@@ -25,7 +25,7 @@ namespace SEEMS.Services
 				failedCheck = true;
 				validationInfo.ExpectPrice = $"Price can not smaller than {EventValidationInfo.MinPrice} VNĐ";
 			}
-			if (eventDTO.StartDate.Subtract(DateTime.Now).TotalDays <= EventValidationInfo.MinDayBeforeStarted)
+			if (eventDTO.StartDate.Subtract(DateTime.UtcNow).TotalDays <= EventValidationInfo.MinDayBeforeStarted)
 			{
 				failedCheck = true;
 				validationInfo.StartDate = $"Start date must after current time at least {EventValidationInfo.MinDayBeforeStarted} days";
