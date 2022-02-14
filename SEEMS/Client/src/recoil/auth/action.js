@@ -1,4 +1,5 @@
 import jwt_decode from 'jwt-decode'
+import { useHistory } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
 
 import { post } from '../../utils/ApiCaller'
@@ -6,6 +7,7 @@ import LocalStorageUtils from '../../utils/LocalStorageUtils'
 import authAtom from './atom'
 
 const useAuthAction = () => {
+    const history = useHistory()
     const setAuth = useSetRecoilState(authAtom)
 
     const autoLogin = () => {
@@ -31,10 +33,10 @@ const useAuthAction = () => {
             if (response?.data?.status === 'success') {
                 LocalStorageUtils.setUser(token)
                 const { email, role, exp } = jwt_decode(token)
-                setAuth(authAtom, { token, email, role, exp })
+                setAuth({ token, email, role, exp })
                 if (role === 'Admin') {
-                    window.location.reload(false)
-                } else window.location.reload(false)
+                    history.push('/admin')
+                } else history.push('/')
             } else {
                 throw new Error('Something went wrong')
             }
@@ -42,7 +44,7 @@ const useAuthAction = () => {
 
     const logout = () => {
         LocalStorageUtils.deleteUser()
-        window.location.reload(false)
+        history.push('/')
         setAuth({ token: null, email: '', role: '', exp: 0 })
     }
 

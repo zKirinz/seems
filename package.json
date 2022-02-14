@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "axios": "^0.25.0",
-    "object-assign": "^4.1.1",
-    "query-string": "^7.1.1"
-  }
-}
