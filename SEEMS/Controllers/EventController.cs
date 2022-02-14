@@ -110,8 +110,8 @@ namespace SEEMS.Controller
 		[HttpPost]
 		public async Task<ActionResult> AddEvent(EventDTO anEvent)
 		{
-			anEvent.StartDate = anEvent.StartDate;
-			anEvent.EndDate = anEvent.EndDate;
+			anEvent.StartDate = anEvent.StartDate.ToLocalTime();
+			anEvent.EndDate = anEvent.EndDate.ToLocalTime();
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(anEvent);
 
 			try
