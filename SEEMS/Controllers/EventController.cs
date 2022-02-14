@@ -119,13 +119,7 @@ namespace SEEMS.Controller
 				if (eventValidationInfo != null)
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail,
-						new
-						{
-							resEvent = eventValidationInfo,
-							now = DateTime.Now,
-							startDate = anEvent.StartDate,
-							endDate = anEvent.EndDate,
-						},
+							eventValidationInfo,
 						"Some fields didn't match requirements"));
 				}
 				else
