@@ -10,6 +10,7 @@ using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
 
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace SEEMS.Controller
@@ -40,7 +41,7 @@ namespace SEEMS.Controller
 			return Ok(anEvent);
 		}*/
 
-		[HttpGet("all")]
+		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get()
 		{
 			try
@@ -54,52 +55,51 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("upcoming")]
-		public async Task<ActionResult<List<Event>>> Get([FromQuery] int? pageNum, [FromQuery] string? orderBy)
+		public async Task<ActionResult<List<Event>>> Get(string? search, int? lastEventID, int resultCount = 10)
 		{
 			try
 			{
 				var allEvents = _context.Events.ToList();
-				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 1).OrderBy(e => e.EndDate);
-				if (orderBy != null)
+				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 30);
+				bool failed = false;
+
+				//Filter by title
+				if (!string.IsNullOrEmpty(search))
 				{
-					switch (orderBy)
-					{
-						case "title_asc":
-							result = allEvents.OrderBy(e => e.EventTitle);
-							break;
-						case "title_desc":
-							result = allEvents.OrderByDescending(e => e.EventTitle);
-							break;
-						default:
-							throw new Exception($"No such '{orderBy}' query");
-					}
+					result = result.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 				}
 
-				//Paging
-				int pageSize = pageNum == null ? 100 : 5;
-				var paginatedResult = PaginatedList<Event>.Create(result.AsQueryable(), pageNum ?? 1, pageSize);
-
-				string? resMsg;
-				if (result.Count() == 0 || pageNum < 1 || pageNum > paginatedResult.TotalPages)
+				//Implement load more
+				if (lastEventID != null)
 				{
-					resMsg = "No event was found";
+					var lastEventIndex = result.ToList().FindIndex(e => e.Id == lastEventID);
+					if (lastEventIndex > 0)
+					{
+						result = result.ToList().GetRange(
+							lastEventIndex + 1,
+							Math.Min(resultCount, result.Count() - lastEventIndex - 1));
+					}
+					else
+					{
+						failed = true;
+					}
 				}
 				else
 				{
-					resMsg = "Successfully get your events";
+					result = result.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(result.Count(), resultCount));
 				}
 
-				return Ok(new Response(ResponseStatusEnum.Success,
-					new
-					{
-						pageNum = pageNum,
-						pageSize = pageSize,
-						itemCount = paginatedResult.Count(),
-						hasPreviousPage = paginatedResult.HasPreviousPage,
-						hasNextPage = paginatedResult.HasNextPage,
-						events = paginatedResult
-					},
-					resMsg));
+				return failed
+					? BadRequest(
+						new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
+					: Ok(
+						new Response(ResponseStatusEnum.Success,
+						new
+						{
+							Count = result.Count(),
+							listEvents = result
+						})
+				);
 			}
 			catch (Exception ex)
 			{
@@ -130,8 +130,7 @@ namespace SEEMS.Controller
 					var newEvent = _mapper.Map<Event>(anEvent);
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success,
-						anEvent));
+					return Ok(new Response(ResponseStatusEnum.Success, anEvent));
 				}
 			}
 			catch (Exception ex)

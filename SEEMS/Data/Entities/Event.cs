@@ -14,7 +14,6 @@ namespace SEEMS.Models
         [StringLength(255)]
         public String EventDescription { get; set; }
 
-        [JsonIgnore]
         [ForeignKey("ChainOfEvent")]
         public int? ChainOfEventId { get; set; }
 
