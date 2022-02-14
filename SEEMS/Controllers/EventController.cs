@@ -76,7 +76,7 @@ namespace SEEMS.Controller
 				}
 
 				//Paging
-				int pageSize = 5;
+				int pageSize = pageNum == null ? 100 : 5;
 				var paginatedResult = PaginatedList<Event>.Create(result.AsQueryable(), pageNum ?? 1, pageSize);
 
 				string? resMsg;
