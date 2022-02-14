@@ -43,10 +43,10 @@ const methodsContact = [
 const members = [
     {
         id: 1,
-        src: LTT,
-        name: 'Lê Tiến Thịnh',
-        grade: '(K15)',
-        role: 'Leader Backend Developer',
+        src: TTK,
+        name: 'Trần Trung Kiên',
+        grade: '(K15/Leader)',
+        role: 'Frontend Developer',
     },
     {
         id: 2,
@@ -64,17 +64,17 @@ const members = [
     },
     {
         id: 4,
-        src: TTK,
-        name: 'Trần Trung Kiên',
-        grade: '(K15)',
-        role: 'Leader Frontend Developer',
-    },
-    {
-        id: 5,
         src: BTH,
         name: 'Bùi Thế Hiển',
         grade: '(K15)',
         role: 'Frontend Developer',
+    },
+    {
+        id: 5,
+        src: LTT,
+        name: 'Lê Tiến Thịnh',
+        grade: '(K15)',
+        role: 'Backend Developer',
     },
 ]
 
