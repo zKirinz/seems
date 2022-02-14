@@ -1,14 +1,27 @@
-import { Redirect, Route } from 'react-router-dom'
+import { Redirect, Route, useRouteMatch } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
 
-import LocalStorageUtils from '../utils/LocalStorageUtils'
+import authAtom from '../recoil/auth'
 
 const PrivateRoute = (props) => {
-    const user = LocalStorageUtils.getUser()
-    if (user?.email) {
-        return <Route {...props} />
+    const match = useRouteMatch()
+    const auth = useRecoilValue(authAtom)
+
+    if (!auth.email) {
+        return <Redirect to="/login" />
     }
 
-    return <Redirect to="/login" />
+    if (match.path === '/admin') {
+        if (auth.role !== 'Admin') {
+            return <Redirect to="/login" />
+        }
+    } else {
+        if (auth.role === 'Admin') {
+            return <Redirect to="/admin" />
+        }
+    }
+
+    return <Route {...props} />
 }
 
 export default PrivateRoute

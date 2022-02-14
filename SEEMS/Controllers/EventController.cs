@@ -10,6 +10,8 @@ using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
 
+using System.Runtime.InteropServices;
+
 namespace SEEMS.Controller
 {
 	[Route("api/Events")]
@@ -26,19 +28,8 @@ namespace SEEMS.Controller
 			this._mapper = mapper;
 		}
 
-		/*[HttpGet()]
-		public async Task<ActionResult<List<Event>>> Get()
-		{
-			try
-			{
-				return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
-			}
-			catch (Exception ex)
-			{
-				return Ok(new Response(ResponseStatusEnum.Error, ex.Message));
-			}
-		}
 
+		/*
 		[HttpGet("{id}")]
 		public async Task<ActionResult<Event>> Get(int id)
 		{
@@ -49,26 +40,108 @@ namespace SEEMS.Controller
 			return Ok(anEvent);
 		}*/
 
+		[HttpGet("all")]
+		public async Task<ActionResult<List<Event>>> Get()
+		{
+			try
+			{
+				return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+			}
+		}
+
+		[HttpGet("upcoming")]
+		public async Task<ActionResult<List<Event>>> Get([FromQuery] int? pageNum, [FromQuery] string? orderBy)
+		{
+			try
+			{
+				var allEvents = _context.Events.ToList();
+				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 1).OrderBy(e => e.EndDate);
+				if (orderBy != null)
+				{
+					switch (orderBy)
+					{
+						case "title_asc":
+							result = allEvents.OrderBy(e => e.EventTitle);
+							break;
+						case "title_desc":
+							result = allEvents.OrderByDescending(e => e.EventTitle);
+							break;
+						default:
+							throw new Exception($"No such '{orderBy}' query");
+					}
+				}
+
+				//Paging
+				int pageSize = pageNum == null ? 100 : 5;
+				var paginatedResult = PaginatedList<Event>.Create(result.AsQueryable(), pageNum ?? 1, pageSize);
+
+				string? resMsg;
+				if (result.Count() == 0 || pageNum < 1 || pageNum > paginatedResult.TotalPages)
+				{
+					resMsg = "No event was found";
+				}
+				else
+				{
+					resMsg = "Successfully get your events";
+				}
+
+				return Ok(new Response(ResponseStatusEnum.Success,
+					new
+					{
+						pageNum = pageNum,
+						pageSize = pageSize,
+						itemCount = paginatedResult.Count(),
+						hasPreviousPage = paginatedResult.HasPreviousPage,
+						hasNextPage = paginatedResult.HasNextPage,
+						events = paginatedResult
+					},
+					resMsg));
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+			}
+		}
+
 		[HttpPost]
 		public async Task<ActionResult> AddEvent(EventDTO anEvent)
 		{
-			EventValidationInfo eventValidationInfo = EventsServices.GetValidatedEventInfo(anEvent);
+			anEvent.StartDate = anEvent.StartDate;
+			anEvent.EndDate = anEvent.EndDate;
+			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(anEvent);
+
 			try
 			{
 				if (eventValidationInfo != null)
 				{
-					return BadRequest(new Response(ResponseStatusEnum.Fail, eventValidationInfo, "Some fields didn't match requirements"));
+					return BadRequest(new Response(ResponseStatusEnum.Fail,
+						new
+						{
+							resEvent = eventValidationInfo,
+							now = DateTime.Now,
+							startDate = anEvent.StartDate,
+							endDate = anEvent.EndDate,
+						},
+						"Some fields didn't match requirements"));
 				}
 				else
 				{
-					_context.Events.Add(_mapper.Map<Event>(anEvent));
+					anEvent.Active = true;
+					if (anEvent.IsFree) anEvent.ExpectPrice = 0;
+					var newEvent = _mapper.Map<Event>(anEvent);
+					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
+					return Ok(new Response(ResponseStatusEnum.Success,
+						anEvent));
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, eventValidationInfo);
+				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
 			}
 		}
 	}

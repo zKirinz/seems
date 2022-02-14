@@ -1,13 +1,15 @@
 import { Box } from '@mui/material'
 
-const EventPoster = ({ src, height, size }) => {
+const EventPoster = ({ src, size }) => {
     return (
         <Box
+            width="100%"
+            height="100%"
             sx={{
-                height: height,
+                aspectRatio: '1 / 1',
                 backgroundImage: `url(${src})`,
                 backgroundSize: size,
-                backgroundPosition: 'center',
+                backgroundPosition: 'center center',
                 backgroundRepeat: 'no-repeat',
             }}
         ></Box>

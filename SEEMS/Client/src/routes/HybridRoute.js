@@ -1,14 +1,19 @@
 import React from 'react'
 
-import { Route } from 'react-router-dom'
+import { Redirect, Route } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
 
-import LocalStorageUtils from '../utils/LocalStorageUtils'
+import authAtom from '../recoil/auth'
 
 const HybridRoute = (props) => {
     const { publicComponent, privateComponent, ...rest } = props
+    const auth = useRecoilValue(authAtom)
 
-    const user = LocalStorageUtils.getUser()
-    const component = user?.email ? publicComponent : privateComponent
+    const component = auth.email ? publicComponent : privateComponent
+
+    if (auth.email && auth.role === 'Admin') {
+        return <Redirect to="/admin" />
+    }
 
     return <Route component={component} {...rest} />
 }
