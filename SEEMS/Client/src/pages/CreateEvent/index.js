@@ -16,7 +16,7 @@ const EventRegistration = () => {
         endDate: null,
     })
 
-    const createEventHandler = async (eventData) => {
+    const createEventHandler = (eventData) => {
         eventAction.createEvent(eventData).catch((errorResponse) => {
             if (errorResponse.status === 400) {
                 const errorData = errorResponse.data.data
