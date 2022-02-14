@@ -15,7 +15,9 @@ const Introduction = ({ src, desc, title, alt }) => {
                     bottom: 0,
                     left: 0,
                     backgroundColor: 'rgba(0,0,0,.6)',
-                    p: 5,
+                    px: 5,
+                    pb: 5,
+                    pt: 9,
                 }}
             >
                 <Typography
