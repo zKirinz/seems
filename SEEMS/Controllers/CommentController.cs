@@ -58,8 +58,9 @@ namespace SEEMS.Controller
         [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult Post([FromBody] CommentDto item)
         {
-            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item);
-
+            var email = (string)HttpContext.Items["email"];
+            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, email, _context);
+            
             if (commentValidationInfo != null)
             {
                 return BadRequest(commentValidationInfo);
@@ -95,9 +96,9 @@ namespace SEEMS.Controller
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This comment does not exist"));
             }
 
-            var roleId = _context.Users.FirstOrDefault(u => u.Email == HttpContext.Items["email"]).Id;
+            var email = (string)HttpContext.Items["email"];
 
-            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToEditComment(newComment, roleId);
+            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToEditComment(id, newComment, email, _context);
 
             if (commentValidationInfo != null)
             {
@@ -132,9 +133,9 @@ namespace SEEMS.Controller
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This comment does not exist"));
             }
 
-            var roleId = _context.Users.FirstOrDefault(u => u.Email == HttpContext.Items["email"]).Id;
+            var email =(string)HttpContext.Items["email"];
 
-            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToDeleteComment(id, RoleTypes.CUSR, roleId, _context);         
+            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToDeleteComment(id, email, _context);         
             
             if (commentValidationInfo != null)
             {

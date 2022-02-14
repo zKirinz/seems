@@ -9,7 +9,7 @@ namespace SEEMS.DTOs
         public int? EventId { get; set; }
 
         [StringLength(500)]
-        public String CommentContent { get; set; }
+        public String? CommentContent { get; set; }
         public int? ParentCommentId { get; set; }
 
     }
