@@ -81,8 +81,8 @@ const members = [
 const About = () => {
     const matches = useMediaQuery((theme) => theme.breakpoints.up('sm'))
     return (
-        <Box component="main" px={5} pt={5} sx={{ mt: { sx: 0, sm: 8.5 } }}>
-            <Typography color="primary" variant="h3" mb={2} align="center" fontWeight={700}>
+        <Box component="main" px={5} pt={10} sx={{ mt: { sx: 0, sm: 8.5 } }}>
+            <Typography color="primary" variant="h3" mb={4} align="center" fontWeight={700}>
                 About Us
             </Typography>
             <Grid container columns={{ md: 10, xs: 12 }} component={Card}>
