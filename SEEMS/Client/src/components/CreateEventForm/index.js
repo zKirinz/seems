@@ -25,7 +25,7 @@ const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
 const defaultTextFieldValue = { value: '', isTouched: false }
 
-const CreateEventForm = ({ uploadImageHandler }) => {
+const CreateEventForm = ({ onUploadImage, onCreateEvent, error, setError }) => {
     const startDateDefault = useMemo(() => {
         return new Date(new Date().getTime() + 24 * 3600 * 1000)
     }, [])
@@ -41,20 +41,34 @@ const CreateEventForm = ({ uploadImageHandler }) => {
     const [isChainEvents, setIsChainEvents] = useState(false)
     const [isPrivate, setIsPrivate] = useState(false)
     const [price, setPrice] = useState(0)
-    const [formIsHalfFilled, setFormIsHalfFilled] = useState(false)
     useEffect(() => {
         if (isFree) setPrice(0)
         else setPrice(1000)
     }, [isFree])
 
     const eventNameChangeHandler = (event) => {
+        error.title && setError((previousError) => ({ ...previousError, title: null }))
         setEventName((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
     const locationChangeHandler = (event) => {
+        error.location && setError((previousError) => ({ ...previousError, location: null }))
         setLocation((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
     const descriptionChangeHandler = (event) => {
+        error.description && setError((previousError) => ({ ...previousError, description: null }))
         setDescription((previousValue) => ({ ...previousValue, value: event.target.value }))
+    }
+    const priceChangeHandler = (event) => {
+        error.expectPrice && setError((previousError) => ({ ...previousError, expectPrice: null }))
+        setPrice(event.target.value)
+    }
+    const startDateChangeHandler = (newDate) => {
+        error.startDate && setError((previousError) => ({ ...previousError, startDate: null }))
+        setStartDate(newDate)
+    }
+    const endDateChangeHandler = (newDate) => {
+        error.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
+        setEndDate(newDate)
     }
     const eventNameTouchedHandler = () => {
         setEventName((previousValue) => ({ ...previousValue, isTouched: true }))
@@ -65,26 +79,29 @@ const CreateEventForm = ({ uploadImageHandler }) => {
     const descriptionTouchedHandler = () => {
         setDescription((previousValue) => ({ ...previousValue, isTouched: true }))
     }
-    const resetAllInput = () => {
-        setEventName(defaultInputValue)
-        setLocation(defaultInputValue)
-        setDescription(defaultInputValue)
-    }
     const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
     const locationIsInValid = isEmpty(location.value) && location.isTouched
     const descriptionIsInValid = isEmpty(description.value) && description.isTouched
     const overallTextFieldIsValid =
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
-    const onBlurForm = () => {
-        if (!isEmpty(eventName.value) || !isEmpty(location.value) || !isEmpty(description.value))
-            setFormIsHalfFilled(true)
-        else setFormIsHalfFilled(false)
-    }
+    const formIsHalfFilled = useMemo(() => {
+        return !isEmpty(eventName.value) || !isEmpty(location.value) || !isEmpty(description.value)
+    }, [eventName.value, location.value, description.value])
+
     const submitHandler = (event) => {
         event.preventDefault()
-        resetAllInput()
+        const eventDetailed = {
+            eventTitle: eventName.value,
+            location: location.value,
+            eventDescription: description.value,
+            expectPrice: parseInt(price),
+            isFree,
+            isPrivate,
+            startDate,
+            endDate,
+        }
+        onCreateEvent(eventDetailed)
     }
-
     return (
         <React.Fragment>
             <Prompt
@@ -95,13 +112,7 @@ const CreateEventForm = ({ uploadImageHandler }) => {
                         : 'Changes you made may not be sent'
                 }}
             />
-            <Box
-                component="form"
-                p={2}
-                autoComplete="off"
-                onSubmit={submitHandler}
-                onBlur={onBlurForm}
-            >
+            <Box component="form" p={2} autoComplete="off" onSubmit={submitHandler}>
                 <Box display="flex" flexWrap="wrap" justifyContent="space-between">
                     <FormControl sx={{ m: 1.5, width: { md: '45%', xs: '100%' } }} required>
                         <InputLabel htmlFor="event-name">Event name</InputLabel>
@@ -111,11 +122,11 @@ const CreateEventForm = ({ uploadImageHandler }) => {
                             value={eventName.value}
                             onChange={eventNameChangeHandler}
                             onBlur={eventNameTouchedHandler}
-                            error={eventNameIsInValid}
+                            error={eventNameIsInValid || !!error?.title}
                         />
-                        {eventNameIsInValid && (
-                            <FormHelperText error={eventNameIsInValid}>
-                                Event name must be not empty
+                        {(error?.title || eventNameIsInValid) && (
+                            <FormHelperText error={eventNameIsInValid || !!error?.title}>
+                                {error?.title ? `${error.title}` : 'Event name must be not empty'}
                             </FormHelperText>
                         )}
                     </FormControl>
@@ -127,11 +138,13 @@ const CreateEventForm = ({ uploadImageHandler }) => {
                             value={location.value}
                             onChange={locationChangeHandler}
                             onBlur={locationTouchedHandler}
-                            error={locationIsInValid}
+                            error={locationIsInValid || !!error?.location}
                         />
-                        {locationIsInValid && (
-                            <FormHelperText error={locationIsInValid}>
-                                Location must not be empty
+                        {(error?.location || locationIsInValid) && (
+                            <FormHelperText error={locationIsInValid || !!error?.title}>
+                                {error?.location
+                                    ? `${error.location}`
+                                    : 'Location must not be empty'}
                             </FormHelperText>
                         )}
                     </FormControl>
@@ -144,11 +157,15 @@ const CreateEventForm = ({ uploadImageHandler }) => {
                             value={description.value}
                             onChange={descriptionChangeHandler}
                             onBlur={descriptionTouchedHandler}
-                            helperText={
-                                descriptionIsInValid ? 'Description must not be empty' : null
-                            }
-                            error={descriptionIsInValid}
+                            error={descriptionIsInValid || !!error?.description}
                         />
+                        {(error?.description || descriptionIsInValid) && (
+                            <FormHelperText error={descriptionIsInValid || !!error?.description}>
+                                {error?.description
+                                    ? `${error.description}`
+                                    : 'Description must not be empty'}
+                            </FormHelperText>
+                        )}
                     </FormControl>
                     <FormControl sx={{ ml: 1.5 }}>
                         <FormControlLabel
@@ -169,17 +186,22 @@ const CreateEventForm = ({ uploadImageHandler }) => {
                                 label="Price"
                                 inputProps={{
                                     type: 'number',
-                                    min: 1000,
+                                    min: 500,
                                     inputMode: 'numeric',
                                     pattern: '[0-9]*',
                                 }}
                                 value={price}
-                                onChange={(event) => setPrice(event.target.value)}
+                                onChange={priceChangeHandler}
                                 sx={{
                                     'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
                                         { display: 'none' },
                                 }}
                             />
+                            {error?.expectPrice && (
+                                <FormHelperText error={!!error?.expectPrice}>
+                                    {error?.expectPrice && `${error.expectPrice}`}
+                                </FormHelperText>
+                            )}
                         </FormControl>
                     )}
                     <FormControl sx={{ mx: 1.5 }} fullWidth>
@@ -216,29 +238,43 @@ const CreateEventForm = ({ uploadImageHandler }) => {
                     }}
                 >
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <MobileDateTimePicker
-                            value={startDate}
-                            onChange={(newValue) => {
-                                setStartDate(newValue)
-                            }}
-                            label="Start Date"
-                            minDateTime={startDateDefault}
-                            inputFormat="yyyy/MM/dd hh:mm a"
-                            mask="___/__/__ __:__ _M"
-                            renderInput={(params) => <TextField {...params} />}
-                        />
+                        <FormControl>
+                            <MobileDateTimePicker
+                                value={startDate}
+                                onChange={(newValue) => {
+                                    startDateChangeHandler(newValue)
+                                }}
+                                label="Start Date"
+                                minDateTime={startDateDefault}
+                                inputFormat="yyyy/MM/dd hh:mm a"
+                                mask="___/__/__ __:__ _M"
+                                renderInput={(params) => <TextField {...params} />}
+                            />
+                            {error?.startDate && (
+                                <FormHelperText error={!!error?.startDate}>
+                                    {error?.startDate && `${error.startDate}`}
+                                </FormHelperText>
+                            )}
+                        </FormControl>
                         <Box sx={{ mx: { sm: 2 }, my: { xs: 2, sm: 0 } }}>To</Box>
-                        <MobileDateTimePicker
-                            value={endDate}
-                            onChange={(newValue) => {
-                                setEndDate(newValue)
-                            }}
-                            label="End Date"
-                            minDateTime={endDateDefault}
-                            inputFormat="yyyy/MM/dd hh:mm a"
-                            mask="___/__/__ __:__ _M"
-                            renderInput={(params) => <TextField {...params} />}
-                        />
+                        <FormControl>
+                            <MobileDateTimePicker
+                                value={endDate}
+                                onChange={(newValue) => {
+                                    endDateChangeHandler(newValue)
+                                }}
+                                label="End Date"
+                                minDateTime={endDateDefault}
+                                inputFormat="yyyy/MM/dd hh:mm a"
+                                mask="___/__/__ __:__ _M"
+                                renderInput={(params) => <TextField {...params} />}
+                            />
+                            {error?.endDate && (
+                                <FormHelperText error={!!error?.endDate}>
+                                    {error?.endDate && `${error.endDate}`}
+                                </FormHelperText>
+                            )}
+                        </FormControl>
                     </LocalizationProvider>
                 </Box>
                 <Box sx={{ m: 1.5 }}>
@@ -246,11 +282,9 @@ const CreateEventForm = ({ uploadImageHandler }) => {
                         <input
                             style={{ display: 'none' }}
                             id="upload-photo"
-                            name="upload-photo"
                             type="file"
-                            onChange={uploadImageHandler}
+                            onChange={onUploadImage}
                             accept="image/*"
-                            required
                         />
                         <Button variant="outlined" component="span" startIcon={<CameraAlt />}>
                             Upload

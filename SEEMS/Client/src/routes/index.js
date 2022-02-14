@@ -22,6 +22,7 @@ const hybridRoutes = [
         path: '/event/create',
         name: 'eventCreation',
         component: lazy(() => import('../pages/EventRegistration')),
+        layout: 'common',
     },
     {
         path: '/',
