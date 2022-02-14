@@ -6,7 +6,6 @@ import authAtom from '../recoil/auth'
 const PrivateRoute = (props) => {
     const match = useRouteMatch()
     const auth = useRecoilValue(authAtom)
-
     if (!auth.email) {
         return <Redirect to="/" />
     }

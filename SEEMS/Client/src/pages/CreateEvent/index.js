@@ -5,7 +5,7 @@ import { Box, Typography } from '@mui/material'
 
 import { useEventAction } from '../../recoil/event'
 
-const EventRegistration = () => {
+const CreateEvent = () => {
     const eventAction = useEventAction()
     const [error, setError] = useState({
         title: null,
@@ -41,4 +41,4 @@ const EventRegistration = () => {
     )
 }
 
-export default EventRegistration
+export default CreateEvent

@@ -53,6 +53,12 @@ const privateRoutes = [
         component: lazy(() => import('../pages/Admin/Home')),
         layout: 'admin',
     },
+    {
+        path: '/events/create',
+        name: 'create events',
+        component: lazy(() => import('../pages/CreateEvent')),
+        layout: 'common',
+    },
 ]
 
 const Routes = (
