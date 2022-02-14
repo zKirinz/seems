@@ -10,6 +10,7 @@ using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
 
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace SEEMS.Controller
@@ -54,12 +55,13 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("upcoming")]
-		public async Task<ActionResult<List<Event>>> Get(string? search)
+		public async Task<ActionResult<List<Event>>> Get(string? search, int? lastEventID, int resultCount = 10)
 		{
 			try
 			{
 				var allEvents = _context.Events.ToList();
-				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 1);
+				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 30);
+				bool failed = false;
 
 				//Filter by title
 				if (!string.IsNullOrEmpty(search))
@@ -67,13 +69,36 @@ namespace SEEMS.Controller
 					result = result.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 				}
 
-				return Ok(
-					new Response(ResponseStatusEnum.Success,
-					new
+				//Implement load more
+				if (lastEventID != null)
+				{
+					var lastEventIndex = result.ToList().FindIndex(e => e.Id == lastEventID);
+					if (lastEventIndex > 0)
 					{
-						Count = result.Count(),
-						listEvents = result.OrderByDescending(e => e.StartDate)
-					})
+						result = result.ToList().GetRange(
+							lastEventIndex + 1,
+							Math.Min(resultCount, result.Count() - lastEventIndex - 1));
+					}
+					else
+					{
+						failed = true;
+					}
+				}
+				else
+				{
+					result = result.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(result.Count(), resultCount));
+				}
+
+				return failed
+					? BadRequest(
+						new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
+					: Ok(
+						new Response(ResponseStatusEnum.Success,
+						new
+						{
+							Count = result.Count(),
+							listEvents = result
+						})
 				);
 			}
 			catch (Exception ex)
