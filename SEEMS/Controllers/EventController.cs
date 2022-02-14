@@ -110,15 +110,23 @@ namespace SEEMS.Controller
 		[HttpPost]
 		public async Task<ActionResult> AddEvent(EventDTO anEvent)
 		{
-			anEvent.StartDate = anEvent.StartDate.ToUniversalTime();
-			anEvent.EndDate = anEvent.EndDate.ToUniversalTime();
+			anEvent.StartDate = anEvent.StartDate;
+			anEvent.EndDate = anEvent.EndDate;
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(anEvent);
 
 			try
 			{
 				if (eventValidationInfo != null)
 				{
-					return BadRequest(new Response(ResponseStatusEnum.Fail, eventValidationInfo, "Some fields didn't match requirements"));
+					return BadRequest(new Response(ResponseStatusEnum.Fail,
+						new
+						{
+							resEvent = eventValidationInfo,
+							now = DateTime.Now,
+							startDate = anEvent.StartDate,
+							endDate = anEvent.EndDate,
+						},
+						"Some fields didn't match requirements"));
 				}
 				else
 				{
@@ -127,7 +135,8 @@ namespace SEEMS.Controller
 					var newEvent = _mapper.Map<Event>(anEvent);
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success, newEvent));
+					return Ok(new Response(ResponseStatusEnum.Success,
+						anEvent));
 				}
 			}
 			catch (Exception ex)
