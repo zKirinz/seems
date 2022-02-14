@@ -118,8 +118,9 @@ namespace SEEMS.Controller
 			{
 				if (eventValidationInfo != null)
 				{
-					return BadRequest(new Response(ResponseStatusEnum.Fail,
-							eventValidationInfo,
+					return BadRequest(
+						new Response(ResponseStatusEnum.Fail,
+						eventValidationInfo,
 						"Some fields didn't match requirements"));
 				}
 				else
