@@ -76,7 +76,7 @@ namespace SEEMS.Controller
 				}
 
 				//Paging
-				int pageSize = 5;
+				int pageSize = pageNum == null ? 100 : 5;
 				var paginatedResult = PaginatedList<Event>.Create(result.AsQueryable(), pageNum ?? 1, pageSize);
 
 				string? resMsg;
@@ -110,7 +110,10 @@ namespace SEEMS.Controller
 		[HttpPost]
 		public async Task<ActionResult> AddEvent(EventDTO anEvent)
 		{
+			anEvent.StartDate = anEvent.StartDate.ToUniversalTime();
+			anEvent.EndDate = anEvent.EndDate.ToUniversalTime();
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(anEvent);
+
 			try
 			{
 				if (eventValidationInfo != null)
