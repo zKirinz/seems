@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
 
-import objectAssign from 'object-assign'
-
 import CreateEventForm from '../../components/CreateEventForm'
 import { Box, Typography } from '@mui/material'
 
@@ -19,8 +17,7 @@ const EventRegistration = () => {
     })
 
     const createEventHandler = async (eventData) => {
-        const fullEventData = objectAssign(eventData, { imageUrl: src })
-        eventAction.createEvent(fullEventData).catch((errorResponse) => {
+        eventAction.createEvent(eventData).catch((errorResponse) => {
             if (errorResponse.status === 400) {
                 const errorData = errorResponse.data.data
                 setError({
