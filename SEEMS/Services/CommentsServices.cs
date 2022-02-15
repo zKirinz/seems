@@ -109,5 +109,12 @@ namespace SEEMS.Services
             var imageUrl = (string)user.ImageUrl;
             return imageUrl;
         }
+
+        public static string GetEmailByUserId(int userId, ApplicationDbContext dbContext)
+        {
+            var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
+            var email = (string)user.Email;
+            return email;
+        }
     }
 }

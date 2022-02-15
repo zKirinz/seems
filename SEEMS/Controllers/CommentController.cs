@@ -53,10 +53,11 @@ namespace SEEMS.Controller
                 CommentDTO commentDTO = _mapper.Map<CommentDTO>(comment);
                 commentDTO.ImageUrl = CommentsServices.GetImageUrlNameByUserId(comment.UserId, _context);
                 commentDTO.UserName = CommentsServices.GetUserNameByUserId(comment.UserId, _context);
+                commentDTO.Email = CommentsServices.GetEmailByUserId(comment.UserId, _context);
                 listResponseComments.Add(commentDTO);
             }
 
-            listResponseComments = listResponseComments.OrderByDescending(x => x.createdAt).ToList();
+            listResponseComments = listResponseComments.OrderByDescending(x => x.CreatedAt).ToList();
             return Ok(new Response(ResponseStatusEnum.Success, listResponseComments));
 
         }
@@ -83,11 +84,13 @@ namespace SEEMS.Controller
                 var user = _context.Users.FirstOrDefault(x => x.Id == item.UserId);
                 var userName = user.UserName;
                 var imageUrl = user.ImageUrl;
+                var email = user.Email;
                 var responseComment = _mapper.Map<CommentDTO>(newComment);
                 responseComment.ImageUrl = imageUrl;
                 responseComment.UserName = userName;
-                responseComment.createdAt = newComment.CreatedAt;
-                responseComment.modifiedAt = newComment.ModifiedAt;
+                responseComment.Email = email;
+                responseComment.CreatedAt = newComment.CreatedAt;
+                responseComment.ModifiedAt = newComment.ModifiedAt;
                 return Ok(new Response(ResponseStatusEnum.Success, responseComment));
 
             } catch (Exception ex)
@@ -119,11 +122,13 @@ namespace SEEMS.Controller
                 var user = _context.Users.FirstOrDefault(x => x.Id == userId);
                 var userName = user.UserName;
                 var imageUrl = user.ImageUrl;
+                var email = user.Email;
                 var responseComment = _mapper.Map<CommentDTO>(newComment);
                 responseComment.ImageUrl = imageUrl;
                 responseComment.UserName = userName;
-                responseComment.createdAt = comment.CreatedAt;
-                responseComment.modifiedAt = comment.ModifiedAt;
+                responseComment.Email = email;
+                responseComment.CreatedAt = comment.CreatedAt;
+                responseComment.ModifiedAt = comment.ModifiedAt;               
 
                 return Ok(new Response(ResponseStatusEnum.Success, responseComment));
             } catch(Exception ex)
