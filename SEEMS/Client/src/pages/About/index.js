@@ -12,11 +12,6 @@ import {
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
-import BTH from '../../assets/members/BTH.jpg'
-import DGP from '../../assets/members/DGP.jpg'
-import LTT from '../../assets/members/LTT.jpg'
-import NKN from '../../assets/members/NKN.jpg'
-import TTK from '../../assets/members/TTK.jpg'
 import Contact from './Contact'
 import Members from './Members'
 
@@ -40,48 +35,10 @@ const methodsContact = [
     },
 ]
 
-const members = [
-    {
-        id: 1,
-        src: LTT,
-        name: 'Lê Tiến Thịnh',
-        grade: '(K15)',
-        role: 'Leader Backend Developer',
-    },
-    {
-        id: 2,
-        src: NKN,
-        name: 'Nguyễn Khôi Nguyên',
-        grade: '(K14)',
-        role: 'Backend Developer',
-    },
-    {
-        id: 3,
-        src: DGP,
-        name: 'Dương Gia Phát',
-        grade: '(K14)',
-        role: 'Backend Developer',
-    },
-    {
-        id: 4,
-        src: TTK,
-        name: 'Trần Trung Kiên',
-        grade: '(K15)',
-        role: 'Leader Frontend Developer',
-    },
-    {
-        id: 5,
-        src: BTH,
-        name: 'Bùi Thế Hiển',
-        grade: '(K15)',
-        role: 'Frontend Developer',
-    },
-]
-
 const About = () => {
     const matches = useMediaQuery((theme) => theme.breakpoints.up('sm'))
     return (
-        <Box component="main" px={5} pt={10} sx={{ mt: { sx: 0, sm: 8.5 } }}>
+        <Box component="main" px={8} pt={10} sx={{ mt: { sx: 0, sm: 8.5 } }}>
             <Typography color="primary" variant="h3" mb={4} align="center" fontWeight={700}>
                 About Us
             </Typography>
@@ -103,13 +60,9 @@ const About = () => {
                             fontWeight={500}
                             variant={`${matches ? 'h6' : 'subtitle1'}`}
                         >
-                            We are a group of five FPT student studying Software Engineer in FPT
-                            university. We have a great passion for researching and learning
-                            technology with a desire to be able to contribute to software developing
-                            community and help the country in the future. We have participated a
-                            bunch of event and competition related to information technology, then
-                            realize that give us great moment and we study a lot of knowledge after
-                            each event.
+                            ✨ We are a group of five FPT students studying Software Engineer in FPT
+                            university with a great passion for learning and practicing technologies
+                            to create meaningful softwares.
                         </Typography>
                         <Typography
                             paragraph
@@ -118,19 +71,31 @@ const About = () => {
                             fontWeight={500}
                             variant={`${matches ? 'h6' : 'subtitle1'}`}
                         >
-                            Therefore, an idea was emerged. In order to bring together a group of
-                            remarkable FPT students with a great passion for coding and organizing
-                            event, to see if we could create something new to change this world.Our
-                            team having some expertise in the production of extraordinary events for
-                            private and corporate customers, we configuration, plan and deal with
-                            each undertaking from origination to execution. In here, you can
-                            discover and find the event that suitable for you. Enjoy our website!
+                            ✨ Everyday, There are many interesting and quality technology events
+                            occur as well as the number of people missed it. The same situation is
+                            happening in FPT University.
+                        </Typography>
+                        <Typography
+                            paragraph
+                            mt={1}
+                            sx={{ color: grey[600] }}
+                            fontWeight={500}
+                            variant={`${matches ? 'h6' : 'subtitle1'}`}
+                        >
+                            ✨ Therefore, in order to bring together FPT students who is interested
+                            in technology events as well as for event organizers to approach viewers
+                            easily, we create an amazing platform that help students and organizers
+                            track and manage events.
                         </Typography>
                     </CardContent>
                 </Grid>
             </Grid>
-            <Members members={members} />
-            <Contact contacts={methodsContact} />
+            <Box pt={6}>
+                <Members />
+            </Box>
+            <Box pt={6} pb={10}>
+                <Contact contacts={methodsContact} />
+            </Box>
         </Box>
     )
 }

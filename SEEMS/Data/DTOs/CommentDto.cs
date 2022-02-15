@@ -2,20 +2,18 @@
 
 namespace SEEMS.DTOs
 {
-    public class CommentDto
+    public class CommentDTO
     {
-        public Guid? UserId { get; set; }
-
-        public int EventId { get; set; }
-
+        public int? Id { get; set; }
+        public int? UserId { get; set; }
+        public int? EventId { get; set; }
         [StringLength(500)]
-        public String CommentContent { get; set; }
-
+        public String? CommentContent { get; set; }
         public int? ParentCommentId { get; set; }
-
-        public DateTime CreateAt { get; set; }
-
-        public DateTime? UpdateAt { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? UserName { get; set; }
+        public DateTime? createdAt { get; set; }
+        public DateTime? modifiedAt { get; set; }
 
     }
 }

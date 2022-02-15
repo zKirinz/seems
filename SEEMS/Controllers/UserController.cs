@@ -8,7 +8,7 @@ using SEEMS.Services.Interfaces;
 namespace SEEMS.Controllers;
 
 [ApiController]
-[Route("/api/[controller]")]
+[Route("/api/Users")]
 public class UserController : ControllerBase
 {
     private IAuthManager _authManager;

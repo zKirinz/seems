@@ -33,7 +33,7 @@ namespace SEEMS.Services
 			if (eventDTO.EndDate.Subtract(eventDTO.StartDate).TotalMinutes < EventValidationInfo.MinMinutesOfEvent)
 			{
 				failedCheck = true;
-				validationInfo.EndDate = $"End time must behind start time at least {EventValidationInfo.MinMinutesOfEvent} minutes";
+				validationInfo.EndDate = $"End time must after start time at least {EventValidationInfo.MinMinutesOfEvent} minutes";
 			}
 			return failedCheck ? validationInfo : null;
 		}

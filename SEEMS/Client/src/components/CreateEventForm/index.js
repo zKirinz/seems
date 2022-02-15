@@ -40,10 +40,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isFree, setIsFree] = useState(true)
-    const [isChainEvents, setIsChainEvents] = useState(false)
     const [isPrivate, setIsPrivate] = useState(false)
     const [price, setPrice] = useState(0)
     const [posterUrl, setPosterUrl] = useState({ src })
+    const [formIsHalfFilled, setFormIsHalfFilled] = useState(false)
     useEffect(() => {
         if (isFree) setPrice(0)
         else setPrice(1000)
@@ -90,15 +90,17 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const descriptionTouchedHandler = () => {
         setDescription((previousValue) => ({ ...previousValue, isTouched: true }))
     }
+    const formIsEntering = () => {
+        setFormIsHalfFilled(true)
+    }
+    const finishFormEntering = () => {
+        setFormIsHalfFilled(false)
+    }
     const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
     const locationIsInValid = isEmpty(location.value) && location.isTouched
     const descriptionIsInValid = isEmpty(description.value) && description.isTouched
     const overallTextFieldIsValid =
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
-    const formIsHalfFilled = useMemo(() => {
-        return !isEmpty(eventName.value) || !isEmpty(location.value) || !isEmpty(description.value)
-    }, [eventName.value, location.value, description.value])
-
     const submitHandler = (event) => {
         event.preventDefault()
         const eventDetailed = {
@@ -109,8 +111,8 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             isFree,
             imageUrl: src,
             isPrivate,
-            startDate,
-            endDate,
+            startDate: startDate,
+            endDate: endDate,
         }
         onCreateEvent(eventDetailed)
     }
@@ -139,7 +141,13 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                     </Box>
                 </Grid>
                 <Grid item xs={12} sm={7}>
-                    <Box component="form" p={2} autoComplete="off" onSubmit={submitHandler}>
+                    <Box
+                        component="form"
+                        p={2}
+                        autoComplete="off"
+                        onSubmit={submitHandler}
+                        onFocus={formIsEntering}
+                    >
                         <Box display="flex" flexWrap="wrap" justifyContent="space-between">
                             <FormControl sx={{ m: 1.5, width: { md: '45%', xs: '100%' } }} required>
                                 <InputLabel htmlFor="event-name">Event name</InputLabel>
@@ -253,16 +261,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <FormControl sx={{ ml: 1.5 }}>
-                                <FormControlLabel
-                                    control={<Checkbox />}
-                                    label="Chain of events"
-                                    value={isChainEvents}
-                                    onChange={() =>
-                                        setIsChainEvents((previousValue) => !previousValue)
-                                    }
-                                />
-                            </FormControl>
                         </Box>
                         <Box
                             sx={{
@@ -330,11 +328,16 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                 </Button>
                             </InputLabel>
                         </Box>
-                        <Box sx={{ m: 1.5, mt: 3 }} display="flex" justifyContent="flex-end">
+                        <Box
+                            sx={{ m: 1.5, mt: { sm: 9, xs: 3 } }}
+                            display="flex"
+                            justifyContent="flex-end"
+                        >
                             <Button
                                 variant="contained"
                                 type="submit"
                                 disabled={!overallTextFieldIsValid}
+                                onClick={finishFormEntering}
                             >
                                 Submit
                             </Button>

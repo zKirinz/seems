@@ -157,6 +157,7 @@ app.Use((httpContext, next) => // For the oauth2-less!
 
     return next();
 });
+app.UseAuthorizationMiddleware();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
