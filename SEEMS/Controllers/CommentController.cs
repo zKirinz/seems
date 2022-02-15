@@ -47,7 +47,17 @@ namespace SEEMS.Controller
                 return NotFound(new Response(ResponseStatusEnum.Success, "", "This event has no comments"));
             }
 
-            return Ok(new Response(ResponseStatusEnum.Success, listComment));
+            List<CommentDTO> listResponseComments = new List<CommentDTO>();
+            foreach (var comment in listComment)
+            {
+                CommentDTO commentDTO = _mapper.Map<CommentDTO>(comment);
+                commentDTO.ImageUrl = CommentsServices.GetImageUrlNameByUserId(comment.UserId, _context);
+                commentDTO.UserName = CommentsServices.GetUserNameByUserId(comment.UserId, _context);
+                listResponseComments.Add(commentDTO);
+            }
+
+            listResponseComments = listResponseComments.OrderByDescending(x => x.createdAt).ToList();
+            return Ok(new Response(ResponseStatusEnum.Success, listResponseComments));
 
         }
 
@@ -56,36 +66,34 @@ namespace SEEMS.Controller
         [HttpPost]
         public IActionResult Post([FromBody] CommentDTO item)
         {
-            var email = (string)HttpContext.Items["email"];
-            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, email, _context);
-
-            if (commentValidationInfo != null)
-            {
-                return BadRequest(commentValidationInfo);
-            }
-
-            var newComment = _mapper.Map<Comment>(item);
-
             try
             {
+                CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, _context);
+
+                if (commentValidationInfo != null)
+                {
+                    return BadRequest(commentValidationInfo);
+                }
+
+                var newComment = _mapper.Map<Comment>(item);
+
                 _context.Comments.Add(newComment);
                 _context.SaveChanges();
-            }
-            catch (Exception ex)
+
+                var user = _context.Users.FirstOrDefault(x => x.Id == item.UserId);
+                var userName = user.UserName;
+                var imageUrl = user.ImageUrl;
+                var responseComment = _mapper.Map<CommentDTO>(newComment);
+                responseComment.ImageUrl = imageUrl;
+                responseComment.UserName = userName;
+                responseComment.createdAt = newComment.CreatedAt;
+                responseComment.modifiedAt = newComment.ModifiedAt;
+                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
+
+            } catch (Exception ex)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Error, ""));
+                return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
             }
-
-            var user = _context.Users.FirstOrDefault(x => x.Email == email);
-            var userName = user.UserName;
-            var imageUrl = user.ImageUrl;
-            var responseComment = _mapper.Map<CommentDTO>(newComment);
-            responseComment.ImageUrl = imageUrl;
-            responseComment.UserName = userName;
-            responseComment.createdAt = newComment.CreatedAt;
-            responseComment.modifiedAt = newComment.ModifiedAt;
-            return Ok(new Response(ResponseStatusEnum.Success, responseComment));
-
 
         }
 
@@ -94,35 +102,34 @@ namespace SEEMS.Controller
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] CommentDTO newComment)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
-
-            if (comment == null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This comment does not exist"));
-            }
-
-            var email = (string)HttpContext.Items["email"];
-
-            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToEditComment(id, newComment, email, _context);
-
-            if (commentValidationInfo != null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
-            }
-
-            comment.CommentContent = newComment.CommentContent;
-
             try
             {
+                var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+
+                if (comment == null)
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This comment does not exist"));
+                }
+
+                comment.CommentContent = newComment.CommentContent;
                 _context.Comments.Update(comment);
                 _context.SaveChanges(true);
-            }
-            catch (Exception)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Error, ""));
-            }
 
-            return Ok(new Response(ResponseStatusEnum.Success, comment));
+                var userId = comment.UserId;
+                var user = _context.Users.FirstOrDefault(x => x.Id == userId);
+                var userName = user.UserName;
+                var imageUrl = user.ImageUrl;
+                var responseComment = _mapper.Map<CommentDTO>(newComment);
+                responseComment.ImageUrl = imageUrl;
+                responseComment.UserName = userName;
+                responseComment.createdAt = comment.CreatedAt;
+                responseComment.modifiedAt = comment.ModifiedAt;
+
+                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
+            } catch(Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
+            }
         }
 
         // DELETE api/<CommentController>/
@@ -130,33 +137,23 @@ namespace SEEMS.Controller
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
-
-            if (comment == null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This comment does not exist"));
-            }
-
-            var email = (string)HttpContext.Items["email"];
-
-            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToDeleteComment(id, email, _context);
-
-            if (commentValidationInfo != null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
-            }
-
             try
             {
+                var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+
+                if (comment == null)
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This comment does not exist"));
+                }
+
                 _context.Comments.Remove(comment);
                 _context.SaveChanges(true);
-            }
-            catch (Exception ex)
+                
+                return Ok(new Response(ResponseStatusEnum.Success, "", "Delete successfully"));
+            } catch (Exception ex)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Error, ""));
+                return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
             }
-
-            return Ok(new Response(ResponseStatusEnum.Success, "", "Delete successfully"));
         }
 
         [HttpPost("{id}")]
