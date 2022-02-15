@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useRecoilState } from 'recoil'
 
 import {
     Login as LoginIcon,
     Logout as LogoutIcon,
+    Add as AddIcon,
     Notifications as NotificationsIcon,
+    Event as EventIcon,
 } from '@mui/icons-material'
 import {
     Box,
@@ -24,14 +26,16 @@ import {
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import authAtom, { useAuthAction } from '../../../recoil/auth'
+import userAtom, { useUserAction } from '../../../recoil/user'
 
 const RightNavBar = () => {
     const auth = useRecoilValue(authAtom)
+    const [user, setUser] = useRecoilState(userAtom)
     const history = useHistory()
     const authAction = useAuthAction()
+    const userAction = useUserAction()
     const [anchorEl, setAnchorEl] = useState(null)
     const [isLoading, setIsLoading] = useState()
-    const [profile, setProfile] = useState({})
     const open = Boolean(anchorEl)
     const showSnackbar = useSnackbar()
 
@@ -51,14 +55,15 @@ const RightNavBar = () => {
     useEffect(() => {
         if (auth.email) {
             setIsLoading(true)
-            authAction
+            userAction
                 .getProfile()
                 .then((response) => {
                     if (response?.data?.status === 'success') {
-                        setProfile({
-                            name: response.data.data.userName,
+                        setUser({
                             email: response.data.data.email,
+                            username: response.data.data.userName,
                             image: response.data.data.imageUrl,
+                            role: auth.role,
                         })
                     }
                     setIsLoading(false)
@@ -71,7 +76,7 @@ const RightNavBar = () => {
                 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [auth.email])
 
     return (
         <React.Fragment>
@@ -137,18 +142,40 @@ const RightNavBar = () => {
                                 >
                                     <Avatar
                                         alt="avatar"
-                                        src={profile.image}
+                                        src={user.image}
                                         sx={{ width: 80, height: 80, mb: 2 }}
                                     />
                                     <Typography variant="body1" fontWeight={700} textAlign="center">
-                                        {profile.name}
+                                        {user.username}
                                     </Typography>
                                     <Typography variant="body1" textAlign="center">
-                                        {profile.email}
+                                        {user.email}
                                     </Typography>
                                     <Typography variant="body1" textAlign="center">
-                                        Role - {auth.role}
+                                        Role - {user.role}
                                     </Typography>
+                                </Box>
+                            )}
+                            {auth.role === 'Organizer' && (
+                                <Box>
+                                    <MenuItem
+                                        sx={{ display: 'flex', justifyContent: 'center' }}
+                                        onClick={() => history.push('/events/me')}
+                                    >
+                                        <ListItemIcon>
+                                            <EventIcon fontSize="large" />
+                                        </ListItemIcon>
+                                        <Typography ml={1}>My events</Typography>
+                                    </MenuItem>
+                                    <MenuItem
+                                        sx={{ display: 'flex', justifyContent: 'center' }}
+                                        onClick={() => history.push('/events/create')}
+                                    >
+                                        <ListItemIcon>
+                                            <AddIcon fontSize="large" />
+                                        </ListItemIcon>
+                                        <Typography ml={1}>Create event</Typography>
+                                    </MenuItem>
                                 </Box>
                             )}
                             <MenuItem

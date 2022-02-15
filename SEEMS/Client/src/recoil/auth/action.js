@@ -2,7 +2,7 @@ import jwt_decode from 'jwt-decode'
 import { useHistory } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
 
-import { get, post } from '../../utils/ApiCaller'
+import { post } from '../../utils/ApiCaller'
 import LocalStorageUtils from '../../utils/LocalStorageUtils'
 import authAtom from './atom'
 
@@ -13,7 +13,7 @@ const useAuthAction = () => {
     const autoLogin = () => {
         const token = LocalStorageUtils.getToken()
         const user = LocalStorageUtils.getUser()
-
+        console.log(user)
         if (user && typeof user === 'object') {
             if (user?.exp && user?.exp * 1000 > Date.now()) {
                 setAuth({ token, email: user.email, role: user.role, exp: user.exp })
@@ -21,6 +21,7 @@ const useAuthAction = () => {
                 logout()
             }
         } else {
+            console.log('kien')
             setAuth({ token: null, email: '', role: '', exp: 0 })
         }
     }
@@ -47,13 +48,10 @@ const useAuthAction = () => {
         setAuth({ token: null, email: '', role: '', exp: 0 })
     }
 
-    const getProfile = () => get({ endpoint: '/api/users/me' })
-
     return {
         autoLogin,
         login,
         logout,
-        getProfile,
     }
 }
 
