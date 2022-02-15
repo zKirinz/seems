@@ -12,7 +12,7 @@ const PrivateRoute = (props) => {
 
     if (match.path === '/admin') {
         if (auth.role !== 'Admin') {
-            return <Redirect to="/login" />
+            return <Redirect to="/" />
         }
     } else {
         if (auth.role === 'Admin') {

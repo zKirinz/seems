@@ -37,13 +37,13 @@ const hybridRoutes = [
 const privateRoutes = [
     {
         path: '/events',
-        name: 'event creation',
+        name: 'events',
         component: lazy(() => import('../pages/Events')),
         layout: 'common',
     },
     {
         path: '/events/create',
-        name: 'event creation',
+        name: 'create event',
         component: lazy(() => import('../pages/CreateEvent')),
         layout: 'common',
     },
@@ -52,12 +52,6 @@ const privateRoutes = [
         name: 'admin home',
         component: lazy(() => import('../pages/Admin/Home')),
         layout: 'admin',
-    },
-    {
-        path: '/events/create',
-        name: 'create events',
-        component: lazy(() => import('../pages/CreateEvent')),
-        layout: 'common',
     },
 ]
 

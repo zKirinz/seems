@@ -1,16 +1,9 @@
 import React from 'react'
 
+import Hero from '../../components/Hero'
 import { Box } from '@mui/material'
 
-import Introduction from './Introduction'
 import UpComingEvents from './UpcomingEvents'
-
-const introHeaderImage = {
-    title: 'SEEMS',
-    desc: 'Where FPT students will have the opportunity to enhance technical skills as well as soft skill through  many software academic events and activities related to modern technologies.',
-    src: 'https://media-exp1.licdn.com/dms/image/C5616AQEMxYQLodosUA/profile-displaybackgroundimage-shrink_200_800/0/1630122993980?e=1648080000&v=beta&t=qRUkeRz5I8u5kb9NweehGZPucpXkmJ6FIEwPCfdZ0Os',
-    alt: 'introduction-image',
-}
 
 const upComingEvents = [
     {
@@ -33,20 +26,15 @@ const upComingEvents = [
     },
 ]
 
-const HomePage = () => {
+const PrivateHome = () => {
     return (
         <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }}>
-            <Introduction
-                src={introHeaderImage.src}
-                size={introHeaderImage.size}
-                title={introHeaderImage.title}
-                desc={introHeaderImage.desc}
-            />
-            <Box sx={{ pt: 10, px: 5 }}>
+            <Hero />
+            <Box px={5} py={12}>
                 <UpComingEvents upComingEvents={upComingEvents} />
             </Box>
         </Box>
     )
 }
 
-export default HomePage
+export default PrivateHome
