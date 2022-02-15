@@ -6,7 +6,5 @@ namespace SEEMS.Infrastructures.Commons
         public const string CUSR = "User";
         public const string ADM = "Admin";
         public const string ORG = "Organizer";
-        
-        
     }
 }

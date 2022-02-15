@@ -1,6 +1,8 @@
 ﻿using SEEMS.Data.Entities;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using SEEMS.Data.Models;
 
 namespace SEEMS.Models
 {
@@ -11,6 +13,12 @@ namespace SEEMS.Models
 
         [StringLength(255)]
         public String? ImageUrl { get; set; }
+        
+        [ForeignKey("User")]
+        public int? CreatedBy { get; set; }
+        
+        [JsonIgnore]
+        public User? User { get; set; }
 
         [JsonIgnore]
         public List<Event> Events { get; set; }
