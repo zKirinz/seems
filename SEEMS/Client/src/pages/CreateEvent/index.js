@@ -18,6 +18,7 @@ const CreateEvent = () => {
 
     const createEventHandler = (eventData) => {
         eventAction.createEvent(eventData).catch((errorResponse) => {
+            console.log(errorResponse)
             if (errorResponse.status === 400) {
                 const errorData = errorResponse.data.data
                 setError({

@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-
 import { BrowserRouter } from 'react-router-dom'
 
 import { ThemeProvider } from '@mui/material'
@@ -11,10 +9,7 @@ import seemsTheme from '../theme/seemsTheme'
 
 const App = () => {
     const authAction = useAuthAction()
-
-    useEffect(() => {
-        authAction.autoLogin()
-    }, [authAction])
+    authAction.autoLogin()
 
     return (
         <ThemeProvider theme={seemsTheme}>
