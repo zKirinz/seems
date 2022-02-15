@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Extensions;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
@@ -74,7 +75,7 @@ namespace SEEMS.Controllers
             ResponseStatusEnum status = ResponseStatusEnum.Fail;
             try
             {
-                if (Request.Headers.TryGetValue("token", out var headers))
+                if (Request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
                 {
                     string token = headers.First();
                     var jwtToken = _authService.DecodeToken(token);
