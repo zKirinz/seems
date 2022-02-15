@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SEEMS.Data.Entities.RequestFeatures;
+using SEEMS.Services;
 
 namespace SEEMS.Data.Repositories.Implements
 {
@@ -18,10 +20,15 @@ namespace SEEMS.Data.Repositories.Implements
 
         public void CreateUser(User user) => Create(user);
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync(bool trackChanges) =>
-            await FindAll(trackChanges)
-            .OrderBy(u => u.Email)
-            .ToListAsync();
+        public async Task<PaginatedList<User>> GetAllUsersAsync(UserParams userParams, bool trackChanges)
+        {
+            var users = await FindAll(trackChanges)
+                        .OrderBy(u => u.Email)
+                        .Skip((userParams.PageNumber - 1) * userParams.PageSize)
+                        .Take(userParams.PageSize)
+                        .ToListAsync();
+            return PaginatedList<User>.Create(users, userParams.PageNumber, userParams.PageSize);
+        } 
 
         public async Task<User> GetUserAsync(string email, bool trackChanges) =>
         #pragma warning disable CS8603 // Possible null reference return.

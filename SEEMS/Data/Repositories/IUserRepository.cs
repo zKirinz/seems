@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SEEMS.Data.Entities.RequestFeatures;
+using SEEMS.Services;
 
 namespace SEEMS.Data.Repositories
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<User>> GetAllUsersAsync(bool trackChanges);
+        Task<PaginatedList<User>> GetAllUsersAsync(UserParams userParams, bool trackChanges);
 
         Task<User> GetUserAsync(string email, bool trackChanges);
 
