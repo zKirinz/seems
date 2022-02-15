@@ -30,6 +30,27 @@ namespace SEEMS.Controller
 			_userService = userService;
 		}
 
+		[HttpGet("detail/{id}")]
+		public async Task<IActionResult> GetEventDetail()
+		{
+			try
+			{
+				var foundEvent = _context.Events.FirstOrDefault(
+					e => e.Id == HttpContext.Request.QueryString[]
+				);
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(
+					new Response(
+						ResponseStatusEnum.Fail,
+						ex.Message
+					)
+				);
+			}
+			return null;
+		}
+
 		[HttpGet("my-events")]
 		[AuthorizationFilter(RoleTypes.ORG, RoleTypes.ADM)]
 		public async Task<ActionResult<List<Event>>> GetMyEvents()
