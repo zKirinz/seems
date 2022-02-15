@@ -12,7 +12,7 @@ using SEEMS.Services;
 
 namespace SEEMS.Controller
 {
-    [Route("api/[controller]")]
+    [Route("api/Comments")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "v1")]
     public class CommentController : ControllerBase
@@ -30,7 +30,7 @@ namespace SEEMS.Controller
         // Get all comment by EventId
 
         [HttpGet("{id}")]
-        [AuthorizationFilter(RoleTypes.CUSR , RoleTypes.ORG , RoleTypes.ADM)]
+        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult Get(int id)
         {
 
@@ -60,7 +60,7 @@ namespace SEEMS.Controller
         {
             var email = (string)HttpContext.Items["email"];
             CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, email, _context);
-            
+
             if (commentValidationInfo != null)
             {
                 return BadRequest(commentValidationInfo);
@@ -78,7 +78,15 @@ namespace SEEMS.Controller
                 return BadRequest(new Response(ResponseStatusEnum.Error, ""));
             }
 
-            return Ok(new Response(ResponseStatusEnum.Success, newComment));
+            var user = _context.Users.FirstOrDefault(x => x.Email == email);
+            var userName = user.UserName;
+            var imageUrl = user.ImageUrl;
+            var responseComment = _mapper.Map<CommentDTO>(newComment);
+            responseComment.ImageUrl = imageUrl;
+            responseComment.UserName = userName;
+            responseComment.createdAt = newComment.CreatedAt;
+            responseComment.modifiedAt = newComment.ModifiedAt;
+            return Ok(new Response(ResponseStatusEnum.Success, responseComment));
 
 
         }
@@ -133,10 +141,10 @@ namespace SEEMS.Controller
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This comment does not exist"));
             }
 
-            var email =(string)HttpContext.Items["email"];
+            var email = (string)HttpContext.Items["email"];
 
-            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToDeleteComment(id, email, _context);         
-            
+            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToDeleteComment(id, email, _context);
+
             if (commentValidationInfo != null)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
@@ -157,19 +165,56 @@ namespace SEEMS.Controller
 
         [HttpPost("{id}")]
         [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
-
-        public IActionResult LoadComment(int id, [FromBody] int? lastCommentId, int resultCount)
+        public IActionResult LoadComments(int id, int lastCommentId, int resultCount)
         {
             var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
 
             if (anEvent == null)
             {
-                return BadRequest();
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This events does not exist"));
+            }
+
+            var listComment = _context.Comments.Where(x => x.EventId == id).Where(x => x.ParentCommentId == null).ToList();
+
+            if (!listComment.Any())
+            {
+                return Ok(new Response(ResponseStatusEnum.Success, "", "This events no has comment"));
+            }
+
+            listComment = listComment.OrderByDescending(x => x.CreatedAt).ToList();
+            List<CommentDTO> listResponseComments = new List<CommentDTO>();
+            foreach (var comment in listComment)
+            {               
+                CommentDTO commentDTO = _mapper.Map<CommentDTO>(comment);
+                commentDTO.ImageUrl = CommentsServices.GetImageUrlNameByUserId(comment.UserId, _context);
+                commentDTO.UserName = CommentsServices.GetUserNameByUserId(comment.UserId, _context);
+                listResponseComments.Add(commentDTO);
+            }
+            bool hasMoreComment = (listResponseComments.Count > resultCount);
+
+            if (lastCommentId == 0)
+            {               
+                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), resultCount)).ToList();
             }
             else
             {
-                return Ok();
+                var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
+                if (lastCommentIndex >= 0)
+                {
+                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, Math.Min(listResponseComments.Count() - lastCommentIndex - 1, resultCount)).ToList();
+                } else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid id"));
+                }
             }
+            
+            return Ok(new Response(ResponseStatusEnum.Success,
+                                   new 
+                                   {                                      
+                                       hasMoreComment,
+                                       listResponseComments,
+                                   }));
+
         } 
     }
 }

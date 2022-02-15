@@ -14,6 +14,7 @@ namespace SEEMS.Configs
 			CreateMap<Event, EventDTO>().ForMember(x => x.IsFree, opt => opt.Ignore());
 			CreateMap<EventDTO, Event>();
 			CreateMap<CommentDTO, Comment>();
+			CreateMap<Comment, CommentDTO>();
 		}
 	}
 }

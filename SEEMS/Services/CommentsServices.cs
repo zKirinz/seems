@@ -120,5 +120,19 @@ namespace SEEMS.Services
             var userIdOfComment = (int)comment.UserId;
             return userIdOfComment;
         }
+
+        public static string GetUserNameByUserId(int userId, ApplicationDbContext dbContext)
+        {
+            var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
+            var userName = (string)user.UserName;
+            return userName;
+        }
+
+        public static string GetImageUrlNameByUserId(int userId, ApplicationDbContext dbContext)
+        {
+            var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
+            var imageUrl = (string)user.ImageUrl;
+            return imageUrl;
+        }
     }
 }
