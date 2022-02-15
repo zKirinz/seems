@@ -42,7 +42,12 @@ namespace SEEMS.Controller
 				{
 					var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
 					return Ok(
-						new Response(ResponseStatusEnum.Success, listEvents)
+						new Response(ResponseStatusEnum.Success,
+						new
+						{
+							Count = listEvents.Count(),
+							Events = listEvents
+						})
 					);
 				}
 			}
