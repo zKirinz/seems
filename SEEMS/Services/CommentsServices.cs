@@ -8,7 +8,7 @@ namespace SEEMS.Services
     public class CommentsServices
     {
 
-        public static CommentValidationInfo GetValidatedToCreateComment(CommentDto commentDto, string email, ApplicationDbContext dbContext)
+        public static CommentValidationInfo GetValidatedToCreateComment(CommentDTO commentDto, string email, ApplicationDbContext dbContext)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
             bool failCheck = false;
@@ -68,7 +68,7 @@ namespace SEEMS.Services
             return failCheck ? commentValidationInfo : null;
         }
 
-        public static CommentValidationInfo GetValidatedToEditComment(int commentId, CommentDto commentDto, string email, ApplicationDbContext dbContext)
+        public static CommentValidationInfo GetValidatedToEditComment(int commentId, CommentDTO commentDto, string email, ApplicationDbContext dbContext)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
             bool failCheck = false;

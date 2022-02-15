@@ -2,7 +2,7 @@
 
 namespace SEEMS.DTOs
 {
-    public class CommentDto
+    public class CommentDTO
     {
         public int? UserId { get; set; }
 

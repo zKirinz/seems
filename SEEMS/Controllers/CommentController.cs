@@ -56,7 +56,7 @@ namespace SEEMS.Controller
         // Create a comment
         [HttpPost]
         [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
-        public IActionResult Post([FromBody] CommentDto item)
+        public IActionResult Post([FromBody] CommentDTO item)
         {
             var email = (string)HttpContext.Items["email"];
             CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, email, _context);
@@ -87,7 +87,7 @@ namespace SEEMS.Controller
         // Edit comment by Id
         [HttpPut("{id}")]
         [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
-        public IActionResult Put(int id, [FromBody] CommentDto newComment)
+        public IActionResult Put(int id, [FromBody] CommentDTO newComment)
         {
             var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
 
@@ -155,5 +155,21 @@ namespace SEEMS.Controller
             return Ok(new Response(ResponseStatusEnum.Success, "", "Delete successfully"));
         }
 
+        [HttpPost("{id}")]
+        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
+
+        public IActionResult LoadComment(int id, [FromBody] int? lastCommentId, int resultCount)
+        {
+            var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
+
+            if (anEvent == null)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                return Ok();
+            }
+        } 
     }
 }
