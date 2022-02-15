@@ -16,7 +16,7 @@ const publicRoutes = [
         component: lazy(() => import('../pages/Login')),
     },
     {
-        path: '/events/detailed/:id',
+        path: '/events/:id',
         name: 'event detailed',
         component: lazy(() => import('../pages/EventDetailed')),
         layout: 'common',
