@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using SEEMS.Authorization;
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.ValidationInfo;
@@ -32,12 +30,11 @@ namespace SEEMS.Controller
         // Get all comment by EventId
 
         [HttpGet("{id}")]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult Get(int id)
         {
 
             var events = _context.Events.FirstOrDefault(e => e.Id == id);
-
+                
             if (events == null)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This event does not exist"));
@@ -57,7 +54,6 @@ namespace SEEMS.Controller
         // POST api/<CommentController>
         // Create a comment
         [HttpPost]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult Post([FromBody] CommentDTO item)
         {
             var email = (string)HttpContext.Items["email"];
@@ -96,7 +92,6 @@ namespace SEEMS.Controller
         // PUT api/<CommentController>/
         // Edit comment by Id
         [HttpPut("{id}")]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult Put(int id, [FromBody] CommentDTO newComment)
         {
             var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
@@ -133,7 +128,6 @@ namespace SEEMS.Controller
         // DELETE api/<CommentController>/
         // Delete comment by Id
         [HttpDelete("{id}")]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public ActionResult Delete(int id)
         {
             var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
@@ -166,7 +160,6 @@ namespace SEEMS.Controller
         }
 
         [HttpPost("{id}")]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult LoadComments(int id,[FromBody] LoadCommentsRequest data)
         {
 
