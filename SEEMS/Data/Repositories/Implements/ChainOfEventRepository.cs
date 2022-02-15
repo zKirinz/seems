@@ -13,9 +13,9 @@ public class ChainOfEventRepository : RepositoryBase<ChainOfEvent>, IChainOfEven
     {
     }
     
-    public async Task<PaginatedList<ChainOfEvent>> GetAllChainOfEventsAsync(ChainOfEventsPagination args, bool trackChanges)
+    public async Task<PaginatedList<ChainOfEvent>> GetAllChainOfEventsAsync(int userId, ChainOfEventsPagination args, bool trackChanges)
     {
-        var listChainOfEvents = await FindAll(trackChanges)
+        var listChainOfEvents = await FindByCondition(e => e.CreatedBy == userId, false) 
             .OrderBy(c => c.CategoryName)
             .ToListAsync();
         

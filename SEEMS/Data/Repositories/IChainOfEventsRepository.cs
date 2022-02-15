@@ -6,5 +6,5 @@ namespace SEEMS.Data.Repositories;
 
 public interface IChainOfEventsRepository
 {
-    Task<PaginatedList<ChainOfEvent>> GetAllChainOfEventsAsync(ChainOfEventsPagination args, bool trackChanges);
+    Task<PaginatedList<ChainOfEvent>> GetAllChainOfEventsAsync(int userId, ChainOfEventsPagination args, bool trackChanges);
 }
