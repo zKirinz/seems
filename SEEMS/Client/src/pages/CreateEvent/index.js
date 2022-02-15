@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 
+import { useHistory } from 'react-router-dom'
+
 import CreateEventForm from '../../components/CreateEventForm'
 import { Box, Typography } from '@mui/material'
 
@@ -7,6 +9,7 @@ import { useEventAction } from '../../recoil/event'
 
 const CreateEvent = () => {
     const eventActions = useEventAction()
+    const history = useHistory()
     const [error, setError] = useState({
         title: null,
         location: null,
@@ -17,19 +20,25 @@ const CreateEvent = () => {
     })
 
     const createEventHandler = (eventData) => {
-        eventActions.createEvent(eventData).catch((errorResponse) => {
-            if (errorResponse.status === 400) {
-                const errorData = errorResponse.data.data
-                setError({
-                    title: errorData.title,
-                    location: errorData.location,
-                    description: errorData.description,
-                    expectPrice: errorData.expectPrice,
-                    startDate: errorData.startDate,
-                    endDate: errorData.endDate,
-                })
-            }
-        })
+        eventActions
+            .createEvent(eventData)
+            .then(() => {
+                history.push('/events')
+            })
+            .catch((errorResponse) => {
+                if (errorResponse.response.status === 400) {
+                    const errorData = errorResponse.response.data.data
+
+                    setError({
+                        title: errorData.title,
+                        location: errorData.location,
+                        description: errorData.description,
+                        expectPrice: errorData.expectPrice,
+                        startDate: errorData.startDate,
+                        endDate: errorData.endDate,
+                    })
+                }
+            })
     }
     return (
         <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }} px={3} pt={10}>

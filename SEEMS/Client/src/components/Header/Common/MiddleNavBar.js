@@ -42,6 +42,7 @@ const CommonMiddleNavBar = ({ isAuth }) => {
                     component={NavLink}
                     to="/events"
                     sx={{ px: 2, py: 1.25, position: 'relative' }}
+                    exact={true}
                 >
                     <Tooltip title="Events">
                         <IconButton size="medium">

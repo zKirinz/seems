@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 
+import { useRecoilValue } from 'recoil'
+
 import Comments from '../../components/Comments'
 import EventPoster from '../../components/EventPoster'
 import {
@@ -18,6 +20,7 @@ import {
 import { grey } from '@mui/material/colors'
 
 import DGP from '../../assets/members/DGP.jpg'
+import atom from '../../recoil/auth'
 import { useCommentsAction } from '../../recoil/comments'
 import Loading from '../Loading/'
 import EventDate from './EventDate'
@@ -50,6 +53,7 @@ const EventDetailed = () => {
     const commentContent = useRef(null)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(false)
+    const token = useRecoilValue(atom)
     // const [comments, setComments] = useState([])
     const loadCommentsHandler = () => {
         setIsLoading(true)
@@ -63,6 +67,26 @@ const EventDetailed = () => {
                 console.log(error.response)
             })
         setIsLoading(false)
+    }
+
+    const createCommentHandler = (event) => {
+        if (event.key === 'Enter') {
+            console.log(token)
+            setIsLoading(true)
+            const commentData = {
+                UserId: 1,
+                EventId: 1,
+                CommentContent: 'I wanna be master javascript',
+            }
+            commentsActions
+                .createComment(commentData)
+                .then((response) => {
+                    console.log(response)
+                })
+                .catch((error) => {
+                    console.log(error.response)
+                })
+        }
     }
     useEffect(() => {
         loadCommentsHandler()
@@ -141,6 +165,7 @@ const EventDetailed = () => {
                         borderRadius: 8,
                     }}
                     inputRef={commentContent}
+                    onKeyDown={createCommentHandler}
                 />
             </FormControl>
             <Comments comments={comments} />
