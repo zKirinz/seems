@@ -4,6 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 
 import { AdminLayout, CommonLayout } from '../components/Layout'
 
+import { publicHome, privateHome } from '../pages/Home'
 import LoadingPage from '../pages/Loading'
 import HybridRoute from './HybridRoute'
 import PrivateRoute from './PrivateRoute'
@@ -27,8 +28,8 @@ const hybridRoutes = [
     {
         path: '/',
         name: 'home',
-        privateComponent: lazy(() => import('../pages/Home/privateHome')),
-        publicComponent: lazy(() => import('../pages/Home/publicHome')),
+        privateComponent: privateHome,
+        publicComponent: publicHome,
         layout: 'common',
     },
     {
