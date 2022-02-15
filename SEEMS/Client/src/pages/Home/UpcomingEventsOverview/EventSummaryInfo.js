@@ -4,11 +4,11 @@ import { useTheme } from '@mui/material/styles'
 
 const EventSummaryInfo = ({ title, content, time }) => {
     const theme = useTheme()
-    const matchs = useMediaQuery(theme.breakpoints.up('md'))
+    const matches = useMediaQuery(theme.breakpoints.up('md'))
 
     return (
         <CardContent sx={{ px: { xs: 3, md: 8 }, py: { sx: 2, md: 4 } }}>
-            <Typography fontWeight={700} color="secondary" variant={`${matchs ? 'h5' : 'h6'}`}>
+            <Typography fontWeight={700} color="secondary" variant={`${matches ? 'h5' : 'h6'}`}>
                 {title}
             </Typography>
             <Typography
@@ -16,7 +16,7 @@ const EventSummaryInfo = ({ title, content, time }) => {
                 mt={1.5}
                 sx={{ color: grey[500] }}
                 fontWeight={500}
-                variant={`${matchs ? 'subtitle1' : 'subtitle2'}`}
+                variant={`${matches ? 'subtitle1' : 'subtitle2'}`}
             >
                 {content}
             </Typography>

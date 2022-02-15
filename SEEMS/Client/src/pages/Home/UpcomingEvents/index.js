@@ -11,7 +11,7 @@ import EventSummaryInfo from './EventSummaryInfo'
 const UpComingEvents = ({ upComingEvents }) => {
     const history = useHistory()
     const theme = useTheme()
-    const matchs = useMediaQuery(theme.breakpoints.up('sm'))
+    const matches = useMediaQuery(theme.breakpoints.up('sm'))
 
     return (
         <React.Fragment>
@@ -41,7 +41,7 @@ const UpComingEvents = ({ upComingEvents }) => {
                         <Box
                             position="absolute"
                             bottom={30}
-                            right={matchs ? 50 : 10}
+                            right={matches ? 50 : 10}
                             display="flex"
                             justifyContent="center"
                         >

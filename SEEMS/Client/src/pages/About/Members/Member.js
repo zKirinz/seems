@@ -4,14 +4,15 @@ import { useTheme } from '@emotion/react'
 
 const Member = ({ name, role, src, grade }) => {
     const theme = useTheme()
-    const matchs = useMediaQuery(theme.breakpoints.up('md'))
+    const matches = useMediaQuery(theme.breakpoints.up('md'))
+
     return (
         <Card sx={{ maxWidth: 345, margin: '0 auto' }}>
             <CardMedia component="img" alt={name} height="300" image={src} />
             <CardContent>
                 <Typography
                     gutterBottom
-                    variant={`${matchs ? 'h6' : 'h5'}`}
+                    variant={`${matches ? 'h6' : 'h5'}`}
                     color="primary"
                     textAlign="center"
                     fontWeight={700}
