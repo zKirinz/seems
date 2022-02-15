@@ -23,7 +23,7 @@ import {
     Button,
 } from '@mui/material'
 
-import authAtom, { useAuthAction } from '../../recoil/auth'
+import authAtom, { useAuthAction } from '../../../recoil/auth'
 
 const RightNavBar = () => {
     const auth = useRecoilValue(authAtom)
