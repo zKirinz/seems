@@ -5,7 +5,8 @@ import HeroImage from '../../assets/images/hero.jpg'
 
 const Hero = () => {
     const theme = useTheme()
-    const matchs = useMediaQuery(theme.breakpoints.up('sm'))
+    const matches = useMediaQuery(theme.breakpoints.up('sm'))
+
     return (
         <Box position="relative">
             <Avatar
@@ -29,7 +30,7 @@ const Hero = () => {
             >
                 <Typography
                     sx={{ letterSpacing: 2, my: 2 }}
-                    variant={`${matchs ? 'h1' : 'h2'}`}
+                    variant={`${matches ? 'h1' : 'h2'}`}
                     color="secondary"
                     fontWeight={900}
                     align="center"
@@ -39,7 +40,7 @@ const Hero = () => {
                 <Typography
                     paragraph
                     color="secondary"
-                    variant={`${matchs ? 'h5' : 'subtitle1'}`}
+                    variant={`${matches ? 'h5' : 'subtitle1'}`}
                     align="center"
                     sx={{ maxWidth: 1000, m: '0 auto' }}
                 >

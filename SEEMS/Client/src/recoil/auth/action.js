@@ -2,7 +2,7 @@ import jwt_decode from 'jwt-decode'
 import { useHistory } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
 
-import { post } from '../../utils/ApiCaller'
+import { get, post } from '../../utils/ApiCaller'
 import LocalStorageUtils from '../../utils/LocalStorageUtils'
 import authAtom from './atom'
 
@@ -28,7 +28,7 @@ const useAuthAction = () => {
     const login = (token) =>
         post({
             endpoint: '/api/authentication/auth',
-            headers: { token },
+            headers: { Authorization: `Bearer ${token}` },
         }).then((response) => {
             if (response?.data?.status === 'success') {
                 LocalStorageUtils.setUser(token)
@@ -47,10 +47,13 @@ const useAuthAction = () => {
         setAuth({ token: null, email: '', role: '', exp: 0 })
     }
 
+    const getProfile = () => get({ endpoint: '/api/users/me' })
+
     return {
         autoLogin,
         login,
         logout,
+        getProfile,
     }
 }
 
