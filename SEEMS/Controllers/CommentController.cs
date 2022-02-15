@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using SEEMS.Authorization;
 using SEEMS.Contexts;
+using SEEMS.Data.DTOs;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.DTOs;
 using SEEMS.Infrastructures.Commons;
@@ -165,8 +167,19 @@ namespace SEEMS.Controller
 
         [HttpPost("{id}")]
         [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
-        public IActionResult LoadComments(int id, int lastCommentId, int resultCount)
+        public IActionResult LoadComments(int id,[FromBody] LoadCommentsRequest data)
         {
+
+            int numberComments;
+
+            if (data.numberComments == null)
+            {
+                numberComments = 5;
+            } else
+            {
+                numberComments = (int)data.numberComments;
+            }
+
             var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
 
             if (anEvent == null)
@@ -190,18 +203,19 @@ namespace SEEMS.Controller
                 commentDTO.UserName = CommentsServices.GetUserNameByUserId(comment.UserId, _context);
                 listResponseComments.Add(commentDTO);
             }
-            bool hasMoreComment = (listResponseComments.Count > resultCount);
+            bool hasMoreComment = (listResponseComments.Count > numberComments);
 
-            if (lastCommentId == 0)
+            if (data.lastCommentId == null)
             {               
-                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), resultCount)).ToList();
+                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
             }
             else
             {
+                var lastCommentId = (int)data.lastCommentId;
                 var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
                 if (lastCommentIndex >= 0)
                 {
-                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, Math.Min(listResponseComments.Count() - lastCommentIndex - 1, resultCount)).ToList();
+                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, Math.Min(listResponseComments.Count() - lastCommentIndex - 1, numberComments)).ToList();
                 } else
                 {
                     return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid id"));
