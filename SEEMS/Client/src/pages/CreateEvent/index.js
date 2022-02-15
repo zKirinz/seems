@@ -6,7 +6,7 @@ import { Box, Typography } from '@mui/material'
 import { useEventAction } from '../../recoil/event'
 
 const CreateEvent = () => {
-    const eventAction = useEventAction()
+    const eventActions = useEventAction()
     const [error, setError] = useState({
         title: null,
         location: null,
@@ -17,7 +17,7 @@ const CreateEvent = () => {
     })
 
     const createEventHandler = (eventData) => {
-        eventAction.createEvent(eventData).catch((errorResponse) => {
+        eventActions.createEvent(eventData).catch((errorResponse) => {
             if (errorResponse.status === 400) {
                 const errorData = errorResponse.data.data
                 setError({

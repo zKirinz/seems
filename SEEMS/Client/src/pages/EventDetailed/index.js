@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 import Comments from '../../components/Comments'
 import EventPoster from '../../components/EventPoster'
@@ -18,7 +18,7 @@ import {
 import { grey } from '@mui/material/colors'
 
 import DGP from '../../assets/members/DGP.jpg'
-import { post } from '../../utils/ApiCaller'
+import { useCommentsAction } from '../../recoil/comments'
 import Loading from '../Loading/'
 import EventDate from './EventDate'
 
@@ -46,30 +46,28 @@ const comments = [
 ]
 
 const EventDetailed = () => {
+    const commentsActions = useCommentsAction()
     const commentContent = useRef(null)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(false)
-    const [commentss, setCommentss] = useState([])
-    const [commentsLoaded, setCommentsLoaded] = useState({
-        lastCommentId: null,
-        numberComments: 5,
-    })
-    const moreCommentsHandler = async (event) => {
-        try {
-            setIsLoading(true)
-            const response = await post({
-                endpoint: '/api/comments',
-                body: {
-                    lastCommentId: commentsLoading.lastCommentId,
-                    numberComments: commentsLoading.numberComments,
-                },
+    // const [comments, setComments] = useState([])
+    const loadCommentsHandler = () => {
+        setIsLoading(true)
+        commentsActions
+            .loadComments()
+            .then((response) => {
+                console.log(response)
+                // setComments(response.data)
             })
-            console.log(response)
-        } catch (error) {
-            console.log(error.response)
-            setError(error.response)
-        }
+            .catch((error) => {
+                console.log(error.response)
+            })
+        setIsLoading(false)
     }
+    useEffect(() => {
+        loadCommentsHandler()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     if (isLoading) return <Loading />
     return (
         <Container fixed sx={{ mt: 15, px: 0 }}>
@@ -146,12 +144,6 @@ const EventDetailed = () => {
                 />
             </FormControl>
             <Comments comments={comments} />
-            <Typography
-                sx={{ mt: 2, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                onClick={moreCommentsHandler}
-            >
-                Watch more comments
-            </Typography>
         </Container>
     )
 }

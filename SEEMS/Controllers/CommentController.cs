@@ -32,7 +32,7 @@ namespace SEEMS.Controller
         // Get all comment by EventId
 
         [HttpGet("{id}")]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
+        //[AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult Get(int id)
         {
 
@@ -57,7 +57,7 @@ namespace SEEMS.Controller
         // POST api/<CommentController>
         // Create a comment
         [HttpPost]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
+        //[AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult Post([FromBody] CommentDTO item)
         {
             var email = (string)HttpContext.Items["email"];
@@ -96,7 +96,7 @@ namespace SEEMS.Controller
         // PUT api/<CommentController>/
         // Edit comment by Id
         [HttpPut("{id}")]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
+        //[AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult Put(int id, [FromBody] CommentDTO newComment)
         {
             var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
@@ -133,7 +133,7 @@ namespace SEEMS.Controller
         // DELETE api/<CommentController>/
         // Delete comment by Id
         [HttpDelete("{id}")]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
+        //[AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public ActionResult Delete(int id)
         {
             var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
@@ -166,7 +166,7 @@ namespace SEEMS.Controller
         }
 
         [HttpPost("{id}")]
-        [AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
+        //[AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
         public IActionResult LoadComments(int id,[FromBody] LoadCommentsRequest data)
         {
 
