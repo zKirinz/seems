@@ -21,4 +21,10 @@ public class ChainOfEventRepository : RepositoryBase<ChainOfEvent>, IChainOfEven
         
         return PaginatedList<ChainOfEvent>.Create(listChainOfEvents, args.PageNumber, args.PageSize);
     }
+
+    public void CreateChainOfEvent(int userId, ChainOfEvent chainOfEvent)
+    {
+        chainOfEvent.CreatedBy = userId;
+        Create(chainOfEvent);
+    }
 }
