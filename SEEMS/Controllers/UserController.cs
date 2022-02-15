@@ -7,7 +7,7 @@ using SEEMS.Services.Interfaces;
 namespace SEEMS.Controllers;
 
 [ApiController]
-[Route("/api/[controller]")]
+[Route("/api/Users")]
 public class UserController : ControllerBase
 {
     private IAuthManager _authManager;
@@ -19,7 +19,7 @@ public class UserController : ControllerBase
         _repoManager = repoManager;
     }
     
-    [HttpGet("")]
+    [HttpGet("me")]
     public async Task<IActionResult> GetCurrentUserProfile()
     {
         User currentUser = null;

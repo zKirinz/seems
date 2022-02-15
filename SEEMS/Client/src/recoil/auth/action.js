@@ -44,7 +44,6 @@ const useAuthAction = () => {
 
     const logout = () => {
         LocalStorageUtils.deleteUser()
-        history.push('/')
         setAuth({ token: null, email: '', role: '', exp: 0 })
     }
 

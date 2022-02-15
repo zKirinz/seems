@@ -1,12 +1,19 @@
 import { Avatar, Box, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
-const Introduction = ({ src, desc, title, alt }) => {
+import HeroImage from '../../assets/images/hero.jpg'
+
+const Hero = () => {
     const theme = useTheme()
     const matchs = useMediaQuery(theme.breakpoints.up('sm'))
     return (
         <Box position="relative">
-            <Avatar sx={{ height: '400px', width: '100%' }} src={src} variant="square" alt={alt} />
+            <Avatar
+                sx={{ height: '360px', width: '100%' }}
+                src={HeroImage}
+                variant="square"
+                alt="hero-image"
+            />
             <Box
                 sx={{
                     position: 'absolute',
@@ -14,10 +21,10 @@ const Introduction = ({ src, desc, title, alt }) => {
                     right: 0,
                     bottom: 0,
                     left: 0,
-                    backgroundColor: 'rgba(0,0,0,.6)',
+                    backgroundColor: 'rgba(0,0,0,.5)',
                     px: 5,
                     pb: 5,
-                    pt: 9,
+                    pt: 7,
                 }}
             >
                 <Typography
@@ -27,7 +34,7 @@ const Introduction = ({ src, desc, title, alt }) => {
                     fontWeight={900}
                     align="center"
                 >
-                    {title}
+                    SEEMS
                 </Typography>
                 <Typography
                     paragraph
@@ -36,11 +43,13 @@ const Introduction = ({ src, desc, title, alt }) => {
                     align="center"
                     sx={{ maxWidth: 1000, m: '0 auto' }}
                 >
-                    {desc}
+                    Where FPT students will have the opportunity to enhance technical skills as well
+                    as soft skill through many software academic events and activities related to
+                    modern technologies.
                 </Typography>
             </Box>
         </Box>
     )
 }
 
-export default Introduction
+export default Hero

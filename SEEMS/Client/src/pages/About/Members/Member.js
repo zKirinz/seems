@@ -13,11 +13,17 @@ const Member = ({ name, role, src, grade }) => {
                     gutterBottom
                     variant={`${matchs ? 'h6' : 'h5'}`}
                     color="primary"
+                    textAlign="center"
                     fontWeight={700}
                 >
                     {name} {grade}
                 </Typography>
-                <Typography variant="subtitle1" color="text.secondary" fontWeight={500}>
+                <Typography
+                    variant="subtitle1"
+                    color="text.secondary"
+                    textAlign="center"
+                    fontWeight={500}
+                >
                     {role}
                 </Typography>
             </CardContent>

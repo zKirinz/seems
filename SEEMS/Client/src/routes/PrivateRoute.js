@@ -7,12 +7,12 @@ const PrivateRoute = (props) => {
     const match = useRouteMatch()
     const auth = useRecoilValue(authAtom)
     if (!auth.email) {
-        return <Redirect to="/login" />
+        return <Redirect to="/" />
     }
 
     if (match.path === '/admin') {
         if (auth.role !== 'Admin') {
-            return <Redirect to="/login" />
+            return <Redirect to="/" />
         }
     } else {
         if (auth.role === 'Admin') {

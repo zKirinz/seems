@@ -1,33 +1,4 @@
-import { Grid } from '@mui/material'
-import AppBar from '@mui/material/AppBar'
-import Toolbar from '@mui/material/Toolbar'
+import AdminHeader from './Admin'
+import CommonHeader from './Common'
 
-import logo from '../../assets/images/logo.png'
-import LeftNavBar from './LeftNavBar'
-import MiddleNavBar from './MiddleNavBar'
-import RightNavBar from './RightNavBar'
-
-const Header = ({ isAdmin }) => {
-    return (
-        <AppBar
-            color={!isAdmin ? 'primary' : 'secondary'}
-            sx={{ position: { sm: 'fixed', xs: 'static' } }}
-        >
-            <Toolbar>
-                <Grid container alignItems="center">
-                    <Grid item sm={3} xs={6}>
-                        <LeftNavBar logo={logo} />
-                    </Grid>
-                    <Grid item sm={6} xs={0}>
-                        <MiddleNavBar />
-                    </Grid>
-                    <Grid item sm={3} xs={6}>
-                        <RightNavBar />
-                    </Grid>
-                </Grid>
-            </Toolbar>
-        </AppBar>
-    )
-}
-
-export default Header
+export { AdminHeader, CommonHeader }
