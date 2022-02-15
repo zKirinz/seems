@@ -2,7 +2,6 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-using SEEMS.Authorization;
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
 using SEEMS.Data.Models;
@@ -31,7 +30,6 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("my-events")]
-		[AuthorizationFilter(RoleTypes.ORG, RoleTypes.ADM)]
 		public async Task<ActionResult<List<Event>>> GetMyEvents()
 		{
 			User currentUser = null;
@@ -59,7 +57,6 @@ namespace SEEMS.Controller
 
 		}
 		[HttpGet("upcoming")]
-		[AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
 		public async Task<ActionResult<List<Event>>> Get()
 		{
 			int resultCount;
@@ -86,7 +83,6 @@ namespace SEEMS.Controller
 
 
 		[HttpGet()]
-		[AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
 		public async Task<ActionResult<List<Event>>> Get(string? search, int? lastEventID, int resultCount = 10)
 		{
 			try
@@ -141,7 +137,6 @@ namespace SEEMS.Controller
 		}
 
 		[HttpPost]
-		[AuthorizationFilter(RoleTypes.ORG, RoleTypes.ADM)]
 		public async Task<ActionResult> AddEvent(EventDTO eventDTO)
 		{
 			eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
