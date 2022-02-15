@@ -9,6 +9,10 @@ using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Net.Http.Headers;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -102,37 +106,17 @@ services.AddSwaggerGen(s =>
 {
     s.SwaggerDoc("v1", new OpenApiInfo { Title = "Seem API", Version = "v1" });
 
-    s.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    s.AddSecurityDefinition("token", new OpenApiSecurityScheme
     {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows()
-        {
-            Implicit = new OpenApiOAuthFlow()
-            {
-                AuthorizationUrl = new Uri("http://localhost:5148/api/authentication"),
-                Scopes = new Dictionary<string, string>
-                {
-                    { "readAccess", "Access Read Operations" },
-                    { "writeAccess", "Access Write Operations" }
-                }
-            }
-        }
-    });
-
-    s.AddSecurityRequirement(new OpenApiSecurityRequirement()
-      {
-        {
-          new OpenApiSecurityScheme
-          {
-            Reference = new OpenApiReference
-              {
-                Type = ReferenceType.SecurityScheme,
-                Id = "oauth2"
-              },
-            },
-            new [] { "readAccess", "writeAccess" }
-          }
-        });
+        Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+                      Enter 'Bearer' [space] and then your token in the text input below.
+                      \r\n\r\nExample: 'Bearer 12345abcdef'",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header,
+        Name = HeaderNames.Authorization,
+        Scheme = "Bearer"
+    }); 
+    s.OperationFilter<SecureEndpointAuthRequirementFilter>();
 });
 services.AddAutoMapper(typeof(MappingProfile));
 
@@ -180,3 +164,29 @@ app.MapControllerRoute(
 app.MapFallbackToFile("index.html"); ;
 
 app.Run();
+
+internal class SecureEndpointAuthRequirementFilter: IOperationFilter
+{
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        if (!context.ApiDescription
+                .ActionDescriptor
+                .EndpointMetadata
+                .OfType<AuthorizeAttribute>()
+                .Any())
+        {
+            return;
+        }
+
+        operation.Security = new List<OpenApiSecurityRequirement>
+        {
+            new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "token" }
+                }] = new List<string>()
+            }
+        }; 
+    }
+}

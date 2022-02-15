@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using SEEMS.Data.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
@@ -18,14 +19,15 @@ public class UserController : ControllerBase
         _authManager = authManager;
         _repoManager = repoManager;
     }
-    
-    [HttpGet("")]
+   
+    [Authorize]
+    [HttpGet("me")]
     public async Task<IActionResult> GetCurrentUserProfile()
     {
         User currentUser = null;
         try
         {
-            if (Request.Headers.TryGetValue("token", out var headers))
+            if (Request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
             {
                 string token = headers.First();
                 var email = _authManager.DecodeToken(token).Claims.FirstOrDefault(e => e.Type == "email").Value;
@@ -35,7 +37,7 @@ public class UserController : ControllerBase
         }
         catch (Exception e)
         {
-            return BadRequest(new Response(ResponseStatusEnum.Error, e.Message));
+            return  StatusCode(StatusCodes.Status500InternalServerError); 
         }
 
         if (currentUser == null)
