@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using SEEMS.Authorization;
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
 using SEEMS.Data.ValidationInfo;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
 
@@ -42,6 +44,7 @@ namespace SEEMS.Controller
 		}*/
 
 		[HttpGet("upcoming")]
+		[AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
 		public async Task<ActionResult<List<Event>>> Get()
 		{
 			int resultCount;
@@ -68,6 +71,7 @@ namespace SEEMS.Controller
 
 
 		[HttpGet()]
+		[AuthorizationFilter(RoleTypes.CUSR, RoleTypes.ORG, RoleTypes.ADM)]
 		public async Task<ActionResult<List<Event>>> Get(string? search, int? lastEventID, int resultCount = 10)
 		{
 			try
@@ -122,6 +126,7 @@ namespace SEEMS.Controller
 		}
 
 		[HttpPost]
+		[AuthorizationFilter(RoleTypes.ORG, RoleTypes.ADM)]
 		public async Task<ActionResult> AddEvent(EventDTO anEvent)
 		{
 			anEvent.StartDate = anEvent.StartDate.ToLocalTime();
