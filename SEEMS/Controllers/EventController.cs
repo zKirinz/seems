@@ -41,12 +41,24 @@ namespace SEEMS.Controller
 			return Ok(anEvent);
 		}*/
 
-		[HttpGet()]
+		[HttpGet("upcoming")]
 		public async Task<ActionResult<List<Event>>> Get()
 		{
+			int resultCount;
 			try
 			{
-				return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
+				var result = _context.Events.ToList().Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30
+				);
+				resultCount = Math.Min(10, result.Count());
+				return Ok(new Response(
+					ResponseStatusEnum.Success,
+					new
+					{
+						Count = resultCount,
+						Events = result.ToList().GetRange(0, resultCount)
+					}
+				));
 			}
 			catch (Exception ex)
 			{
@@ -54,13 +66,15 @@ namespace SEEMS.Controller
 			}
 		}
 
-		[HttpGet("upcoming")]
+
+		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get(string? search, int? lastEventID, int resultCount = 10)
 		{
 			try
 			{
 				var allEvents = _context.Events.ToList();
-				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 30);
+				var result = allEvents.Where(
+					e => Utilitiies.IsAfterMinutes(e.StartDate, DateTime.Now, 30));
 				bool failed = false;
 
 				//Filter by title
