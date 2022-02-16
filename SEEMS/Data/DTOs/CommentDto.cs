@@ -12,8 +12,9 @@ namespace SEEMS.DTOs
         public int? ParentCommentId { get; set; }
         public string? ImageUrl { get; set; }
         public string? UserName { get; set; }
-        public DateTime? createdAt { get; set; }
-        public DateTime? modifiedAt { get; set; }
+        public string? Email { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? ModifiedAt { get; set; }
 
     }
 }
