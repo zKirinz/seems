@@ -2,10 +2,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using SEEMS.Data.Models;
 
 namespace SEEMS.Models
 {
+    [Index(nameof(CategoryName), IsUnique = true)]
     public class ChainOfEvent : AbstractEntity<int>
     {
         [StringLength(20)]
