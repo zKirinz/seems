@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 
 using SEEMS.Data.DTO;
+using SEEMS.Data.DTOs;
 using SEEMS.DTOs;
 using SEEMS.Models;
 
@@ -15,6 +16,7 @@ namespace SEEMS.Configs
 			CreateMap<EventDTO, Event>();
 			CreateMap<CommentDTO, Comment>();
 			CreateMap<Comment, CommentDTO>();
+			CreateMap<ChainOfEventForCreationDto, ChainOfEvent>();
 		}
 	}
 }

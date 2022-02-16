@@ -5,6 +5,7 @@ using SEEMS.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Net.Http.Headers;
 using SEEMS.Models;
 
 namespace SEEMS.Services
@@ -94,6 +95,25 @@ namespace SEEMS.Services
                 };
             #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
+        }
+
+        public string? GetCurrentEmail(HttpRequest request)
+        {
+            string currentUser = null;
+            try
+            {
+                if (request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
+                {
+                    string token = headers.First();
+                    currentUser = DecodeToken(token).Claims.FirstOrDefault(e => e.Type == "email").Value;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            return currentUser;
         }
     }
 }
