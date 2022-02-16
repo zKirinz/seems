@@ -2,6 +2,7 @@
 
 using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
+using SEEMS.Data.Models;
 using SEEMS.DTOs;
 using SEEMS.Models;
 
@@ -17,6 +18,7 @@ namespace SEEMS.Configs
 			CreateMap<CommentDTO, Comment>();
 			CreateMap<Comment, CommentDTO>();
 			CreateMap<ChainOfEventForCreationDto, ChainOfEvent>();
+			CreateMap<User, User>().ForMember(x => x.Id, opt => opt.Ignore());
 		}
 	}
 }
