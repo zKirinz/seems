@@ -61,6 +61,14 @@ const EventDetailed = () => {
             )
         })
     }
+    const editCommentHandler = (commentId, commentContent) => {
+        commentsActions.editComment(commentId, commentContent).then((response) => {
+            const positionIndexComment = comments.findIndex((comment) => comment.id === commentId)
+            const newComments = [...comments]
+            newComments.splice(positionIndexComment, 1, response.data.data)
+            setComments(newComments)
+        })
+    }
     useEffect(() => {
         loadCommentsHandler()
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -141,7 +149,11 @@ const EventDetailed = () => {
                     onKeyDown={createCommentHandler}
                 />
             </FormControl>
-            <Comments comments={comments} onDeleteComment={deleteCommentHandler} />
+            <Comments
+                comments={comments}
+                onDeleteComment={deleteCommentHandler}
+                editCommentHandler={editCommentHandler}
+            />
         </Container>
     )
 }
