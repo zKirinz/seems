@@ -76,7 +76,7 @@ namespace SEEMS.Controller
                     return BadRequest(commentValidationInfo);
                 }
 
-                var newComment = _mapper.Map<Comment>(item);
+                var newComment = _mapper.Map<Comment>(item);    
 
                 _context.Comments.Add(newComment);
                 _context.SaveChanges();
@@ -123,7 +123,7 @@ namespace SEEMS.Controller
                 var userName = user.UserName;
                 var imageUrl = user.ImageUrl;
                 var email = user.Email;
-                var responseComment = _mapper.Map<CommentDTO>(newComment);
+                var responseComment = _mapper.Map<CommentDTO>(comment);
                 responseComment.ImageUrl = imageUrl;
                 responseComment.UserName = userName;
                 responseComment.Email = email;
