@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Extensions;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
@@ -20,11 +22,13 @@ namespace SEEMS.Controllers
         private const string BaseUiDomain = "http://localhost:44449/login";
         private readonly IAuthManager _authService;
         private readonly IRepositoryManager _repoService;
+        private readonly IMapper _mapper;
 
-        public AuthenticationController(IAuthManager authService, IRepositoryManager repoService)
+        public AuthenticationController(IAuthManager authService, IRepositoryManager repoService, IMapper mapper)
         {
             _authService = authService;
             _repoService = repoService;
+            _mapper = mapper;
         }
         
         [HttpGet("")]
@@ -55,6 +59,12 @@ namespace SEEMS.Controllers
                 _repoService.UserMeta.RegisterRole(currentUser, RoleTypes.CUSR);
                 await _repoService.SaveAsync();
             }
+            else
+            {
+                var user = await _repoService.User.GetUserAsync(currentUser.Email, true);
+                _mapper.Map(currentUser, user);
+                await _repoService.SaveAsync();
+            } 
 
             var currentRole = await _repoService.UserMeta.GetRolesAsync(currentUser.Email, false);
             var accessToken = await _authService.GenerateToken(currentUser, currentRole);
@@ -75,7 +85,7 @@ namespace SEEMS.Controllers
             ResponseStatusEnum status = ResponseStatusEnum.Fail;
             try
             {
-                if (Request.Headers.TryGetValue("token", out var headers))
+                if (Request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
                 {
                     string token = headers.First();
                     var jwtToken = _authService.DecodeToken(token);

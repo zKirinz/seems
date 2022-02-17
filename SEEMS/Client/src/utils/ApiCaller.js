@@ -7,7 +7,7 @@ import LocalStorageUtils from './LocalStorageUtils'
 export const getHeaders = () => {
     return {
         'Content-Type': 'application/json',
-        token: LocalStorageUtils.getToken(),
+        Authorization: `Bearer ${LocalStorageUtils.getToken()}`,
     }
 }
 

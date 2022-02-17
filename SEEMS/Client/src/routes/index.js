@@ -4,6 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 
 import { AdminLayout, CommonLayout } from '../components/Layout'
 
+import { publicHome, privateHome } from '../pages/Home'
 import LoadingPage from '../pages/Loading'
 import HybridRoute from './HybridRoute'
 import PrivateRoute from './PrivateRoute'
@@ -21,8 +22,8 @@ const hybridRoutes = [
     {
         path: '/',
         name: 'home',
-        privateComponent: lazy(() => import('../pages/Home/privateHome')),
-        publicComponent: lazy(() => import('../pages/Home/publicHome')),
+        privateComponent: privateHome,
+        publicComponent: publicHome,
         layout: 'common',
     },
     {
@@ -32,6 +33,12 @@ const hybridRoutes = [
         publicComponent: lazy(() => import('../pages/About')),
         layout: 'common',
     },
+    {
+        path: '/events/:id',
+        name: 'event detailed',
+        component: lazy(() => import('../pages/EventDetailed')),
+        layout: 'common',
+    },
 ]
 
 const privateRoutes = [
@@ -39,6 +46,12 @@ const privateRoutes = [
         path: '/events',
         name: 'events',
         component: lazy(() => import('../pages/Events')),
+        layout: 'common',
+    },
+    {
+        path: '/events/me',
+        name: 'my events',
+        component: lazy(() => import('../pages/MyEvents')),
         layout: 'common',
     },
     {

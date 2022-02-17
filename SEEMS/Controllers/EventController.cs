@@ -1,18 +1,15 @@
 ﻿using AutoMapper;
 
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
+using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
-
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-
 namespace SEEMS.Controller
 {
 	[Route("api/Events")]
@@ -23,30 +20,61 @@ namespace SEEMS.Controller
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IMapper _mapper;
-		public EventController(ApplicationDbContext context, IMapper mapper)
+		private readonly AuthManager _authManager;
+
+		public EventController(ApplicationDbContext context, IMapper mapper,
+								 AuthManager authManager)
 		{
-			this._context = context;
-			this._mapper = mapper;
+			_context = context;
+			_mapper = mapper;
+			_authManager = authManager;
 		}
 
-
-		/*
-		[HttpGet("{id}")]
-		public async Task<ActionResult<Event>> Get(int id)
+		[HttpGet("my-events")]
+		public async Task<ActionResult<List<Event>>> GetMyEvents()
 		{
-			//need to replace by EF
-			var anEvent = events.Find(h => h.Id == id);
-			if (anEvent == null)
-				return BadRequest("Event not found.");
-			return Ok(anEvent);
-		}*/
-
-		[HttpGet()]
-		public async Task<ActionResult<List<Event>>> Get()
-		{
+			User currentUser = null;
 			try
 			{
-				return Ok(new Response(ResponseStatusEnum.Success, _context.Events.ToList()));
+				//var user = null;
+				//if (user != null)
+				//{
+				//	var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
+				//	return Ok(
+				//		new Response(ResponseStatusEnum.Success,
+				//		new
+				//		{
+				//			Count = listEvents.Count(),
+				//			Events = listEvents
+				//		})
+				//	);
+				//}
+			}
+			catch (Exception e)
+			{
+				return BadRequest(new Response(ResponseStatusEnum.Error, e.Message));
+			}
+			return null;
+
+		}
+		[HttpGet("upcoming")]
+		public async Task<ActionResult<List<Event>>> Get()
+		{
+			int resultCount;
+			try
+			{
+				var result = _context.Events.ToList().Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30
+				);
+				resultCount = Math.Min(10, result.Count());
+				return Ok(new Response(
+					ResponseStatusEnum.Success,
+					new
+					{
+						Count = resultCount,
+						Events = result.ToList().GetRange(0, resultCount)
+					}
+				));
 			}
 			catch (Exception ex)
 			{
@@ -54,13 +82,15 @@ namespace SEEMS.Controller
 			}
 		}
 
-		[HttpGet("upcoming")]
+
+		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get(string? search, int? lastEventID, int resultCount = 10)
 		{
 			try
 			{
 				var allEvents = _context.Events.ToList();
-				var result = allEvents.Where(e => e.EndDate.Subtract(DateTime.Now).TotalMinutes >= 30);
+				var result = allEvents.Where(
+					e => Utilitiies.IsAfterMinutes(e.StartDate, DateTime.Now, 30));
 				bool failed = false;
 
 				//Filter by title
@@ -108,11 +138,11 @@ namespace SEEMS.Controller
 		}
 
 		[HttpPost]
-		public async Task<ActionResult> AddEvent(EventDTO anEvent)
+		public async Task<ActionResult> AddEvent(EventDTO eventDTO)
 		{
-			anEvent.StartDate = anEvent.StartDate.ToLocalTime();
-			anEvent.EndDate = anEvent.EndDate.ToLocalTime();
-			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(anEvent);
+			eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
+			eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
+			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
 
 			try
 			{
@@ -125,12 +155,15 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					anEvent.Active = true;
-					if (anEvent.IsFree) anEvent.ExpectPrice = 0;
-					var newEvent = _mapper.Map<Event>(anEvent);
+					eventDTO.Active = true;
+					if (eventDTO.IsFree) eventDTO.ExpectPrice = 0;
+					var newEvent = _mapper.Map<Event>(eventDTO);
+					var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+					var userInfo =  _authManager.GetUserInfo(info);
+					newEvent.Client = userInfo;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success, anEvent));
+					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
 				}
 			}
 			catch (Exception ex)

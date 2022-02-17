@@ -16,5 +16,7 @@ namespace SEEMS.Services.Interfaces
 
         public User? GetUserInfo(AuthenticateResult info);
 
+        public string? GetCurrentEmail(HttpRequest request);
+
     }
 }

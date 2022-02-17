@@ -8,24 +8,16 @@ namespace SEEMS.Services
     public class CommentsServices
     {
 
-        public static CommentValidationInfo GetValidatedToCreateComment(CommentDTO commentDto, string email, ApplicationDbContext dbContext)
+        public static CommentValidationInfo GetValidatedToCreateComment(CommentDTO commentDto, ApplicationDbContext dbContext)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
             bool failCheck = false;
-            var userIdOfEmail = GetUserIdByEmail(email, dbContext);
 
             if (commentDto.UserId == null)
             {
                 commentValidationInfo.UserId = "UserId cannot be null";
                 failCheck = true;
-            } else
-            {
-                if (commentDto.UserId != userIdOfEmail)
-                {
-                    commentValidationInfo.UserId = "This is not your User Id";
-                    failCheck = true;
-                }
-            }
+            } 
 
             if (commentDto.EventId == null)
             {
@@ -49,23 +41,6 @@ namespace SEEMS.Services
             
             return failCheck ? commentValidationInfo : null;
 
-        }
-
-        public static CommentValidationInfo GetValidatedToDeleteComment(int commentId, string email, ApplicationDbContext dbContext)
-        {
-            CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
-            bool failCheck = false;
-            var userId = GetUserIdByEmail(email, dbContext);
-            var userIdOfComment = GetUserIdOfComment(commentId, dbContext);
-            var roleOfEmail = GetRoleByEmail(email, dbContext);
-
-            if (userIdOfComment != userId && roleOfEmail.Contains(RoleTypes.CUSR))
-            {
-                commentValidationInfo.ValidToAffectComment = "You can not delete this comment";
-                failCheck = true;
-            }
-
-            return failCheck ? commentValidationInfo : null;
         }
 
         public static CommentValidationInfo GetValidatedToEditComment(int commentId, CommentDTO commentDto, string email, ApplicationDbContext dbContext)
@@ -121,18 +96,25 @@ namespace SEEMS.Services
             return userIdOfComment;
         }
 
-        public static string GetUserNameByUserId(int userId, ApplicationDbContext dbContext)
+        public static string GetUserNameByUserId(int? userId, ApplicationDbContext dbContext)
         {
             var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
             var userName = (string)user.UserName;
             return userName;
         }
 
-        public static string GetImageUrlNameByUserId(int userId, ApplicationDbContext dbContext)
+        public static string GetImageUrlNameByUserId(int? userId, ApplicationDbContext dbContext)
         {
             var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
             var imageUrl = (string)user.ImageUrl;
             return imageUrl;
+        }
+
+        public static string GetEmailByUserId(int? userId, ApplicationDbContext dbContext)
+        {
+            var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
+            var email = (string)user.Email;
+            return email;
         }
     }
 }

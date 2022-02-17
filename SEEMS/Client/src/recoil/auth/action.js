@@ -13,7 +13,7 @@ const useAuthAction = () => {
     const autoLogin = () => {
         const token = LocalStorageUtils.getToken()
         const user = LocalStorageUtils.getUser()
-
+        console.log(user)
         if (user && typeof user === 'object') {
             if (user?.exp && user?.exp * 1000 > Date.now()) {
                 setAuth({ token, email: user.email, role: user.role, exp: user.exp })
@@ -21,6 +21,7 @@ const useAuthAction = () => {
                 logout()
             }
         } else {
+            console.log('kien')
             setAuth({ token: null, email: '', role: '', exp: 0 })
         }
     }
@@ -28,7 +29,7 @@ const useAuthAction = () => {
     const login = (token) =>
         post({
             endpoint: '/api/authentication/auth',
-            headers: { token },
+            headers: { Authorization: `Bearer ${token}` },
         }).then((response) => {
             if (response?.data?.status === 'success') {
                 LocalStorageUtils.setUser(token)
