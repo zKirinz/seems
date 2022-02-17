@@ -1,13 +1,14 @@
-﻿using SEEMS.Contexts;
+﻿using AutoMapper;
+using SEEMS.Contexts;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.DTOs;
 using SEEMS.Infrastructures.Commons;
+using SEEMS.Models;
 
 namespace SEEMS.Services
 {
     public class CommentsServices
     {
-
         public static CommentValidationInfo GetValidatedToCreateComment(CommentDTO commentDto, ApplicationDbContext dbContext)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
@@ -115,6 +116,28 @@ namespace SEEMS.Services
             var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
             var email = (string)user.Email;
             return email;
+        }
+
+        public static bool CheckValidEventId(int eventId, ApplicationDbContext dbContext)
+        {
+            var events = dbContext.Events.FirstOrDefault(x => x.Id == eventId);
+            return events != null ? true : false;  
+        }
+
+        public static CommentDTO AddMoreInfomationsToComment(Comment comment, ApplicationDbContext dbContext, IMapper mapper)
+        {
+            var userId = comment.UserId;
+            var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
+            var userName = user.UserName;
+            var imageUrl = user.ImageUrl;
+            var email = user.Email;
+            var responseComment = mapper.Map<CommentDTO>(comment);
+            responseComment.ImageUrl = imageUrl;
+            responseComment.UserName = userName;
+            responseComment.Email = email;
+            responseComment.CreatedAt = comment.CreatedAt;
+            responseComment.ModifiedAt = comment.ModifiedAt;
+            return responseComment;
         }
     }
 }

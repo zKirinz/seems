@@ -32,33 +32,36 @@ namespace SEEMS.Controller
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-
-            var events = _context.Events.FirstOrDefault(e => e.Id == id);
-                
-            if (events == null)
+            try
             {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This event does not exist"));
-            }
+                if (!CommentsServices.CheckValidEventId(id, _context))
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This event does not exist"));
+                }
 
-            var listComment = _context.Comments.Where(c => c.EventId == id).ToList();
+                var listComment = _context.Comments.Where(c => c.EventId == id).ToList();
 
-            if (!listComment.Any())
+                if (!listComment.Any())
+                {
+                    return NotFound(new Response(ResponseStatusEnum.Success, "", "This event has no comments"));
+                }
+
+                List<CommentDTO> listResponseComments = new List<CommentDTO>();
+                foreach (var comment in listComment)
+                {
+                    CommentDTO commentDTO = _mapper.Map<CommentDTO>(comment);
+                    commentDTO.ImageUrl = CommentsServices.GetImageUrlNameByUserId(comment.UserId, _context);
+                    commentDTO.UserName = CommentsServices.GetUserNameByUserId(comment.UserId, _context);
+                    commentDTO.Email = CommentsServices.GetEmailByUserId(comment.UserId, _context);
+                    listResponseComments.Add(commentDTO);
+                }
+
+                listResponseComments = listResponseComments.OrderByDescending(x => x.CreatedAt).ToList();
+                return Ok(new Response(ResponseStatusEnum.Success, listResponseComments));
+            } catch (Exception ex)
             {
-                return NotFound(new Response(ResponseStatusEnum.Success, "", "This event has no comments"));
+                return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
             }
-
-            List<CommentDTO> listResponseComments = new List<CommentDTO>();
-            foreach (var comment in listComment)
-            {
-                CommentDTO commentDTO = _mapper.Map<CommentDTO>(comment);
-                commentDTO.ImageUrl = CommentsServices.GetImageUrlNameByUserId(comment.UserId, _context);
-                commentDTO.UserName = CommentsServices.GetUserNameByUserId(comment.UserId, _context);
-                commentDTO.Email = CommentsServices.GetEmailByUserId(comment.UserId, _context);
-                listResponseComments.Add(commentDTO);
-            }
-
-            listResponseComments = listResponseComments.OrderByDescending(x => x.CreatedAt).ToList();
-            return Ok(new Response(ResponseStatusEnum.Success, listResponseComments));
 
         }
 
@@ -81,16 +84,7 @@ namespace SEEMS.Controller
                 _context.Comments.Add(newComment);
                 _context.SaveChanges();
 
-                var user = _context.Users.FirstOrDefault(x => x.Id == item.UserId);
-                var userName = user.UserName;
-                var imageUrl = user.ImageUrl;
-                var email = user.Email;
-                var responseComment = _mapper.Map<CommentDTO>(newComment);
-                responseComment.ImageUrl = imageUrl;
-                responseComment.UserName = userName;
-                responseComment.Email = email;
-                responseComment.CreatedAt = newComment.CreatedAt;
-                responseComment.ModifiedAt = newComment.ModifiedAt;
+                var responseComment = CommentsServices.AddMoreInfomationsToComment(newComment, _context, _mapper);
                 return Ok(new Response(ResponseStatusEnum.Success, responseComment));
 
             } catch (Exception ex)
@@ -118,17 +112,8 @@ namespace SEEMS.Controller
                 _context.Comments.Update(comment);
                 _context.SaveChanges(true);
 
-                var userId = comment.UserId;
-                var user = _context.Users.FirstOrDefault(x => x.Id == userId);
-                var userName = user.UserName;
-                var imageUrl = user.ImageUrl;
-                var email = user.Email;
-                var responseComment = _mapper.Map<CommentDTO>(comment);
-                responseComment.ImageUrl = imageUrl;
-                responseComment.UserName = userName;
-                responseComment.Email = email;
-                responseComment.CreatedAt = comment.CreatedAt;
-                responseComment.ModifiedAt = comment.ModifiedAt;               
+                var responseComment = CommentsServices.AddMoreInfomationsToComment(comment, _context, _mapper);
+                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
 
                 return Ok(new Response(ResponseStatusEnum.Success, responseComment));
             } catch(Exception ex)
@@ -167,7 +152,7 @@ namespace SEEMS.Controller
 
             int numberComments;
 
-            if (data.numberComments == null)
+            if (data.numberComments == null || data.numberComments <= 0)
             {
                 numberComments = 5;
             } else
@@ -193,33 +178,31 @@ namespace SEEMS.Controller
             List<CommentDTO> listResponseComments = new List<CommentDTO>();
             foreach (var comment in listComment)
             {               
-                CommentDTO commentDTO = _mapper.Map<CommentDTO>(comment);
-                commentDTO.ImageUrl = CommentsServices.GetImageUrlNameByUserId(comment.UserId, _context);
-                commentDTO.UserName = CommentsServices.GetUserNameByUserId(comment.UserId, _context);
+                CommentDTO commentDTO = CommentsServices.AddMoreInfomationsToComment(comment, _context, _mapper);
                 listResponseComments.Add(commentDTO);
             }
 
-            bool hasMoreComment;
+            bool hasMoreComment = (listResponseComments.Count > numberComments); 
 
             if (data.lastCommentId == null)
             {               
-                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
-                hasMoreComment = (listResponseComments.Count > numberComments);
+                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();                
             }
             else
             {
                 var lastCommentId = (int)data.lastCommentId;
                 var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
-                if (lastCommentIndex >= 0)
+                int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
+                if (lastCommentIndex != -1)  
                 {
-                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, Math.Min(listResponseComments.Count() - lastCommentIndex - 1, numberComments)).ToList();
-                    hasMoreComment = (listResponseComments.Count > numberComments);
+                    hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
+                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();                    
                 } else
                 {
                     return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid id"));
                 }
             }
-            
+
             return Ok(new Response(ResponseStatusEnum.Success,
                                    new 
                                    {                                      
