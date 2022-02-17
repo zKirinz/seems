@@ -13,16 +13,29 @@ const useAuthAction = () => {
     const autoLogin = () => {
         const token = LocalStorageUtils.getToken()
         const user = LocalStorageUtils.getUser()
-        console.log(user)
+
         if (user && typeof user === 'object') {
             if (user?.exp && user?.exp * 1000 > Date.now()) {
-                setAuth({ token, email: user.email, role: user.role, exp: user.exp })
+                setAuth({
+                    token,
+                    email: user.email,
+                    name: user.name,
+                    image: user.image,
+                    role: user.role,
+                    exp: user.exp,
+                })
             } else {
                 logout()
             }
         } else {
-            console.log('kien')
-            setAuth({ token: null, email: '', role: '', exp: 0 })
+            setAuth({
+                token: null,
+                email: '',
+                name: '',
+                image: '',
+                role: '',
+                exp: 0,
+            })
         }
     }
 
@@ -33,8 +46,8 @@ const useAuthAction = () => {
         }).then((response) => {
             if (response?.data?.status === 'success') {
                 LocalStorageUtils.setUser(token)
-                const { email, role, exp } = jwt_decode(token)
-                setAuth({ token, email, role, exp })
+                const { email, name, image, role, exp } = jwt_decode(token)
+                setAuth({ token, email, name, image, role, exp })
                 if (role === 'Admin') {
                     history.push('/admin')
                 } else history.push('/')
@@ -45,7 +58,14 @@ const useAuthAction = () => {
 
     const logout = () => {
         LocalStorageUtils.deleteUser()
-        setAuth({ token: null, email: '', role: '', exp: 0 })
+        setAuth({
+            token: null,
+            email: '',
+            name: '',
+            image: '',
+            role: '',
+            exp: 0,
+        })
     }
 
     return {
