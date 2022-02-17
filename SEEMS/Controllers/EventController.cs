@@ -10,6 +10,9 @@ using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
+using SEEMS.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
 namespace SEEMS.Controller
 {
 	[Route("api/Events")]
@@ -20,10 +23,9 @@ namespace SEEMS.Controller
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IMapper _mapper;
-		private readonly AuthManager _authManager;
+		private readonly IAuthManager _authManager;
 
-		public EventController(ApplicationDbContext context, IMapper mapper,
-								 AuthManager authManager)
+		public EventController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager)
 		{
 			_context = context;
 			_mapper = mapper;
@@ -143,7 +145,6 @@ namespace SEEMS.Controller
 			eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
 			eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
-
 			try
 			{
 				if (eventValidationInfo != null)
@@ -158,9 +159,8 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					if (eventDTO.IsFree) eventDTO.ExpectPrice = 0;
 					var newEvent = _mapper.Map<Event>(eventDTO);
-					var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-					var userInfo =  _authManager.GetUserInfo(info);
-					newEvent.Client = userInfo;
+					var user = GetCurrentUser(Request);
+					newEvent.ClientId = user.Id;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
@@ -168,8 +168,15 @@ namespace SEEMS.Controller
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
 			}
+		}
+		private async Task<User> GetCurrentUser(HttpRequest req)
+		{
+			var email = _authManager.GetCurrentEmail(req);
+			var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+			return user;
 		}
 	}
 }
