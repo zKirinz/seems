@@ -102,7 +102,7 @@ services.AddAuthorization(options =>
 services.AddScoped<IAuthManager, AuthManager>();
 services.AddScoped<IRepositoryManager, RepositoryManager>();
 services.AddScoped<IControllerBaseServices<ChainOfEvent>, ControllerBaseServices<ChainOfEvent>>();
-
+services.AddScoped<AuthManager>();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(s =>
 {

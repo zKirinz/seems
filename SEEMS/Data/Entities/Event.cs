@@ -19,7 +19,7 @@ namespace SEEMS.Models
 		public int? ChainOfEventId { get; set; }
 
 		[ForeignKey("User")]
-		public int ClientId { get; set; }
+		public int CreatorId { get; set; }
 
 		public bool IsPrivate { get; set; }
 
@@ -38,7 +38,7 @@ namespace SEEMS.Models
 		public DateTime EndDate { get; set; }
 
 		[JsonIgnore]
-		public User? Client { get; set; }
+		public User? Creator { get; set; }
 
 		[JsonIgnore]
 		public ChainOfEvent? ChainOfEvent { get; set; }

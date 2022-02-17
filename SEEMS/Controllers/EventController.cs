@@ -160,7 +160,7 @@ namespace SEEMS.Controller
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 					var userInfo =  _authManager.GetUserInfo(info);
-					newEvent.Client = userInfo;
+					newEvent.Creator = userInfo;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
