@@ -12,6 +12,7 @@ using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace SEEMS.Controller
 {
@@ -159,8 +160,10 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					if (eventDTO.IsFree) eventDTO.ExpectPrice = 0;
 					var newEvent = _mapper.Map<Event>(eventDTO);
-					var user = GetCurrentUser(Request);
-					newEvent.ClientId = user.Id;
+					//var user = GetCurrentUser(Request);
+					//var token = Request.Headers["token"];
+					//newEvent.ClientId = user.Id;
+					newEvent.ClientId = 1;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
