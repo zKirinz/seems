@@ -53,7 +53,9 @@ namespace SEEMS.Services
             var claims = new List<Claim>
             {
                new Claim("email", user.Email),
-               new Claim("role", roleMeta.MetaValue)
+               new Claim("name", user.UserName),
+               new Claim("role", roleMeta.MetaValue),
+               new Claim("image", user.ImageUrl)
             };
 
             return claims;
