@@ -1,15 +1,5 @@
 import EventPoster from '../../components/EventPoster'
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    Container,
-    Divider,
-    Grid,
-    Link,
-    Typography,
-} from '@mui/material'
+import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
 import CommentsSection from './Comments'
@@ -71,15 +61,10 @@ const EventDetailed = () => {
                     </CardContent>
                 </Grid>
             </Grid>
-            <Divider sx={{ my: 2 }} />
             <Box sx={{ mt: 2 }}>
-                <Link
-                    underline="hover"
-                    sx={{ color: grey[600], display: 'block', mb: 2, cursor: 'pointer' }}
-                    align="right"
-                >
+                <Typography sx={{ color: grey[600], display: 'block', mb: 2 }} align="right">
                     54 comments
-                </Link>
+                </Typography>
             </Box>
             <CommentsSection />
         </Container>
