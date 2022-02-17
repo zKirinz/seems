@@ -149,66 +149,73 @@ namespace SEEMS.Controller
         [HttpPost("{id}")]
         public IActionResult LoadComments(int id,[FromBody] CommentsLoadMoreDTO data)
         {
-
-            int numberComments;
-
-            if (data.numberComments == null || data.numberComments <= 0)
+            try
             {
-                numberComments = 5;
-            } else
-            {
-                numberComments = (int)data.numberComments;
-            }
+                int numberComments;
 
-            var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
-
-            if (anEvent == null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This events does not exist"));
-            }
-
-            var listComment = _context.Comments.Where(x => x.EventId == id).Where(x => x.ParentCommentId == null).ToList();
-
-            if (!listComment.Any())
-            {
-                return Ok(new Response(ResponseStatusEnum.Success, "", "This events no has comment"));
-            }
-
-            listComment = listComment.OrderByDescending(x => x.CreatedAt).ToList();
-            List<CommentDTO> listResponseComments = new List<CommentDTO>();
-            foreach (var comment in listComment)
-            {               
-                CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                listResponseComments.Add(commentDTO);
-            }
-
-            bool hasMoreComment = (listResponseComments.Count > numberComments); 
-
-            if (data.lastCommentId == null)
-            {               
-                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();                
-            }
-            else
-            {
-                var lastCommentId = (int)data.lastCommentId;
-                var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
-                int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
-                if (lastCommentIndex != -1)  
+                if (data.numberComments == null || data.numberComments <= 0)
                 {
-                    hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
-                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();                    
-                } else
-                {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid id"));
+                    numberComments = 5;
                 }
-            }
+                else
+                {
+                    numberComments = (int)data.numberComments;
+                }
 
-            return Ok(new Response(ResponseStatusEnum.Success,
-                                   new 
-                                   {                                      
-                                       hasMoreComment,
-                                       listResponseComments,
-                                   }));
+                var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
+
+                if (anEvent == null)
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This events does not exist"));
+                }
+
+                var listComment = _context.Comments.Where(x => x.EventId == id).Where(x => x.ParentCommentId == null).ToList();
+
+                if (!listComment.Any())
+                {
+                    return Ok(new Response(ResponseStatusEnum.Success, "", "This events no has comment"));
+                }
+
+                listComment = listComment.OrderByDescending(x => x.CreatedAt).ToList();
+                List<CommentDTO> listResponseComments = new List<CommentDTO>();
+                foreach (var comment in listComment)
+                {
+                    CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+                    listResponseComments.Add(commentDTO);
+                }
+
+                bool hasMoreComment = (listResponseComments.Count > numberComments);
+
+                if (data.lastCommentId == null)
+                {
+                    listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
+                }
+                else
+                {
+                    var lastCommentId = (int)data.lastCommentId;
+                    var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
+                    int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
+                    if (lastCommentIndex != -1)
+                    {
+                        hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
+                        listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
+                    }
+                    else
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid id"));
+                    }
+                }
+
+                return Ok(new Response(ResponseStatusEnum.Success,
+                                       new
+                                       {
+                                           hasMoreComment,
+                                           listResponseComments,
+                                       }));
+            } catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
+            }
 
         } 
     }
