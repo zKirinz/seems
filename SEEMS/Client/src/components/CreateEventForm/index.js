@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 
-import { Prompt } from 'react-router-dom'
-
-import { CameraAlt } from '@mui/icons-material'
+import { CameraAlt, Help } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -21,7 +19,12 @@ import {
     RadioGroup,
     TextField,
     Paper,
+    Typography,
+    Tooltip,
+    IconButton,
 } from '@mui/material'
+
+import usePrompt from '../../hooks/use-prompt'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
@@ -34,16 +37,16 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const endDateDefault = useMemo(() => {
         return new Date(new Date().getTime() + 24 * 3600 * 1000 + 5 * 60 * 1000)
     }, [])
+    const { routerPrompt, setFormIsTouched } = usePrompt('Changes you made may not be saved.')
     const [startDate, setStartDate] = useState(startDateDefault)
     const [endDate, setEndDate] = useState(endDateDefault)
     const [eventName, setEventName] = useState(defaultTextFieldValue)
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
-    const [isFree, setIsFree] = useState(true)
+    const [isFree, setIsFree] = useState(false)
     const [isPrivate, setIsPrivate] = useState(false)
     const [price, setPrice] = useState(0)
     const [posterUrl, setPosterUrl] = useState({ src })
-    const [formIsHalfFilled, setFormIsHalfFilled] = useState(false)
     useEffect(() => {
         if (isFree) setPrice(0)
         else setPrice(1000)
@@ -91,10 +94,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         setDescription((previousValue) => ({ ...previousValue, isTouched: true }))
     }
     const formIsEntering = () => {
-        setFormIsHalfFilled(true)
+        setFormIsTouched(true)
     }
     const finishFormEntering = () => {
-        setFormIsHalfFilled(false)
+        setFormIsTouched(false)
     }
     const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
     const locationIsInValid = isEmpty(location.value) && location.isTouched
@@ -118,14 +121,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     }
     return (
         <React.Fragment>
-            <Prompt
-                when={formIsHalfFilled}
-                message={(location) => {
-                    return location.pathname === '/event/create'
-                        ? false
-                        : 'Changes you made may not be save'
-                }}
-            />
+            {routerPrompt}
             <Grid container component={Paper} elevation={3}>
                 <Grid item xs={12} sm={5}>
                     <Box display="flex" alignItems="center" height="100%">
@@ -206,13 +202,25 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
-                            <FormControl sx={{ ml: 1.5 }}>
+                            <FormControl
+                                sx={{ ml: 1.5, flexDirection: 'row', alignItems: 'center' }}
+                            >
                                 <FormControlLabel
                                     control={<Checkbox />}
-                                    label="Free"
+                                    label="Paid"
                                     onChange={() => setIsFree((previousValue) => !previousValue)}
-                                    checked={isFree}
+                                    checked={!isFree}
+                                    sx={{ mr: 0 }}
                                 />
+                                <Tooltip
+                                    title={`User ${
+                                        isFree ? 'does not' : ''
+                                    } need to pay money to participate in this event.`}
+                                >
+                                    <IconButton size="small">
+                                        <Help fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
                             </FormControl>
                             {!isFree && (
                                 <FormControl fullWidth required sx={{ m: 1.5 }}>
@@ -245,7 +253,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     )}
                                 </FormControl>
                             )}
-                            <FormControl sx={{ mx: 1.5 }} fullWidth>
+                            <FormControl sx={{ mx: 1.5, my: 1 }} fullWidth>
+                                <Typography component="span" variant="body2" fontWeight={500}>
+                                    (Do you want to show this event only for FPT users?)
+                                </Typography>
                                 <RadioGroup row name="row-radio-buttons-group" value={isPrivate}>
                                     <FormControlLabel
                                         value={false}
@@ -310,7 +321,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                 </FormControl>
                             </LocalizationProvider>
                         </Box>
-                        <Box sx={{ m: 1.5 }}>
+                        <Box sx={{ mx: 1.5, my: 3 }}>
                             <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
                                 <input
                                     style={{ display: 'none' }}
