@@ -102,6 +102,7 @@ const CommentsSection = () => {
                             sx={{
                                 borderRadius: 8,
                             }}
+                            autoFocus
                             inputRef={commentContent}
                             onKeyDown={createCommentHandler}
                         />

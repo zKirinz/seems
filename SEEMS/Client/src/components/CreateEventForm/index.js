@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 
 import { Prompt } from 'react-router-dom'
 
-import { CameraAlt } from '@mui/icons-material'
+import { CameraAlt, Help } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -21,6 +21,9 @@ import {
     RadioGroup,
     TextField,
     Paper,
+    Typography,
+    Tooltip,
+    IconButton,
 } from '@mui/material'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
@@ -39,7 +42,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [eventName, setEventName] = useState(defaultTextFieldValue)
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
-    const [isFree, setIsFree] = useState(true)
+    const [isFree, setIsFree] = useState(false)
     const [isPrivate, setIsPrivate] = useState(false)
     const [price, setPrice] = useState(0)
     const [posterUrl, setPosterUrl] = useState({ src })
@@ -206,13 +209,25 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
-                            <FormControl sx={{ ml: 1.5 }}>
+                            <FormControl
+                                sx={{ ml: 1.5, flexDirection: 'row', alignItems: 'center' }}
+                            >
                                 <FormControlLabel
                                     control={<Checkbox />}
-                                    label="Free"
+                                    label="Paid"
                                     onChange={() => setIsFree((previousValue) => !previousValue)}
-                                    checked={isFree}
+                                    checked={!isFree}
+                                    sx={{ mr: 0 }}
                                 />
+                                <Tooltip
+                                    title={`User ${
+                                        isFree ? 'does not' : ''
+                                    } need to pay money to participate in this event.`}
+                                >
+                                    <IconButton size="small">
+                                        <Help fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
                             </FormControl>
                             {!isFree && (
                                 <FormControl fullWidth required sx={{ m: 1.5 }}>
@@ -245,7 +260,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     )}
                                 </FormControl>
                             )}
-                            <FormControl sx={{ mx: 1.5 }} fullWidth>
+                            <FormControl sx={{ mx: 1.5, my: 1 }} fullWidth>
+                                <Typography component="span" variant="body2" fontWeight={500}>
+                                    (Do you want to show this event only for FPT users?)
+                                </Typography>
                                 <RadioGroup row name="row-radio-buttons-group" value={isPrivate}>
                                     <FormControlLabel
                                         value={false}
@@ -310,7 +328,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                 </FormControl>
                             </LocalizationProvider>
                         </Box>
-                        <Box sx={{ m: 1.5 }}>
+                        <Box sx={{ mx: 1.5, my: 3 }}>
                             <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
                                 <input
                                     style={{ display: 'none' }}
