@@ -123,7 +123,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                 message={(location) => {
                     return location.pathname === '/event/create'
                         ? false
-                        : 'Changes you made may not be sent'
+                        : 'Changes you made may not be save'
                 }}
             />
             <Grid container component={Paper} elevation={3}>

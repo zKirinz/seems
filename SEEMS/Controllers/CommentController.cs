@@ -76,7 +76,7 @@ namespace SEEMS.Controller
                     return BadRequest(commentValidationInfo);
                 }
 
-                var newComment = _mapper.Map<Comment>(item);
+                var newComment = _mapper.Map<Comment>(item);    
 
                 _context.Comments.Add(newComment);
                 _context.SaveChanges();
@@ -123,7 +123,7 @@ namespace SEEMS.Controller
                 var userName = user.UserName;
                 var imageUrl = user.ImageUrl;
                 var email = user.Email;
-                var responseComment = _mapper.Map<CommentDTO>(newComment);
+                var responseComment = _mapper.Map<CommentDTO>(comment);
                 responseComment.ImageUrl = imageUrl;
                 responseComment.UserName = userName;
                 responseComment.Email = email;
@@ -162,7 +162,7 @@ namespace SEEMS.Controller
         }
 
         [HttpPost("{id}")]
-        public IActionResult LoadComments(int id,[FromBody] LoadCommentsRequest data)
+        public IActionResult LoadComments(int id,[FromBody] CommentsLoadMoreDTO data)
         {
 
             int numberComments;
@@ -198,11 +198,13 @@ namespace SEEMS.Controller
                 commentDTO.UserName = CommentsServices.GetUserNameByUserId(comment.UserId, _context);
                 listResponseComments.Add(commentDTO);
             }
-            bool hasMoreComment = (listResponseComments.Count > numberComments);
+
+            bool hasMoreComment;
 
             if (data.lastCommentId == null)
             {               
                 listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
+                hasMoreComment = (listResponseComments.Count > numberComments);
             }
             else
             {
@@ -211,6 +213,7 @@ namespace SEEMS.Controller
                 if (lastCommentIndex >= 0)
                 {
                     listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, Math.Min(listResponseComments.Count() - lastCommentIndex - 1, numberComments)).ToList();
+                    hasMoreComment = (listResponseComments.Count > numberComments);
                 } else
                 {
                     return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid id"));
