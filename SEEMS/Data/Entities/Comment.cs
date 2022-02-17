@@ -16,10 +16,8 @@ namespace SEEMS.Models
 
         [ForeignKey("Comment")]
         public int? ParentCommentId { get; set; }
-
         [ForeignKey("Event")]
         public int EventId { get; set; }
-
         [ForeignKey("User")]
         public int UserId { get; set; }
 
