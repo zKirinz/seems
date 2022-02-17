@@ -1,6 +1,3 @@
-import React, { useEffect, useState, useRef } from 'react'
-
-import Comments from '../../components/Comments'
 import EventPoster from '../../components/EventPoster'
 import {
     Box,
@@ -9,71 +6,18 @@ import {
     CardContent,
     Container,
     Divider,
-    FormControl,
     Grid,
     Link,
-    OutlinedInput,
     Typography,
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
-import { useCommentsAction } from '../../recoil/comments'
-import Loading from '../Loading/'
+import CommentsSection from './Comments'
 import EventDate from './EventDate'
 
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
 
 const EventDetailed = () => {
-    const commentsActions = useCommentsAction()
-    const commentContent = useRef(null)
-    const [isLoading, setIsLoading] = useState(false)
-    const [comments, setComments] = useState([])
-    const loadCommentsHandler = () => {
-        setIsLoading(true)
-        commentsActions.loadComments().then((response) => {
-            setComments(response.data.data)
-            setIsLoading(false)
-        })
-    }
-
-    const createCommentHandler = (event) => {
-        if (commentContent.current.value.trim().length !== 0 && event.key === 'Enter') {
-            setIsLoading(true)
-            const commentData = {
-                UserId: 1,
-                EventId: 1,
-                CommentContent: commentContent.current.value,
-                parentCommentId: null,
-            }
-            commentsActions.createComment(commentData).then((response) => {
-                const newComment = response.data.data
-                setComments((previousComments) => [newComment, ...previousComments])
-            })
-            commentContent.current.value = ''
-            setIsLoading(false)
-        }
-    }
-
-    const deleteCommentHandler = (commentId) => {
-        commentsActions.deleteComment(commentId).then(() => {
-            setComments((prevComments) =>
-                prevComments.filter((comment) => comment.id !== commentId)
-            )
-        })
-    }
-    const editCommentHandler = (commentId, commentContent) => {
-        commentsActions.editComment(commentId, commentContent).then((response) => {
-            const positionIndexComment = comments.findIndex((comment) => comment.id === commentId)
-            const newComments = [...comments]
-            newComments.splice(positionIndexComment, 1, response.data.data)
-            setComments(newComments)
-        })
-    }
-    useEffect(() => {
-        loadCommentsHandler()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-    if (isLoading) return <Loading />
     return (
         <Container fixed sx={{ mt: 15, px: 0 }}>
             <Grid component={Card} container>
@@ -131,29 +75,13 @@ const EventDetailed = () => {
             <Box sx={{ mt: 2 }}>
                 <Link
                     underline="hover"
-                    sx={{ color: grey[600], display: 'block', mb: 2 }}
+                    sx={{ color: grey[600], display: 'block', mb: 2, cursor: 'pointer' }}
                     align="right"
-                    href="#"
                 >
                     54 comments
                 </Link>
             </Box>
-            <FormControl fullWidth>
-                <OutlinedInput
-                    placeholder="Write your comment..."
-                    size="small"
-                    sx={{
-                        borderRadius: 8,
-                    }}
-                    inputRef={commentContent}
-                    onKeyDown={createCommentHandler}
-                />
-            </FormControl>
-            <Comments
-                comments={comments}
-                onDeleteComment={deleteCommentHandler}
-                editCommentHandler={editCommentHandler}
-            />
+            <CommentsSection />
         </Container>
     )
 }
