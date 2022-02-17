@@ -84,7 +84,7 @@ namespace SEEMS.Controller
                 _context.Comments.Add(newComment);
                 _context.SaveChanges();
 
-                var responseComment = CommentsServices.AddMoreInfomationsToComment(newComment, _context, _mapper);
+                var responseComment = CommentsServices.AddMoreInformationsToComment(newComment, _context, _mapper);
                 return Ok(new Response(ResponseStatusEnum.Success, responseComment));
 
             } catch (Exception ex)
@@ -112,7 +112,7 @@ namespace SEEMS.Controller
                 _context.Comments.Update(comment);
                 _context.SaveChanges(true);
 
-                var responseComment = CommentsServices.AddMoreInfomationsToComment(comment, _context, _mapper);
+                var responseComment = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
                 return Ok(new Response(ResponseStatusEnum.Success, responseComment));
 
                 return Ok(new Response(ResponseStatusEnum.Success, responseComment));
@@ -178,7 +178,7 @@ namespace SEEMS.Controller
             List<CommentDTO> listResponseComments = new List<CommentDTO>();
             foreach (var comment in listComment)
             {               
-                CommentDTO commentDTO = CommentsServices.AddMoreInfomationsToComment(comment, _context, _mapper);
+                CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
                 listResponseComments.Add(commentDTO);
             }
 

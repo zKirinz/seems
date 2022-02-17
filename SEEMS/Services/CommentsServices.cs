@@ -124,7 +124,7 @@ namespace SEEMS.Services
             return events != null ? true : false;  
         }
 
-        public static CommentDTO AddMoreInfomationsToComment(Comment comment, ApplicationDbContext dbContext, IMapper mapper)
+        public static CommentDTO AddMoreInformationsToComment(Comment comment, ApplicationDbContext dbContext, IMapper mapper)
         {
             var userId = comment.UserId;
             var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
