@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { useRecoilValue, useRecoilState } from 'recoil'
+import { useRecoilValue } from 'recoil'
 
 import {
     Login as LoginIcon,
@@ -21,23 +21,18 @@ import {
     Badge,
     Typography,
     Button,
-    CircularProgress,
+    Divider,
+    Chip,
 } from '@mui/material'
 
-import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import authAtom, { useAuthAction } from '../../../recoil/auth'
-import userAtom, { useUserAction } from '../../../recoil/user'
 
 const RightNavBar = () => {
     const auth = useRecoilValue(authAtom)
-    const [user, setUser] = useRecoilState(userAtom)
     const history = useHistory()
     const authAction = useAuthAction()
-    const userAction = useUserAction()
     const [anchorEl, setAnchorEl] = useState(null)
-    const [isLoading, setIsLoading] = useState()
     const open = Boolean(anchorEl)
-    const showSnackbar = useSnackbar()
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget)
@@ -51,32 +46,6 @@ const RightNavBar = () => {
     const handleClickLogout = () => {
         authAction.logout()
     }
-
-    useEffect(() => {
-        if (auth.email) {
-            setIsLoading(true)
-            userAction
-                .getProfile()
-                .then((response) => {
-                    if (response?.data?.status === 'success') {
-                        setUser({
-                            email: response.data.data.email,
-                            username: response.data.data.userName,
-                            image: response.data.data.imageUrl,
-                            role: auth.role,
-                        })
-                    }
-                    setIsLoading(false)
-                })
-                .catch(() => {
-                    showSnackbar({
-                        severity: 'error',
-                        children: 'Cannot get user profile.',
-                    })
-                })
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [auth.email])
 
     return (
         <React.Fragment>
@@ -110,9 +79,10 @@ const RightNavBar = () => {
                                 sx: {
                                     overflow: 'visible',
                                     filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                                    mt: 1.5,
+                                    mt: 1,
+                                    px: 5,
                                     pt: 3,
-                                    px: 3,
+                                    pb: 1,
                                     '&:before': {
                                         content: '""',
                                         display: 'block',
@@ -130,36 +100,33 @@ const RightNavBar = () => {
                             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                         >
-                            {isLoading ? (
-                                <CircularProgress />
-                            ) : (
-                                <Box
-                                    component="li"
-                                    display="flex"
-                                    flexDirection="column"
-                                    alignItems="center"
-                                    mb={2}
-                                >
-                                    <Avatar
-                                        alt="avatar"
-                                        src={user.image}
-                                        sx={{ width: 80, height: 80, mb: 2 }}
-                                    />
-                                    <Typography variant="body1" fontWeight={700} textAlign="center">
-                                        {user.username}
-                                    </Typography>
-                                    <Typography variant="body1" textAlign="center">
-                                        {user.email}
-                                    </Typography>
-                                    <Typography variant="body1" textAlign="center">
-                                        Role - {user.role}
-                                    </Typography>
-                                </Box>
-                            )}
+                            <Box
+                                component="li"
+                                display="flex"
+                                flexDirection="column"
+                                alignItems="center"
+                                mb={1}
+                            >
+                                <Avatar
+                                    alt="avatar"
+                                    src={auth.image}
+                                    sx={{ width: 80, height: 80, mb: 2 }}
+                                />
+                                <Typography variant="body1" fontWeight={700} textAlign="center">
+                                    {auth.name}
+                                </Typography>
+                                <Typography variant="body1" textAlign="center">
+                                    {auth.email}
+                                </Typography>
+                                <Divider textAlign="center" sx={{ width: '100%', mt: 2 }}>
+                                    <Chip label={auth.role} />
+                                </Divider>
+                            </Box>
+
                             {auth.role === 'Organizer' && (
-                                <Box>
+                                <Box component="li">
                                     <MenuItem
-                                        sx={{ display: 'flex', justifyContent: 'center' }}
+                                        sx={{ display: 'flex', px: 5 }}
                                         onClick={() => history.push('/events/me')}
                                     >
                                         <ListItemIcon>
@@ -168,7 +135,7 @@ const RightNavBar = () => {
                                         <Typography ml={1}>My events</Typography>
                                     </MenuItem>
                                     <MenuItem
-                                        sx={{ display: 'flex', justifyContent: 'center' }}
+                                        sx={{ display: 'flex', px: 5 }}
                                         onClick={() => history.push('/events/create')}
                                     >
                                         <ListItemIcon>
@@ -178,10 +145,8 @@ const RightNavBar = () => {
                                     </MenuItem>
                                 </Box>
                             )}
-                            <MenuItem
-                                sx={{ display: 'flex', justifyContent: 'center' }}
-                                onClick={handleClickLogout}
-                            >
+
+                            <MenuItem sx={{ display: 'flex', px: 5 }} onClick={handleClickLogout}>
                                 <ListItemIcon>
                                     <LogoutIcon fontSize="large" />
                                 </ListItemIcon>

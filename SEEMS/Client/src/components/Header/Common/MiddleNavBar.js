@@ -1,10 +1,16 @@
 import { NavLink } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
 
 import { Event, Home, Info } from '@mui/icons-material'
 import { Box, Button, IconButton, Tooltip } from '@mui/material'
 import { yellow, grey } from '@mui/material/colors'
 
-const CommonMiddleNavBar = ({ isAuth }) => {
+import authAtom from '../../../recoil/auth'
+
+const MiddleNavBar = () => {
+    const auth = useRecoilValue(authAtom)
+    const isAuth = !!auth.email
+
     return (
         <Box
             sx={{
@@ -61,4 +67,4 @@ const CommonMiddleNavBar = ({ isAuth }) => {
     )
 }
 
-export default CommonMiddleNavBar
+export default MiddleNavBar
