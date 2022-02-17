@@ -21,13 +21,13 @@ namespace SEEMS.Models
         public int EventId { get; set; }
 
         [ForeignKey("User")]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
 
         [JsonIgnore]
         public Event? Event { get; set; }
 
         [JsonIgnore]
-        public User User { get; set; }
+        public User? User { get; set; }
 
         [JsonIgnore]
         public Comment? ParentComment { get; set; }
