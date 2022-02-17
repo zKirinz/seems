@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
 
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
-using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
-using SEEMS.Services.Interfaces;
 namespace SEEMS.Controller
 {
 	[Route("api/Events")]
@@ -20,13 +20,14 @@ namespace SEEMS.Controller
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IMapper _mapper;
-		private readonly UserService _userService;
+		private readonly AuthManager _authManager;
 
-		public EventController(ApplicationDbContext context, IMapper mapper, UserService userService)
+		public EventController(ApplicationDbContext context, IMapper mapper,
+								 AuthManager authManager)
 		{
 			_context = context;
 			_mapper = mapper;
-			_userService = userService;
+			_authManager = authManager;
 		}
 
 		[HttpGet("my-events")]
@@ -35,19 +36,19 @@ namespace SEEMS.Controller
 			User currentUser = null;
 			try
 			{
-				var user = await _userService.getCurrentUser(HttpContext);
-				if (user != null)
-				{
-					var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
-					return Ok(
-						new Response(ResponseStatusEnum.Success,
-						new
-						{
-							Count = listEvents.Count(),
-							Events = listEvents
-						})
-					);
-				}
+				//var user = null;
+				//if (user != null)
+				//{
+				//	var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
+				//	return Ok(
+				//		new Response(ResponseStatusEnum.Success,
+				//		new
+				//		{
+				//			Count = listEvents.Count(),
+				//			Events = listEvents
+				//		})
+				//	);
+				//}
 			}
 			catch (Exception e)
 			{
@@ -157,8 +158,9 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					if (eventDTO.IsFree) eventDTO.ExpectPrice = 0;
 					var newEvent = _mapper.Map<Event>(eventDTO);
-					var user = await _userService.getCurrentUser(HttpContext);
-					newEvent.Client = user;
+					var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+					var userInfo =  _authManager.GetUserInfo(info);
+					newEvent.Client = userInfo;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
