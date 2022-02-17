@@ -1,9 +1,11 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Entities.RequestFeatures;
 using SEEMS.Data.Models;
+using SEEMS.Infrastructures.Attributes;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
@@ -40,35 +42,71 @@ public class ChainOfEventController : ControllerBase
         return Ok(new Response(ResponseStatusEnum.Success, listOfChains));
     }
     
-    [HttpPost("")]
     [Authorize]
+    [HttpPost("")]
+    [ValidateModel]
     public async Task<IActionResult> CreateNewChainOfEvent([FromBody] ChainOfEventForCreationDto body)
     {
-        var currentEmail = _authManager.GetCurrentEmail(Request);
-
-        var currentUser = await GetCurrentUser(currentEmail);
+        var currentUser = await IsOrganization(Request);
         
         var entity = _mapper.Map<ChainOfEvent>(body);
 
-        var role = await _repoManager.UserMeta.GetRolesAsync(currentEmail, false);
-
-        if (role.MetaValue != RoleTypes.ORG)
+        if (currentUser == null)
         {
-            return UnprocessableEntity(new Response(ResponseStatusEnum.Fail, "", "Only Organizer can create chain of events", 422));
+            return UnprocessableEntity(new Response(ResponseStatusEnum.Fail, "",
+                "Only Organizer role can create chains", 422));
         }
-
+        
         try
         {
             _repoManager.ChainOfEvent.CreateChainOfEvent(currentUser.Id, entity);
             await _repoManager.SaveAsync();
         }
-        catch
+        catch(DbUpdateException)
         {
-            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Category Name can not be duplicate"));
+            return BadRequest(new Response(ResponseStatusEnum.Fail, "", $"{body.CategoryName} is duplicated", 422));
         }
         
         return Ok(new Response(ResponseStatusEnum.Success, entity));
     }
+    
+    [Authorize]
+    [ValidateModel]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateChainOfEvent(int id, [FromBody] ChainOfEventForUpdateDTO dto)
+    {
+        var currentUser = await IsOrganization(Request);
+        if (currentUser == null)
+        {
+            return UnprocessableEntity(new Response(ResponseStatusEnum.Fail, "",
+                "Only Organizer role can update chains", 422));
+        } 
+        
+        try
+        {
+            var entity = await _repoManager.ChainOfEvent.GetChainOfEventsAsync(id, true);
+            _mapper.Map(dto, entity);
+            await _repoManager.SaveAsync();
+
+            return Ok(new Response(ResponseStatusEnum.Success, entity));
+        }
+        catch (DbUpdateException)
+        {
+            return BadRequest(new Response(ResponseStatusEnum.Error, "", $"{dto.CategoryName} is duplicated", 400));
+        }
+    }
 
     private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
+
+    private async Task<User?> IsOrganization(HttpRequest request)
+    {
+        var currentEmail = _authManager.GetCurrentEmail(Request);
+
+        var currentUser = await GetCurrentUser(currentEmail!);
+        
+
+        var role = await _repoManager.UserMeta.GetRolesAsync(currentEmail!, false);
+
+        return role.MetaValue != RoleTypes.ORG ? null : currentUser;
+    }
 }
