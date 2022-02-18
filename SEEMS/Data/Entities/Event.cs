@@ -12,7 +12,7 @@ namespace SEEMS.Models
 		[StringLength(100)]
 		public String EventTitle { get; set; }
 
-		[StringLength(255)]
+		[StringLength(2000)]
 		public String EventDescription { get; set; }
 
 		[ForeignKey("ChainOfEvent")]
