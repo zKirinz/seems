@@ -43,14 +43,14 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [eventName, setEventName] = useState(defaultTextFieldValue)
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
-    const [isFree, setIsFree] = useState(false)
+    const [isEventFree, setIsEventFree] = useState(true)
     const [isPrivate, setIsPrivate] = useState(false)
     const [price, setPrice] = useState(0)
     const [posterUrl, setPosterUrl] = useState({ src })
     useEffect(() => {
-        if (isFree) setPrice(0)
+        if (isEventFree) setPrice(0)
         else setPrice(1000)
-    }, [isFree])
+    }, [isEventFree])
     useEffect(() => {
         return () => {
             posterUrl.src && URL.revokeObjectURL(posterUrl.src)
@@ -111,7 +111,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             location: location.value,
             eventDescription: description.value,
             expectPrice: parseInt(price),
-            isFree,
+            isFree: isEventFree,
             imageUrl: src,
             isPrivate,
             startDate: startDate,
@@ -208,13 +208,15 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                 <FormControlLabel
                                     control={<Checkbox />}
                                     label="Paid"
-                                    onChange={() => setIsFree((previousValue) => !previousValue)}
-                                    checked={!isFree}
+                                    onChange={() =>
+                                        setIsEventFree((previousValue) => !previousValue)
+                                    }
+                                    checked={!isEventFree}
                                     sx={{ mr: 0 }}
                                 />
                                 <Tooltip
-                                    title={`User ${
-                                        isFree ? 'does not' : ''
+                                    title={`Users ${
+                                        isEventFree ? 'does not' : ''
                                     } need to pay money to participate in this event.`}
                                 >
                                     <IconButton size="small">
@@ -222,7 +224,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </IconButton>
                                 </Tooltip>
                             </FormControl>
-                            {!isFree && (
+                            {!isEventFree && (
                                 <FormControl fullWidth required sx={{ m: 1.5 }}>
                                     <InputLabel htmlFor="price" shrink>
                                         Price
@@ -253,10 +255,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     )}
                                 </FormControl>
                             )}
-                            <FormControl sx={{ mx: 1.5, my: 1 }} fullWidth>
-                                <Typography component="span" variant="body2" fontWeight={500}>
-                                    (Do you want to show this event only for FPT users?)
-                                </Typography>
+                            <FormControl
+                                sx={{ mx: 1.5, my: 1, flexDirection: 'row', alignItems: 'center' }}
+                                fullWidth
+                            >
                                 <RadioGroup row name="row-radio-buttons-group" value={isPrivate}>
                                     <FormControlLabel
                                         value={false}
@@ -271,6 +273,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         onChange={() => setIsPrivate(true)}
                                     />
                                 </RadioGroup>
+                                <Typography component="span" variant="body2" fontWeight={500}>
+                                    You want this event to be public or private only for FPT
+                                    education
+                                </Typography>
                             </FormControl>
                         </Box>
                         <Box
