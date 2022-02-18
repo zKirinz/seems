@@ -16,7 +16,7 @@ import { grey } from '@mui/material/colors'
 
 import { useCommentsAction } from '../../recoil/comment'
 
-const CommentsSection = () => {
+const CommentsSection = ({ eventId: EventId }) => {
     const commentsActions = useCommentsAction()
     const commentContent = useRef(null)
     const initialLoadingComments = useRef(true)
@@ -34,7 +34,7 @@ const CommentsSection = () => {
             setOpenCommentField(true)
         }
         commentsActions
-            .loadComments(loadMoreCommentsConfig)
+            .loadComments(loadMoreCommentsConfig, EventId)
             .then((response) => {
                 initialLoadingComments.current = false
                 const { listResponseComments: loadedComments, hasMoreComment: isHasMoreComments } =
@@ -53,7 +53,7 @@ const CommentsSection = () => {
             setIsLoading(true)
             const commentData = {
                 UserId: 1,
-                EventId: 4,
+                EventId: EventId,
                 CommentContent: commentContent.current.value,
                 ParentCommentId: null,
             }
