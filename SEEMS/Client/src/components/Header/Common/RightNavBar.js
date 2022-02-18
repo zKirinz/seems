@@ -124,7 +124,7 @@ const RightNavBar = () => {
                             </Box>
 
                             {auth.role === 'Organizer' && (
-                                <Box component="li">
+                                <Box>
                                     <MenuItem
                                         sx={{ display: 'flex', px: 5 }}
                                         onClick={() => history.push('/events/me')}
