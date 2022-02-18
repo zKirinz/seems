@@ -15,16 +15,16 @@ import {
 
 import { useCommentsAction } from '../../recoil/comment'
 
-let initialLoadingComments = false
 const CommentsSection = () => {
     const commentsActions = useCommentsAction()
     const commentContent = useRef(null)
+    const initialLoadingComments = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
     const [comments, setComments] = useState([])
     const [hasMoreComments, setHasMoreComments] = useState(false)
     const [openCommentField, setOpenCommentField] = useState(false)
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
-        numberComments: 5,
+        numberComments: 4,
         lastCommentId: null,
     })
     const loadCommentsHandler = () => {
@@ -38,8 +38,10 @@ const CommentsSection = () => {
                 setComments((prevComments) => [...prevComments, ...loadedComments])
                 setHasMoreComments(isHasMoreComments)
                 setIsLoading(false)
+                initialLoadingComments.current = false
             })
             .catch(() => {
+                initialLoadingComments.current = false
                 setIsLoading(false)
             })
         initialLoadingComments = true
@@ -99,7 +101,7 @@ const CommentsSection = () => {
                     startIcon={<ModeComment />}
                     color="primary"
                     onClick={loadCommentsHandler}
-                    disabled={!initialLoadingComments}
+                    disabled={!initialLoadingComments.current}
                 >
                     Comment
                 </Button>
@@ -125,7 +127,7 @@ const CommentsSection = () => {
                     </FormControl>
                 </Box>
             )}
-            {isLoading && (
+            {isLoading && initialLoadingComments.current && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                     <CircularProgress disableShrink />
                 </Box>
@@ -136,15 +138,22 @@ const CommentsSection = () => {
                 editCommentHandler={editCommentHandler}
             />
             {hasMoreComments && (
-                <Typography
-                    variant="body2"
-                    sx={{ mt: 1, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                    fontWeight={400}
-                    onClick={loadCommentsHandler}
-                >
-                    Watch more comments
-                    <CircularProgress disableShrink />
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            cursor: 'pointer',
+                            '&:hover': { textDecoration: 'underline' },
+                            color: grey[500],
+                            mr: 1,
+                        }}
+                        fontWeight={500}
+                        onClick={loadCommentsHandler}
+                    >
+                        Watch more comments
+                    </Typography>
+                    {isLoading && <CircularProgress disableShrink size={20} />}
+                </Box>
             )}
         </React.Fragment>
     )

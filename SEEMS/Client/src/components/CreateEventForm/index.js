@@ -274,7 +274,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     />
                                 </RadioGroup>
                                 <Typography component="span" variant="body2" fontWeight={500}>
-                                    You want this event to be public or private only for FPT
+                                    you want this event to be public or private only for FPT
                                     education
                                 </Typography>
                             </FormControl>
