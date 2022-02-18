@@ -44,7 +44,7 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					commentCount = _context.Comments.Where(c => c.Id == foundEvent.Id).Count();
+					commentCount = _context.Comments.Where(c => c.EventId == foundEvent.Id).Count();
 				}
 			}
 			catch (Exception ex)
