@@ -101,11 +101,16 @@ namespace SEEMS.Controller
 		public async Task<ActionResult<List<Event>>> Get()
 		{
 			int resultCount;
+			User currentUser = await GetCurrentUser(Request);
 			try
 			{
 				var result = _context.Events.ToList().Where(
-						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30
-				);
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30);
+
+				if (currentUser == null)
+				{
+					result = result.Where(e => !e.IsPrivate);
+				}
 				resultCount = Math.Min(10, result.Count());
 				return Ok(new Response(
 					ResponseStatusEnum.Success,
