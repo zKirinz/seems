@@ -85,7 +85,8 @@ namespace SEEMS.Controller
 							Events = listEvents
 						})
 					);
-				} else
+				}
+				else
 				{
 					throw new Exception("Invalid User profile");
 				}
@@ -95,8 +96,8 @@ namespace SEEMS.Controller
 				return BadRequest(new Response(ResponseStatusEnum.Error, e.Message));
 			}
 			return null;
-
 		}
+
 		[HttpGet("upcoming")]
 		public async Task<ActionResult<List<Event>>> Get()
 		{
