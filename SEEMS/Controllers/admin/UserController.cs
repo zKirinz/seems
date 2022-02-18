@@ -27,7 +27,7 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetListUsers([FromQuery] UserParams userParams)
     {
         var listUsers = await _repoManager.User.GetAllUsersAsync(userParams, false);
-        Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(listUsers.PagingData));
+        Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(listUsers.Meta));
         return Ok(listUsers);
     }
     
