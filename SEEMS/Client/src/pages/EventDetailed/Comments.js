@@ -12,6 +12,7 @@ import {
     OutlinedInput,
     Typography,
 } from '@mui/material'
+import { grey } from '@mui/material/colors'
 
 import { useCommentsAction } from '../../recoil/comment'
 
@@ -29,22 +30,23 @@ const CommentsSection = () => {
     })
     const loadCommentsHandler = () => {
         setIsLoading(true)
-        setOpenCommentField(true)
+        if (initialLoadingComments.current) {
+            setOpenCommentField(true)
+        }
         commentsActions
             .loadComments(loadMoreCommentsConfig)
             .then((response) => {
+                initialLoadingComments.current = false
                 const { listResponseComments: loadedComments, hasMoreComment: isHasMoreComments } =
                     response.data.data
                 setComments((prevComments) => [...prevComments, ...loadedComments])
                 setHasMoreComments(isHasMoreComments)
                 setIsLoading(false)
-                initialLoadingComments.current = false
             })
             .catch(() => {
                 initialLoadingComments.current = false
                 setIsLoading(false)
             })
-        initialLoadingComments = true
     }
     const createCommentHandler = (event) => {
         if (commentContent.current.value.trim().length !== 0 && event.key === 'Enter') {
@@ -132,6 +134,13 @@ const CommentsSection = () => {
                     <CircularProgress disableShrink />
                 </Box>
             )}
+            {isLoading &&
+                !initialLoadingComments.current &&
+                !!commentContent.current?.value.trim() && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                        <CircularProgress disableShrink />
+                    </Box>
+                )}
             <Comments
                 comments={comments}
                 onDeleteComment={deleteCommentHandler}
