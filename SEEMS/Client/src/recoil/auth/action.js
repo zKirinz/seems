@@ -2,7 +2,7 @@ import jwt_decode from 'jwt-decode'
 import { useHistory } from 'react-router-dom'
 import { useSetRecoilState } from 'recoil'
 
-import { get, post } from '../../utils/ApiCaller'
+import { post } from '../../utils/ApiCaller'
 import LocalStorageUtils from '../../utils/LocalStorageUtils'
 import authAtom from './atom'
 
@@ -16,12 +16,26 @@ const useAuthAction = () => {
 
         if (user && typeof user === 'object') {
             if (user?.exp && user?.exp * 1000 > Date.now()) {
-                setAuth({ token, email: user.email, role: user.role, exp: user.exp })
+                setAuth({
+                    token,
+                    email: user.email,
+                    name: user.name,
+                    image: user.image,
+                    role: user.role,
+                    exp: user.exp,
+                })
             } else {
                 logout()
             }
         } else {
-            setAuth({ token: null, email: '', role: '', exp: 0 })
+            setAuth({
+                token: null,
+                email: '',
+                name: '',
+                image: '',
+                role: '',
+                exp: 0,
+            })
         }
     }
 
@@ -32,8 +46,8 @@ const useAuthAction = () => {
         }).then((response) => {
             if (response?.data?.status === 'success') {
                 LocalStorageUtils.setUser(token)
-                const { email, role, exp } = jwt_decode(token)
-                setAuth({ token, email, role, exp })
+                const { email, name, image, role, exp } = jwt_decode(token)
+                setAuth({ token, email, name, image, role, exp })
                 if (role === 'Admin') {
                     history.push('/admin')
                 } else history.push('/')
@@ -44,16 +58,20 @@ const useAuthAction = () => {
 
     const logout = () => {
         LocalStorageUtils.deleteUser()
-        setAuth({ token: null, email: '', role: '', exp: 0 })
+        setAuth({
+            token: null,
+            email: '',
+            name: '',
+            image: '',
+            role: '',
+            exp: 0,
+        })
     }
-
-    const getProfile = () => get({ endpoint: '/api/users/me' })
 
     return {
         autoLogin,
         login,
         logout,
-        getProfile,
     }
 }
 

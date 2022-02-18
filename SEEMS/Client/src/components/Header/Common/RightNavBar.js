@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
@@ -6,7 +6,9 @@ import { useRecoilValue } from 'recoil'
 import {
     Login as LoginIcon,
     Logout as LogoutIcon,
+    Add as AddIcon,
     Notifications as NotificationsIcon,
+    Event as EventIcon,
 } from '@mui/icons-material'
 import {
     Box,
@@ -19,10 +21,10 @@ import {
     Badge,
     Typography,
     Button,
-    CircularProgress,
+    Divider,
+    Chip,
 } from '@mui/material'
 
-import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import authAtom, { useAuthAction } from '../../../recoil/auth'
 
 const RightNavBar = () => {
@@ -30,10 +32,7 @@ const RightNavBar = () => {
     const history = useHistory()
     const authAction = useAuthAction()
     const [anchorEl, setAnchorEl] = useState(null)
-    const [isLoading, setIsLoading] = useState()
-    const [profile, setProfile] = useState({})
     const open = Boolean(anchorEl)
-    const showSnackbar = useSnackbar()
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget)
@@ -47,31 +46,6 @@ const RightNavBar = () => {
     const handleClickLogout = () => {
         authAction.logout()
     }
-
-    useEffect(() => {
-        if (auth.email) {
-            setIsLoading(true)
-            authAction
-                .getProfile()
-                .then((response) => {
-                    if (response?.data?.status === 'success') {
-                        setProfile({
-                            name: response.data.data.userName,
-                            email: response.data.data.email,
-                            image: response.data.data.imageUrl,
-                        })
-                    }
-                    setIsLoading(false)
-                })
-                .catch(() => {
-                    showSnackbar({
-                        severity: 'error',
-                        children: 'Cannot get user profile.',
-                    })
-                })
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
 
     return (
         <React.Fragment>
@@ -105,9 +79,10 @@ const RightNavBar = () => {
                                 sx: {
                                     overflow: 'visible',
                                     filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                                    mt: 1.5,
+                                    mt: 1,
+                                    px: 5,
                                     pt: 3,
-                                    px: 3,
+                                    pb: 1,
                                     '&:before': {
                                         content: '""',
                                         display: 'block',
@@ -125,36 +100,53 @@ const RightNavBar = () => {
                             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                         >
-                            {isLoading ? (
-                                <CircularProgress />
-                            ) : (
-                                <Box
-                                    component="li"
-                                    display="flex"
-                                    flexDirection="column"
-                                    alignItems="center"
-                                    mb={2}
-                                >
-                                    <Avatar
-                                        alt="avatar"
-                                        src={profile.image}
-                                        sx={{ width: 80, height: 80, mb: 2 }}
-                                    />
-                                    <Typography variant="body1" fontWeight={700} textAlign="center">
-                                        {profile.name}
-                                    </Typography>
-                                    <Typography variant="body1" textAlign="center">
-                                        {profile.email}
-                                    </Typography>
-                                    <Typography variant="body1" textAlign="center">
-                                        Role - {auth.role}
-                                    </Typography>
+                            <Box
+                                component="li"
+                                display="flex"
+                                flexDirection="column"
+                                alignItems="center"
+                                mb={1}
+                            >
+                                <Avatar
+                                    alt="avatar"
+                                    src={auth.image}
+                                    sx={{ width: 80, height: 80, mb: 2 }}
+                                />
+                                <Typography variant="body1" fontWeight={700} textAlign="center">
+                                    {auth.name}
+                                </Typography>
+                                <Typography variant="body1" textAlign="center">
+                                    {auth.email}
+                                </Typography>
+                                <Divider textAlign="center" sx={{ width: '100%', mt: 2 }}>
+                                    <Chip label={auth.role} />
+                                </Divider>
+                            </Box>
+
+                            {auth.role === 'Organizer' && (
+                                <Box component="li">
+                                    <MenuItem
+                                        sx={{ display: 'flex', px: 5 }}
+                                        onClick={() => history.push('/events/me')}
+                                    >
+                                        <ListItemIcon>
+                                            <EventIcon fontSize="large" />
+                                        </ListItemIcon>
+                                        <Typography ml={1}>My events</Typography>
+                                    </MenuItem>
+                                    <MenuItem
+                                        sx={{ display: 'flex', px: 5 }}
+                                        onClick={() => history.push('/events/create')}
+                                    >
+                                        <ListItemIcon>
+                                            <AddIcon fontSize="large" />
+                                        </ListItemIcon>
+                                        <Typography ml={1}>Create event</Typography>
+                                    </MenuItem>
                                 </Box>
                             )}
-                            <MenuItem
-                                sx={{ display: 'flex', justifyContent: 'center' }}
-                                onClick={handleClickLogout}
-                            >
+
+                            <MenuItem sx={{ display: 'flex', px: 5 }} onClick={handleClickLogout}>
                                 <ListItemIcon>
                                     <LogoutIcon fontSize="large" />
                                 </ListItemIcon>
