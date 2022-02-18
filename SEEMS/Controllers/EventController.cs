@@ -87,7 +87,7 @@ namespace SEEMS.Controller
 					);
 				} else
 				{
-					throw new Exception("Invalide User profile");
+					throw new Exception("Invalid User profile");
 				}
 			}
 			catch (Exception e)
