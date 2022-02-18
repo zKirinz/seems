@@ -7,8 +7,6 @@ namespace SEEMS.Data.DTO
 	{
 		[Required]
 		public string EventTitle { get; set; }
-		public Guid? ClientId { get; set; }
-		[Required]
 		public string EventDescription { get; set; }
 		[JsonIgnore]
 		public int? ChainOfEventId { get; set; }

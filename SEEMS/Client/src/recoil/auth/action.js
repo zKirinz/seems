@@ -15,24 +15,42 @@ const useAuthAction = () => {
         const user = LocalStorageUtils.getUser()
 
         if (user && typeof user === 'object') {
-            setAuth({ token, email: user.email, role: user.role, exp: user.exp })
+            if (user?.exp && user?.exp * 1000 > Date.now()) {
+                setAuth({
+                    token,
+                    email: user.email,
+                    name: user.name,
+                    image: user.image,
+                    role: user.role,
+                    exp: user.exp,
+                })
+            } else {
+                logout()
+            }
         } else {
-            setAuth({ token: null, email: '', role: '', exp: 0 })
+            setAuth({
+                token: null,
+                email: '',
+                name: '',
+                image: '',
+                role: '',
+                exp: 0,
+            })
         }
     }
 
     const login = (token) =>
         post({
             endpoint: '/api/authentication/auth',
-            headers: { token },
+            headers: { Authorization: `Bearer ${token}` },
         }).then((response) => {
             if (response?.data?.status === 'success') {
                 LocalStorageUtils.setUser(token)
-                const { email, role, exp } = jwt_decode(token)
-                setAuth(authAtom, { token, email, role, exp })
+                const { email, name, image, role, exp } = jwt_decode(token)
+                setAuth({ token, email, name, image, role, exp })
                 if (role === 'Admin') {
-                    window.location.reload(false)
-                } else window.location.reload(false)
+                    history.push('/admin')
+                } else history.push('/')
             } else {
                 throw new Error('Something went wrong')
             }
@@ -40,8 +58,14 @@ const useAuthAction = () => {
 
     const logout = () => {
         LocalStorageUtils.deleteUser()
-        window.location.reload(false)
-        setAuth({ token: null, email: '', role: '', exp: 0 })
+        setAuth({
+            token: null,
+            email: '',
+            name: '',
+            image: '',
+            role: '',
+            exp: 0,
+        })
     }
 
     return {

@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
-import { Event, Home, Info } from '@mui/icons-material'
+import { Event, Home } from '@mui/icons-material'
 import { Box, Button, IconButton, Tooltip } from '@mui/material'
 import { yellow, grey } from '@mui/material/colors'
 
@@ -38,16 +38,9 @@ const MiddleNavBar = () => {
                 </Tooltip>
             </Button>
             <Button component={NavLink} to="/events" sx={{ px: 2, py: 1.25, position: 'relative' }}>
-                <Tooltip title="Event">
+                <Tooltip title="Events">
                     <IconButton size="medium">
                         <Event fontSize="large" sx={{ color: grey[100] }} />
-                    </IconButton>
-                </Tooltip>
-            </Button>
-            <Button component={NavLink} to="/about" sx={{ px: 2, py: 1.25, position: 'relative' }}>
-                <Tooltip title="About">
-                    <IconButton size="medium">
-                        <Info fontSize="large" sx={{ color: grey[100] }} />
                     </IconButton>
                 </Tooltip>
             </Button>

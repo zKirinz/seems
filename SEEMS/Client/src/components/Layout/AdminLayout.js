@@ -4,12 +4,12 @@ import { Box } from '@mui/material'
 
 import BottomNavigationMobile from '../BottomNavigation'
 import Footer from '../Footer'
-import Header from '../Header'
+import { AdminHeader } from '../Header'
 
 const AdminLayout = ({ children }) => {
     return (
         <React.Fragment>
-            <Header isAdmin />
+            <AdminHeader />
             {children}
             <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
                 <BottomNavigationMobile />

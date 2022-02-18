@@ -10,6 +10,8 @@ namespace SEEMS.Services.Interfaces
     {
         IUserRepository User { get; }
         IUserMetaRepository UserMeta { get; }
+        
+        IChainOfEventsRepository ChainOfEvent { get; }
 
         Task SaveAsync();
     }
