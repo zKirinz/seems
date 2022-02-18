@@ -12,17 +12,17 @@ import {
     OutlinedInput,
     Typography,
 } from '@mui/material'
-import { grey } from '@mui/material/colors'
 
 import { useCommentsAction } from '../../recoil/comment'
 
+let initialLoadingComments = false
 const CommentsSection = () => {
+    const commentsActions = useCommentsAction()
     const commentContent = useRef(null)
     const [isLoading, setIsLoading] = useState(false)
     const [comments, setComments] = useState([])
     const [hasMoreComments, setHasMoreComments] = useState(false)
     const [openCommentField, setOpenCommentField] = useState(false)
-    const commentsActions = useCommentsAction()
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
         numberComments: 5,
         lastCommentId: null,
@@ -42,6 +42,7 @@ const CommentsSection = () => {
             .catch(() => {
                 setIsLoading(false)
             })
+        initialLoadingComments = true
     }
     const createCommentHandler = (event) => {
         if (commentContent.current.value.trim().length !== 0 && event.key === 'Enter') {
@@ -96,8 +97,9 @@ const CommentsSection = () => {
                 <Divider sx={{ mb: 1 }} />
                 <Button
                     startIcon={<ModeComment />}
-                    sx={{ color: grey[500] }}
+                    color="primary"
                     onClick={loadCommentsHandler}
+                    disabled={!initialLoadingComments}
                 >
                     Comment
                 </Button>
@@ -141,6 +143,7 @@ const CommentsSection = () => {
                     onClick={loadCommentsHandler}
                 >
                     Watch more comments
+                    <CircularProgress disableShrink />
                 </Typography>
             )}
         </React.Fragment>
