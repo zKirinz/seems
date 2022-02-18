@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
@@ -11,8 +10,6 @@ using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace SEEMS.Controller
 {
@@ -33,25 +30,65 @@ namespace SEEMS.Controller
 			_authManager = authManager;
 		}
 
+		[HttpGet("detail/{id}")]
+		public async Task<IActionResult> GetEventDetail(int id)
+		{
+			Event foundEvent = null;
+			int commentCount = 0;
+			try
+			{
+				foundEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+				if (foundEvent == null)
+				{
+					throw new Exception("Can't find the event");
+				}
+				else
+				{
+					commentCount = _context.Comments.Where(c => c.Id == foundEvent.Id).Count();
+				}
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(
+					new Response(
+						ResponseStatusEnum.Fail,
+						ex.Message
+					)
+				);
+			}
+			return Ok(
+				new Response(
+					ResponseStatusEnum.Success,
+					new
+					{
+						CommentCount = commentCount,
+						Event = foundEvent,
+					}
+				)
+			);
+		}
+
 		[HttpGet("my-events")]
 		public async Task<ActionResult<List<Event>>> GetMyEvents()
 		{
-			User currentUser = null;
+			User user = await GetCurrentUser(Request);
 			try
 			{
-				//var user = null;
-				//if (user != null)
-				//{
-				//	var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
-				//	return Ok(
-				//		new Response(ResponseStatusEnum.Success,
-				//		new
-				//		{
-				//			Count = listEvents.Count(),
-				//			Events = listEvents
-				//		})
-				//	);
-				//}
+				if (user != null)
+				{
+					var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
+					return Ok(
+						new Response(ResponseStatusEnum.Success,
+						new
+						{
+							Count = listEvents.Count(),
+							Events = listEvents
+						})
+					);
+				} else
+				{
+					throw new Exception("Invalid User profile");
+				}
 			}
 			catch (Exception e)
 			{
@@ -64,11 +101,16 @@ namespace SEEMS.Controller
 		public async Task<ActionResult<List<Event>>> Get()
 		{
 			int resultCount;
+			User currentUser = await GetCurrentUser(Request);
 			try
 			{
 				var result = _context.Events.ToList().Where(
-						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30
-				);
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30);
+
+				if (currentUser == null)
+				{
+					result = result.Where(e => !e.IsPrivate);
+				}
 				resultCount = Math.Min(10, result.Count());
 				return Ok(new Response(
 					ResponseStatusEnum.Success,
@@ -81,7 +123,8 @@ namespace SEEMS.Controller
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new Response(ResponseStatusEnum.Error, msg: ex.Message));
 			}
 		}
 
