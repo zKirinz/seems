@@ -57,7 +57,7 @@ const Comment = ({
                         bgcolor: grey[300],
                         p: 2,
                         borderRadius: 8,
-                        width: '100%',
+                        width: '95%',
                         position: 'relative',
                     }}
                 >

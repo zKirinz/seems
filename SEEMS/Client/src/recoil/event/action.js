@@ -1,17 +1,23 @@
 import { useHistory } from 'react-router-dom'
 
-import { post } from '../../utils/ApiCaller'
+import { get, post } from '../../utils/ApiCaller'
 
 const useEventAction = () => {
     const history = useHistory()
 
-    const createEvent = async (eventData) =>
+    const getUpcomingEvents = () => get({ endpoint: '/api/events/upcoming' })
+
+    const getMyEvents = () => get({ endpoint: '/api/Events/my-events' })
+
+    const createEvent = (eventData) =>
         post({
             endpoint: '/api/events',
             body: eventData,
         }).then(() => history.push('/events'))
 
     return {
+        getUpcomingEvents,
+        getMyEvents,
         createEvent,
     }
 }
