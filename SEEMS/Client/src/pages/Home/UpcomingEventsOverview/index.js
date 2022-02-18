@@ -16,7 +16,7 @@ const UpcomingEventsOverview = () => {
     useEffect(() => {
         eventAction.getUpcomingEvents().then((res) => {
             setUpcomingEventsOverview(res.data.data.events)
-            console.log(res.data.data.events)
+            // console.log(res.data.data.events)
         })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -26,16 +26,16 @@ const UpcomingEventsOverview = () => {
             <Typography variant="h3" color="primary" align="center" mb={6} mt={2} fontWeight={700}>
                 Upcoming Events
             </Typography>
-            <Grid container rowGap={6}>
+            <Grid container rowGap={6} display="flex" justifyContent="center">
                 {upcomingEventsOverview.map(
                     ({ id, eventTitle, eventDescription, startDate, imageUrl }) => (
-                        <Card key={id} elevation={3} sx={{ mx: 6 }}>
+                        <Card key={id} elevation={3} sx={{ mx: 6, maxWidth: 1000, width: '100%' }}>
                             <Box px={{ xs: 2, sm: 5 }}>
                                 <Grid item xs={12} container>
-                                    <Grid item xs={12} sm={6} md={3}>
+                                    <Grid item xs={12} sm={6} md={4}>
                                         <EventPoster src={imageUrl} size="contain" />
                                     </Grid>
-                                    <Grid item xs={12} sm={6} md={9}>
+                                    <Grid item xs={12} sm={6} md={8}>
                                         <EventSummaryInfo
                                             title={eventTitle}
                                             content={eventDescription}

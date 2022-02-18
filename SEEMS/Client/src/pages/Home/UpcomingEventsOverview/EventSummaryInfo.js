@@ -20,7 +20,14 @@ const EventSummaryInfo = ({ title, content, startTime }) => {
             <Typography
                 component="p"
                 mt={1.5}
-                sx={{ color: grey[500] }}
+                sx={{
+                    color: grey[500],
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    '-webkit-box-orient': 'vertical',
+                    '-webkit-line-clamp': '3',
+                    textOverflow: 'ellipsis',
+                }}
                 fontWeight={500}
                 variant={`${matches ? 'subtitle1' : 'subtitle2'}`}
             >

@@ -20,13 +20,20 @@ const EventSummaryInfo = ({ title, content, startTime }) => {
             <Typography
                 component="p"
                 mt={1.5}
-                sx={{ color: grey[500] }}
+                sx={{
+                    color: grey[500],
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    '-webkit-box-orient': 'vertical',
+                    '-webkit-line-clamp': '3',
+                    textOverflow: 'ellipsis',
+                }}
                 fontWeight={500}
                 variant={`${matches ? 'subtitle1' : 'subtitle2'}`}
             >
                 {content}
             </Typography>
-            <Typography color="secondary" variant="h6" mb={1}>
+            <Typography color="secondary" variant="h6" my={1}>
                 {eventStartTime}
             </Typography>
         </CardContent>

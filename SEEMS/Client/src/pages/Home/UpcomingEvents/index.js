@@ -19,7 +19,7 @@ const UpComingEvents = () => {
     useEffect(() => {
         eventAction.getUpcomingEvents().then((res) => {
             setUpcomingEvents(res.data.data.events)
-            console.log(res.data.data.events)
+            // console.log(res.data.data.events)
         })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -32,19 +32,22 @@ const UpComingEvents = () => {
             <Box mx={{ sx: 2, md: 10 }} my={5}>
                 <SearchField />
             </Box>
-            <Grid container rowGap={6}>
+            <Grid container rowGap={6} display="flex" justifyContent="center">
                 {upcomingEvents.map(({ id, eventTitle, eventDescription, startDate, imageUrl }) => (
                     <Card
                         key={id}
                         elevation={3}
-                        sx={{ position: 'relative', mx: { sx: 2, md: 10 } }}
+                        sx={{
+                            position: 'relative',
+                            mx: { sx: 2, md: 10, maxWidth: 1000, width: '100%' },
+                        }}
                     >
-                        <Box px={{ xs: 2, sm: 5 }} mb={{ xs: 8, md: 4, lg: 0 }}>
+                        <Box px={{ xs: 2, sm: 4 }} mb={{ xs: 8, md: 4, lg: 0 }}>
                             <Grid item xs={12} container>
-                                <Grid item xs={12} sm={6} md={3}>
+                                <Grid item xs={12} sm={6} md={4}>
                                     <EventPoster src={imageUrl} size="contain" />
                                 </Grid>
-                                <Grid item xs={12} sm={6} md={9}>
+                                <Grid item xs={12} sm={6} md={8}>
                                     <EventSummaryInfo
                                         title={eventTitle}
                                         content={eventDescription}
