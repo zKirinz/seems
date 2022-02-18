@@ -10,7 +10,6 @@ using SEEMS.Data.ValidationInfo;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
-using SEEMS.Services.Interfaces;
 namespace SEEMS.Controller
 {
 	[Route("api/Events")]
@@ -31,13 +30,21 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("detail/{id}")]
-		public async Task<IActionResult> GetEventDetail()
+		public async Task<IActionResult> GetEventDetail(int id)
 		{
+			Event foundEvent = null;
+			int commentCount = 0;
 			try
 			{
-				var foundEvent = _context.Events.FirstOrDefault(
-					e => e.Id == HttpContext.Request.QueryString[]
-				);
+				foundEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+				if (foundEvent == null)
+				{
+					throw new Exception("Can't find the event");
+				}
+				else
+				{
+					commentCount = _context.Comments.Where(c => c.Id == foundEvent.Id).Count();
+				}
 			}
 			catch (Exception ex)
 			{
@@ -48,7 +55,16 @@ namespace SEEMS.Controller
 					)
 				);
 			}
-			return null;
+			return Ok(
+				new Response(
+					ResponseStatusEnum.Success,
+					new
+					{
+						CommentCount = commentCount,
+						Event = foundEvent,  
+					}
+				)
+			);
 		}
 
 		[HttpGet("my-events")]
