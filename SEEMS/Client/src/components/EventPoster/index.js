@@ -5,6 +5,7 @@ const EventPoster = ({ src, size }) => {
         <Box
             width="100%"
             height="100%"
+            minWidth="300px"
             sx={{
                 aspectRatio: '1 / 1',
                 backgroundImage: `url(${src})`,
