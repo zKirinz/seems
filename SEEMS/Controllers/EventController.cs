@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
@@ -11,10 +10,6 @@ using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
-
-using System.Runtime.InteropServices;
 
 namespace SEEMS.Controller
 {
@@ -66,11 +61,16 @@ namespace SEEMS.Controller
 		public async Task<ActionResult<List<Event>>> Get()
 		{
 			int resultCount;
+			User currentUser = await GetCurrentUser(Request);
 			try
 			{
 				var result = _context.Events.ToList().Where(
-						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30
-				);
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30);
+
+				if (currentUser == null)
+				{
+					result = result.Where(e => !e.IsPrivate);
+				}
 				resultCount = Math.Min(10, result.Count());
 				return Ok(new Response(
 					ResponseStatusEnum.Success,
@@ -83,7 +83,8 @@ namespace SEEMS.Controller
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new Response(ResponseStatusEnum.Error, msg: ex.Message));
 			}
 		}
 
