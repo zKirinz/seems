@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
@@ -11,8 +10,6 @@ using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace SEEMS.Controller
 {
@@ -65,7 +62,7 @@ namespace SEEMS.Controller
 					new
 					{
 						CommentCount = commentCount,
-						Event = foundEvent,  
+						Event = foundEvent,
 					}
 				)
 			);
@@ -74,22 +71,24 @@ namespace SEEMS.Controller
 		[HttpGet("my-events")]
 		public async Task<ActionResult<List<Event>>> GetMyEvents()
 		{
-			User currentUser = null;
+			User user = await GetCurrentUser(Request);
 			try
 			{
-				//var user = null;
-				//if (user != null)
-				//{
-				//	var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
-				//	return Ok(
-				//		new Response(ResponseStatusEnum.Success,
-				//		new
-				//		{
-				//			Count = listEvents.Count(),
-				//			Events = listEvents
-				//		})
-				//	);
-				//}
+				if (user != null)
+				{
+					var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
+					return Ok(
+						new Response(ResponseStatusEnum.Success,
+						new
+						{
+							Count = listEvents.Count(),
+							Events = listEvents
+						})
+					);
+				} else
+				{
+					throw new Exception("Invalide User profile");
+				}
 			}
 			catch (Exception e)
 			{
@@ -119,7 +118,8 @@ namespace SEEMS.Controller
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new Response(ResponseStatusEnum.Error, msg: ex.Message));
 			}
 		}
 
