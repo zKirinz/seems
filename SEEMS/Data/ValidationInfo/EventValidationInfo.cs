@@ -3,7 +3,7 @@
 	public class EventValidationInfo
 	{
 		public const int MinTitleLength = 5;
-		public const int MaxTitleLength = 50;
+		public const int MaxTitleLength = 100;
 		public const int MinDescriptionLength = 20;
 		public const int MaxDescriptionLength = 2000;
 		public const int MinPrice = 1000;
