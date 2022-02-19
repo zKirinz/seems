@@ -184,6 +184,39 @@ namespace SEEMS.Controller
 			}
 		}
 
+		[HttpPut("{id}")]
+		public async Task<ActionResult<bool>> Update(int id, [FromBody] EventDTO eventDTO)
+		{
+			eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
+			eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
+			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
+			if (eventValidationInfo != null)
+				return BadRequest(
+						new Response(ResponseStatusEnum.Fail,
+						eventValidationInfo,
+						"Some fields didn't match requirements"));
+			var newEvent = _mapper.Map<Event>(eventDTO);
+			var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
+			if (target is null)
+			{
+				return BadRequest(
+						new Response(ResponseStatusEnum.Fail,
+						false,
+						"ID not found"));
+			}
+			newEvent.Id = target.Id;
+			newEvent.ClientId = target.ClientId;
+			_context.Update(newEvent);
+			await _context.SaveChangesAsync();
+			return Ok(
+				new Response(
+					ResponseStatusEnum.Success,
+					newEvent,
+					msg: "Succefully Update"
+					)
+				);
+		}
+
 		[HttpPost]
 		public async Task<ActionResult> AddEvent(EventDTO eventDTO)
 		{
