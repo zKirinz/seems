@@ -1,9 +1,10 @@
-import { get, post, put, remove } from '../../utils/ApiCaller'
+import { post, put, remove } from '../../utils/ApiCaller'
 
 const useCommentsAction = () => {
-    const loadComments = () => {
-        return get({
-            endpoint: '/api/comments/1',
+    const loadComments = (commentConfig, eventId) => {
+        return post({
+            endpoint: `/api/comments/${eventId}`,
+            body: commentConfig,
         })
     }
     const createComment = (commentData) => {

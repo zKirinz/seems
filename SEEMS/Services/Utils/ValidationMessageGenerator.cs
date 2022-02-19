@@ -1,7 +1,4 @@
-﻿using SEEMS.Data.DTO;
-using SEEMS.Data.ValidationInfo;
-
-namespace SEEMS.Services
+﻿namespace SEEMS.Services
 {
 	public class ValidationMessageGenerator
 	{
@@ -10,7 +7,7 @@ namespace SEEMS.Services
 			if (checkValue < min ||
 				checkValue > max)
 			{
-				return $"{field} must be from {min} to {max} length";
+				return $"{field} must be from {min} to {max} characters";
 			}
 			return null;
 		}

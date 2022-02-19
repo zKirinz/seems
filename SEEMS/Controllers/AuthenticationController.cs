@@ -75,6 +75,7 @@ namespace SEEMS.Controllers
             });
 
             return Redirect($"{BaseUiDomain}?token={accessToken}");
+            //return Ok(accessToken);
         }
         
         [HttpPost]

@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
@@ -10,6 +9,8 @@ using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
+using SEEMS.Services.Interfaces;
+
 namespace SEEMS.Controller
 {
 	[Route("api/Events")]
@@ -20,52 +21,97 @@ namespace SEEMS.Controller
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IMapper _mapper;
-		private readonly AuthManager _authManager;
+		private readonly IAuthManager _authManager;
 
-		public EventController(ApplicationDbContext context, IMapper mapper,
-								 AuthManager authManager)
+		public EventController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager)
 		{
 			_context = context;
 			_mapper = mapper;
 			_authManager = authManager;
 		}
 
+		[HttpGet("detail/{id}")]
+		public async Task<IActionResult> GetEventDetail(int id)
+		{
+			Event foundEvent = null;
+			int commentCount = 0;
+			try
+			{
+				foundEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+				if (foundEvent == null)
+				{
+					throw new Exception("Can't find the event");
+				}
+				else
+				{
+					commentCount = _context.Comments.Where(c => c.EventId == foundEvent.Id).Count();
+				}
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(
+					new Response(
+						ResponseStatusEnum.Fail,
+						ex.Message
+					)
+				);
+			}
+			return Ok(
+				new Response(
+					ResponseStatusEnum.Success,
+					new
+					{
+						CommentCount = commentCount,
+						Event = foundEvent,
+					}
+				)
+			);
+		}
+
 		[HttpGet("my-events")]
 		public async Task<ActionResult<List<Event>>> GetMyEvents()
 		{
-			User currentUser = null;
+			User user = await GetCurrentUser(Request);
 			try
 			{
-				//var user = null;
-				//if (user != null)
-				//{
-				//	var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
-				//	return Ok(
-				//		new Response(ResponseStatusEnum.Success,
-				//		new
-				//		{
-				//			Count = listEvents.Count(),
-				//			Events = listEvents
-				//		})
-				//	);
-				//}
+				if (user != null)
+				{
+					var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
+					return Ok(
+						new Response(ResponseStatusEnum.Success,
+						new
+						{
+							Count = listEvents.Count(),
+							Events = listEvents
+						})
+					);
+				}
+				else
+				{
+					throw new Exception("Invalid User profile");
+				}
 			}
 			catch (Exception e)
 			{
 				return BadRequest(new Response(ResponseStatusEnum.Error, e.Message));
 			}
 			return null;
-
 		}
+
 		[HttpGet("upcoming")]
 		public async Task<ActionResult<List<Event>>> Get()
 		{
 			int resultCount;
+			User currentUser = await GetCurrentUser(Request);
 			try
 			{
 				var result = _context.Events.ToList().Where(
-						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30
-				);
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30);
+
+				if (currentUser == null)
+				{
+					result = result.Where(e => !e.IsPrivate);
+				}
 				resultCount = Math.Min(10, result.Count());
 				return Ok(new Response(
 					ResponseStatusEnum.Success,
@@ -78,7 +124,8 @@ namespace SEEMS.Controller
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new Response(ResponseStatusEnum.Error, msg: ex.Message));
 			}
 		}
 
@@ -143,7 +190,6 @@ namespace SEEMS.Controller
 			eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
 			eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
-
 			try
 			{
 				if (eventValidationInfo != null)
@@ -158,9 +204,8 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					if (eventDTO.IsFree) eventDTO.ExpectPrice = 0;
 					var newEvent = _mapper.Map<Event>(eventDTO);
-					var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-					var userInfo =  _authManager.GetUserInfo(info);
-					newEvent.Client = userInfo;
+					var user = await GetCurrentUser(Request);
+					newEvent.ClientId = user.Id;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
@@ -168,8 +213,15 @@ namespace SEEMS.Controller
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
 			}
+		}
+		private async Task<User> GetCurrentUser(HttpRequest req)
+		{
+			var email = _authManager.GetCurrentEmail(req);
+			var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
+			return user;
 		}
 	}
 }
