@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Net.Http.Headers;
+using SEEMS.Infrastructures.Attributes;
 using SEEMS.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
@@ -102,6 +103,7 @@ services.AddAuthorization(options =>
 services.AddScoped<IAuthManager, AuthManager>();
 services.AddScoped<IRepositoryManager, RepositoryManager>();
 services.AddScoped<IControllerBaseServices<ChainOfEvent>, ControllerBaseServices<ChainOfEvent>>();
+services.AddScoped<RoleBasedAuthorizationAttribute>();
 services.AddScoped<AuthManager>();
 services.AddEndpointsApiExplorer();
 services.AddSwaggerGen(s =>
@@ -159,7 +161,7 @@ app.Use((httpContext, next) => // For the oauth2-less!
 
     return next();
 });
-app.UseAuthorizationMiddleware();
+// app.UseAuthorizationMiddleware();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");

@@ -4,6 +4,8 @@ using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using SEEMS.Data.Entities.RequestFeatures;
 using SEEMS.Data.Models;
+using SEEMS.Infrastructures.Attributes;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 
@@ -22,7 +24,7 @@ public class UserController : ControllerBase
         _repoManager = repoManager;
     }
     
-    [Authorize]
+    [RoleBasedAuthorization(RoleBased = RoleTypes.ADM)]
     [HttpGet("")]
     public async Task<IActionResult> GetListUsers([FromQuery] UserParams userParams)
     {
@@ -30,16 +32,4 @@ public class UserController : ControllerBase
         Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(listUsers.Meta));
         return Ok(listUsers);
     }
-    
-    [HttpPut("/{id}/role")]
-    public IActionResult UpdateRoleForUsers()
-    {
-        return Ok();
-    }
-
-    public IActionResult UpdateStatusForUsers()
-    {
-        return Ok();
-    }
-    
 }
