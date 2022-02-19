@@ -26,7 +26,6 @@ namespace SEEMS.Models
 		[StringLength(255)]
 		public String ImageUrl { get; set; }
 
-		[Column(TypeName = "decimal(7,2)")]
 		public decimal ExpectPrice { get; set; }
 
 		public bool Active { get; set; }
