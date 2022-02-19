@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.ValidationInfo;
@@ -7,6 +8,7 @@ using SEEMS.DTOs;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
+using SEEMS.Services.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -20,10 +22,12 @@ namespace SEEMS.Controller
 
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        public CommentController(ApplicationDbContext context, IMapper mapper)
+        private readonly IAuthManager _authManager;
+        public CommentController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager)
         {
             this._context = context;
             this._mapper = mapper;
+            this._authManager = authManager;
         }
 
         // GET api/<CommentController>
@@ -58,7 +62,8 @@ namespace SEEMS.Controller
 
                 listResponseComments = listResponseComments.OrderByDescending(x => x.CreatedAt).ToList();
                 return Ok(new Response(ResponseStatusEnum.Success, listResponseComments));
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
             }
@@ -72,22 +77,39 @@ namespace SEEMS.Controller
         {
             try
             {
-                CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, _context);
-
-                if (commentValidationInfo != null)
+                int? userId = null;
+                if (HttpContext.Request.Cookies["jwt"] != null)
                 {
-                    return BadRequest(commentValidationInfo);
+                    string token = HttpContext.Request.Cookies["jwt"];
+                    userId = CommentsServices.GetUserIdByToken(token, _authManager, _context);
+                    if (userId == null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission for this request"));
+                    }
+
+                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, _context);
+
+                    if (commentValidationInfo != null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
+                    }
+
+                    item.UserId = userId;
+                    var newComment = _mapper.Map<Comment>(item);
+
+                    _context.Comments.Add(newComment);
+                    _context.SaveChanges();
+
+                    var responseComment = CommentsServices.AddMoreInformationsToComment(newComment, _context, _mapper);
+                    return Ok(new Response(ResponseStatusEnum.Success, responseComment));
                 }
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
+                }               
 
-                var newComment = _mapper.Map<Comment>(item);    
-
-                _context.Comments.Add(newComment);
-                _context.SaveChanges();
-
-                var responseComment = CommentsServices.AddMoreInformationsToComment(newComment, _context, _mapper);
-                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
-
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
             }
@@ -96,27 +118,42 @@ namespace SEEMS.Controller
 
         // PUT api/<CommentController>/
         // Edit comment by Id
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] CommentDTO newComment)
+        [HttpPut]
+        public IActionResult Put([FromBody] CommentDTO newComment)
         {
             try
             {
-                var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
-
-                if (comment == null)
+                int? userId;
+                if (HttpContext.Request.Cookies["jwt"] != null)
                 {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This comment does not exist"));
+                    string token = HttpContext.Request.Cookies["jwt"];
+                    userId = CommentsServices.GetUserIdByToken(token, _authManager, _context);
+                    if (userId == null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission for this request"));
+                    }
+
+                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToEditComment(userId, newComment, _context);
+                    if (commentValidationInfo != null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
+                    }
+
+                    var comment = _context.Comments.FirstOrDefault(c => c.Id == newComment.Id);
+                    comment.CommentContent = newComment.CommentContent;
+                    _context.Comments.Update(comment);
+                    _context.SaveChanges(true);
+
+                    var responseComment = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+                    return Ok(new Response(ResponseStatusEnum.Success, responseComment));
+                }
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
                 }
 
-                comment.CommentContent = newComment.CommentContent;
-                _context.Comments.Update(comment);
-                _context.SaveChanges(true);
-
-                var responseComment = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
-
-                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
             }
@@ -129,87 +166,107 @@ namespace SEEMS.Controller
         {
             try
             {
-                var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
-
-                if (comment == null)
+                int? userId = null;
+                string role;
+                if (HttpContext.Request.Cookies["jwt"] != null)
                 {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This comment does not exist"));
+                    string token = HttpContext.Request.Cookies["jwt"];
+                    userId = CommentsServices.GetUserIdByToken(token, _authManager, _context);
+                    role = CommentsServices.GetRoleByToken(token, _authManager, _context);
+                    if (userId == null || role == null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission for this request"));
+                    }
+
+                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidToDeleteComment(userId, role, id, _context);
+                    if (commentValidationInfo != null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
+                    }
+
+                    var comment = _context.Comments.FirstOrDefault(x => x.Id == id);
+                    _context.Comments.Remove(comment);
+                    _context.SaveChanges(true);
+
+                    return Ok(new Response(ResponseStatusEnum.Success, "", "Delete successfully"));
+                }
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
                 }
 
-                _context.Comments.Remove(comment);
-                _context.SaveChanges(true);
-                
-                return Ok(new Response(ResponseStatusEnum.Success, "", "Delete successfully"));
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
             }
         }
 
         [HttpPost("{id}")]
-        public IActionResult LoadComments(int id,[FromBody] CommentsLoadMoreDTO data)
+        public IActionResult LoadComments(int id, [FromBody] CommentsLoadMoreDTO data)
         {
-
-            int numberComments;
-
-            if (data.numberComments == null || data.numberComments <= 0)
+            try
             {
-                numberComments = 5;
-            } else
-            {
-                numberComments = (int)data.numberComments;
-            }
+                int numberComments;
 
-            var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
-
-            if (anEvent == null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This events does not exist"));
-            }
-
-            var listComment = _context.Comments.Where(x => x.EventId == id).Where(x => x.ParentCommentId == null).ToList();
-
-            if (!listComment.Any())
-            {
-                return Ok(new Response(ResponseStatusEnum.Success, "", "This events no has comment"));
-            }
-
-            listComment = listComment.OrderByDescending(x => x.CreatedAt).ToList();
-            List<CommentDTO> listResponseComments = new List<CommentDTO>();
-            foreach (var comment in listComment)
-            {               
-                CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                listResponseComments.Add(commentDTO);
-            }
-
-            bool hasMoreComment = (listResponseComments.Count > numberComments); 
-
-            if (data.lastCommentId == null)
-            {               
-                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();                
-            }
-            else
-            {
-                var lastCommentId = (int)data.lastCommentId;
-                var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
-                int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
-                if (lastCommentIndex != -1)  
+                if (data.numberComments == null || data.numberComments <= 0)
                 {
-                    hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
-                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();                    
-                } else
-                {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid id"));
+                    numberComments = 5;
                 }
+                else
+                {
+                    numberComments = (int)data.numberComments;
+                }
+
+                if (!CommentsServices.CheckValidEventId(id, _context))
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This events does not exist"));
+                }
+
+                var listComment = _context.Comments.Where(x => x.EventId == id).Where(x => x.ParentCommentId == null).ToList();
+
+                listComment = listComment.OrderByDescending(x => x.CreatedAt).ToList();
+                List<CommentDTO> listResponseComments = new List<CommentDTO>();
+                foreach (var comment in listComment)
+                {
+                    CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+                    listResponseComments.Add(commentDTO);
+                }
+
+                bool hasMoreComment = (listResponseComments.Count > numberComments);
+
+                if (data.lastCommentId == null)
+                {
+                    listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
+                }
+                else
+                {
+                    var lastCommentId = (int)data.lastCommentId;
+                    var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
+                    int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
+                    if (lastCommentIndex != -1)
+                    {
+                        hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
+                        listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
+                    }
+                    else
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid comment id"));
+                    }
+                }
+
+                return Ok(new Response(ResponseStatusEnum.Success,
+                                       new
+                                       {
+                                           hasMoreComment,
+                                           listResponseComments,
+                                       }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
             }
 
-            return Ok(new Response(ResponseStatusEnum.Success,
-                                   new 
-                                   {                                      
-                                       hasMoreComment,
-                                       listResponseComments,
-                                   }));
-
-        } 
+        }
     }
 }
