@@ -31,6 +31,7 @@ namespace SEEMS.Controller
             _context = context;
             _mapper = mapper;
             _authManager = authManager;
+            _repoManager = repoManager;
         }
 
         // POST api/<CommentController>
@@ -42,32 +43,39 @@ namespace SEEMS.Controller
             
             try
             {
-                if (commentValidationInfo != null)
-                {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
-                }
-                
-                int numberOfError = CheckValidCheckReference(item.EventId, item.ParentCommentId);
-
-                switch (numberOfError)
-                {
-                    case 1: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "EventId does not exist."));
-
-                    case 2: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "ParentCommentId does not exist."));
-
-                    case 3: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "EventId and ParentCommentId do not exist."));
-                }
-
                 var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-                var userId = currentUser.Id;
-                var newComment = _mapper.Map<Comment>(item);
-                newComment.UserId = userId;
 
-                _context.Comments.Add(newComment);
-                _context.SaveChanges();
+                if (currentUser != null)
+                {
+                    var userId = currentUser.Id;
+                    if (commentValidationInfo != null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
+                    }
 
-                var responseComment = CommentsServices.AddMoreInformationsToComment(newComment, _context, _mapper);
-                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
+                    int numberOfError = CheckValidCheckReference(item.EventId, item.ParentCommentId);
+
+                    switch (numberOfError)
+                    {
+                        case 1: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "EventId does not exist."));
+
+                        case 2: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "ParentCommentId does not exist."));
+
+                        case 3: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "EventId and ParentCommentId do not exist."));
+                    }
+
+                    var newComment = _mapper.Map<Comment>(item);
+                    newComment.UserId = userId;
+
+                    _context.Comments.Add(newComment);
+                    _context.SaveChanges();
+
+                    var responseComment = CommentsServices.AddMoreInformationsToComment(newComment, _context, _mapper);
+                    return Ok(new Response(ResponseStatusEnum.Success, responseComment));
+                } else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
+                }
 
             }
             catch (Exception ex)
@@ -105,7 +113,7 @@ namespace SEEMS.Controller
                         return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have the permission to edit this comment."));
                     }
 
-                    var comment = _context.Comments.FirstOrDefault(c => c.Id == newComment.Id);
+                    var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
                     comment.CommentContent = newComment.CommentContent;
                     _context.Comments.Update(comment);
                     _context.SaveChanges(true);
@@ -115,7 +123,7 @@ namespace SEEMS.Controller
                 }
                 else
                 {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to edit comment"));
                 }
 
             }
@@ -156,7 +164,7 @@ namespace SEEMS.Controller
                 }
                 else
                 {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to delete comment"));
                 }
 
             }
