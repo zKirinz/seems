@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
+using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.DTOs;
 using SEEMS.Infrastructures.Commons;
@@ -23,90 +25,49 @@ namespace SEEMS.Controller
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IAuthManager _authManager;
-        public CommentController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager)
+        private IRepositoryManager _repoManager;
+        public CommentController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager, IRepositoryManager repoManager)
         {
-            this._context = context;
-            this._mapper = mapper;
-            this._authManager = authManager;
-        }
-
-        // GET api/<CommentController>
-        // Get all comment by EventId
-
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
-        {
-            try
-            {
-                if (!CommentsServices.CheckValidEventId(id, _context))
-                {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This event does not exist"));
-                }
-
-                var listComment = _context.Comments.Where(c => c.EventId == id).ToList();
-
-                if (!listComment.Any())
-                {
-                    return NotFound(new Response(ResponseStatusEnum.Success, "", "This event has no comments"));
-                }
-
-                List<CommentDTO> listResponseComments = new List<CommentDTO>();
-                foreach (var comment in listComment)
-                {
-                    CommentDTO commentDTO = _mapper.Map<CommentDTO>(comment);
-                    commentDTO.ImageUrl = CommentsServices.GetImageUrlNameByUserId(comment.UserId, _context);
-                    commentDTO.UserName = CommentsServices.GetUserNameByUserId(comment.UserId, _context);
-                    commentDTO.Email = CommentsServices.GetEmailByUserId(comment.UserId, _context);
-                    listResponseComments.Add(commentDTO);
-                }
-
-                listResponseComments = listResponseComments.OrderByDescending(x => x.CreatedAt).ToList();
-                return Ok(new Response(ResponseStatusEnum.Success, listResponseComments));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
-            }
-
+            _context = context;
+            _mapper = mapper;
+            _authManager = authManager;
         }
 
         // POST api/<CommentController>
         // Create a comment
         [HttpPost]
-        public IActionResult Post([FromBody] CommentDTO item)
+        public async Task<IActionResult> Post([FromBody] CommentDTO item)
         {
+            CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item);
+            
             try
             {
-                int? userId = null;
-                if (HttpContext.Request.Cookies["jwt"] != null)
+                if (commentValidationInfo != null)
                 {
-                    string token = HttpContext.Request.Cookies["jwt"];
-                    userId = CommentsServices.GetUserIdByToken(token, _authManager, _context);
-                    if (userId == null)
-                    {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission for this request"));
-                    }
-
-                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, _context);
-
-                    if (commentValidationInfo != null)
-                    {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
-                    }
-
-                    item.UserId = userId;
-                    var newComment = _mapper.Map<Comment>(item);
-
-                    _context.Comments.Add(newComment);
-                    _context.SaveChanges();
-
-                    var responseComment = CommentsServices.AddMoreInformationsToComment(newComment, _context, _mapper);
-                    return Ok(new Response(ResponseStatusEnum.Success, responseComment));
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
                 }
-                else
+                
+                int numberOfError = CheckValidCheckReference(item.EventId, item.ParentCommentId);
+
+                switch (numberOfError)
                 {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
-                }               
+                    case 1: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "EventId does not exist."));
+
+                    case 2: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "ParentCommentId does not exist."));
+
+                    case 3: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "EventId and ParentCommentId do not exist."));
+                }
+
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                var userId = currentUser.Id;
+                var newComment = _mapper.Map<Comment>(item);
+                newComment.UserId = userId;
+
+                _context.Comments.Add(newComment);
+                _context.SaveChanges();
+
+                var responseComment = CommentsServices.AddMoreInformationsToComment(newComment, _context, _mapper);
+                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
 
             }
             catch (Exception ex)
@@ -118,25 +79,30 @@ namespace SEEMS.Controller
 
         // PUT api/<CommentController>/
         // Edit comment by Id
-        [HttpPut]
-        public IActionResult Put([FromBody] CommentDTO newComment)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] CommentDTO newComment)
         {
             try
             {
-                int? userId;
-                if (HttpContext.Request.Cookies["jwt"] != null)
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                if (currentUser != null)
                 {
-                    string token = HttpContext.Request.Cookies["jwt"];
-                    userId = CommentsServices.GetUserIdByToken(token, _authManager, _context);
-                    if (userId == null)
+                    var userId = currentUser.Id;
+                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToEditComment(newComment);
+
+                    if (!CheckValidCommentId(id))
                     {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission for this request"));
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "CommentId does not exist."));
                     }
 
-                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToEditComment(userId, newComment, _context);
                     if (commentValidationInfo != null)
                     {
                         return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
+                    }
+
+                    if (!CheckValidToAffectComment(userId, null, id))
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have the permission to edit this comment."));
                     }
 
                     var comment = _context.Comments.FirstOrDefault(c => c.Id == newComment.Id);
@@ -162,26 +128,24 @@ namespace SEEMS.Controller
         // DELETE api/<CommentController>/
         // Delete comment by Id
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                int? userId = null;
-                string role;
-                if (HttpContext.Request.Cookies["jwt"] != null)
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                if (currentUser != null)
                 {
-                    string token = HttpContext.Request.Cookies["jwt"];
-                    userId = CommentsServices.GetUserIdByToken(token, _authManager, _context);
-                    role = CommentsServices.GetRoleByToken(token, _authManager, _context);
-                    if (userId == null || role == null)
+                    var userId = currentUser.Id;
+                    var role = GetCurrentUserMeta(currentUser).MetaValue;
+
+                    if (!CheckValidCommentId(id))
                     {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission for this request"));
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "CommentId does not exist."));
                     }
 
-                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidToDeleteComment(userId, role, id, _context);
-                    if (commentValidationInfo != null)
+                    if (!CheckValidToAffectComment(userId, role, id))
                     {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have the permission to delête this comment."));
                     }
 
                     var comment = _context.Comments.FirstOrDefault(x => x.Id == id);
@@ -268,5 +232,68 @@ namespace SEEMS.Controller
             }
 
         }
+
+        private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
+
+        private UserMeta GetCurrentUserMeta(User user)
+        {
+            var userMeta = _context.UserMetas.FirstOrDefault(x => x.User == user);
+            return userMeta;
+        }
+
+        private int CheckValidCheckReference(int? eventId, int? parentCommentId)
+        {
+            var anEvent = _context.Events.FirstOrDefault(x => x.Id == eventId);
+            var anComment = _context.Comments.FirstOrDefault(x => x.Id == parentCommentId);
+
+            if (anEvent == null)
+            {
+                if (anComment == null && parentCommentId != null)
+                {
+                    return 3;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+            else if (anComment == null && parentCommentId != null)
+            {
+                return 2;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        private bool CheckValidCommentId(int? commentId)
+        {
+            var comment = _context.Comments.FirstOrDefault(x => x.Id == commentId);
+            return comment != null;
+        }
+
+        private bool CheckValidToAffectComment(int? userId, string? role, int? commentId)
+        {
+            var comment = _context.Comments.FirstOrDefault(x => x.Id == commentId);
+
+            if (role == null)
+            {
+                if (userId != comment.UserId)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (userId != comment.UserId && role.Contains(RoleTypes.CUSR))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
     }
 }

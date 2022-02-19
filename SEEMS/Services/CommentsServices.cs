@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Net.Http.Headers;
 using SEEMS.Contexts;
-using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.DTOs;
 using SEEMS.Infrastructures.Commons;
@@ -12,7 +11,7 @@ namespace SEEMS.Services
 {
     public class CommentsServices
     {
-        public static CommentValidationInfo GetValidatedToCreateComment(CommentDTO commentDto, ApplicationDbContext dbContext)
+        public static CommentValidationInfo GetValidatedToCreateComment(CommentDTO commentDto)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
             bool failCheck = false;
@@ -21,15 +20,8 @@ namespace SEEMS.Services
             {
                 commentValidationInfo.EventId = "EventId is required field.";
                 failCheck = true;
-            } else
-            {
-                if (dbContext.Events.FirstOrDefault(x => x.Id == commentDto.EventId) == null)
-                {
-                    commentValidationInfo.EventId = "EventId does not exist.";
-                    failCheck = true;
-                }
             }
-            
+
             if (commentDto.CommentContent != null)
             {
                 if (commentDto.CommentContent.Length < CommentValidationInfo.MinLengthCommentContent ||
@@ -38,49 +30,25 @@ namespace SEEMS.Services
                     commentValidationInfo.CommentContent = "Comment content from 1 to 500 character.";
                     failCheck = true;
                 }
-            } else
+            }
+            else
             {
                 commentValidationInfo.CommentContent = "CommentContent is required field.";
                 failCheck = true;
             }
-
-            if (commentDto.ParentCommentId != null)
-            {
-                if (dbContext.Comments.FirstOrDefault(x => x.Id == commentDto.ParentCommentId) == null)
-                {
-                    commentValidationInfo.ParentCommentId = "ParentCommentId does not exist.";
-                    failCheck = true;
-                }
-            }
-            
             return failCheck ? commentValidationInfo : null;
 
         }
 
-        public static CommentValidationInfo GetValidatedToEditComment(int? userId, CommentDTO commentDto, ApplicationDbContext dbContext)
+        public static CommentValidationInfo GetValidatedToEditComment(CommentDTO commentDto)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
-
             bool failCheck = false;
-
-            if (CheckValidCommentId(commentDto.Id, dbContext))
-            {
-                var userIdByCommentId = GetUserIdOfComment(commentDto.Id, dbContext);
-                if (userId != userIdByCommentId)
-                {
-                    commentValidationInfo.ValidToAffectComment = "You can not edit this comment.";
-                    failCheck = true;
-                }
-            } else
-            {
-                commentValidationInfo.Id = "CommentId does not exist.";
-                failCheck = true;
-            }
 
             if (commentDto.CommentContent != null)
             {
                 if (commentDto.CommentContent.Length < CommentValidationInfo.MinLengthCommentContent ||
-                commentDto.CommentContent.Length > CommentValidationInfo.MaxLengthCommentContent)
+                    commentDto.CommentContent.Length > CommentValidationInfo.MaxLengthCommentContent)
                 {
                     commentValidationInfo.CommentContent = "Comment content from 1 to 500 character.";
                     failCheck = true;
@@ -93,51 +61,6 @@ namespace SEEMS.Services
             }
 
             return failCheck ? commentValidationInfo : null;
-        }
-
-        public static CommentValidationInfo GetValidToDeleteComment(int? userId, string role, int commentId, ApplicationDbContext dbContext)
-        {
-            CommentValidationInfo commentValidationInfo = new CommentValidationInfo();           
-            bool failCheck = false;
-
-            if (CheckValidCommentId(commentId, dbContext))
-            {
-                var userIdOfComment = GetUserIdOfComment(commentId, dbContext);
-                if (userId != userIdOfComment || role.Contains(RoleTypes.CUSR))
-                {
-                    commentValidationInfo.ValidToAffectComment = "You can not edit this comment.";
-                    failCheck = true;
-                }
-            }
-            else
-            {
-                commentValidationInfo.Id = "CommentId does not exist.";
-                failCheck = true;
-            }
-
-            return failCheck ? commentValidationInfo : null;
-        }
-
-        public static int GetUserIdByEmail(string email, ApplicationDbContext dbContext)
-        {
-            var user = dbContext.Users.FirstOrDefault(u => u.Email == email);
-            var userIdOfEmail = (int)user.Id;
-            return userIdOfEmail;
-        }
-
-        public static string GetRoleByEmail(string email, ApplicationDbContext dbContext)
-        {
-            var user = dbContext.Users.FirstOrDefault(u => u.Email == email);
-            var userMeta = dbContext.UserMetas.FirstOrDefault(u => u.User == user);
-            var roleOfEmail = (string)userMeta.MetaValue;
-            return roleOfEmail;
-        }
-
-        public static int GetUserIdOfComment(int? commentId, ApplicationDbContext dbContext)
-        {
-            var comment = dbContext.Comments.FirstOrDefault(x => x.Id == commentId);
-            var userIdOfComment = (int)comment.UserId;
-            return userIdOfComment;
         }
 
         public static string GetUserNameByUserId(int? userId, ApplicationDbContext dbContext)
@@ -164,7 +87,7 @@ namespace SEEMS.Services
         public static bool CheckValidEventId(int eventId, ApplicationDbContext dbContext)
         {
             var events = dbContext.Events.FirstOrDefault(x => x.Id == eventId);
-            return events != null ? true : false;  
+            return events != null ? true : false;
         }
 
         public static bool CheckValidCommentId(int? commentId, ApplicationDbContext dbContext)
@@ -189,43 +112,5 @@ namespace SEEMS.Services
             return responseComment;
         }
 
-        public static int? GetUserIdByToken(string token, IAuthManager authManager, ApplicationDbContext dbContext) 
-        {
-                var jwtToken = authManager.DecodeToken(token);
-
-                var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
-    
-                var user = dbContext.Users.FirstOrDefault(x => x.Email == emailClaim);
-
-                if (user != null)
-                {
-                    return user.Id;
-                }
-                else
-                {
-                    return null;
-                }
-        }
-
-        public static string? GetRoleByToken(string token, IAuthManager authManager, ApplicationDbContext dbContext)
-        {
-                var jwtToken = authManager.DecodeToken(token);
-
-                var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
-                var roleClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "role").Value;
-
-                var user = dbContext.Users.FirstOrDefault(x => x.Email == emailClaim);
-                var userMeta = dbContext.UserMetas.FirstOrDefault(x => x.User == user);
-                var role = userMeta.MetaValue;
-
-                if (user != null || !role.Contains(roleClaim))
-                {
-                    return userMeta.MetaValue;
-                }
-                else
-                {
-                    return null;
-                }
-        }
     }
 }
