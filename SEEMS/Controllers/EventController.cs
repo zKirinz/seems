@@ -202,7 +202,6 @@ namespace SEEMS.Controller
 				else
 				{
 					eventDTO.Active = true;
-					if (eventDTO.IsFree) eventDTO.ExpectPrice = 0;
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
 					newEvent.ClientId = user.Id;
