@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.Net.Http.Headers;
 using SEEMS.Contexts;
+using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.DTOs;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
+using SEEMS.Services.Interfaces;
 
 namespace SEEMS.Services
 {
@@ -14,16 +17,17 @@ namespace SEEMS.Services
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
             bool failCheck = false;
 
-            if (commentDto.UserId == null)
-            {
-                commentValidationInfo.UserId = "UserId cannot be null";
-                failCheck = true;
-            } 
-
             if (commentDto.EventId == null)
             {
-                commentValidationInfo.EventId = "EventId cannot be null";
+                commentValidationInfo.EventId = "EventId is required field.";
                 failCheck = true;
+            } else
+            {
+                if (dbContext.Events.FirstOrDefault(x => x.Id == commentDto.EventId) == null)
+                {
+                    commentValidationInfo.EventId = "EventId does not exist.";
+                    failCheck = true;
+                }
             }
             
             if (commentDto.CommentContent != null)
@@ -31,29 +35,42 @@ namespace SEEMS.Services
                 if (commentDto.CommentContent.Length < CommentValidationInfo.MinLengthCommentContent ||
                 commentDto.CommentContent.Length > CommentValidationInfo.MaxLengthCommentContent)
                 {
-                    commentValidationInfo.CommentContent = "Comment content from 1 to 500 character";
+                    commentValidationInfo.CommentContent = "Comment content from 1 to 500 character.";
                     failCheck = true;
                 }
             } else
             {
-                commentValidationInfo.CommentContent = "Comment cannot be null";
+                commentValidationInfo.CommentContent = "CommentContent is required field.";
                 failCheck = true;
+            }
+
+            if (commentDto.ParentCommentId != null)
+            {
+                if (dbContext.Comments.FirstOrDefault(x => x.Id != commentDto.ParentCommentId) == null)
+                {
+                    commentValidationInfo.ParentCommentId = "ParentCommentId does not exist.";
+                }
             }
             
             return failCheck ? commentValidationInfo : null;
 
         }
 
-        public static CommentValidationInfo GetValidatedToEditComment(int commentId, CommentDTO commentDto, string email, ApplicationDbContext dbContext)
+        public static CommentValidationInfo GetValidatedToEditComment(int? userId, CommentDTO commentDto, ApplicationDbContext dbContext)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
             bool failCheck = false;
-            var userIdOfEmail = GetUserIdByEmail(email, dbContext);
-            var userIdOfComment = GetUserIdOfComment(commentId, dbContext);
 
-            if (userIdOfEmail != userIdOfComment)
+            if (CheckValidCommentId(commentDto.Id, dbContext))
             {
-                commentValidationInfo.ValidToAffectComment = "You can not edit this comment";
+                if (userId != commentDto.UserId)
+                {
+                    commentValidationInfo.ValidToAffectComment = "You can not edit this comment.";
+                    failCheck = true;
+                }
+            } else
+            {
+                commentValidationInfo.Id = "CommentId does not exist.";
                 failCheck = true;
             }
 
@@ -62,13 +79,35 @@ namespace SEEMS.Services
                 if (commentDto.CommentContent.Length < CommentValidationInfo.MinLengthCommentContent ||
                 commentDto.CommentContent.Length > CommentValidationInfo.MaxLengthCommentContent)
                 {
-                    commentValidationInfo.CommentContent = "Comment content from 1 to 500 character";
+                    commentValidationInfo.CommentContent = "Comment content from 1 to 500 character.";
                     failCheck = true;
                 }
             }
             else
             {
-                commentValidationInfo.CommentContent = "Comment cannot be null";
+                commentValidationInfo.CommentContent = "CommentContent is required field.";
+                failCheck = true;
+            }
+
+            return failCheck ? commentValidationInfo : null;
+        }
+
+        public static CommentValidationInfo CheckValidToDeleteComment(int? userId, string role, CommentDTO commentDto, ApplicationDbContext dbContext)
+        {
+            CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
+            bool failCheck = false;
+
+            if (CheckValidCommentId(commentDto.Id, dbContext))
+            {
+                if (userId != commentDto.UserId || role.Contains(RoleTypes.CUSR))
+                {
+                    commentValidationInfo.ValidToAffectComment = "You can not edit this comment.";
+                    failCheck = true;
+                }
+            }
+            else
+            {
+                commentValidationInfo.Id = "CommentId does not exist.";
                 failCheck = true;
             }
 
@@ -124,6 +163,12 @@ namespace SEEMS.Services
             return events != null ? true : false;  
         }
 
+        public static bool CheckValidCommentId(int? commentId, ApplicationDbContext dbContext)
+        {
+            var comments = dbContext.Comments.FirstOrDefault(x => x.Id == commentId);
+            return comments != null ? true : false;
+        }
+
         public static CommentDTO AddMoreInformationsToComment(Comment comment, ApplicationDbContext dbContext, IMapper mapper)
         {
             var userId = comment.UserId;
@@ -138,6 +183,46 @@ namespace SEEMS.Services
             responseComment.CreatedAt = comment.CreatedAt;
             responseComment.ModifiedAt = comment.ModifiedAt;
             return responseComment;
+        }
+
+        public static int? GetUserIdByToken(string token, IAuthManager authManager, ApplicationDbContext dbContext) 
+        {
+                var jwtToken = authManager.DecodeToken(token);
+
+                var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
+    
+                var user = dbContext.Users.FirstOrDefault(x => x.Email == emailClaim);
+                //string roleBaseEmail = dbContext.UserMetas.FirstOrDefault(x => x.User == userBasedEmail).MetaValue;
+
+                if (user != null)
+                {
+                    return user.Id;
+                }
+                else
+                {
+                    return null;
+                }
+        }
+
+        public static string? GetRoleByToken(string token, IAuthManager authManager, ApplicationDbContext dbContext)
+        {
+                var jwtToken = authManager.DecodeToken(token);
+
+                var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
+                var roleClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "role").Value;
+
+                var user = dbContext.Users.FirstOrDefault(x => x.Email == emailClaim);
+                var userMeta = dbContext.UserMetas.FirstOrDefault(x => x.User == user);
+                var role = userMeta.MetaValue;
+
+                if (user != null || !role.Contains(roleClaim))
+                {
+                    return userMeta.MetaValue;
+                }
+                else
+                {
+                    return null;
+                }
         }
     }
 }
