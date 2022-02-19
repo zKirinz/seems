@@ -46,9 +46,10 @@ namespace SEEMS.Services
 
             if (commentDto.ParentCommentId != null)
             {
-                if (dbContext.Comments.FirstOrDefault(x => x.Id != commentDto.ParentCommentId) == null)
+                if (dbContext.Comments.FirstOrDefault(x => x.Id == commentDto.ParentCommentId) == null)
                 {
                     commentValidationInfo.ParentCommentId = "ParentCommentId does not exist.";
+                    failCheck = true;
                 }
             }
             
@@ -59,11 +60,13 @@ namespace SEEMS.Services
         public static CommentValidationInfo GetValidatedToEditComment(int? userId, CommentDTO commentDto, ApplicationDbContext dbContext)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
+            var userIdByCommentId = GetUserIdOfComment(commentDto.Id, dbContext);
+
             bool failCheck = false;
 
             if (CheckValidCommentId(commentDto.Id, dbContext))
             {
-                if (userId != commentDto.UserId)
+                if (userId != userIdByCommentId)
                 {
                     commentValidationInfo.ValidToAffectComment = "You can not edit this comment.";
                     failCheck = true;
@@ -92,14 +95,15 @@ namespace SEEMS.Services
             return failCheck ? commentValidationInfo : null;
         }
 
-        public static CommentValidationInfo CheckValidToDeleteComment(int? userId, string role, CommentDTO commentDto, ApplicationDbContext dbContext)
+        public static CommentValidationInfo GetValidToDeleteComment(int? userId, string role, int commentId, ApplicationDbContext dbContext)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
+            var userIdOfComment = GetUserIdOfComment(commentId, dbContext);
             bool failCheck = false;
 
-            if (CheckValidCommentId(commentDto.Id, dbContext))
+            if (CheckValidCommentId(commentId, dbContext))
             {
-                if (userId != commentDto.UserId || role.Contains(RoleTypes.CUSR))
+                if (userId != userIdOfComment || role.Contains(RoleTypes.CUSR))
                 {
                     commentValidationInfo.ValidToAffectComment = "You can not edit this comment.";
                     failCheck = true;
@@ -129,7 +133,7 @@ namespace SEEMS.Services
             return roleOfEmail;
         }
 
-        public static int GetUserIdOfComment(int commentId, ApplicationDbContext dbContext)
+        public static int GetUserIdOfComment(int? commentId, ApplicationDbContext dbContext)
         {
             var comment = dbContext.Comments.FirstOrDefault(x => x.Id == commentId);
             var userIdOfComment = (int)comment.UserId;

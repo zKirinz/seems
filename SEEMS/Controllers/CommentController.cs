@@ -78,9 +78,9 @@ namespace SEEMS.Controller
             try
             {
                 int? userId = null;
-                if (Request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
+                if (HttpContext.Request.Cookies["jwt"] != null)
                 {
-                    string token = headers.First();
+                    string token = HttpContext.Request.Cookies["jwt"];
                     userId = CommentsServices.GetUserIdByToken(token, _authManager, _context);
                     if (userId == null)
                     {
@@ -124,34 +124,34 @@ namespace SEEMS.Controller
             try
             {
                 newComment.Id = id;
-                int? userId = null;
-                if (Request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
+                int? userId;
+                if (HttpContext.Request.Cookies["jwt"] != null)
                 {
-                    string token = headers.First();
+                    string token = HttpContext.Request.Cookies["jwt"];
                     userId = CommentsServices.GetUserIdByToken(token, _authManager, _context);
                     if (userId == null)
                     {
                         return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission for this request"));
                     }
+
+                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToEditComment(userId, newComment, _context);
+                    if (commentValidationInfo != null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
+                    }
+
+                    var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+                    comment.CommentContent = newComment.CommentContent;
+                    _context.Comments.Update(comment);
+                    _context.SaveChanges(true);
+
+                    var responseComment = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+                    return Ok(new Response(ResponseStatusEnum.Success, responseComment));
                 }
                 else
                 {
                     return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
                 }
-
-                CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToEditComment(userId, newComment, _context);
-                if (commentValidationInfo != null)
-                {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
-                }
-
-                var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
-                comment.CommentContent = newComment.CommentContent;
-                _context.Comments.Update(comment);
-                _context.SaveChanges(true);
-
-                var responseComment = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
 
             }
             catch (Exception ex)
@@ -169,31 +169,33 @@ namespace SEEMS.Controller
             {
                 int? userId = null;
                 string role;
-                if (Request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
+                if (HttpContext.Request.Cookies["jwt"] != null)
                 {
-                    string token = headers.First();
+                    string token = HttpContext.Request.Cookies["jwt"];
                     userId = CommentsServices.GetUserIdByToken(token, _authManager, _context);
                     role = CommentsServices.GetRoleByToken(token, _authManager, _context);
                     if (userId == null || role == null)
                     {
                         return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission for this request"));
                     }
+
+                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidToDeleteComment(userId, role, id, _context);
+                    if (commentValidationInfo != null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
+                    }
+
+                    var comment = _context.Comments.FirstOrDefault(x => x.Id == id);
+                    _context.Comments.Remove(comment);
+                    _context.SaveChanges(true);
+
+                    return Ok(new Response(ResponseStatusEnum.Success, "", "Delete successfully"));
                 }
                 else
                 {
                     return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
                 }
 
-                if (userId == null || role == null)
-                {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
-                }
-
-                var comment = _context.Comments.FirstOrDefault(x => x.Id == id);
-                _context.Comments.Remove(comment);
-                _context.SaveChanges(true);
-
-                return Ok(new Response(ResponseStatusEnum.Success, "", "Delete successfully"));
             }
             catch (Exception ex)
             {
