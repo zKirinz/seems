@@ -25,6 +25,7 @@ import {
 } from '@mui/material'
 
 import usePrompt from '../../hooks/use-prompt'
+import ModalChainOfEvents from './ModalChainOfEvents'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
@@ -47,6 +48,8 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [isPrivate, setIsPrivate] = useState(false)
     const [price, setPrice] = useState(0)
     const [posterUrl, setPosterUrl] = useState({ src })
+    const [chainOfEvents, setChainOfEvents] = useState(null)
+    const [isOpenModal, setIsOpenModal] = useState(false)
     useEffect(() => {
         if (isEventFree) setPrice(0)
         else setPrice(1000)
@@ -60,44 +63,62 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         error.title && setError((previousError) => ({ ...previousError, title: null }))
         setEventName((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
+
     const locationChangeHandler = (event) => {
         error.location && setError((previousError) => ({ ...previousError, location: null }))
         setLocation((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
+
     const descriptionChangeHandler = (event) => {
         error.description && setError((previousError) => ({ ...previousError, description: null }))
         setDescription((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
+
     const priceChangeHandler = (event) => {
         error.expectPrice && setError((previousError) => ({ ...previousError, expectPrice: null }))
         setPrice(event.target.value)
     }
+
     const startDateChangeHandler = (newDate) => {
         error.startDate && setError((previousError) => ({ ...previousError, startDate: null }))
         setStartDate(newDate)
     }
+
     const endDateChangeHandler = (newDate) => {
         error.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
         setEndDate(newDate)
     }
+
     const uploadImageHandler = (event) => {
         const imageUrl = URL.createObjectURL(event.target.files[0])
         setPosterUrl({ src: imageUrl })
     }
+
     const eventNameTouchedHandler = () => {
         setEventName((previousValue) => ({ ...previousValue, isTouched: true }))
     }
+
     const locationTouchedHandler = () => {
         setLocation((previousValue) => ({ ...previousValue, isTouched: true }))
     }
+
     const descriptionTouchedHandler = () => {
         setDescription((previousValue) => ({ ...previousValue, isTouched: true }))
     }
+
     const formIsEntering = () => {
         setFormIsTouched(true)
     }
+
     const finishFormEntering = () => {
         setFormIsTouched(false)
+    }
+    const openChainOfEventsHandler = () => {
+        setIsOpenModal(true)
+    }
+    const closeChainOfEventHandler = () => {
+        setChainOfEvents(null)
+        setIsOpenModal(false)
     }
     const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
     const locationIsInValid = isEmpty(location.value) && location.isTouched
@@ -119,6 +140,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         }
         onCreateEvent(eventDetailed)
     }
+
     return (
         <React.Fragment>
             {routerPrompt}
@@ -142,7 +164,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                         p={2}
                         autoComplete="off"
                         onSubmit={submitHandler}
-                        onFocus={formIsEntering}
+                        onChange={formIsEntering}
                     >
                         <Box display="flex" flexWrap="wrap" justifyContent="space-between">
                             <FormControl sx={{ m: 1.5, width: { md: '45%', xs: '100%' } }} required>
@@ -223,6 +245,14 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         <Help fontSize="small" />
                                     </IconButton>
                                 </Tooltip>
+                            </FormControl>
+                            <FormControl sx={{ ml: 1.5 }} fullWidth>
+                                <FormControlLabel
+                                    control={<Checkbox />}
+                                    label="Chain of events"
+                                    checked={isOpenModal}
+                                    onChange={openChainOfEventsHandler}
+                                />
                             </FormControl>
                             {!isEventFree && (
                                 <FormControl fullWidth required sx={{ m: 1.5 }}>
@@ -362,6 +392,12 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                     </Box>
                 </Grid>
             </Grid>
+            <ModalChainOfEvents
+                chainEvents={chainOfEvents}
+                setChainEvents={setChainOfEvents}
+                isOpenModal={isOpenModal}
+                closeChainOfEventHandler={closeChainOfEventHandler}
+            />
         </React.Fragment>
     )
 }
