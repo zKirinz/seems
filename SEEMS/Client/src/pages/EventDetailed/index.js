@@ -1,32 +1,67 @@
+import { useEffect, useState } from 'react'
+
+import { useParams } from 'react-router-dom'
+
 import EventPoster from '../../components/EventPoster'
 import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
+import useEventAction from '../../recoil/event/action'
 import CommentsSection from './Comments'
 import EventDate from './EventDate'
 
-const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
-
 const EventDetailed = () => {
+    const { id } = useParams()
+    const { getDetailedEvent } = useEventAction()
+    const [error, setError] = useState(null)
+    const [detailedEvent, setDetailedEvent] = useState({
+        numberComments: 0,
+        event: {},
+    })
+    useEffect(() => {
+        getDetailedEvent(id)
+            .then((response) => {
+                const { event: responseEvent, commentCount } = response.data.data
+                setDetailedEvent({
+                    numberComments: commentCount,
+                    event: responseEvent,
+                })
+            })
+            .catch((errorResponse) => {
+                const errorMessage = errorResponse.response.data.data
+                setError(errorMessage)
+            })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+    if (error)
+        return (
+            <Box
+                sx={{
+                    height: '85vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <Typography variant="h4">{error}</Typography>
+            </Box>
+        )
     return (
         <Container fixed sx={{ mt: 15, px: 0 }}>
             <Grid component={Card} container>
                 <Grid item xs={12} sm={4}>
-                    <EventPoster src={src} size="contain" />
+                    <EventPoster src={detailedEvent.event.imageUrl} size="contain" />
                 </Grid>
                 <Grid item xs={12} sm={8}>
-                    <CardContent sx={{ p: 3 }}>
+                    <CardContent sx={{ p: 4 }}>
                         <Typography variant="h4" color="primary" fontWeight={700}>
-                            Header
+                            {detailedEvent.event.eventTitle}
                         </Typography>
                         <Typography fontWeight={500} sx={{ color: grey[600], mt: 1 }} variant="h6">
-                            Location
+                            {detailedEvent.event.location}
                         </Typography>
                         <Typography paragraph sx={{ color: grey[600], my: 1 }}>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                            tempor incididunt ut labore et dolore magna aliqua. Consectetur purus ut
-                            faucibus pulvinar. Suscipit tellus mauris a diam maecenas sed enim ut.
-                            Odio ut sem nulla pharetra diam.
+                            {detailedEvent.event.eventDescription}
                         </Typography>
                         <Box
                             sx={{
@@ -42,20 +77,20 @@ const EventDetailed = () => {
                                 fontWeight={500}
                                 color="secondary"
                             >
-                                Free
+                                {detailedEvent.event.expectPrice === 0
+                                    ? 'Free'
+                                    : `${detailedEvent.event.expectPrice} VND`}
                             </Typography>
                             <Button variant="contained">Subscribe</Button>
                         </Box>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 4 }}>
                             <EventDate
+                                date={new Date(detailedEvent.event.startDate)}
                                 nameDate="Start"
-                                dateTime="16 Feb 2022"
-                                dateInWeek="Wednesday"
                             />
                             <EventDate
                                 nameDate="End"
-                                dateTime="16 Feb 2022"
-                                dateInWeek="Wednesday"
+                                date={new Date(detailedEvent.event.endDate)}
                             />
                         </Box>
                     </CardContent>
@@ -63,10 +98,10 @@ const EventDetailed = () => {
             </Grid>
             <Box sx={{ mt: 2 }}>
                 <Typography sx={{ color: grey[600], display: 'block', mb: 2 }} align="right">
-                    54 comments
+                    {detailedEvent.numberComments} comments
                 </Typography>
             </Box>
-            <CommentsSection />
+            <CommentsSection eventId={id} />
         </Container>
     )
 }

@@ -16,23 +16,27 @@ import { grey } from '@mui/material/colors'
 
 import { useCommentsAction } from '../../recoil/comment'
 
-const CommentsSection = () => {
+const CommentsSection = ({ eventId: EventId }) => {
+    const commentsActions = useCommentsAction()
     const commentContent = useRef(null)
+    const initialLoadingComments = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
     const [comments, setComments] = useState([])
     const [hasMoreComments, setHasMoreComments] = useState(false)
     const [openCommentField, setOpenCommentField] = useState(false)
-    const commentsActions = useCommentsAction()
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
-        numberComments: 5,
+        numberComments: 4,
         lastCommentId: null,
     })
     const loadCommentsHandler = () => {
         setIsLoading(true)
-        setOpenCommentField(true)
+        if (initialLoadingComments.current) {
+            setOpenCommentField(true)
+        }
         commentsActions
-            .loadComments(loadMoreCommentsConfig)
+            .loadComments(loadMoreCommentsConfig, EventId)
             .then((response) => {
+                initialLoadingComments.current = false
                 const { listResponseComments: loadedComments, hasMoreComment: isHasMoreComments } =
                     response.data.data
                 setComments((prevComments) => [...prevComments, ...loadedComments])
@@ -40,6 +44,7 @@ const CommentsSection = () => {
                 setIsLoading(false)
             })
             .catch(() => {
+                initialLoadingComments.current = false
                 setIsLoading(false)
             })
     }
@@ -48,7 +53,7 @@ const CommentsSection = () => {
             setIsLoading(true)
             const commentData = {
                 UserId: 1,
-                EventId: 4,
+                EventId: EventId,
                 CommentContent: commentContent.current.value,
                 ParentCommentId: null,
             }
@@ -96,8 +101,9 @@ const CommentsSection = () => {
                 <Divider sx={{ mb: 1 }} />
                 <Button
                     startIcon={<ModeComment />}
-                    sx={{ color: grey[500] }}
+                    color="primary"
                     onClick={loadCommentsHandler}
+                    disabled={!initialLoadingComments.current}
                 >
                     Comment
                 </Button>
@@ -123,25 +129,40 @@ const CommentsSection = () => {
                     </FormControl>
                 </Box>
             )}
-            {isLoading && (
+            {isLoading && initialLoadingComments.current && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                     <CircularProgress disableShrink />
                 </Box>
             )}
+            {isLoading &&
+                !initialLoadingComments.current &&
+                !!commentContent.current?.value.trim() && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                        <CircularProgress disableShrink />
+                    </Box>
+                )}
             <Comments
                 comments={comments}
                 onDeleteComment={deleteCommentHandler}
                 editCommentHandler={editCommentHandler}
             />
             {hasMoreComments && (
-                <Typography
-                    variant="body2"
-                    sx={{ mt: 1, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                    fontWeight={400}
-                    onClick={loadCommentsHandler}
-                >
-                    Watch more comments
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            cursor: 'pointer',
+                            '&:hover': { textDecoration: 'underline' },
+                            color: grey[500],
+                            mr: 1,
+                        }}
+                        fontWeight={500}
+                        onClick={loadCommentsHandler}
+                    >
+                        Watch more comments
+                    </Typography>
+                    {isLoading && <CircularProgress disableShrink size={20} />}
+                </Box>
             )}
         </React.Fragment>
     )

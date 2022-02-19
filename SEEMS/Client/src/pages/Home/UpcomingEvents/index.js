@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
 
@@ -6,12 +6,23 @@ import EventPoster from '../../../components/EventPoster'
 import SearchField from '../../../components/SearchField'
 import { Grid, Card, Typography, Box, Button, useMediaQuery, useTheme } from '@mui/material'
 
+import useEventAction from '../../../recoil/event/action'
 import EventSummaryInfo from './EventSummaryInfo'
 
-const UpComingEvents = ({ upComingEvents }) => {
+const UpComingEvents = () => {
     const history = useHistory()
     const theme = useTheme()
     const matches = useMediaQuery(theme.breakpoints.up('sm'))
+    const eventAction = useEventAction()
+    const [upcomingEvents, setUpcomingEvents] = useState([])
+
+    useEffect(() => {
+        eventAction.getUpcomingEvents().then((res) => {
+            setUpcomingEvents(res.data.data.events)
+            // console.log(res.data.data.events)
+        })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <React.Fragment>
@@ -21,20 +32,27 @@ const UpComingEvents = ({ upComingEvents }) => {
             <Box mx={{ sx: 2, md: 10 }} my={5}>
                 <SearchField />
             </Box>
-            <Grid container rowGap={6}>
-                {upComingEvents.map(({ id, title, content, time, src }) => (
+            <Grid container rowGap={6} display="flex" justifyContent="center">
+                {upcomingEvents.map(({ id, eventTitle, eventDescription, startDate, imageUrl }) => (
                     <Card
                         key={id}
                         elevation={3}
-                        sx={{ position: 'relative', mx: { sx: 2, md: 10 } }}
+                        sx={{
+                            position: 'relative',
+                            mx: { sx: 2, md: 10, maxWidth: 1000, width: '100%' },
+                        }}
                     >
-                        <Box px={{ xs: 2, sm: 5 }} mb={{ xs: 8, md: 4, lg: 0 }}>
+                        <Box px={{ xs: 2, sm: 4 }} mb={{ xs: 8, md: 4, lg: 0 }}>
                             <Grid item xs={12} container>
-                                <Grid item xs={12} sm={6} md={3}>
-                                    <EventPoster src={src} size="contain" />
+                                <Grid item xs={12} sm={6} md={4}>
+                                    <EventPoster src={imageUrl} size="contain" />
                                 </Grid>
-                                <Grid item xs={12} sm={6} md={9}>
-                                    <EventSummaryInfo title={title} content={content} time={time} />
+                                <Grid item xs={12} sm={6} md={8}>
+                                    <EventSummaryInfo
+                                        title={eventTitle}
+                                        content={eventDescription}
+                                        startTime={startDate}
+                                    />
                                 </Grid>
                             </Grid>
                         </Box>
