@@ -10,20 +10,50 @@ import {
     OutlinedInput,
     Button,
     Modal,
+    FormHelperText,
+    CircularProgress,
 } from '@mui/material'
+
+const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
 
 const ModalChainOfEvents = ({
     chainEvents,
     setChainEvents,
     isOpenModal,
     closeChainOfEventHandler,
+    onCreateChainOfEvents,
 }) => {
     const chooseChainOfEventHandler = (event) => {
         setChainEvents(event.target.value)
     }
     const [categoryName, setCategoryName] = useState('')
     const [formCreateNewChainOfEvents, setFormCreateNewChainOfEvents] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState(null)
     const isValidForm = categoryName.trim().length !== 0
+    const submitFormHandler = (event) => {
+        event.preventDefault()
+        setIsLoading(true)
+        onCreateChainOfEvents({ categoryName, imageUrl: src })
+            .then((response) => {
+                const dataResponse = response.data.data
+                setChainEvents({ id: dataResponse.id, categoryName: dataResponse.categoryName })
+                setIsLoading(false)
+            })
+            .then(() => {
+                closeChainOfEventHandler()
+            })
+            .catch((error) => {
+                setError({
+                    categoryName: error.response.data.message,
+                })
+                setIsLoading(false)
+            })
+    }
+    const createNewChainOfEventHandler = (event) => {
+        setCategoryName(event.target.value)
+        error?.categoryName && setError(null)
+    }
     return (
         <Modal
             open={isOpenModal}
@@ -72,7 +102,7 @@ const ModalChainOfEvents = ({
                     </Typography>
                 </Typography>
                 {formCreateNewChainOfEvents && (
-                    <Box component="form" sx={{ mt: 2 }}>
+                    <Box component="form" sx={{ mt: 2 }} onSubmit={submitFormHandler}>
                         <FormControl fullWidth size="small">
                             <InputLabel htmlFor="name-chain-events">Name</InputLabel>
                             <OutlinedInput
@@ -81,13 +111,32 @@ const ModalChainOfEvents = ({
                                 size="small"
                                 required
                                 value={categoryName}
-                                onChange={(event) => setCategoryName(event.target.value)}
+                                onChange={createNewChainOfEventHandler}
+                                error={!!error?.categoryName}
                             />
                         </FormControl>
-                        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button variant="contained" disabled={!isValidForm}>
+                        {error?.categoryName && (
+                            <FormHelperText error={!!error?.categoryName}>
+                                {error?.categoryName && `${error.categoryName}`}
+                            </FormHelperText>
+                        )}
+                        <Box
+                            sx={{
+                                mt: 2,
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Button
+                                variant="contained"
+                                disabled={!isValidForm}
+                                type="submit"
+                                sx={{ mr: 2 }}
+                            >
                                 Create
                             </Button>
+                            {isLoading && <CircularProgress disableShrink size={20} />}
                         </Box>
                     </Box>
                 )}

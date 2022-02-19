@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 
-import { CameraAlt, Help } from '@mui/icons-material'
+import { CameraAlt } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -12,7 +12,6 @@ import {
     FormControlLabel,
     FormHelperText,
     Grid,
-    InputAdornment,
     InputLabel,
     OutlinedInput,
     Radio,
@@ -20,18 +19,16 @@ import {
     TextField,
     Paper,
     Typography,
-    Tooltip,
-    IconButton,
 } from '@mui/material'
 
-import usePrompt from '../../hooks/use-prompt'
+import usePrompt from '../../../hooks/use-prompt'
 import ModalChainOfEvents from './ModalChainOfEvents'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
 const defaultTextFieldValue = { value: '', isTouched: false }
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
-const CreateEventForm = ({ onCreateEvent, error, setError }) => {
+const CreateEventForm = ({ onCreateEvent, error, setError, onCreateChainOfEvents }) => {
     const startDateDefault = useMemo(() => {
         return new Date(new Date().getTime() + 24 * 3600 * 1000)
     }, [])
@@ -44,48 +41,37 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [eventName, setEventName] = useState(defaultTextFieldValue)
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
-    const [isEventFree, setIsEventFree] = useState(true)
     const [isPrivate, setIsPrivate] = useState(false)
-    const [price, setPrice] = useState(0)
     const [posterUrl, setPosterUrl] = useState({ src })
     const [chainOfEvents, setChainOfEvents] = useState(null)
     const [isOpenModal, setIsOpenModal] = useState(false)
-    useEffect(() => {
-        if (isEventFree) setPrice(0)
-        else setPrice(1000)
-    }, [isEventFree])
     useEffect(() => {
         return () => {
             posterUrl.src && URL.revokeObjectURL(posterUrl.src)
         }
     }, [posterUrl])
     const eventNameChangeHandler = (event) => {
-        error.title && setError((previousError) => ({ ...previousError, title: null }))
+        error?.title && setError((previousError) => ({ ...previousError, title: null }))
         setEventName((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
 
     const locationChangeHandler = (event) => {
-        error.location && setError((previousError) => ({ ...previousError, location: null }))
+        error?.location && setError((previousError) => ({ ...previousError, location: null }))
         setLocation((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
 
     const descriptionChangeHandler = (event) => {
-        error.description && setError((previousError) => ({ ...previousError, description: null }))
+        error?.description && setError((previousError) => ({ ...previousError, description: null }))
         setDescription((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
 
-    const priceChangeHandler = (event) => {
-        error.expectPrice && setError((previousError) => ({ ...previousError, expectPrice: null }))
-        setPrice(event.target.value)
-    }
-
     const startDateChangeHandler = (newDate) => {
-        error.startDate && setError((previousError) => ({ ...previousError, startDate: null }))
+        error?.startDate && setError((previousError) => ({ ...previousError, startDate: null }))
         setStartDate(newDate)
     }
 
     const endDateChangeHandler = (newDate) => {
-        error.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
+        error?.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
         setEndDate(newDate)
     }
 
@@ -131,8 +117,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             eventTitle: eventName.value,
             location: location.value,
             eventDescription: description.value,
-            expectPrice: parseInt(price),
-            isFree: isEventFree,
             imageUrl: src,
             isPrivate,
             startDate: startDate,
@@ -224,28 +208,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
-                            <FormControl
-                                sx={{ ml: 1.5, flexDirection: 'row', alignItems: 'center' }}
-                            >
-                                <FormControlLabel
-                                    control={<Checkbox />}
-                                    label="Paid"
-                                    onChange={() =>
-                                        setIsEventFree((previousValue) => !previousValue)
-                                    }
-                                    checked={!isEventFree}
-                                    sx={{ mr: 0 }}
-                                />
-                                <Tooltip
-                                    title={`Users ${
-                                        isEventFree ? 'does not' : ''
-                                    } need to pay money to participate in this event.`}
-                                >
-                                    <IconButton size="small">
-                                        <Help fontSize="small" />
-                                    </IconButton>
-                                </Tooltip>
-                            </FormControl>
                             <FormControl sx={{ ml: 1.5 }} fullWidth>
                                 <FormControlLabel
                                     control={<Checkbox />}
@@ -254,37 +216,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     onChange={openChainOfEventsHandler}
                                 />
                             </FormControl>
-                            {!isEventFree && (
-                                <FormControl fullWidth required sx={{ m: 1.5 }}>
-                                    <InputLabel htmlFor="price" shrink>
-                                        Price
-                                    </InputLabel>
-                                    <OutlinedInput
-                                        id="price"
-                                        endAdornment={
-                                            <InputAdornment position="start">VND</InputAdornment>
-                                        }
-                                        label="Price"
-                                        inputProps={{
-                                            type: 'number',
-                                            min: 500,
-                                            inputMode: 'numeric',
-                                            pattern: '[0-9]*',
-                                        }}
-                                        value={price}
-                                        onChange={priceChangeHandler}
-                                        sx={{
-                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
-                                                { display: 'none' },
-                                        }}
-                                    />
-                                    {error?.expectPrice && (
-                                        <FormHelperText error={!!error?.expectPrice}>
-                                            {error?.expectPrice && `${error.expectPrice}`}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            )}
                             <FormControl
                                 sx={{ mx: 1.5, my: 1, flexDirection: 'row', alignItems: 'center' }}
                                 fullWidth
@@ -397,6 +328,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                 setChainEvents={setChainOfEvents}
                 isOpenModal={isOpenModal}
                 closeChainOfEventHandler={closeChainOfEventHandler}
+                onCreateChainOfEvents={onCreateChainOfEvents}
             />
         </React.Fragment>
     )

@@ -16,8 +16,10 @@ const useEventAction = () => {
             endpoint: '/api/events',
             body: eventData,
         }).then(() => history.push('/events'))
+
     const createChainOfEvents = (chainOfEventData) =>
         post({ endpoint: '/api/chainOfEvent', body: chainOfEventData })
+
     return {
         getUpcomingEvents,
         getMyEvents,
