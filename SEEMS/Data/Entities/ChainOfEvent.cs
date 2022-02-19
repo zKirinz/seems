@@ -10,7 +10,7 @@ namespace SEEMS.Models
     [Index(nameof(CategoryName), IsUnique = true)]
     public class ChainOfEvent : AbstractEntity<int>
     {
-        [StringLength(20)]
+        [StringLength(100)]
         public String CategoryName { get; set; }
 
         [StringLength(255)]
