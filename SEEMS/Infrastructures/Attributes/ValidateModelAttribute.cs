@@ -14,6 +14,7 @@ public class ValidateModelAttribute : ActionFilterAttribute
             .SelectMany(v => v.Errors)
             .Select(v => v.ErrorMessage)
             .ToList();
-        context.Result = new JsonResult(new Response(ResponseStatusEnum.Fail, "", errors[0]));
+        context.HttpContext.Response.StatusCode = 422;
+        context.Result = new JsonResult(new Response(ResponseStatusEnum.Fail, "", errors[0], 422));
     }
 }
