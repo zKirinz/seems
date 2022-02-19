@@ -26,8 +26,6 @@ namespace SEEMS.Models
 		[StringLength(255)]
 		public String ImageUrl { get; set; }
 
-		public decimal ExpectPrice { get; set; }
-
 		public bool Active { get; set; }
 
 		public String Location { get; set; }
