@@ -26,27 +26,45 @@ namespace SEEMS.Contexts
 
         public DbSet<FeedBack> FeedBacks { get; set; }
 
-        public DbSet<InvoiceUser> InvoiceUsers { get; set; }
-
         public DbSet<User> Users { get; set; }
 
         public DbSet<UserMeta> UserMetas { get; set; }
 
-        public override int SaveChanges()
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
         {
             var entries = ChangeTracker
                 .Entries()
-                .Where(e => e.Entity is BaseCreationTimestamp && (
+                .Where(e => e.Entity is AbstractEntity<int> && (
                     e.State == EntityState.Added
                     || e.State == EntityState.Modified));
 
             foreach (var entityEntry in entries)
             {
-                ((BaseCreationTimestamp) entityEntry.Entity).ModifiedAt = DateTime.Now;
+                ((AbstractEntity<int>) entityEntry.Entity).ModifiedAt = DateTime.Now;
 
                 if (entityEntry.State == EntityState.Added)
                 {
-                    ((BaseCreationTimestamp) entityEntry.Entity).CreatedAt = DateTime.Now;
+                    ((AbstractEntity<int>) entityEntry.Entity).CreatedAt = DateTime.Now;
+                }
+            } 
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        public override int SaveChanges()
+        {
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e => e.Entity is AbstractEntity<int> && (
+                    e.State == EntityState.Added
+                    || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                ((AbstractEntity<int>) entityEntry.Entity).ModifiedAt = DateTime.Now;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    ((AbstractEntity<int>) entityEntry.Entity).CreatedAt = DateTime.Now;
                 }
             }
 

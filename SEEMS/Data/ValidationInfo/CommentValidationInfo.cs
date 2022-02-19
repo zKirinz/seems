@@ -7,7 +7,7 @@
 
         public string UserId { get; set; }
         public string EventId { get; set; }
+
         public string CommentContent { get; set; }
-        public string ValidToAffectComment { get; set; }
     }
 }

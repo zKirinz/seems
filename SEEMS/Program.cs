@@ -10,7 +10,10 @@ using SEEMS.Services.Interfaces;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using SEEMS.Infrastructures.Attributes;
 using SEEMS.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
@@ -121,6 +124,11 @@ services.AddSwaggerGen(s =>
     s.OperationFilter<SecureEndpointAuthRequirementFilter>();
 });
 services.AddAutoMapper(typeof(MappingProfile));
+services.AddMvc(opt => opt.Filters.Add(typeof(ValidateModelAttribute)));
+services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 var app = builder.Build();
 app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
@@ -159,7 +167,6 @@ app.Use((httpContext, next) => // For the oauth2-less!
 
     return next();
 });
-app.UseAuthorizationMiddleware();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");

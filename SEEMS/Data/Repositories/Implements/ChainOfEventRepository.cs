@@ -22,6 +22,10 @@ public class ChainOfEventRepository : RepositoryBase<ChainOfEvent>, IChainOfEven
         return PaginatedList<ChainOfEvent>.Create(listChainOfEvents, args.PageNumber, args.PageSize);
     }
 
+    public async Task<ChainOfEvent> GetChainOfEventsAsync(int theId, bool trackChanges) =>
+        await FindByCondition(e => e.Id == theId, trackChanges)
+            .SingleOrDefaultAsync();
+
     public void CreateChainOfEvent(int userId, ChainOfEvent chainOfEvent)
     {
         chainOfEvent.CreatedBy = userId;
