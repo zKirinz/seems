@@ -20,7 +20,7 @@ namespace SEEMS.Data.Repositories.Implements
 
         public void CreateUser(User user) => Create(user);
 
-        public async Task<PaginatedList<User>> GetAllUsersAsync(UserParams userParams, bool trackChanges)
+        public async Task<PaginatedList<User>> GetAllUsersAsync(UserPagination userParams, bool trackChanges)
         {
             var users = await FindAll(trackChanges)
                         .OrderBy(u => u.Email)

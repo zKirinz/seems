@@ -10,7 +10,7 @@ namespace SEEMS.Data.Repositories
 {
     public interface IUserRepository
     {
-        Task<PaginatedList<User>> GetAllUsersAsync(UserParams userParams, bool trackChanges);
+        Task<PaginatedList<User>> GetAllUsersAsync(UserPagination userParams, bool trackChanges);
 
         Task<User> GetUserAsync(string email, bool trackChanges);
 

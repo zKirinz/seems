@@ -1,6 +1,6 @@
 namespace SEEMS.Data.Entities.RequestFeatures;
 
-public class UserParams : RequestParams
+public class UserPagination : PaginationParams
 {
     
 }

@@ -26,7 +26,7 @@ public class UserController : ControllerBase
     
     [RoleBasedAuthorization(RoleBased = RoleTypes.ADM)]
     [HttpGet("")]
-    public async Task<IActionResult> GetListUsers([FromQuery] UserParams userParams)
+    public async Task<IActionResult> GetListUsers([FromQuery] UserPagination userParams)
     {
         var listUsers = await _repoManager.User.GetAllUsersAsync(userParams, false);
         Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(listUsers.Meta));
