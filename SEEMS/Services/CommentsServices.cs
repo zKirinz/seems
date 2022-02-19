@@ -60,12 +60,12 @@ namespace SEEMS.Services
         public static CommentValidationInfo GetValidatedToEditComment(int? userId, CommentDTO commentDto, ApplicationDbContext dbContext)
         {
             CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
-            var userIdByCommentId = GetUserIdOfComment(commentDto.Id, dbContext);
 
             bool failCheck = false;
 
             if (CheckValidCommentId(commentDto.Id, dbContext))
             {
+                var userIdByCommentId = GetUserIdOfComment(commentDto.Id, dbContext);
                 if (userId != userIdByCommentId)
                 {
                     commentValidationInfo.ValidToAffectComment = "You can not edit this comment.";
@@ -97,12 +97,12 @@ namespace SEEMS.Services
 
         public static CommentValidationInfo GetValidToDeleteComment(int? userId, string role, int commentId, ApplicationDbContext dbContext)
         {
-            CommentValidationInfo commentValidationInfo = new CommentValidationInfo();
-            var userIdOfComment = GetUserIdOfComment(commentId, dbContext);
+            CommentValidationInfo commentValidationInfo = new CommentValidationInfo();           
             bool failCheck = false;
 
             if (CheckValidCommentId(commentId, dbContext))
             {
+                var userIdOfComment = GetUserIdOfComment(commentId, dbContext);
                 if (userId != userIdOfComment || role.Contains(RoleTypes.CUSR))
                 {
                     commentValidationInfo.ValidToAffectComment = "You can not edit this comment.";
@@ -196,7 +196,6 @@ namespace SEEMS.Services
                 var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
     
                 var user = dbContext.Users.FirstOrDefault(x => x.Email == emailClaim);
-                //string roleBaseEmail = dbContext.UserMetas.FirstOrDefault(x => x.User == userBasedEmail).MetaValue;
 
                 if (user != null)
                 {

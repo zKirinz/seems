@@ -86,27 +86,27 @@ namespace SEEMS.Controller
                     {
                         return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission for this request"));
                     }
+
+                    CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, _context);
+
+                    if (commentValidationInfo != null)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
+                    }
+
+                    item.UserId = userId;
+                    var newComment = _mapper.Map<Comment>(item);
+
+                    _context.Comments.Add(newComment);
+                    _context.SaveChanges();
+
+                    var responseComment = CommentsServices.AddMoreInformationsToComment(newComment, _context, _mapper);
+                    return Ok(new Response(ResponseStatusEnum.Success, responseComment));
                 }
                 else
                 {
                     return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to comment"));
-                }
-
-                CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item, _context);
-
-                if (commentValidationInfo != null)
-                {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
-                }
-
-                item.UserId = userId;
-                var newComment = _mapper.Map<Comment>(item);
-
-                _context.Comments.Add(newComment);
-                _context.SaveChanges();
-
-                var responseComment = CommentsServices.AddMoreInformationsToComment(newComment, _context, _mapper);
-                return Ok(new Response(ResponseStatusEnum.Success, responseComment));
+                }               
 
             }
             catch (Exception ex)
@@ -118,12 +118,11 @@ namespace SEEMS.Controller
 
         // PUT api/<CommentController>/
         // Edit comment by Id
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] CommentDTO newComment)
+        [HttpPut]
+        public IActionResult Put([FromBody] CommentDTO newComment)
         {
             try
             {
-                newComment.Id = id;
                 int? userId;
                 if (HttpContext.Request.Cookies["jwt"] != null)
                 {
@@ -140,7 +139,7 @@ namespace SEEMS.Controller
                         return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
                     }
 
-                    var comment = _context.Comments.FirstOrDefault(c => c.Id == id);
+                    var comment = _context.Comments.FirstOrDefault(c => c.Id == newComment.Id);
                     comment.CommentContent = newComment.CommentContent;
                     _context.Comments.Update(comment);
                     _context.SaveChanges(true);
