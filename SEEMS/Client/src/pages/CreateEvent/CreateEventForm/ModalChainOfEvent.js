@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import React, { useRef, useState } from 'react'
 
+import AlertConfirm from '../../../components/ConfirmDialog'
 import { Close } from '@mui/icons-material'
 import {
     Box,
@@ -37,24 +38,52 @@ const ModalChainOfEvent = ({
     closeChainOfEventHandler,
     onCreateChainOfEvent,
     chainOfEventList,
+    setChainOfEventList,
+    onDeleteChainOfEvent,
 }) => {
     const [categoryName, setCategoryName] = useState('')
     const [formCreateNewChainOfEvent, setFormCreateNewChainOfEvent] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
+    const [confirmDialog, setConfirmDialog] = useState(false)
+    const idChainOfEventDeleted = useRef(null)
     const showSnackbar = useSnackbar()
     const isValidForm = categoryName.trim().length !== 0
     const chooseChainOfEventHandler = (id, categoryName) => {
         setChainEvent({ id: id, categoryName: categoryName })
         closeChainOfEventHandler()
+        setFormCreateNewChainOfEvent(false)
     }
+
+    const openDialog = (event, id) => {
+        event.stopPropagation()
+        idChainOfEventDeleted.current = id
+        setConfirmDialog(true)
+    }
+
+    const closeDialog = () => {
+        setConfirmDialog(false)
+    }
+
+    const onConfirmDelete = (id) => {
+        onDeleteChainOfEvent(id).then(() => {
+            setChainOfEventList((previousList) =>
+                previousList.filter((chainOfEventItem) => chainOfEventItem.id !== id)
+            )
+            showSnackbar({
+                severity: 'success',
+                children: 'Delete chain of event successfully.',
+            })
+            setConfirmDialog(false)
+            idChainOfEventDeleted.current = null
+        })
+    }
+
     const dropChainOfEventHandler = () => {
         setChainEvent(null)
         closeChainOfEventHandler()
     }
-    const deleteChainOfEvent = (event) => {
-        event.stopPropagation()
-    }
+
     const submitFormHandler = (event) => {
         event.preventDefault()
         setIsLoading(true)
@@ -67,9 +96,8 @@ const ModalChainOfEvent = ({
                     severity: 'success',
                     children: 'Create chain of event successfully.',
                 })
-            })
-            .then(() => {
                 closeChainOfEventHandler()
+                setFormCreateNewChainOfEvent(false)
                 setCategoryName('')
             })
             .catch((error) => {
@@ -79,122 +107,129 @@ const ModalChainOfEvent = ({
                 setIsLoading(false)
             })
     }
+
     const cateGoryNameHandler = (event) => {
         setCategoryName(event.target.value)
         error?.categoryName && setError(null)
     }
+
     return (
-        <Modal
-            open={isOpenModal}
-            onClose={closeChainOfEventHandler}
-            onBackdropClick={closeChainOfEventHandler}
-        >
-            <Box
-                sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 600,
-                    minHeight: 200,
-                    bgcolor: 'background.paper',
-                    boxShadow: 24,
-                    p: 4,
-                }}
+        <React.Fragment>
+            <Modal
+                open={isOpenModal}
+                onClose={closeChainOfEventHandler}
+                onBackdropClick={closeChainOfEventHandler}
             >
-                <FormControl fullWidth>
-                    <InputLabel id="category-chain-events">Category name</InputLabel>
-                    <Select
-                        labelId="category-chain-events"
-                        value={chainOfEvent?.categoryName ?? ''}
-                        label="Category name"
-                        sx={{ '& .MuiSelect-iconOutlined': { display: 'none' } }}
-                        MenuProps={MenuProps}
-                    >
-                        {chainOfEventList.map((chainOfEvent) => (
-                            <MenuItem
-                                key={chainOfEvent.id}
-                                value={chainOfEvent.categoryName}
-                                onClick={() =>
-                                    chooseChainOfEventHandler(
-                                        chainOfEvent.id,
-                                        chainOfEvent.categoryName
-                                    )
-                                }
-                                sx={{ position: 'relative' }}
-                            >
-                                {chainOfEvent.categoryName}
-                                <IconButton
-                                    sx={{
-                                        position: 'absolute',
-                                        right: 5,
-                                        top: '50%',
-                                        transform: 'translateY(-50%)',
-                                    }}
-                                    onClick={deleteChainOfEvent}
-                                >
-                                    <Close />
-                                </IconButton>
-                            </MenuItem>
-                        ))}
-                        <MenuItem value="None" onClick={dropChainOfEventHandler}>
-                            None
-                        </MenuItem>
-                    </Select>
-                </FormControl>
-                <Typography variant="subtitle1" sx={{ mt: 2 }}>
-                    Do not see suitable chain of events?{'  '}
-                    <Typography
-                        component="span"
-                        variant="h6"
-                        fontWeight={700}
-                        sx={{ '&:hover': { textDecoration: 'underline' }, cursor: 'pointer' }}
-                        color="primary"
-                        onClick={() =>
-                            setFormCreateNewChainOfEvent((previousValue) => !previousValue)
-                        }
-                    >
-                        Start create one.
-                    </Typography>
-                </Typography>
-                {formCreateNewChainOfEvent && (
-                    <Box component="form" sx={{ mt: 2 }} onSubmit={submitFormHandler}>
-                        <FormControl fullWidth size="small">
-                            <InputLabel htmlFor="name-chain-events">Name</InputLabel>
-                            <OutlinedInput
-                                id="name-chain-events"
-                                label="Name"
-                                size="small"
-                                required
-                                value={categoryName}
-                                onChange={cateGoryNameHandler}
-                                error={!!error?.categoryName}
-                            />
-                        </FormControl>
-                        {error?.categoryName && (
-                            <FormHelperText error={!!error?.categoryName}>
-                                {error?.categoryName && `${error.categoryName}`}
-                            </FormHelperText>
-                        )}
-                        <Box
-                            sx={{
-                                mt: 2,
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                                alignItems: 'center',
-                            }}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 600,
+                        minHeight: 200,
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                    }}
+                >
+                    <FormControl fullWidth>
+                        <InputLabel id="category-chain-events">Category name</InputLabel>
+                        <Select
+                            labelId="category-chain-events"
+                            value={chainOfEvent?.categoryName}
+                            label="Category name"
+                            sx={{ '& .MuiIconButton-root': { display: 'none' } }}
+                            MenuProps={MenuProps}
                         >
-                            <Button variant="contained" disabled={!isValidForm} type="submit">
-                                Create
-                            </Button>
-                            {isLoading && (
-                                <CircularProgress disableShrink size={20} sx={{ ml: 2 }} />
+                            {chainOfEventList.map((chainOfEventItem) => (
+                                <MenuItem
+                                    key={chainOfEvent?.id}
+                                    value={chainOfEventItem?.categoryName}
+                                    onClick={() =>
+                                        chooseChainOfEventHandler(
+                                            chainOfEventItem?.id,
+                                            chainOfEventItem?.categoryName
+                                        )
+                                    }
+                                    sx={{ position: 'relative' }}
+                                >
+                                    {chainOfEventItem?.categoryName}
+                                    <IconButton
+                                        sx={{ position: 'absolute', right: 5 }}
+                                        onClick={(event) => openDialog(event, chainOfEventItem?.id)}
+                                    >
+                                        <Close />
+                                    </IconButton>
+                                </MenuItem>
+                            ))}
+                            <MenuItem value="None" onClick={dropChainOfEventHandler}>
+                                None
+                            </MenuItem>
+                        </Select>
+                    </FormControl>
+                    <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                        Do not see suitable chain of events?{'  '}
+                        <Typography
+                            component="span"
+                            variant="h6"
+                            fontWeight={700}
+                            sx={{ '&:hover': { textDecoration: 'underline' }, cursor: 'pointer' }}
+                            color="primary"
+                            onClick={() =>
+                                setFormCreateNewChainOfEvent((previousValue) => !previousValue)
+                            }
+                        >
+                            Start create one.
+                        </Typography>
+                    </Typography>
+                    {formCreateNewChainOfEvent && (
+                        <Box component="form" sx={{ mt: 2 }} onSubmit={submitFormHandler}>
+                            <FormControl fullWidth size="small">
+                                <InputLabel htmlFor="name-chain-events">Name</InputLabel>
+                                <OutlinedInput
+                                    id="name-chain-events"
+                                    label="Name"
+                                    size="small"
+                                    required
+                                    value={categoryName}
+                                    onChange={cateGoryNameHandler}
+                                    error={!!error?.categoryName}
+                                />
+                            </FormControl>
+                            {error?.categoryName && (
+                                <FormHelperText error={!!error?.categoryName}>
+                                    {error?.categoryName && `${error.categoryName}`}
+                                </FormHelperText>
                             )}
+                            <Box
+                                sx={{
+                                    mt: 2,
+                                    display: 'flex',
+                                    justifyContent: 'flex-end',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Button variant="contained" disabled={!isValidForm} type="submit">
+                                    Create
+                                </Button>
+                                {isLoading && (
+                                    <CircularProgress disableShrink size={20} sx={{ ml: 2 }} />
+                                )}
+                            </Box>
                         </Box>
-                    </Box>
-                )}
-            </Box>
-        </Modal>
+                    )}
+                </Box>
+            </Modal>
+            <AlertConfirm
+                title="Delete chain of event?"
+                open={confirmDialog}
+                onConfirm={() => onConfirmDelete(idChainOfEventDeleted.current)}
+                onClose={closeDialog}
+            >
+                Are you sure you want to delete this chain of event?
+            </AlertConfirm>
+        </React.Fragment>
     )
 }
 

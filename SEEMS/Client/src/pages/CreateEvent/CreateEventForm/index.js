@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 
-import { CameraAlt } from '@mui/icons-material'
+import { CameraAlt, Delete } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -35,6 +35,7 @@ const CreateEventForm = ({
     setError,
     onCreateChainOfEvent,
     onLoadChainOfEvent,
+    onDeleteChainOfEvent,
 }) => {
     const startDateDefault = useMemo(() => {
         return new Date(new Date().getTime() + 24 * 3600 * 1000)
@@ -110,7 +111,8 @@ const CreateEventForm = ({
     const openChainOfEventHandler = () => {
         setIsOpenModal(true)
         onLoadChainOfEvent().then((response) => {
-            setChainOfEventList(response.data.data)
+            const listChainOfEvent = response.data.data
+            setChainOfEventList(listChainOfEvent)
         })
     }
     const closeChainOfEventHandler = () => {
@@ -226,15 +228,17 @@ const CreateEventForm = ({
                                 <FormControlLabel
                                     control={<Checkbox />}
                                     label="Chain of events"
-                                    checked={!!chainOfEvent ?? isOpenModal}
+                                    checked={!!chainOfEvent}
                                     onChange={openChainOfEventHandler}
                                 />
                                 {chainOfEvent && (
                                     <Chip
                                         label={chainOfEvent.categoryName}
-                                        variant="filled"
+                                        variant="outlined"
                                         color="primary"
                                         sx={{ fontWeight: 500 }}
+                                        deleteIcon={<Delete />}
+                                        onDelete={() => setChainOfEvent(null)}
                                     />
                                 )}
                             </FormControl>
@@ -352,6 +356,8 @@ const CreateEventForm = ({
                 closeChainOfEventHandler={closeChainOfEventHandler}
                 onCreateChainOfEvent={onCreateChainOfEvent}
                 chainOfEventList={chainOfEventList}
+                setChainOfEventList={setChainOfEventList}
+                onDeleteChainOfEvent={onDeleteChainOfEvent}
             />
         </React.Fragment>
     )

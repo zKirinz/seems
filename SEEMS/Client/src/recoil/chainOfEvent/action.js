@@ -1,4 +1,4 @@
-import { get, post } from '../../utils/ApiCaller'
+import { get, post, remove } from '../../utils/ApiCaller'
 
 const useChainOfEventAction = () => {
     const createChainOfEvent = (chainOfEventData) =>
@@ -7,9 +7,13 @@ const useChainOfEventAction = () => {
     const getListChainOfEvent = () => {
         return get({ endpoint: '/api/chainOfEvent' })
     }
+    const removeChainOfEvent = (id) => {
+        return remove({ endpoint: `/api/chainOfEvent/${id}` })
+    }
     return {
         createChainOfEvent,
         getListChainOfEvent,
+        removeChainOfEvent,
     }
 }
 

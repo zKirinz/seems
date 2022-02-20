@@ -31,6 +31,9 @@ const CreateEvent = () => {
     const loadChainOfEventList = () => {
         return chainOfEventActions.getListChainOfEvent()
     }
+    const deleteChainOfEventHandler = (id) => {
+        return chainOfEventActions.removeChainOfEvent(id)
+    }
     return (
         <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }} px={3} pt={10}>
             <Typography color="primary" variant="h3" mb={4} align="center" fontWeight={700}>
@@ -42,6 +45,7 @@ const CreateEvent = () => {
                 setError={setError}
                 onCreateChainOfEvent={createChainOfEventHandler}
                 onLoadChainOfEvent={loadChainOfEventList}
+                onDeleteChainOfEvent={deleteChainOfEventHandler}
             />
         </Box>
     )
