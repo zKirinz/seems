@@ -12,7 +12,7 @@ namespace SEEMS.Data.DTO
 		[Required]
 		public bool IsPrivate { get; set; }
 		[Required]
-		public String ImageUrl { get; set; }
+		public string ImageUrl { get; set; }
 		[Required]
 		public bool Active { get; set; }
 		[Required]
