@@ -16,6 +16,8 @@ import {
     IconButton,
 } from '@mui/material'
 
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
+
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
 
 const ModalChainOfEvent = ({
@@ -30,6 +32,7 @@ const ModalChainOfEvent = ({
     const [formCreateNewChainOfEvent, setFormCreateNewChainOfEvent] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
+    const showSnackbar = useSnackbar()
     const isValidForm = categoryName.trim().length !== 0
     const chooseChainOfEventHandler = (id, categoryName) => {
         setChainEvent({ id: id, categoryName: categoryName })
@@ -50,6 +53,10 @@ const ModalChainOfEvent = ({
                 const dataResponse = response.data.data
                 setChainEvent({ id: dataResponse.id, categoryName: dataResponse.categoryName })
                 setIsLoading(false)
+                showSnackbar({
+                    severity: 'success',
+                    children: 'Create chain of event successfully.',
+                })
             })
             .then(() => {
                 closeChainOfEventHandler()
@@ -61,7 +68,7 @@ const ModalChainOfEvent = ({
                 setIsLoading(false)
             })
     }
-    const createNewChainOfEventHandler = (event) => {
+    const cateGoryNameHandler = (event) => {
         setCategoryName(event.target.value)
         error?.categoryName && setError(null)
     }
@@ -142,7 +149,7 @@ const ModalChainOfEvent = ({
                                 size="small"
                                 required
                                 value={categoryName}
-                                onChange={createNewChainOfEventHandler}
+                                onChange={cateGoryNameHandler}
                                 error={!!error?.categoryName}
                             />
                         </FormControl>
