@@ -31,4 +31,6 @@ public class ChainOfEventRepository : RepositoryBase<ChainOfEvent>, IChainOfEven
         chainOfEvent.CreatedBy = userId;
         Create(chainOfEvent);
     }
+
+    public void DeleteChainOfEvent(ChainOfEvent chainOfEvent) => Delete(chainOfEvent);
 }
