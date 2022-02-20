@@ -20,6 +20,16 @@ import { useSnackbar } from '../../../HOCs/SnackbarContext'
 
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
 
+const ITEM_HEIGHT = 48
+const ITEM_PADDING_TOP = 8
+const MenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        },
+    },
+}
+
 const ModalChainOfEvent = ({
     chainOfEvent,
     setChainEvent,
@@ -60,6 +70,7 @@ const ModalChainOfEvent = ({
             })
             .then(() => {
                 closeChainOfEventHandler()
+                setCategoryName('')
             })
             .catch((error) => {
                 setError({
@@ -97,6 +108,8 @@ const ModalChainOfEvent = ({
                         labelId="category-chain-events"
                         value={chainOfEvent?.categoryName ?? ''}
                         label="Category name"
+                        sx={{ '& .MuiSelect-iconOutlined': { display: 'none' } }}
+                        MenuProps={MenuProps}
                     >
                         {chainOfEventList.map((chainOfEvent) => (
                             <MenuItem
@@ -112,7 +125,12 @@ const ModalChainOfEvent = ({
                             >
                                 {chainOfEvent.categoryName}
                                 <IconButton
-                                    sx={{ position: 'absolute', right: 5 }}
+                                    sx={{
+                                        position: 'absolute',
+                                        right: 5,
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                    }}
                                     onClick={deleteChainOfEvent}
                                 >
                                     <Close />

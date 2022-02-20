@@ -130,7 +130,7 @@ const CreateEventForm = ({
             isPrivate,
             startDate: startDate,
             endDate: endDate,
-            chainOfEventId: chainOfEvent.id,
+            chainOfEventId: chainOfEvent?.id,
         }
         onCreateEvent(eventDetailed)
     }
