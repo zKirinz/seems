@@ -19,6 +19,7 @@ import {
     TextField,
     Paper,
     Typography,
+    Chip,
 } from '@mui/material'
 
 import usePrompt from '../../../hooks/use-prompt'
@@ -229,14 +230,12 @@ const CreateEventForm = ({
                                     onChange={openChainOfEventHandler}
                                 />
                                 {chainOfEvent && (
-                                    <Typography
-                                        sx={{ ml: 2, textDecoration: 'underline' }}
-                                        variant="subtitle1"
-                                        fontWeight={600}
+                                    <Chip
+                                        label={chainOfEvent.categoryName}
+                                        variant="filled"
                                         color="primary"
-                                    >
-                                        ({chainOfEvent.categoryName})
-                                    </Typography>
+                                        sx={{ fontWeight: 500 }}
+                                    />
                                 )}
                             </FormControl>
                             <FormControl
