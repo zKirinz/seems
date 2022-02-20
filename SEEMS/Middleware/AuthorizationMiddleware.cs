@@ -69,10 +69,10 @@ namespace SEEMS.Services
 
     public static class AuthorizationMiddlewareExtentions
     {
-        public static IApplicationBuilder UseAuthorizationMiddleware(
-            this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<AuthorizationMiddleware>();
-        }
+        // public static IApplicationBuilder UseAuthorizationMiddleware(
+        //     this IApplicationBuilder builder)
+        // {
+        //     return builder.UseMiddleware<AuthorizationMiddleware>();
+        // }
     }
 }
