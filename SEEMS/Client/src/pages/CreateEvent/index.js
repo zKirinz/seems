@@ -2,11 +2,13 @@ import React, { useState } from 'react'
 
 import { Box, Typography } from '@mui/material'
 
+import { useChainOfEventAction } from '../../recoil/chainOfEvent'
 import { useEventAction } from '../../recoil/event'
 import CreateEventForm from './CreateEventForm'
 
 const CreateEvent = () => {
     const eventActions = useEventAction()
+    const chainOfEventActions = useChainOfEventAction()
     const [error, setError] = useState(null)
 
     const createEventHandler = (eventData) => {
@@ -23,8 +25,11 @@ const CreateEvent = () => {
             }
         })
     }
-    const createChainOfEventsHandler = (chainOfEventsData) => {
-        return eventActions.createChainOfEvents(chainOfEventsData)
+    const createChainOfEventHandler = (chainOfEventsData) => {
+        return chainOfEventActions.createChainOfEvent(chainOfEventsData)
+    }
+    const loadChainOfEventList = () => {
+        return chainOfEventActions.getListChainOfEvent()
     }
     return (
         <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }} px={3} pt={10}>
@@ -35,7 +40,8 @@ const CreateEvent = () => {
                 onCreateEvent={createEventHandler}
                 error={error}
                 setError={setError}
-                onCreateChainOfEvents={createChainOfEventsHandler}
+                onCreateChainOfEvent={createChainOfEventHandler}
+                onLoadChainOfEvent={loadChainOfEventList}
             />
         </Box>
     )

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { Close } from '@mui/icons-material'
 import {
     Box,
     FormControl,
@@ -12,32 +13,42 @@ import {
     Modal,
     FormHelperText,
     CircularProgress,
+    IconButton,
 } from '@mui/material'
 
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
 
-const ModalChainOfEvents = ({
-    chainEvents,
-    setChainEvents,
+const ModalChainOfEvent = ({
+    chainOfEvent,
+    setChainEvent,
     isOpenModal,
     closeChainOfEventHandler,
-    onCreateChainOfEvents,
+    onCreateChainOfEvent,
+    chainOfEventList,
 }) => {
-    const chooseChainOfEventHandler = (event) => {
-        setChainEvents(event.target.value)
-    }
     const [categoryName, setCategoryName] = useState('')
-    const [formCreateNewChainOfEvents, setFormCreateNewChainOfEvents] = useState(false)
+    const [formCreateNewChainOfEvent, setFormCreateNewChainOfEvent] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
     const isValidForm = categoryName.trim().length !== 0
+    const chooseChainOfEventHandler = (id, categoryName) => {
+        setChainEvent({ id: id, categoryName: categoryName })
+        closeChainOfEventHandler()
+    }
+    const dropChainOfEventHandler = () => {
+        setChainEvent(null)
+        closeChainOfEventHandler()
+    }
+    const deleteChainOfEvent = (event) => {
+        event.stopPropagation()
+    }
     const submitFormHandler = (event) => {
         event.preventDefault()
         setIsLoading(true)
-        onCreateChainOfEvents({ categoryName, imageUrl: src })
+        onCreateChainOfEvent({ categoryName, imageUrl: src })
             .then((response) => {
                 const dataResponse = response.data.data
-                setChainEvents({ id: dataResponse.id, categoryName: dataResponse.categoryName })
+                setChainEvent({ id: dataResponse.id, categoryName: dataResponse.categoryName })
                 setIsLoading(false)
             })
             .then(() => {
@@ -77,13 +88,33 @@ const ModalChainOfEvents = ({
                     <InputLabel id="category-chain-events">Category name</InputLabel>
                     <Select
                         labelId="category-chain-events"
-                        value={chainEvents ?? ''}
+                        value={chainOfEvent?.categoryName ?? ''}
                         label="Category name"
-                        onChange={chooseChainOfEventHandler}
                     >
-                        <MenuItem value="Java">Java</MenuItem>
-                        <MenuItem value="Javascript">Javascript</MenuItem>
-                        <MenuItem value="Python">Python</MenuItem>
+                        {chainOfEventList.map((chainOfEvent) => (
+                            <MenuItem
+                                key={chainOfEvent.id}
+                                value={chainOfEvent.categoryName}
+                                onClick={() =>
+                                    chooseChainOfEventHandler(
+                                        chainOfEvent.id,
+                                        chainOfEvent.categoryName
+                                    )
+                                }
+                                sx={{ position: 'relative' }}
+                            >
+                                {chainOfEvent.categoryName}
+                                <IconButton
+                                    sx={{ position: 'absolute', right: 5 }}
+                                    onClick={deleteChainOfEvent}
+                                >
+                                    <Close />
+                                </IconButton>
+                            </MenuItem>
+                        ))}
+                        <MenuItem value="None" onClick={dropChainOfEventHandler}>
+                            None
+                        </MenuItem>
                     </Select>
                 </FormControl>
                 <Typography variant="subtitle1" sx={{ mt: 2 }}>
@@ -95,13 +126,13 @@ const ModalChainOfEvents = ({
                         sx={{ '&:hover': { textDecoration: 'underline' }, cursor: 'pointer' }}
                         color="primary"
                         onClick={() =>
-                            setFormCreateNewChainOfEvents((previousValue) => !previousValue)
+                            setFormCreateNewChainOfEvent((previousValue) => !previousValue)
                         }
                     >
                         Start create one.
                     </Typography>
                 </Typography>
-                {formCreateNewChainOfEvents && (
+                {formCreateNewChainOfEvent && (
                     <Box component="form" sx={{ mt: 2 }} onSubmit={submitFormHandler}>
                         <FormControl fullWidth size="small">
                             <InputLabel htmlFor="name-chain-events">Name</InputLabel>
@@ -128,15 +159,12 @@ const ModalChainOfEvents = ({
                                 alignItems: 'center',
                             }}
                         >
-                            <Button
-                                variant="contained"
-                                disabled={!isValidForm}
-                                type="submit"
-                                sx={{ mr: 2 }}
-                            >
+                            <Button variant="contained" disabled={!isValidForm} type="submit">
                                 Create
                             </Button>
-                            {isLoading && <CircularProgress disableShrink size={20} />}
+                            {isLoading && (
+                                <CircularProgress disableShrink size={20} sx={{ ml: 2 }} />
+                            )}
                         </Box>
                     </Box>
                 )}
@@ -145,4 +173,4 @@ const ModalChainOfEvents = ({
     )
 }
 
-export default ModalChainOfEvents
+export default ModalChainOfEvent

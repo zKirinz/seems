@@ -22,13 +22,19 @@ import {
 } from '@mui/material'
 
 import usePrompt from '../../../hooks/use-prompt'
-import ModalChainOfEvents from './ModalChainOfEvents'
+import ModalChainOfEvent from './ModalChainOfEvent'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
 const defaultTextFieldValue = { value: '', isTouched: false }
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
-const CreateEventForm = ({ onCreateEvent, error, setError, onCreateChainOfEvents }) => {
+const CreateEventForm = ({
+    onCreateEvent,
+    error,
+    setError,
+    onCreateChainOfEvent,
+    onLoadChainOfEvent,
+}) => {
     const startDateDefault = useMemo(() => {
         return new Date(new Date().getTime() + 24 * 3600 * 1000)
     }, [])
@@ -43,8 +49,9 @@ const CreateEventForm = ({ onCreateEvent, error, setError, onCreateChainOfEvents
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
     const [posterUrl, setPosterUrl] = useState({ src })
-    const [chainOfEvents, setChainOfEvents] = useState(null)
+    const [chainOfEvent, setChainOfEvent] = useState(null)
     const [isOpenModal, setIsOpenModal] = useState(false)
+    const [chainOfEventList, setChainOfEventList] = useState([])
     useEffect(() => {
         return () => {
             posterUrl.src && URL.revokeObjectURL(posterUrl.src)
@@ -99,11 +106,13 @@ const CreateEventForm = ({ onCreateEvent, error, setError, onCreateChainOfEvents
     const finishFormEntering = () => {
         setFormIsTouched(false)
     }
-    const openChainOfEventsHandler = () => {
+    const openChainOfEventHandler = () => {
         setIsOpenModal(true)
+        onLoadChainOfEvent().then((response) => {
+            setChainOfEventList(response.data.data)
+        })
     }
     const closeChainOfEventHandler = () => {
-        setChainOfEvents(null)
         setIsOpenModal(false)
     }
     const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
@@ -121,6 +130,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError, onCreateChainOfEvents
             isPrivate,
             startDate: startDate,
             endDate: endDate,
+            chainOfEventId: chainOfEvent.id,
         }
         onCreateEvent(eventDetailed)
     }
@@ -208,13 +218,26 @@ const CreateEventForm = ({ onCreateEvent, error, setError, onCreateChainOfEvents
                                     </FormHelperText>
                                 )}
                             </FormControl>
-                            <FormControl sx={{ ml: 1.5 }} fullWidth>
+                            <FormControl
+                                sx={{ ml: 1.5, flexDirection: 'row', alignItems: 'center' }}
+                                fullWidth
+                            >
                                 <FormControlLabel
                                     control={<Checkbox />}
                                     label="Chain of events"
-                                    checked={isOpenModal}
-                                    onChange={openChainOfEventsHandler}
+                                    checked={!!chainOfEvent ?? isOpenModal}
+                                    onChange={openChainOfEventHandler}
                                 />
+                                {chainOfEvent && (
+                                    <Typography
+                                        sx={{ ml: 2, textDecoration: 'underline' }}
+                                        variant="subtitle1"
+                                        fontWeight={600}
+                                        color="primary"
+                                    >
+                                        ({chainOfEvent.categoryName})
+                                    </Typography>
+                                )}
                             </FormControl>
                             <FormControl
                                 sx={{ mx: 1.5, my: 1, flexDirection: 'row', alignItems: 'center' }}
@@ -323,12 +346,13 @@ const CreateEventForm = ({ onCreateEvent, error, setError, onCreateChainOfEvents
                     </Box>
                 </Grid>
             </Grid>
-            <ModalChainOfEvents
-                chainEvents={chainOfEvents}
-                setChainEvents={setChainOfEvents}
+            <ModalChainOfEvent
+                chainOfEvent={chainOfEvent}
+                setChainEvent={setChainOfEvent}
                 isOpenModal={isOpenModal}
                 closeChainOfEventHandler={closeChainOfEventHandler}
-                onCreateChainOfEvents={onCreateChainOfEvents}
+                onCreateChainOfEvent={onCreateChainOfEvent}
+                chainOfEventList={chainOfEventList}
             />
         </React.Fragment>
     )
