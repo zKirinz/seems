@@ -258,20 +258,20 @@ namespace SEEMS.Controller
             {
                 if (anComment == null && parentCommentId != null)
                 {
-                    return 3;
+                    return 3; //eventId and parentCommentId are not valid
                 }
                 else
                 {
-                    return 1;
+                    return 1; //eventId is not valid
                 }
             }
             else if (anComment == null && parentCommentId != null)
             {
-                return 2;
+                return 2; //parentCommentId is not valid
             }
             else
             {
-                return 0;
+                return 0;  //eventId and parentCommentId are valid
             }
         }
 
