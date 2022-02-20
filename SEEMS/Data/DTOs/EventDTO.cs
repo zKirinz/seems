@@ -13,11 +13,7 @@ namespace SEEMS.Data.DTO
 		[Required]
 		public bool IsPrivate { get; set; }
 		[Required]
-		public bool IsFree { get; set; }
-		[Required]
 		public String ImageUrl { get; set; }
-		[Required]
-		public decimal ExpectPrice { get; set; }
 		[Required]
 		public bool Active { get; set; }
 		[Required]

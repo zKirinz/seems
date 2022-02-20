@@ -52,7 +52,6 @@ const CommentsSection = ({ eventId: EventId }) => {
         if (commentContent.current.value.trim().length !== 0 && event.key === 'Enter') {
             setIsLoading(true)
             const commentData = {
-                UserId: 1,
                 EventId: EventId,
                 CommentContent: commentContent.current.value,
                 ParentCommentId: null,
@@ -65,9 +64,6 @@ const CommentsSection = ({ eventId: EventId }) => {
                     commentContent.current.value = ''
                 })
                 .then(() => {
-                    setIsLoading(false)
-                })
-                .catch(() => {
                     setIsLoading(false)
                 })
         }
