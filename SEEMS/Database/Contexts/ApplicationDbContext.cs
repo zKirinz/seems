@@ -26,8 +26,6 @@ namespace SEEMS.Contexts
 
         public DbSet<FeedBack> FeedBacks { get; set; }
 
-        public DbSet<InvoiceUser> InvoiceUsers { get; set; }
-
         public DbSet<User> Users { get; set; }
 
         public DbSet<UserMeta> UserMetas { get; set; }

@@ -12,7 +12,8 @@ namespace SEEMS.Configs
 	{
 		public MappingProfile()
 		{
-			CreateMap<Event, EventDTO>().ForMember(x => x.IsFree, opt => opt.Ignore());
+
+			CreateMap<Event, EventDTO>();
 			CreateMap<EventDTO, Event>();
 			CreateMap<CommentDTO, Comment>().ForMember(x => x.Id, opt => opt.Ignore())
 											.ForMember(x => x.UserId, opt => opt.Ignore())
