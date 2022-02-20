@@ -244,6 +244,25 @@ namespace SEEMS.Controller
 			}
 		}
 
+		[HttpDelete("id")]
+		public async Task<ActionResult> Delete(int id)
+		{
+			var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
+			if (target is null)
+			{
+				return BadRequest(
+						new Response(ResponseStatusEnum.Fail,
+						false,
+						"ID not found"));
+			}
+			_context.Events.Remove(target);
+			await _context.SaveChangesAsync();
+			return Ok(
+						new Response(ResponseStatusEnum.Success,
+						true,
+						"Delete event successfully"));
+		}
+
 		[HttpPost]
 		public async Task<ActionResult> AddEvent(EventDTO eventDTO)
 		{
