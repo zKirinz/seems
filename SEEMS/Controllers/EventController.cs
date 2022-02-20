@@ -187,34 +187,61 @@ namespace SEEMS.Controller
 		[HttpPut("{id}")]
 		public async Task<ActionResult<bool>> Update(int id, [FromBody] EventDTO eventDTO)
 		{
-			eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
-			eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
-			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
-			if (eventValidationInfo != null)
-				return BadRequest(
-						new Response(ResponseStatusEnum.Fail,
-						eventValidationInfo,
-						"Some fields didn't match requirements"));
-			var newEvent = _mapper.Map<Event>(eventDTO);
-			var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
-			if (target is null)
+			try
 			{
-				return BadRequest(
-						new Response(ResponseStatusEnum.Fail,
-						false,
-						"ID not found"));
+				eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
+				eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
+				var user = await GetCurrentUser(Request);
+				var userMeta = _context.UserMetas.FirstOrDefault(x => x.UserId == user.Id);
+				if (userMeta.MetaValue.Equals("Organizer", StringComparison.CurrentCultureIgnoreCase)
+					&& user.Id == id)
+				{
+					EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
+					if (eventValidationInfo != null)
+						return BadRequest(
+								new Response(ResponseStatusEnum.Fail,
+								eventValidationInfo,
+								"Some fields didn't match requirements"));
+					var newEvent = _mapper.Map<Event>(eventDTO);
+					var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
+					if (target is null)
+					{
+						return BadRequest(
+								new Response(ResponseStatusEnum.Fail,
+								false,
+								"ID not found"));
+					}
+					newEvent.Id = target.Id;
+					newEvent.ClientId = target.ClientId;
+					_context.Update(newEvent);
+					await _context.SaveChangesAsync();
+					return Ok(
+					new Response(
+						ResponseStatusEnum.Success,
+						newEvent,
+						msg: "Succefully Update"
+						)
+					);
+				}
+				else
+				{
+					return BadRequest(
+						new Response(
+							ResponseStatusEnum.Fail,
+							code: 400,
+							msg: "Just Organizer who created event can update this event"
+						)
+					);
+				}
 			}
-			newEvent.Id = target.Id;
-			newEvent.ClientId = target.ClientId;
-			_context.Update(newEvent);
-			await _context.SaveChangesAsync();
-			return Ok(
-				new Response(
-					ResponseStatusEnum.Success,
-					newEvent,
-					msg: "Succefully Update"
-					)
+			catch (Exception ex)
+			{
+				return StatusCode(
+					StatusCodes.Status500InternalServerError,
+					new Response(ResponseStatusEnum.Error,
+					msg: ex.Message)
 				);
+			}
 		}
 
 		[HttpDelete("id")]
