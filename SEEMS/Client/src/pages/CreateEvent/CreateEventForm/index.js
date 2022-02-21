@@ -22,6 +22,7 @@ import {
     Chip,
 } from '@mui/material'
 
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import usePrompt from '../../../hooks/use-prompt'
 import ModalChainOfEvent from './ModalChainOfEvent'
 
@@ -54,11 +55,15 @@ const CreateEventForm = ({
     const [chainOfEvent, setChainOfEvent] = useState(null)
     const [isOpenModal, setIsOpenModal] = useState(false)
     const [chainOfEventList, setChainOfEventList] = useState([])
+
+    const showSnackbar = useSnackbar()
+
     useEffect(() => {
         return () => {
             posterUrl.src && URL.revokeObjectURL(posterUrl.src)
         }
     }, [posterUrl])
+
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
         setEventName((previousValue) => ({ ...previousValue, value: event.target.value }))
@@ -110,10 +115,17 @@ const CreateEventForm = ({
     }
     const openChainOfEventHandler = () => {
         setIsOpenModal(true)
-        onLoadChainOfEvent().then((response) => {
-            const listChainOfEvent = response.data.data
-            setChainOfEventList(listChainOfEvent)
-        })
+        onLoadChainOfEvent()
+            .then((response) => {
+                const listChainOfEvent = response.data.data
+                setChainOfEventList(listChainOfEvent)
+            })
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+            })
     }
     const closeChainOfEventHandler = () => {
         setIsOpenModal(false)

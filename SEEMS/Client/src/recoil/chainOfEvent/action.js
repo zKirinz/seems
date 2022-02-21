@@ -7,9 +7,7 @@ const useChainOfEventAction = () => {
     const getListChainOfEvent = () => {
         return get({ endpoint: '/api/chainOfEvent' })
     }
-    const removeChainOfEvent = (id) => {
-        return remove({ endpoint: `/api/chainOfEvent/${id}` })
-    }
+    const removeChainOfEvent = (id) => remove({ endpoint: `/api/chainOfEvent/${id}` })
     return {
         createChainOfEvent,
         getListChainOfEvent,

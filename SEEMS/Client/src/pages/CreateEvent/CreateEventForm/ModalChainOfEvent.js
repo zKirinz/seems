@@ -66,17 +66,33 @@ const ModalChainOfEvent = ({
     }
 
     const onConfirmDelete = (id) => {
-        onDeleteChainOfEvent(id).then(() => {
-            setChainOfEventList((previousList) =>
-                previousList.filter((chainOfEventItem) => chainOfEventItem.id !== id)
-            )
-            showSnackbar({
-                severity: 'success',
-                children: 'Delete chain of event successfully.',
+        onDeleteChainOfEvent(id)
+            .then(() => {
+                setChainOfEventList((previousList) =>
+                    previousList.filter((chainOfEventItem) => chainOfEventItem.id !== id)
+                )
+                showSnackbar({
+                    severity: 'success',
+                    children: 'Delete chain of event successfully.',
+                })
+                setConfirmDialog(false)
+                idChainOfEventDeleted.current = null
             })
-            setConfirmDialog(false)
-            idChainOfEventDeleted.current = null
-        })
+            .catch((error) => {
+                if (error.response.status === 422)
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'This chain of event does not exist',
+                    })
+                else {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again.',
+                    })
+                }
+                setConfirmDialog(false)
+                closeChainOfEventHandler()
+            })
     }
 
     const dropChainOfEventHandler = () => {
@@ -101,10 +117,20 @@ const ModalChainOfEvent = ({
                 setCategoryName('')
             })
             .catch((error) => {
-                setError({
-                    categoryName: error.response.data.message,
-                })
-                setIsLoading(false)
+                if (error.response.code === 422) {
+                    setError({
+                        categoryName: error.response.data.message,
+                    })
+                    setIsLoading(false)
+                } else {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                    closeChainOfEventHandler()
+                    setFormCreateNewChainOfEvent(false)
+                    setCategoryName('')
+                }
             })
     }
 
@@ -137,27 +163,27 @@ const ModalChainOfEvent = ({
                         <InputLabel id="category-chain-events">Category name</InputLabel>
                         <Select
                             labelId="category-chain-events"
-                            value={chainOfEvent?.categoryName}
+                            value={chainOfEvent?.categoryName ?? ''}
                             label="Category name"
                             sx={{ '& .MuiIconButton-root': { display: 'none' } }}
                             MenuProps={MenuProps}
                         >
                             {chainOfEventList.map((chainOfEventItem) => (
                                 <MenuItem
-                                    key={chainOfEvent?.id}
-                                    value={chainOfEventItem?.categoryName}
+                                    key={chainOfEventItem.id}
+                                    value={chainOfEventItem.categoryName}
                                     onClick={() =>
                                         chooseChainOfEventHandler(
-                                            chainOfEventItem?.id,
-                                            chainOfEventItem?.categoryName
+                                            chainOfEventItem.id,
+                                            chainOfEventItem.categoryName
                                         )
                                     }
                                     sx={{ position: 'relative' }}
                                 >
-                                    {chainOfEventItem?.categoryName}
+                                    {chainOfEventItem.categoryName}
                                     <IconButton
                                         sx={{ position: 'absolute', right: 5 }}
-                                        onClick={(event) => openDialog(event, chainOfEventItem?.id)}
+                                        onClick={(event) => openDialog(event, chainOfEventItem.id)}
                                     >
                                         <Close />
                                     </IconButton>
