@@ -3,6 +3,7 @@ using SEEMS.Data.Entities;
 using SEEMS.Data.Models;
 using SEEMS.Models;
 using System;
+using SEEMS.Infrastructures.Extensions;
 
 namespace SEEMS.Contexts
 {
@@ -29,6 +30,19 @@ namespace SEEMS.Contexts
         public DbSet<User> Users { get; set; }
 
         public DbSet<UserMeta> UserMetas { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            if (modelBuilder == null)
+                throw new ArgumentNullException(nameof(modelBuilder));
+
+            modelBuilder.AddRemovePluralizeConvention();
+            modelBuilder.AddRemoveOneToManyCascadeConvention();
+            
+            modelBuilder.ApplyConventions();
+            
+            base.OnModelCreating(modelBuilder);
+        }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
         {
