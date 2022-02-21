@@ -184,7 +184,7 @@ internal class SecureEndpointAuthRequirementFilter: IOperationFilter
         if (!context.ApiDescription
                 .ActionDescriptor
                 .EndpointMetadata
-                .OfType<AuthorizeAttribute>()
+                .OfType<RoleBasedAuthorizationAttribute>()
                 .Any())
         {
             return;
