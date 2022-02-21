@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { Link as RouterLink, useHistory } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
 
 import EventPoster from '../../../components/EventPoster'
 import SearchField from '../../../components/SearchField'
@@ -17,6 +18,7 @@ import {
     Link,
 } from '@mui/material'
 
+import authAtom from '../../../recoil/auth'
 import useEventAction from '../../../recoil/event/action'
 import EventSummaryInfo from './EventSummaryInfo'
 
@@ -24,6 +26,7 @@ const UpComingEvents = () => {
     const history = useHistory()
     const theme = useTheme()
     const matches = useMediaQuery(theme.breakpoints.up('sm'))
+    const auth = useRecoilValue(authAtom)
     const eventAction = useEventAction()
     const [upcomingEvents, setUpcomingEvents] = useState([])
 
@@ -103,10 +106,16 @@ const UpComingEvents = () => {
             ) : (
                 <Box display="flex" justifyContent="center" mt={8}>
                     <Alert icon={<EventBusyIcon />} variant="outlined" severity="warning">
-                        There is not any upcoming events here, let&apos;s{' '}
-                        <RouterLink to="/events/create">
-                            <Link component="span">create one!</Link>
-                        </RouterLink>
+                        {auth.role === 'Organizer' ? (
+                            <React.Fragment>
+                                There is not any upcoming events here, let&apos;s{' '}
+                                <RouterLink to="/events/create">
+                                    <Link component="span">create one!</Link>
+                                </RouterLink>{' '}
+                            </React.Fragment>
+                        ) : (
+                            'There is not any upcoming events here, please come back later!'
+                        )}
                     </Alert>
                 </Box>
             )}
