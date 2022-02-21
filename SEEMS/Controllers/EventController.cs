@@ -247,33 +247,41 @@ namespace SEEMS.Controller
 		[HttpDelete("{id}")]
 		public async Task<ActionResult> Delete(int id)
 		{
-			var user = await GetCurrentUser(Request);
-			var userRole = _context.UserMetas.FirstOrDefault(um => um.UserId == user.Id && um.MetaKey == "role").MetaValue;
-			if (userRole == "Organizer" || userRole == "Admin")
+			try
 			{
-				var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
-				if (target is null)
+				var user = await GetCurrentUser(Request);
+				var userRole = _context.UserMetas.FirstOrDefault(um => um.UserId == user.Id && um.MetaKey == "role").MetaValue;
+				if (userRole == "Organizer" || userRole == "Admin")
+				{
+					var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
+					if (target is null)
+					{
+						return BadRequest(
+								new Response(ResponseStatusEnum.Fail,
+								false,
+								"ID not found"));
+					}
+					_context.Events.Remove(target);
+					await _context.SaveChangesAsync();
+					return Ok(
+								new Response(ResponseStatusEnum.Success,
+								true,
+								"Delete event successfully"));
+				}
+				else
 				{
 					return BadRequest(
-							new Response(ResponseStatusEnum.Fail,
-							false,
-							"ID not found"));
+						new Response(
+							ResponseStatusEnum.Fail,
+							"Invalid role"
+						)
+					);
 				}
-				_context.Events.Remove(target);
-				await _context.SaveChangesAsync();
-				return Ok(
-							new Response(ResponseStatusEnum.Success,
-							true,
-							"Delete event successfully"));
 			}
-			else
+			catch (Exception ex)
 			{
-				return BadRequest(
-					new Response(
-						ResponseStatusEnum.Fail,
-						"Invalid role"
-					)
-				);
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
 			}
 		}
 

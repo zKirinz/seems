@@ -117,6 +117,5 @@ namespace SEEMS.Database
 				ctx.Events.Add(item);
 			}
 		}
-
 	}
 }
