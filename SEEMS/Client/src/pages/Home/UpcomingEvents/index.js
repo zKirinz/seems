@@ -44,8 +44,8 @@ const UpComingEvents = () => {
                 Upcoming Events
             </Typography>
             {upcomingEvents.length ? (
-                <React.Fragment>
-                    <Box mx={{ sx: 2, md: 10 }} my={5}>
+                <Box sx={{ maxWidth: 1000, m: '0 auto', display: 'flex', flexDirection: 'column' }}>
+                    <Box my={5}>
                         <SearchField />
                     </Box>
                     <Grid container rowGap={6} display="flex" justifyContent="center">
@@ -56,7 +56,7 @@ const UpComingEvents = () => {
                                     elevation={3}
                                     sx={{
                                         position: 'relative',
-                                        mx: { sx: 2, md: 10, maxWidth: 1000, width: '100%' },
+                                        width: '100%',
                                     }}
                                 >
                                     <Box px={{ xs: 2, sm: 4 }} mb={{ xs: 8, md: 4, lg: 0 }}>
@@ -102,7 +102,7 @@ const UpComingEvents = () => {
                             )
                         )}
                     </Grid>
-                </React.Fragment>
+                </Box>
             ) : (
                 <Box display="flex" justifyContent="center" mt={8}>
                     <Alert icon={<EventBusyIcon />} variant="outlined" severity="warning">
