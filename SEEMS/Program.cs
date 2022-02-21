@@ -189,16 +189,16 @@ app.Run();
 
 internal class SecureEndpointAuthRequirementFilter : IOperationFilter
 {
-	public void Apply(OpenApiOperation operation, OperationFilterContext context)
-	{
-		if (!context.ApiDescription
-				.ActionDescriptor
-				.EndpointMetadata
-				.OfType<AuthorizeAttribute>()
-				.Any())
-		{
-			return;
-		}
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        if (!context.ApiDescription
+                .ActionDescriptor
+                .EndpointMetadata
+                .OfType<RoleBasedAuthorizationAttribute>()
+                .Any())
+        {
+            return;
+        }
 
 		operation.Security = new List<OpenApiSecurityRequirement>
 		{

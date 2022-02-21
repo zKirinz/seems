@@ -24,8 +24,8 @@ const EventSummaryInfo = ({ title, content, startTime }) => {
                     color: grey[500],
                     overflow: 'hidden',
                     display: '-webkit-box',
-                    '-webkit-box-orient': 'vertical',
-                    '-webkit-line-clamp': '3',
+                    WebkitBoxOrient: 'vertical',
+                    WebkitLineClamp: '3',
                     textOverflow: 'ellipsis',
                 }}
                 fontWeight={500}
