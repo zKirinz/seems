@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 
-import { CameraAlt, Help } from '@mui/icons-material'
+import { CameraAlt, Delete } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -12,7 +12,6 @@ import {
     FormControlLabel,
     FormHelperText,
     Grid,
-    InputAdornment,
     InputLabel,
     OutlinedInput,
     Radio,
@@ -20,17 +19,25 @@ import {
     TextField,
     Paper,
     Typography,
-    Tooltip,
-    IconButton,
+    Chip,
 } from '@mui/material'
 
-import usePrompt from '../../hooks/use-prompt'
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
+import usePrompt from '../../../hooks/use-prompt'
+import ModalChainOfEvent from './ModalChainOfEvent'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
 const defaultTextFieldValue = { value: '', isTouched: false }
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
-const CreateEventForm = ({ onCreateEvent, error, setError }) => {
+const CreateEventForm = ({
+    onCreateEvent,
+    error,
+    setError,
+    onCreateChainOfEvent,
+    onLoadChainOfEvent,
+    onDeleteChainOfEvent,
+}) => {
     const startDateDefault = useMemo(() => {
         return new Date(new Date().getTime() + 24 * 3600 * 1000)
     }, [])
@@ -43,61 +50,85 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [eventName, setEventName] = useState(defaultTextFieldValue)
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
-    const [isEventFree, setIsEventFree] = useState(true)
     const [isPrivate, setIsPrivate] = useState(false)
-    const [price, setPrice] = useState(0)
     const [posterUrl, setPosterUrl] = useState({ src })
-    useEffect(() => {
-        if (isEventFree) setPrice(0)
-        else setPrice(1000)
-    }, [isEventFree])
+    const [chainOfEvent, setChainOfEvent] = useState(null)
+    const [isOpenModal, setIsOpenModal] = useState(false)
+    const [chainOfEventList, setChainOfEventList] = useState([])
+
+    const showSnackbar = useSnackbar()
+
     useEffect(() => {
         return () => {
             posterUrl.src && URL.revokeObjectURL(posterUrl.src)
         }
     }, [posterUrl])
+
     const eventNameChangeHandler = (event) => {
-        error.title && setError((previousError) => ({ ...previousError, title: null }))
+        error?.title && setError((previousError) => ({ ...previousError, title: null }))
         setEventName((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
+
     const locationChangeHandler = (event) => {
-        error.location && setError((previousError) => ({ ...previousError, location: null }))
+        error?.location && setError((previousError) => ({ ...previousError, location: null }))
         setLocation((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
+
     const descriptionChangeHandler = (event) => {
-        error.description && setError((previousError) => ({ ...previousError, description: null }))
+        error?.description && setError((previousError) => ({ ...previousError, description: null }))
         setDescription((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
-    const priceChangeHandler = (event) => {
-        error.expectPrice && setError((previousError) => ({ ...previousError, expectPrice: null }))
-        setPrice(event.target.value)
-    }
+
     const startDateChangeHandler = (newDate) => {
-        error.startDate && setError((previousError) => ({ ...previousError, startDate: null }))
+        error?.startDate && setError((previousError) => ({ ...previousError, startDate: null }))
         setStartDate(newDate)
     }
+
     const endDateChangeHandler = (newDate) => {
-        error.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
+        error?.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
         setEndDate(newDate)
     }
+
     const uploadImageHandler = (event) => {
         const imageUrl = URL.createObjectURL(event.target.files[0])
         setPosterUrl({ src: imageUrl })
     }
+
     const eventNameTouchedHandler = () => {
         setEventName((previousValue) => ({ ...previousValue, isTouched: true }))
     }
+
     const locationTouchedHandler = () => {
         setLocation((previousValue) => ({ ...previousValue, isTouched: true }))
     }
+
     const descriptionTouchedHandler = () => {
         setDescription((previousValue) => ({ ...previousValue, isTouched: true }))
     }
+
     const formIsEntering = () => {
         setFormIsTouched(true)
     }
+
     const finishFormEntering = () => {
         setFormIsTouched(false)
+    }
+    const openChainOfEventHandler = () => {
+        setIsOpenModal(true)
+        onLoadChainOfEvent()
+            .then((response) => {
+                const listChainOfEvent = response.data.data
+                setChainOfEventList(listChainOfEvent)
+            })
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+            })
+    }
+    const closeChainOfEventHandler = () => {
+        setIsOpenModal(false)
     }
     const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
     const locationIsInValid = isEmpty(location.value) && location.isTouched
@@ -110,15 +141,15 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             eventTitle: eventName.value,
             location: location.value,
             eventDescription: description.value,
-            expectPrice: parseInt(price),
-            isFree: isEventFree,
             imageUrl: src,
             isPrivate,
             startDate: startDate,
             endDate: endDate,
+            chainOfEventId: chainOfEvent?.id,
         }
         onCreateEvent(eventDetailed)
     }
+
     return (
         <React.Fragment>
             {routerPrompt}
@@ -142,7 +173,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                         p={2}
                         autoComplete="off"
                         onSubmit={submitHandler}
-                        onFocus={formIsEntering}
+                        onChange={formIsEntering}
                     >
                         <Box display="flex" flexWrap="wrap" justifyContent="space-between">
                             <FormControl sx={{ m: 1.5, width: { md: '45%', xs: '100%' } }} required>
@@ -204,57 +235,25 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                             </FormControl>
                             <FormControl
                                 sx={{ ml: 1.5, flexDirection: 'row', alignItems: 'center' }}
+                                fullWidth
                             >
                                 <FormControlLabel
                                     control={<Checkbox />}
-                                    label="Paid"
-                                    onChange={() =>
-                                        setIsEventFree((previousValue) => !previousValue)
-                                    }
-                                    checked={!isEventFree}
-                                    sx={{ mr: 0 }}
+                                    label="Chain of events"
+                                    checked={!!chainOfEvent}
+                                    onChange={openChainOfEventHandler}
                                 />
-                                <Tooltip
-                                    title={`Users ${
-                                        isEventFree ? 'does not' : ''
-                                    } need to pay money to participate in this event.`}
-                                >
-                                    <IconButton size="small">
-                                        <Help fontSize="small" />
-                                    </IconButton>
-                                </Tooltip>
-                            </FormControl>
-                            {!isEventFree && (
-                                <FormControl fullWidth required sx={{ m: 1.5 }}>
-                                    <InputLabel htmlFor="price" shrink>
-                                        Price
-                                    </InputLabel>
-                                    <OutlinedInput
-                                        id="price"
-                                        endAdornment={
-                                            <InputAdornment position="start">VND</InputAdornment>
-                                        }
-                                        label="Price"
-                                        inputProps={{
-                                            type: 'number',
-                                            min: 500,
-                                            inputMode: 'numeric',
-                                            pattern: '[0-9]*',
-                                        }}
-                                        value={price}
-                                        onChange={priceChangeHandler}
-                                        sx={{
-                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
-                                                { display: 'none' },
-                                        }}
+                                {chainOfEvent && (
+                                    <Chip
+                                        label={chainOfEvent.categoryName}
+                                        variant="outlined"
+                                        color="primary"
+                                        sx={{ fontWeight: 500 }}
+                                        deleteIcon={<Delete />}
+                                        onDelete={() => setChainOfEvent(null)}
                                     />
-                                    {error?.expectPrice && (
-                                        <FormHelperText error={!!error?.expectPrice}>
-                                            {error?.expectPrice && `${error.expectPrice}`}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
-                            )}
+                                )}
+                            </FormControl>
                             <FormControl
                                 sx={{ mx: 1.5, my: 1, flexDirection: 'row', alignItems: 'center' }}
                                 fullWidth
@@ -362,6 +361,16 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                     </Box>
                 </Grid>
             </Grid>
+            <ModalChainOfEvent
+                chainOfEvent={chainOfEvent}
+                setChainEvent={setChainOfEvent}
+                isOpenModal={isOpenModal}
+                closeChainOfEventHandler={closeChainOfEventHandler}
+                onCreateChainOfEvent={onCreateChainOfEvent}
+                chainOfEventList={chainOfEventList}
+                setChainOfEventList={setChainOfEventList}
+                onDeleteChainOfEvent={onDeleteChainOfEvent}
+            />
         </React.Fragment>
     )
 }
