@@ -31,7 +31,7 @@ public class ChainOfEventController : ControllerBase
         _mapper = mapper;
     }
     
-    [Authorize] 
+    [RoleBasedAuthorization(RoleBased = RoleTypes.ORG)] 
     [HttpGet("")]
     public async Task<IActionResult> GetAllChainOfEvents([FromQuery] ChainOfEventsPagination param)
     {
@@ -42,21 +42,15 @@ public class ChainOfEventController : ControllerBase
         return Ok(new Response(ResponseStatusEnum.Success, listOfChains));
     }
     
-    [Authorize]
     [HttpPost("")]
     [ValidateModel]
+    [RoleBasedAuthorization(RoleBased = RoleTypes.ORG)]
     public async Task<IActionResult> CreateNewChainOfEvent([FromBody] ChainOfEventForCreationDto body)
     {
         var currentUser = await IsOrganization(Request);
         
         var entity = _mapper.Map<ChainOfEvent>(body);
 
-        if (currentUser == null)
-        {
-            return UnprocessableEntity(new Response(ResponseStatusEnum.Fail, "",
-                "Only Organizer role can create chains", 422));
-        }
-        
         try
         {
             _repoManager.ChainOfEvent.CreateChainOfEvent(currentUser.Id, entity);
@@ -70,21 +64,16 @@ public class ChainOfEventController : ControllerBase
         return Ok(new Response(ResponseStatusEnum.Success, entity));
     }
     
-    [Authorize]
     [ValidateModel]
+    [RoleBasedAuthorization(RoleBased = RoleTypes.ORG)]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateChainOfEvent(int id, [FromBody] ChainOfEventForUpdateDTO dto)
     {
-        var currentUser = await IsOrganization(Request);
-        if (currentUser == null)
-        {
-            return UnprocessableEntity(new Response(ResponseStatusEnum.Fail, "",
-                "Only Organizer role can update chains", 422));
-        } 
-        
         try
         {
             var entity = await _repoManager.ChainOfEvent.GetChainOfEventsAsync(id, true);
+
+            if (entity == null) throw new ArgumentNullException();
             _mapper.Map(dto, entity);
             await _repoManager.SaveAsync();
 
@@ -94,6 +83,28 @@ public class ChainOfEventController : ControllerBase
         {
             return BadRequest(new Response(ResponseStatusEnum.Error, "", $"{dto.CategoryName} is duplicated", 400));
         }
+        catch (ArgumentNullException)
+        {
+            return UnprocessableEntity(new Response(ResponseStatusEnum.Error, "", $"Id {id} is not existed", 422));
+        }
+    }
+   
+    [RoleBasedAuthorization(RoleBased = RoleTypes.ORG)]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteChainOfEvent(int id)
+    {
+        try
+        {
+            var chainOfEvent = await _repoManager.ChainOfEvent.GetChainOfEventsAsync(id, false);
+            _repoManager.ChainOfEvent.DeleteChainOfEvent(chainOfEvent);
+            await _repoManager.SaveAsync();
+        }
+        catch (ArgumentNullException)
+        {
+            return UnprocessableEntity(new Response(ResponseStatusEnum.Error, "", $"Id {id} is not exist", 422));
+        }
+        
+        return NoContent();
     }
 
     private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);

@@ -73,9 +73,8 @@ namespace SEEMS.Controllers
             {
                 HttpOnly = true
             });
-
+            
             return Redirect($"{BaseUiDomain}?token={accessToken}");
-            //return Ok(accessToken);
         }
         
         [HttpPost]
