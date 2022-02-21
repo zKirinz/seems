@@ -139,6 +139,7 @@ namespace SEEMS.Controller
 				var result = allEvents.Where(
 					e => Utilitiies.IsAfterMinutes(e.StartDate, DateTime.Now, 30));
 				bool failed = false;
+				bool loadMore = false;
 
 				//Filter by title
 				if (!string.IsNullOrEmpty(search))
@@ -165,6 +166,10 @@ namespace SEEMS.Controller
 				{
 					result = result.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(result.Count(), resultCount));
 				}
+				if (result.Count() > resultCount)
+				{
+					loadMore = true;
+				}
 
 				return failed
 					? BadRequest(
@@ -174,6 +179,7 @@ namespace SEEMS.Controller
 						new
 						{
 							Count = result.Count(),
+							loadMore = loadMore,
 							listEvents = result
 						})
 				);
