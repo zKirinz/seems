@@ -36,7 +36,6 @@ const CreateEventForm = ({
     setError,
     onCreateChainOfEvent,
     onLoadChainOfEvent,
-    onDeleteChainOfEvent,
 }) => {
     const startDateDefault = useMemo(() => {
         return new Date(new Date().getTime() + 24 * 3600 * 1000)
@@ -52,8 +51,8 @@ const CreateEventForm = ({
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
     const [posterUrl, setPosterUrl] = useState({ src })
-    const [chainOfEvent, setChainOfEvent] = useState(null)
     const [isOpenModal, setIsOpenModal] = useState(false)
+    const [chainOfEvent, setChainOfEvent] = useState(null)
     const [chainOfEventList, setChainOfEventList] = useState([])
 
     const showSnackbar = useSnackbar()
@@ -258,6 +257,15 @@ const CreateEventForm = ({
                                 sx={{ mx: 1.5, my: 1, flexDirection: 'row', alignItems: 'center' }}
                                 fullWidth
                             >
+                                <Typography
+                                    component="span"
+                                    variant="body2"
+                                    fontWeight={500}
+                                    sx={{ mr: 1.5 }}
+                                >
+                                    You want this event to be public or private only for FPT
+                                    education.
+                                </Typography>
                                 <RadioGroup row name="row-radio-buttons-group" value={isPrivate}>
                                     <FormControlLabel
                                         value={false}
@@ -272,10 +280,6 @@ const CreateEventForm = ({
                                         onChange={() => setIsPrivate(true)}
                                     />
                                 </RadioGroup>
-                                <Typography component="span" variant="body2" fontWeight={500}>
-                                    You want this event to be public or private only for FPT
-                                    education
-                                </Typography>
                             </FormControl>
                         </Box>
                         <Box
@@ -368,8 +372,6 @@ const CreateEventForm = ({
                 closeChainOfEventHandler={closeChainOfEventHandler}
                 onCreateChainOfEvent={onCreateChainOfEvent}
                 chainOfEventList={chainOfEventList}
-                setChainOfEventList={setChainOfEventList}
-                onDeleteChainOfEvent={onDeleteChainOfEvent}
             />
         </React.Fragment>
     )
