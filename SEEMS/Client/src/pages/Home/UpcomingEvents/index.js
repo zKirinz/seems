@@ -45,8 +45,10 @@ const UpComingEvents = () => {
             </Typography>
             {upcomingEvents.length ? (
                 <React.Fragment>
-                    <Box mx={{ sx: 2, md: 10 }} my={5}>
-                        <SearchField />
+                    <Box display="flex" justifyContent="center">
+                        <Box my={5} mx={{ sx: 2, md: 10, maxWidth: 1000, width: '100%' }}>
+                            <SearchField />
+                        </Box>
                     </Box>
                     <Grid container rowGap={6} display="flex" justifyContent="center">
                         {upcomingEvents.map(
