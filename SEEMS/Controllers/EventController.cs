@@ -136,26 +136,29 @@ namespace SEEMS.Controller
 			try
 			{
 				var allEvents = _context.Events.ToList();
-				var result = allEvents.Where(
+				var foundResult = allEvents.Where(
 					e => Utilitiies.IsAfterMinutes(e.StartDate, DateTime.Now, 30));
+				List<Event> returnResult = null;
 				bool failed = false;
 				bool loadMore = false;
+				int lastEventIndex = 0;
 
 				//Filter by title
 				if (!string.IsNullOrEmpty(search))
 				{
-					result = result.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
+					foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 				}
 
 				//Implement load more
+
 				if (lastEventID != null)
 				{
-					var lastEventIndex = result.ToList().FindIndex(e => e.Id == lastEventID);
+					lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
 					if (lastEventIndex > 0)
 					{
-						result = result.ToList().GetRange(
+						returnResult = foundResult.ToList().GetRange(
 							lastEventIndex + 1,
-							Math.Min(resultCount, result.Count() - lastEventIndex - 1));
+							Math.Min(resultCount, foundResult.Count() - lastEventIndex - 1));
 					}
 					else
 					{
@@ -164,9 +167,9 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					result = result.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(result.Count(), resultCount));
+					returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
 				}
-				if (result.Count() > resultCount)
+				if (foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
 				{
 					loadMore = true;
 				}
@@ -178,9 +181,9 @@ namespace SEEMS.Controller
 						new Response(ResponseStatusEnum.Success,
 						new
 						{
-							Count = result.Count(),
-							loadMore = loadMore,
-							listEvents = result
+							Count = returnResult.Count(),
+							CanLoadMore = loadMore,
+							listEvents = returnResult
 						})
 				);
 			}
