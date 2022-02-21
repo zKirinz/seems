@@ -1,7 +1,5 @@
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 
-import AlertConfirm from '../../../components/ConfirmDialog'
-import { Close } from '@mui/icons-material'
 import {
     Box,
     FormControl,
@@ -14,7 +12,6 @@ import {
     Modal,
     FormHelperText,
     CircularProgress,
-    IconButton,
 } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
@@ -38,15 +35,11 @@ const ModalChainOfEvent = ({
     closeChainOfEventHandler,
     onCreateChainOfEvent,
     chainOfEventList,
-    setChainOfEventList,
-    onDeleteChainOfEvent,
 }) => {
     const [categoryName, setCategoryName] = useState('')
     const [formCreateNewChainOfEvent, setFormCreateNewChainOfEvent] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
-    const [confirmDialog, setConfirmDialog] = useState(false)
-    const idChainOfEventDeleted = useRef(null)
     const showSnackbar = useSnackbar()
     const isValidForm = categoryName.trim().length !== 0
     const chooseChainOfEventHandler = (id, categoryName) => {
@@ -55,48 +48,10 @@ const ModalChainOfEvent = ({
         setFormCreateNewChainOfEvent(false)
     }
 
-    const openDialog = (event, id) => {
-        event.stopPropagation()
-        idChainOfEventDeleted.current = id
-        setConfirmDialog(true)
-    }
-
-    const closeDialog = () => {
-        setConfirmDialog(false)
-    }
-
-    const onConfirmDelete = (id) => {
-        onDeleteChainOfEvent(id)
-            .then(() => {
-                setChainOfEventList((previousList) =>
-                    previousList.filter((chainOfEventItem) => chainOfEventItem.id !== id)
-                )
-                showSnackbar({
-                    severity: 'success',
-                    children: 'Delete chain of event successfully.',
-                })
-                setConfirmDialog(false)
-                idChainOfEventDeleted.current = null
-            })
-            .catch((error) => {
-                if (error.response.status === 422)
-                    showSnackbar({
-                        severity: 'error',
-                        children: 'This chain of event does not exist',
-                    })
-                else {
-                    showSnackbar({
-                        severity: 'error',
-                        children: 'Something went wrong, please try again.',
-                    })
-                }
-                setConfirmDialog(false)
-                closeChainOfEventHandler()
-            })
-    }
-
     const dropChainOfEventHandler = () => {
         setChainEvent(null)
+        setCategoryName('')
+        setFormCreateNewChainOfEvent(false)
         closeChainOfEventHandler()
     }
 
@@ -117,7 +72,7 @@ const ModalChainOfEvent = ({
                 setCategoryName('')
             })
             .catch((error) => {
-                if (error.response.code === 422) {
+                if (error.response.data.code === 422) {
                     setError({
                         categoryName: error.response.data.message,
                     })
@@ -130,6 +85,7 @@ const ModalChainOfEvent = ({
                     closeChainOfEventHandler()
                     setFormCreateNewChainOfEvent(false)
                     setCategoryName('')
+                    setIsLoading(false)
                 }
             })
     }
@@ -153,7 +109,6 @@ const ModalChainOfEvent = ({
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
                         width: 600,
-                        minHeight: 200,
                         bgcolor: 'background.paper',
                         boxShadow: 24,
                         p: 4,
@@ -181,12 +136,6 @@ const ModalChainOfEvent = ({
                                     sx={{ position: 'relative' }}
                                 >
                                     {chainOfEventItem.categoryName}
-                                    <IconButton
-                                        sx={{ position: 'absolute', right: 5 }}
-                                        onClick={(event) => openDialog(event, chainOfEventItem.id)}
-                                    >
-                                        <Close />
-                                    </IconButton>
                                 </MenuItem>
                             ))}
                             <MenuItem value="None" onClick={dropChainOfEventHandler}>
@@ -247,14 +196,6 @@ const ModalChainOfEvent = ({
                     )}
                 </Box>
             </Modal>
-            <AlertConfirm
-                title="Delete chain of event?"
-                open={confirmDialog}
-                onConfirm={() => onConfirmDelete(idChainOfEventDeleted.current)}
-                onClose={closeDialog}
-            >
-                Are you sure you want to delete this chain of event?
-            </AlertConfirm>
         </React.Fragment>
     )
 }
