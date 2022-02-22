@@ -118,7 +118,7 @@ namespace SEEMS.Controller
 					ResponseStatusEnum.Success,
 					new
 					{
-						Count = resultCount,
+						Count = result.Count(),
 						Events = result.ToList().GetRange(0, resultCount)
 					}
 				));
@@ -145,7 +145,7 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					foundResult = (bool)upcoming ? allEvents.Where(
+					foundResult = (bool) upcoming ? allEvents.Where(
 						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
 						allEvents.Where(
 						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
@@ -194,7 +194,7 @@ namespace SEEMS.Controller
 						new Response(ResponseStatusEnum.Success,
 						new
 						{
-							Count = returnResult.Count(),
+							Count = foundResult.Count(),
 							CanLoadMore = loadMore,
 							listEvents = returnResult
 						})
