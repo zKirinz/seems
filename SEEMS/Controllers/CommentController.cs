@@ -131,9 +131,9 @@ namespace SEEMS.Controller
         //PUT api/Comments
         //Like and unlike Comment
         [HttpPut]
-        public async Task<IActionResult> ReactComment([FromForm] int reactCommentId)
+        public async Task<IActionResult> ReactComment([FromForm] CommentId comment)
         {
-            var commentId = (int)reactCommentId;
+            var commentId = comment.reactCommentId;
             if (!CheckValidCommentId(commentId))
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
