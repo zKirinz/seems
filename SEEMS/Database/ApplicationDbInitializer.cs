@@ -34,12 +34,14 @@ namespace SEEMS.Database
 			users.Add(new User() { Email = "thinhltse151082@fpt.edu.vn", UserName = "Le Tien Thinh (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "phatdgse140409@fpt.edu.vn", UserName = "Duong Gia Phat (K14 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "kienttse151340@fptu.edu.vn", UserName = "Tran Trung Kien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
-			users.Add(new User() { Email = "nguyennkse140132@fpt.edu.vn", UserName = "Nguyen Khoi Nguyen (K13 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = false });
+			users.Add(new User() { Email = "nguyennkse140132@fpt.edu.vn", UserName = "Nguyen Khoi Nguyen (K13 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "hienbtse150763@fpt.edu.vn", UserName = "Bui The Hien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			foreach (var item in users)
 			{
 				ctx.Users.Add(item);
 			}
+
+			ctx.SaveChangesAsync();
 		}
 
 		public static void SeedUserMeta(ApplicationDbContext ctx)
@@ -49,11 +51,11 @@ namespace SEEMS.Database
 				return;   // DB has been seeded
 			}
 			List<UserMeta> userMetas = new List<UserMeta>();
-			userMetas.Add(new UserMeta() { MetaKey = "role", MetaValue = "Organizer", UserId = 1 });
-			userMetas.Add(new UserMeta() { MetaKey = "role", MetaValue = "Organizer", UserId = 2 });
-			userMetas.Add(new UserMeta() { MetaKey = "role", MetaValue = "Organizer", UserId = 3 });
-			userMetas.Add(new UserMeta() { MetaKey = "role", MetaValue = "Organizer", UserId = 4 });
-			userMetas.Add(new UserMeta() { MetaKey = "role", MetaValue = "Organizer", UserId = 5 });
+			List<int> userIds = ctx.Users.Select(x => x.Id).ToList();
+			foreach (int id in userIds)
+			{
+				userMetas.Add(new UserMeta() { MetaKey = "role", MetaValue = "Organizer", UserId = id });
+			}
 			foreach (var i in userMetas)
 			{
 				ctx.UserMetas.Add(i);
