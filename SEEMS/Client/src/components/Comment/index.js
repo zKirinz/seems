@@ -20,12 +20,14 @@ const Comment = ({
     id,
     editCommentHandler,
     createdAt,
-    setOpenResponseCommentField,
+    loadMoreResponseCommentsHandler,
     openResponseCommentField,
+    numberReplyComment,
+    parentCommentId,
 }) => {
     const [isEditCommentContent, setIsEditCommentContent] = useState(false)
     const auth = useRecoilValue(atom)
-    const [inputCommentText, setInputCommentText] = useState(null)
+    const [inputCommentText, setInputCommentText] = useState(commentContent)
     const [confirmDialog, setConfirmDialog] = useState(false)
     const onEditComment = (event) => {
         if (event.target.value.trim().length !== 0 && event.key === 'Enter') {
@@ -135,22 +137,25 @@ const Comment = ({
                     )}
                 </Box>
                 <Box sx={{ ml: 5, mt: 1 }}>
-                    <Typography
-                        component="span"
-                        variant="body2"
-                        fontWeight={700}
-                        sx={{
-                            color: grey[900],
-                            '&:hover': { textDecoration: 'underline', cursor: 'pointer' },
-                        }}
-                        onClick={() => setOpenResponseCommentField(true)}
-                    >
-                        Reply
-                    </Typography>
-                    <Typography component="span" variant="body2" sx={{ ml: 2, color: grey[800] }}>
+                    {!parentCommentId && (
+                        <Typography
+                            component="span"
+                            variant="body2"
+                            fontWeight={700}
+                            sx={{
+                                color: grey[900],
+                                '&:hover': { textDecoration: 'underline', cursor: 'pointer' },
+                                mr: 2,
+                            }}
+                            onClick={loadMoreResponseCommentsHandler}
+                        >
+                            Reply
+                        </Typography>
+                    )}
+                    <Typography component="span" variant="body2" sx={{ color: grey[800] }}>
                         {moment(new Date(createdAt)).fromNow(true)}
                     </Typography>
-                    {!openResponseCommentField && (
+                    {!!numberReplyComment && !openResponseCommentField && (
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <IconButton>
                                 <SubdirectoryArrowRight />
@@ -163,9 +168,9 @@ const Comment = ({
                                     cursor: 'pointer',
                                     '&:hover': { textDecoration: 'underline' },
                                 }}
-                                onClick={() => setOpenResponseCommentField(true)}
+                                onClick={loadMoreResponseCommentsHandler}
                             >
-                                6 response
+                                {numberReplyComment} response
                             </Typography>
                         </Box>
                     )}

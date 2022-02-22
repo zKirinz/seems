@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import EventPoster from '../../components/EventPoster'
-import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
 import useEventAction from '../../recoil/event/action'
@@ -48,11 +48,11 @@ const EventDetailed = () => {
         )
     return (
         <Container fixed sx={{ mt: 15, px: 0 }}>
-            <Grid component={Card} container>
+            <Grid container>
                 <Grid item xs={12} sm={4}>
-                    <EventPoster src={detailedEvent.event.imageUrl} size="contain" />
+                    <EventPoster src={detailedEvent.event.imageUrl} size="cover" />
                 </Grid>
-                <Grid item xs={12} sm={8}>
+                <Grid item xs={12} sm={8} component={Card}>
                     <CardContent sx={{ p: 4 }}>
                         <Typography variant="h4" color="primary" fontWeight={700}>
                             {detailedEvent.event.eventTitle}
@@ -63,9 +63,6 @@ const EventDetailed = () => {
                         <Typography paragraph sx={{ color: grey[600], my: 1 }}>
                             {detailedEvent.event.eventDescription}
                         </Typography>
-                        <Box sx={{ mt: 2 }}>
-                            <Button variant="contained">Subscribe</Button>
-                        </Box>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 4 }}>
                             <EventDate
                                 date={new Date(detailedEvent.event.startDate)}
@@ -84,7 +81,7 @@ const EventDetailed = () => {
                     {detailedEvent.numberComments} comments
                 </Typography>
             </Box>
-            <CommentsSection eventId={id} />
+            <CommentsSection eventId={id} numberComments={detailedEvent.numberComments} />
         </Container>
     )
 }
