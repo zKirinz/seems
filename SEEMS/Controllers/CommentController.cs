@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
+using SEEMS.Data.Entities;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.DTOs;
@@ -127,6 +128,45 @@ namespace SEEMS.Controller
             }
         }
 
+        ////PUT api/Comments
+        ////Like and unlike Comment
+        //[HttpPut]
+        //public async Task<IActionResult> ReactComment([FromBody] JsonResult reactComment)
+        //{
+        //    var commentId = (int)reactComment.Value;
+        //    if (!CheckValidCommentId(commentId))
+        //    {
+        //        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
+        //    }
+
+        //    var currentUser = GetCurrentUser(_authManager.GetCurrentEmail(Request));
+        //    if (currentUser == null)
+        //    {
+        //        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
+        //    }
+        //    var userId = currentUser.Id;
+
+        //    var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == commentId).FirstOrDefault();
+        //    if (likeComment == null)
+        //    {
+        //        LikeComment newLikeComment = new LikeComment 
+        //        { 
+        //            CommentId = commentId,
+        //            UserId = userId,
+        //        };
+
+        //        _context.LikeComments.Add(newLikeComment);
+        //    } 
+        //    else
+        //    {
+        //        _context.LikeComments.Remove(likeComment);
+        //    }
+
+        //    _context.SaveChanges();
+
+        //    return NoContent();
+        //}
+
         // DELETE api/Comments/
         // Delete comment by Id
         [HttpDelete("{id}")]
@@ -151,6 +191,11 @@ namespace SEEMS.Controller
                     }
 
                     var comment = _context.Comments.FirstOrDefault(x => x.Id == id);
+                    var listSubComment = _context.Comments.Where(x => x.ParentCommentId == id).ToList();
+                    foreach (var subComment in listSubComment)
+                    {
+                        _context.Comments.Remove(subComment);
+                    }
                     _context.Comments.Remove(comment);
                     _context.SaveChanges(true);
 
