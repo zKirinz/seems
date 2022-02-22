@@ -24,7 +24,7 @@ namespace SEEMS.Database
 			}
 		}
 
-		public static void SeedUser(ApplicationDbContext ctx)
+		public static async void SeedUser(ApplicationDbContext ctx)
 		{
 			if (ctx.Users.Any())
 			{
@@ -62,7 +62,7 @@ namespace SEEMS.Database
 			}
 		}
 
-		public static void SeedChainOfEvent(ApplicationDbContext ctx)
+		public static async void SeedChainOfEvent(ApplicationDbContext ctx)
 		{
 			if (ctx.ChainOfEvents.Any())
 			{
