@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 
+import { useRecoilValue } from 'recoil'
+
 import Comments from '../../components/Comments'
 import { ModeComment } from '@mui/icons-material'
 import {
@@ -14,10 +16,12 @@ import {
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
+import authAtom from '../../recoil/auth/atom'
 import { useCommentsAction } from '../../recoil/comment'
 
 const CommentsSection = ({ eventId: EventId }) => {
     const commentsActions = useCommentsAction()
+    const auth = useRecoilValue(authAtom)
     const commentContent = useRef(null)
     const initialLoadingComments = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
@@ -107,10 +111,7 @@ const CommentsSection = ({ eventId: EventId }) => {
             </Box>
             {openCommentField && (
                 <Box sx={{ display: 'flex' }}>
-                    <Avatar
-                        alt="avatar"
-                        src="https://lh3.googleusercontent.com/a-/AOh14GgKvY8rY_AslokA1cZIAA7E92d1bNkdQgZCZ0az=s96-c"
-                    />
+                    <Avatar alt="avatar" src={auth.image} />
                     <FormControl fullWidth sx={{ ml: 2 }}>
                         <OutlinedInput
                             placeholder="Write your comment..."
