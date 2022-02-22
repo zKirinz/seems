@@ -47,18 +47,27 @@ const EventDetailed = () => {
             </Box>
         )
     return (
-        <Container fixed sx={{ mt: 15, px: 0 }}>
+        <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>
             <Grid container>
                 <Grid item xs={12} sm={4}>
-                    <EventPoster src={detailedEvent.event.imageUrl} size="cover" />
+                    <EventPoster src={detailedEvent.event.imageUrl} size="contain" />
                 </Grid>
                 <Grid item xs={12} sm={8} component={Card}>
-                    <CardContent sx={{ p: 4 }}>
+                    <CardContent sx={{ p: 5 }}>
                         <Typography variant="h4" color="primary" fontWeight={700}>
                             {detailedEvent.event.eventTitle}
                         </Typography>
-                        <Typography fontWeight={500} sx={{ color: grey[600], mt: 1 }} variant="h6">
-                            {detailedEvent.event.location}
+                        <Typography sx={{ color: grey[600], mt: 1 }} variant="h6">
+                            Take place:{' '}
+                            <Typography
+                                component="span"
+                                fontWeight={500}
+                                variant="h5"
+                                color="secondary"
+                                sx={{ textDecoration: 'underline' }}
+                            >
+                                {detailedEvent.event.location}
+                            </Typography>
                         </Typography>
                         <Typography paragraph sx={{ color: grey[600], my: 1 }}>
                             {detailedEvent.event.eventDescription}
