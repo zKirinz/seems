@@ -17,10 +17,10 @@ const EventDate = ({ nameDate, date }) => {
             <Typography variant="h4" fontWeight={700} sx={{ fontStyle: 'italic' }}>
                 {nameDate}
             </Typography>
-            <Typography variant="h6" fontWeight={500} color="secondary" sx={{ my: 1 }}>
-                {moment(date).format('MMMM Do YYYY, h:mm a')}
+            <Typography variant="h5" fontWeight={500} color="primary" sx={{ my: 1 }}>
+                {moment(date).format('MMM Do YYYY')}
             </Typography>
-            <Typography fontWeight={500}>{moment(date).format('dddd')}</Typography>
+            <Typography variant="h6">{moment(date).format('HH:mm A')}</Typography>
         </Box>
     )
 }

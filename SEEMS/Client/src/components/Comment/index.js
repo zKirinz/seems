@@ -137,6 +137,17 @@ const Comment = ({
                     )}
                 </Box>
                 <Box sx={{ ml: 5, mt: 1 }}>
+                    <Typography
+                        component="span"
+                        sx={{
+                            cursor: 'pointer',
+                            '&:hover': { textDecoration: 'underline' },
+                            mr: 2,
+                        }}
+                        fontWeight={500}
+                    >
+                        Like
+                    </Typography>
                     {!parentCommentId && (
                         <Typography
                             component="span"
