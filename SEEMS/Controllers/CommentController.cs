@@ -477,17 +477,5 @@ namespace SEEMS.Controller
                                                listResponseComments,
                                            }));
         }
-
-        private int NumberLikeComment(int commentId)
-        {
-            var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == commentId).Count();
-            return numberLikeComment;
-        }
-
-        private bool CanLikeComment(int userId, int commentId)
-        {
-            var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == commentId).FirstOrDefault();
-            return likeComment == null ? true : false;
-        }
     }
 }
