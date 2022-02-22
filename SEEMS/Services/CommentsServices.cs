@@ -63,27 +63,6 @@ namespace SEEMS.Services
             return failCheck ? commentValidationInfo : null;
         }
 
-        public static string GetUserNameByUserId(int? userId, ApplicationDbContext dbContext)
-        {
-            var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
-            var userName = (string)user.UserName;
-            return userName;
-        }
-
-        public static string GetImageUrlNameByUserId(int? userId, ApplicationDbContext dbContext)
-        {
-            var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
-            var imageUrl = (string)user.ImageUrl;
-            return imageUrl;
-        }
-
-        public static string GetEmailByUserId(int? userId, ApplicationDbContext dbContext)
-        {
-            var user = dbContext.Users.FirstOrDefault(x => x.Id == userId);
-            var email = (string)user.Email;
-            return email;
-        }
-
         public static bool CheckValidEventId(int eventId, ApplicationDbContext dbContext)
         {
             var events = dbContext.Events.FirstOrDefault(x => x.Id == eventId);
