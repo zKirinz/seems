@@ -12,4 +12,6 @@ public interface IChainOfEventsRepository
     Task<ChainOfEvent> GetChainOfEventsAsync(int theId, bool trackChanges);
     
     void CreateChainOfEvent(int userId, ChainOfEvent chainOfEvent);
+    
+    void DeleteChainOfEvent(ChainOfEvent chainOfEvent);
 }
