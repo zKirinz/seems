@@ -30,6 +30,8 @@ namespace SEEMS.Contexts
 
         public DbSet<UserMeta> UserMetas { get; set; }
 
+        public DbSet<Organization> Organizations { get; set; }
+
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
         {
             var entries = ChangeTracker

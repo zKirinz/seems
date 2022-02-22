@@ -221,7 +221,7 @@ namespace SEEMS.Controller
 								"ID not found"));
 					}
 					newEvent.Id = target.Id;
-					newEvent.ClientId = target.ClientId;
+					newEvent.OrganizationId	= target.OrganizationId;
 					_context.Update(newEvent);
 					await _context.SaveChangesAsync();
 					return Ok(
@@ -314,7 +314,7 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
-					newEvent.ClientId = user.Id;
+					newEvent.OrganizationId = user.Id;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
