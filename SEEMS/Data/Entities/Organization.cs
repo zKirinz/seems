@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SEEMS.Models;
+
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SEEMS.Data.Entities
 {
@@ -9,5 +12,7 @@ namespace SEEMS.Data.Entities
 
 		[StringLength(2000)]
 		public string Description { get; set; }
+		[JsonIgnore()]
+		public List<Event>? Events { get; set; }
 	}
 }

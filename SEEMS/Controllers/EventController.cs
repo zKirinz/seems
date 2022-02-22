@@ -114,6 +114,10 @@ namespace SEEMS.Controller
 					result = result.Where(e => !e.IsPrivate);
 				}
 				resultCount = Math.Min(10, result.Count());
+				result.ToList().ForEach(e =>
+				{
+					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+				});
 				return Ok(new Response(
 					ResponseStatusEnum.Success,
 					new
@@ -145,7 +149,7 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					foundResult = (bool) upcoming ? allEvents.Where(
+					foundResult = (bool)upcoming ? allEvents.Where(
 						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
 						allEvents.Where(
 						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
@@ -186,6 +190,10 @@ namespace SEEMS.Controller
 				{
 					loadMore = true;
 				}
+				returnResult.ForEach(e =>
+				{
+					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+				});
 
 				return failed
 					? BadRequest(
