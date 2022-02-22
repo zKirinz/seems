@@ -78,6 +78,10 @@ namespace SEEMS.Controller
 				{
 					var findingOrgId = user.OrganizationId;
 					var listEvents = _context.Events.Where(a => a.OrganizationId == findingOrgId).ToList();
+					listEvents.ForEach(e =>
+					{
+						e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+					});
 					return Ok(
 						new Response(ResponseStatusEnum.Success,
 						new
@@ -114,11 +118,15 @@ namespace SEEMS.Controller
 					result = result.Where(e => !e.IsPrivate);
 				}
 				resultCount = Math.Min(10, result.Count());
+				result.ToList().ForEach(e =>
+				{
+					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+				});
 				return Ok(new Response(
 					ResponseStatusEnum.Success,
 					new
 					{
-						Count = resultCount,
+						Count = result.Count(),
 						Events = result.ToList().GetRange(0, resultCount)
 					}
 				));
@@ -186,6 +194,10 @@ namespace SEEMS.Controller
 				{
 					loadMore = true;
 				}
+				returnResult.ForEach(e =>
+				{
+					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+				});
 
 				return failed
 					? BadRequest(
@@ -194,7 +206,7 @@ namespace SEEMS.Controller
 						new Response(ResponseStatusEnum.Success,
 						new
 						{
-							Count = returnResult.Count(),
+							Count = foundResult.Count(),
 							CanLoadMore = loadMore,
 							listEvents = returnResult
 						})
