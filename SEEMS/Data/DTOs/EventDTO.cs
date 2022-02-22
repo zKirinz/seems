@@ -8,6 +8,7 @@ namespace SEEMS.Data.DTO
 		[Required]
 		public string EventTitle { get; set; }
 		public string EventDescription { get; set; }
+		public int? CommentsNum { get; set; }
 		public int? ChainOfEventId { get; set; }
 		[Required]
 		public bool IsPrivate { get; set; }
