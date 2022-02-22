@@ -150,8 +150,6 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
                     {...comment}
                     loadMoreResponseCommentsHandler={loadMoreResponseCommentsHandler}
                     openResponseCommentField={openCommentField}
-                    reactCommentHandler={reactCommentHandler}
-                    canLike={canLike}
                 />
                 {openCommentField && (
                     <Box sx={{ width: '94%', ml: 'auto', mt: 1 }}>
@@ -172,8 +170,6 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
                                 comments={responseComments}
                                 editCommentHandler={editResponseCommentHandler}
                                 onDeleteComment={deleteResponseCommentHandler}
-                                reactCommentHandler={reactCommentHandler}
-                                canLike={canLike}
                             />
                         )}
                         {hasMoreComments && (

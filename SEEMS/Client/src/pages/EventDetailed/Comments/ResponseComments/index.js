@@ -2,12 +2,7 @@ import React from 'react'
 
 import ResponseComment from './ResponseComment'
 
-const ResponseComments = ({
-    comments,
-    editCommentHandler,
-    onDeleteComment,
-    reactCommentHandler,
-}) => {
+const ResponseComments = ({ comments, editCommentHandler, onDeleteComment }) => {
     return (
         <React.Fragment>
             {comments.map((comment) => (
@@ -17,7 +12,6 @@ const ResponseComments = ({
                     editCommentHandler={editCommentHandler}
                     onDeleteComment={onDeleteComment}
                     reactCommentHandler={reactCommentHandler}
-                    canLike={canLike}
                 />
             ))}
         </React.Fragment>

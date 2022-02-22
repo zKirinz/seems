@@ -24,8 +24,6 @@ const Comment = ({
     openResponseCommentField,
     numberReplyComment,
     parentCommentId,
-    reactCommentHandler,
-    canLike,
 }) => {
     const [isEditCommentContent, setIsEditCommentContent] = useState(false)
     const auth = useRecoilValue(atom)
@@ -37,7 +35,6 @@ const Comment = ({
             setIsEditCommentContent(false)
         }
     }
-    const like = canLike ? grey[900] : blue[500]
     const openDialog = () => {
         setConfirmDialog(true)
     }
@@ -146,9 +143,7 @@ const Comment = ({
                             cursor: 'pointer',
                             '&:hover': { textDecoration: 'underline' },
                             mr: 2,
-                            color: like,
                         }}
-                        onClick={() => reactCommentHandler(id)}
                         fontWeight={500}
                     >
                         Like
