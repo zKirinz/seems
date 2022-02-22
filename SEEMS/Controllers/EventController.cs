@@ -76,7 +76,8 @@ namespace SEEMS.Controller
 			{
 				if (user != null)
 				{
-					var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
+					var findingOrgId = user.OrganizationId;
+					var listEvents = _context.Events.Where(a => a.OrganizationId == findingOrgId).ToList();
 					return Ok(
 						new Response(ResponseStatusEnum.Success,
 						new
@@ -99,7 +100,7 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("upcoming")]
-		public async Task<ActionResult<List<Event>>> Get()
+		public async Task<ActionResult<List<Event>>> GetUpcoming()
 		{
 			int resultCount;
 			User currentUser = await GetCurrentUser(Request);
@@ -131,13 +132,25 @@ namespace SEEMS.Controller
 
 
 		[HttpGet()]
-		public async Task<ActionResult<List<Event>>> Get(string? search, int? lastEventID, int resultCount = 10)
+		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
+			int? lastEventID, int resultCount = 10)
 		{
 			try
 			{
 				var allEvents = _context.Events.ToList();
-				var foundResult = allEvents.Where(
-					e => Utilitiies.IsAfterMinutes(e.StartDate, DateTime.Now, 30));
+				IEnumerable<Event> foundResult;
+				if (upcoming == null)
+				{
+					foundResult = allEvents;
+				}
+				else
+				{
+					foundResult = (bool)upcoming ? allEvents.Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
+						allEvents.Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
+				}
+
 				List<Event> returnResult = null;
 				bool failed = false;
 				bool loadMore = false;
@@ -221,7 +234,7 @@ namespace SEEMS.Controller
 								"ID not found"));
 					}
 					newEvent.Id = target.Id;
-					newEvent.OrganizationId	= target.OrganizationId;
+					newEvent.OrganizationId = target.OrganizationId;
 					_context.Update(newEvent);
 					await _context.SaveChangesAsync();
 					return Ok(

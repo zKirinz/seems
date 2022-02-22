@@ -130,6 +130,7 @@ namespace SEEMS.Database
 			{
 				if (!tmpList.Contains(item, new EventEqualityComparer()))
 				{
+					item.OrganizationId = new Random().Next(1, 4);
 					item.StartDate = new DateTime(2022, new Random().Next(2, 7), new Random().Next(1, 28));
 					ctx.Events.Add(item);
 				}
