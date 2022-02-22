@@ -45,6 +45,7 @@ namespace SEEMS.Models
 
 		[JsonIgnore]
 		public List<Comment>? Comments { get; set; }
+		public Organization? Organization { get; set; }
 
 	}
 }
