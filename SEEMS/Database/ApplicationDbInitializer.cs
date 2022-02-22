@@ -3,6 +3,7 @@
 using SEEMS.Contexts;
 using SEEMS.Data.Models;
 using SEEMS.Models;
+using SEEMS.Services.Utils;
 
 namespace SEEMS.Database
 {
@@ -26,19 +27,19 @@ namespace SEEMS.Database
 
 		public static async void SeedUser(ApplicationDbContext ctx)
 		{
-			if (ctx.Users.Any())
-			{
-				return;   // DB has been seeded
-			}
 			List<User> users = new List<User>();
 			users.Add(new User() { Email = "thinhltse151082@fpt.edu.vn", UserName = "Le Tien Thinh (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "phatdgse140409@fpt.edu.vn", UserName = "Duong Gia Phat (K14 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
-			users.Add(new User() { Email = "kienttse151340@fptu.edu.vn", UserName = "Tran Trung Kien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
+			users.Add(new User() { Email = "kienttse151340@fpt.edu.vn", UserName = "Tran Trung Kien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "nguyennkse140132@fpt.edu.vn", UserName = "Nguyen Khoi Nguyen (K13 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "hienbtse150763@fpt.edu.vn", UserName = "Bui The Hien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
+			var tmpUserList = ctx.Users.ToList();
 			foreach (var item in users)
 			{
-				ctx.Users.Add(item);
+				if (!tmpUserList.Contains(item, new UserEqualityComparer()))
+				{
+					ctx.Users.Add(item);
+				}
 			}
 
 			ctx.SaveChanges();
@@ -46,46 +47,37 @@ namespace SEEMS.Database
 
 		public static void SeedUserMeta(ApplicationDbContext ctx)
 		{
-			if (ctx.UserMetas.Any())
-			{
-				return;   // DB has been seeded
-			}
 			List<UserMeta> userMetas = new List<UserMeta>();
 			List<int> userIds = ctx.Users.Select(x => x.Id).ToList();
+			var tmpUserMetaList = ctx.UserMetas.ToList();
 			foreach (int id in userIds)
 			{
 				userMetas.Add(new UserMeta() { MetaKey = "role", MetaValue = "Organizer", UserId = id });
 			}
 			foreach (var i in userMetas)
 			{
-				ctx.UserMetas.Add(i);
+				if (!tmpUserMetaList.Contains(i, new UserMetaEqualityComparer()))
+					ctx.UserMetas.Add(i);
 			}
 		}
 
 		public static async void SeedChainOfEvent(ApplicationDbContext ctx)
 		{
-			if (ctx.ChainOfEvents.Any())
-			{
-				return;
-			}
 			List<ChainOfEvent> chainOfEvents = new List<ChainOfEvent>();
 			chainOfEvents.Add(new ChainOfEvent() { CategoryName = "Tech Talk", CreatedBy = 1, ImageUrl = "https://www.sunymaritime.edu/sites/default/files/styles/medium_625px_by_410px_scale/public/2018-02/tech_talks_logo_color_preview.jpeg?itok=bEG5QRwk" });
 			chainOfEvents.Add(new ChainOfEvent() { CategoryName = "Geek Up", CreatedBy = 1, ImageUrl = "https://cdn1.vieclam24h.vn/upload/files_cua_nguoi_dung/logo/2015/09/09/1441773091_%5E079515115030007874230BE89E3605979527B615B34530EE5B%5Epimgpsh_fullsize_distr.jpg" });
 			chainOfEvents.Add(new ChainOfEvent() { CategoryName = "Duong len dinh Olympia", CreatedBy = 1, ImageUrl = "https://upload.wikimedia.org/wikipedia/vi/2/26/H%C3%ACnh_hi%E1%BB%87u_%C4%90%C6%B0%E1%BB%9Dng_L%C3%AAn_%C4%90%E1%BB%89nh_Olympia_VTV.png" });
-
+			var tmpList = ctx.ChainOfEvents.ToList();
 			foreach (var i in chainOfEvents)
 			{
-				ctx.ChainOfEvents.Add(i);
+				if (!tmpList.Contains(i, new ChainOfEventEqualityComparer()))
+					ctx.ChainOfEvents.Add(i);
 			}
 			ctx.SaveChanges();
 		}
 
 		public static void SeedEvent(ApplicationDbContext ctx)
 		{
-			if (ctx.Events.Any())
-			{
-				return;
-			}
 			List<Event> events = new List<Event>();
 			var chainOfEventTechTalkId = ctx.ChainOfEvents.FirstOrDefault(e => e.CategoryName.Contains("Tech Talk")).Id;
 
@@ -113,10 +105,14 @@ namespace SEEMS.Database
 			{
 				events.Add(new Event() { EventTitle = $"Seed Event {i}", EventDescription = "Just for seeding purpose", Active = true, ClientId = 1, EndDate = new DateTime(2022, 5, i), ImageUrl = "https://fontesk.com/wp-content/uploads/2020/07/seeds.jpg", IsPrivate = true, Location = "Hall A FPT", StartDate = new DateTime(2022, 1, 1) });
 			}
+			var tmpList = ctx.Events.ToList();
 			foreach (var item in events)
 			{
-				item.StartDate = new DateTime(2022, 2, 25);
-				ctx.Events.Add(item);
+				if (!tmpList.Contains(item, new EventEqualityComparer()))
+				{
+					item.StartDate = new DateTime(2022, 2, 25);
+					ctx.Events.Add(item);
+				}
 			}
 		}
 	}
