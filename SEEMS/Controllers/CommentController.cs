@@ -131,9 +131,9 @@ namespace SEEMS.Controller
         //PUT api/Comments
         //Like and unlike Comment
         [HttpPut]
-        public async Task<IActionResult> ReactComment([FromBody] JsonResult reactComment)
+        public async Task<IActionResult> ReactComment([FromBody] JsonResult reactCommentId)
         {
-            var commentId = (int)reactComment.Value;
+            var commentId = (int)reactCommentId.Value;
             if (!CheckValidCommentId(commentId))
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
@@ -247,10 +247,18 @@ namespace SEEMS.Controller
                         {
                             commentDTO.NumberReplyComment = null;
                         }
-                        commentDTO.NumberLikeComment = NumberLikeComment(comment.Id);
+                        var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
                         if (user != null)
                         {
-                            commentDTO.CanLike = CanLikeComment(userId, comment.Id);
+                            var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
+                            if (likeComment == null)
+                            {
+                                commentDTO.CanLike = true;
+                            }
+                            else
+                            {
+                                commentDTO.CanLike = false;
+                            }
                         }
                         else
                         {
@@ -301,7 +309,23 @@ namespace SEEMS.Controller
                     foreach (var comment in listReplyComment)
                     {
                         CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                        commentDTO.NumberLikeComment = NumberLikeComment(comment.Id);
+                        var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
+                        if (user != null)
+                        {
+                            var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
+                            if (likeComment == null)
+                            {
+                                commentDTO.CanLike = true;
+                            }
+                            else
+                            {
+                                commentDTO.CanLike = false;
+                            }
+                        }
+                        else
+                        {
+                            commentDTO.CanLike = false;
+                        }
                         listResponseReplyComments.Add(commentDTO);
                     }
 
