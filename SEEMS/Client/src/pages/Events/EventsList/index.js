@@ -1,123 +1,146 @@
 import React, { useEffect, useState } from 'react'
 
-import { Link as RouterLink, useHistory } from 'react-router-dom'
+import queryString from 'query-string'
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { Link as RouterLink, useLocation } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
-import EventPoster from '../../../components/EventPoster'
-import { EventBusy as EventBusyIcon } from '@mui/icons-material'
-import {
-    Grid,
-    Card,
-    Box,
-    Button,
-    useMediaQuery,
-    useTheme,
-    Alert,
-    Link,
-    Typography,
-} from '@mui/material'
+import EventCard from '../../../components/EventCard'
+import { EventBusy as EventBusyIcon, EventRepeat as EventRepeatIcon } from '@mui/icons-material'
+import { Grid, Box, Alert, Link, CircularProgress, Divider, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import authAtom from '../../../recoil/auth'
 import useEventAction from '../../../recoil/event/action'
-import EventSummaryInfo from './EventSummaryInfo'
 
-const EventsList = ({ nameFilter = '' }) => {
-    const history = useHistory()
-    const theme = useTheme()
-    const matches = useMediaQuery(theme.breakpoints.up('sm'))
+const EventsList = () => {
     const auth = useRecoilValue(authAtom)
+    const { search: queries } = useLocation()
+    const { search } = queryString.parse(queries)
     const eventAction = useEventAction()
     const [events, setEvents] = useState([])
+    const [eventsNumber, setEventsNumber] = useState(0)
+    const [isLoading, setIsLoading] = useState(true)
+    const [hasMore, setHasMore] = useState(true)
     const showSnackbar = useSnackbar()
+    let lastEventId
+    const isFilter = !!search
 
-    const eventStartTime = (timeStamp) => {
-        return (
-            new Date(timeStamp).toLocaleString('en-US', { dateStyle: 'full' }) +
-            ' - ' +
-            new Date(timeStamp).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' })
-        )
-    }
+    const Loading = () => (
+        <Box display="flex" justifyContent="center" my={20}>
+            <CircularProgress thickness={4} color="secondary" />
+        </Box>
+    )
 
-    useEffect(() => {
-        let filterString = '?'
-        filterString += 'search=' + nameFilter
+    const loadMoreHandler = () => {
+        let params = '?resultCount=6&'
+        params += 'lastEventID=' + lastEventId
 
         eventAction
-            .getEvents(filterString)
-            .then((res) => setEvents(res.data.data.listEvents))
-            .catch(() =>
+            .getEvents(params)
+            .then((res) => {
+                setTimeout(() => {
+                    setEvents(events.concat(res.data.data.listEvents))
+                    setHasMore(res.data.data.canLoadMore)
+                }, 1600)
+            })
+            .catch(() => {
                 showSnackbar({
                     severity: 'error',
                     children: 'Something went wrong, please try again later.',
                 })
-            )
+            })
+    }
+
+    useEffect(() => {
+        let filterString = '?resultCount=6&'
+        if (search) {
+            filterString += 'search=' + search
+        }
+
+        eventAction
+            .getEvents(filterString)
+            .then((res) => {
+                setEvents(res.data.data.listEvents)
+                setEventsNumber(res.data.data.count)
+                setHasMore(res.data.data.canLoadMore)
+                console.log(res.data.data.listEvents)
+                setIsLoading(false)
+            })
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
+                setIsLoading(false)
+            })
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [nameFilter])
+    }, [search])
 
     return (
-        <Box display="flex" flexDirection="column">
-            {events.length ? (
-                <Grid container rowGap={3} display="flex" justifyContent="center">
-                    {events.map(({ id, eventTitle, eventDescription, startDate, imageUrl }) => (
-                        <Card
-                            key={id}
-                            elevation={3}
-                            sx={{
-                                position: 'relative',
-                                width: '100%',
-                            }}
-                        >
-                            <Box px={{ xs: 2, sm: 4 }} mb={{ xs: 8, md: 4, lg: 0 }}>
-                                <Grid item xs={12} container>
-                                    <Grid item xs={12} sm={6} md={4}>
-                                        <EventPoster src={imageUrl} size="contain" />
-                                    </Grid>
-                                    <Grid item xs={12} sm={6} md={8}>
-                                        <EventSummaryInfo
+        <Box display="flex" flexDirection="column" alignItems="center" width="100%">
+            <Box display="flex" flexDirection="column" alignItems="flex-end" width="100%" mb={5}>
+                <Typography>{eventsNumber} results</Typography>
+                <Divider sx={{ width: '30%', height: '5px', backgroundColor: 'grey' }} />
+            </Box>
+            {isLoading ? (
+                <Loading />
+            ) : events.length ? (
+                <InfiniteScroll
+                    dataLength={events.length}
+                    loader={<Loading />}
+                    next={loadMoreHandler}
+                    hasMore={hasMore}
+                    endMessage={
+                        <Box display="flex" justifyContent="center" mt={4}>
+                            <Alert icon={<EventRepeatIcon />} variant="outlined" severity="warning">
+                                There are no more events to load
+                            </Alert>
+                        </Box>
+                    }
+                >
+                    <Grid container rowGap={4}>
+                        {events.map(
+                            (
+                                {
+                                    id,
+                                    eventTitle,
+                                    eventDescription,
+                                    startDate,
+                                    imageUrl,
+                                    organization,
+                                },
+                                i,
+                                { length }
+                            ) => {
+                                if (i + 1 === length) {
+                                    lastEventId = id
+                                }
+
+                                return (
+                                    <Grid item xs={12} key={id}>
+                                        <EventCard
+                                            id={id}
                                             title={eventTitle}
-                                            content={eventDescription}
-                                            startTime={startDate}
+                                            description={eventDescription}
+                                            startDate={startDate}
+                                            imageUrl={imageUrl}
+                                            organizer={organization.name}
                                         />
                                     </Grid>
-                                </Grid>
-                            </Box>
-                            <Box
-                                position="absolute"
-                                bottom={30}
-                                right={matches ? 50 : 10}
-                                display="flex"
-                                flexDirection="column"
-                                alignItems="center"
-                            >
-                                <Typography color="secondary" variant="body1" my={1}>
-                                    {eventStartTime(startDate)}
-                                </Typography>
-                                <Box display="flex" justifyContent="center">
-                                    <Button
-                                        variant="contained"
-                                        size="large"
-                                        onClick={() => history.push(`/events/register/${id}`)}
-                                        sx={{ mx: 1 }}
-                                    >
-                                        Register
-                                    </Button>
-                                    <Button
-                                        variant="contained"
-                                        color="secondary"
-                                        size="large"
-                                        onClick={() => history.push(`/events/${id}`)}
-                                        sx={{ mx: 1 }}
-                                    >
-                                        Read More
-                                    </Button>
-                                </Box>
-                            </Box>
-                        </Card>
-                    ))}
-                </Grid>
+                                )
+                            }
+                        )}
+                    </Grid>
+                </InfiniteScroll>
+            ) : isFilter ? (
+                <Box display="flex" justifyContent="center">
+                    <Alert icon={<EventBusyIcon />} variant="outlined" severity="warning">
+                        Cannot find any events
+                    </Alert>
+                </Box>
             ) : (
-                <Box display="flex" justifyContent="center" mt={8}>
+                <Box display="flex" justifyContent="center">
                     <Alert icon={<EventBusyIcon />} variant="outlined" severity="warning">
                         {auth.role === 'Organizer' ? (
                             <React.Fragment>
@@ -132,12 +155,6 @@ const EventsList = ({ nameFilter = '' }) => {
                     </Alert>
                 </Box>
             )}
-
-            <Box display="flex" justifyContent="center" my={6}>
-                <Button variant="contained" size="large" onClick={() => history.push('/events')}>
-                    Load More
-                </Button>
-            </Box>
         </Box>
     )
 }
