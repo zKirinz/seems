@@ -163,7 +163,7 @@ namespace SEEMS.Controller
             }
 
             _context.SaveChanges();
-            var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == reactCommentId).Count();
+            var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == commentId).Count();
 
             return Ok(new Response(ResponseStatusEnum.Success, numberLikeComment));
         }
