@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Net.Http.Headers;
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
@@ -53,15 +51,11 @@ namespace SEEMS.Controller
                         return BadRequest(new Response(ResponseStatusEnum.Fail, commentValidationInfo));
                     }
 
-                    int numberOfError = CheckValidCheckReference(item.EventId, item.ParentCommentId);
+                    string checkReference = CheckValidCheckReference(item.EventId, item.ParentCommentId);
 
-                    switch (numberOfError)
+                    if (!checkReference.Contains("OK"))
                     {
-                        case 1: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId."));
-
-                        case 2: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid ParentCommentId."));
-
-                        case 3: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId and ParentCommentId."));
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", checkReference));
                     }
 
                     var newComment = _mapper.Map<Comment>(item);
@@ -371,7 +365,7 @@ namespace SEEMS.Controller
             return userMeta;
         }
 
-        private int CheckValidCheckReference(int? eventId, int? parentCommentId)
+        private string CheckValidCheckReference(int? eventId, int? parentCommentId)
         {
             var anEvent = _context.Events.FirstOrDefault(x => x.Id == eventId);
             var anComment = _context.Comments.FirstOrDefault(x => x.Id == parentCommentId);
@@ -380,20 +374,20 @@ namespace SEEMS.Controller
             {
                 if (anComment == null && parentCommentId != null)
                 {
-                    return 3; //eventId and parentCommentId are not valid
+                    return "Invalid EventId and ParentCommentId."; //eventId and parentCommentId are not valid
                 }
                 else
                 {
-                    return 1; //eventId is not valid
+                    return "Invalid EventId."; //eventId is not valid
                 }
             }
             else if (anComment == null && parentCommentId != null)
             {
-                return 2; //parentCommentId is not valid
+                return "Invalid ParentCommentId"; //parentCommentId is not valid
             }
             else
             {
-                return 0;  //eventId and parentCommentId are valid
+                return "OK";  //eventId and parentCommentId are valid
             }
         }
 
@@ -423,6 +417,52 @@ namespace SEEMS.Controller
             }
 
             return true;
+        }
+
+        private IActionResult ResponseComment(List<Comment> listComments, int? lastCommentId, int numberComments, int id, string action)
+        {
+            listComments = listComments.OrderByDescending(x => x.CreatedAt).ToList();
+            List<CommentDTO> listResponseComments = new List<CommentDTO>();
+            foreach (var comment in listComments)
+            {
+                CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+                if (action.Contains("load"))
+                {
+                    commentDTO.NumberReplyComment = _context.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
+                    if (commentDTO.NumberReplyComment == 0)
+                    {
+                        commentDTO.NumberReplyComment = null;
+                    }
+                }            
+                listResponseComments.Add(commentDTO);
+            }
+
+            bool hasMoreComment = (listResponseComments.Count > numberComments);
+            if (lastCommentId == null)
+            {
+                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
+            }
+            else
+            {
+                var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
+                int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
+                if (lastCommentIndex != -1)
+                {
+                    hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
+                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
+                }
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid LastCommentId."));
+                }
+            }
+
+            return Ok(new Response(ResponseStatusEnum.Success,
+                                           new
+                                           {
+                                               hasMoreComment,
+                                               listResponseComments,
+                                           }));
         }
 
     }
