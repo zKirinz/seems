@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react'
 
 import { useRecoilValue } from 'recoil'
 
-import Comments from '../../components/Comments'
 import { ModeComment } from '@mui/icons-material'
 import {
     Avatar,
@@ -16,8 +15,9 @@ import {
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
-import authAtom from '../../recoil/auth/atom'
-import { useCommentsAction } from '../../recoil/comment'
+import authAtom from '../../../recoil/auth'
+import { useCommentsAction } from '../../../recoil/comment'
+import CommentSection from './Comment'
 
 const CommentsSection = ({ eventId: EventId }) => {
     const commentsActions = useCommentsAction()
@@ -138,11 +138,15 @@ const CommentsSection = ({ eventId: EventId }) => {
                         <CircularProgress disableShrink />
                     </Box>
                 )}
-            <Comments
-                comments={comments}
-                onDeleteComment={deleteCommentHandler}
-                editCommentHandler={editCommentHandler}
-            />
+            {comments.length !== 0 &&
+                comments.map((comment) => (
+                    <CommentSection
+                        key={comment.id}
+                        onDeleteComment={deleteCommentHandler}
+                        editCommentHandler={editCommentHandler}
+                        comment={comment}
+                    />
+                ))}
             {hasMoreComments && (
                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                     <Typography

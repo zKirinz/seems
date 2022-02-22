@@ -7,7 +7,7 @@ import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mu
 import { grey } from '@mui/material/colors'
 
 import useEventAction from '../../recoil/event/action'
-import CommentsSection from './Comments'
+import CommentsSection from './Comments/index'
 import EventDate from './EventDate'
 
 const EventDetailed = () => {

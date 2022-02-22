@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import moment from 'moment'
 import { useRecoilValue } from 'recoil'
 
-import { Clear, Edit } from '@mui/icons-material'
+import { Clear, Edit, SubdirectoryArrowRight } from '@mui/icons-material'
 import { Avatar, Box, IconButton, OutlinedInput, Typography } from '@mui/material'
 import { blue, grey } from '@mui/material/colors'
 
@@ -20,6 +20,8 @@ const Comment = ({
     id,
     editCommentHandler,
     createdAt,
+    setOpenResponseCommentField,
+    openResponseCommentField,
 }) => {
     const [isEditCommentContent, setIsEditCommentContent] = useState(false)
     const auth = useRecoilValue(atom)
@@ -55,13 +57,14 @@ const Comment = ({
                     sx={{
                         ml: 2,
                         bgcolor: grey[300],
-                        p: 2,
+                        px: 3,
+                        py: 2,
                         borderRadius: 8,
                         width: '95%',
                         position: 'relative',
                     }}
                 >
-                    <Typography variant="subtitle1" fontWeight={600} sx={{ color: grey[600] }}>
+                    <Typography variant="subtitle1" fontWeight={600} sx={{ color: grey[800] }}>
                         {userName}
                     </Typography>
                     {!isEditCommentContent && (
@@ -131,13 +134,42 @@ const Comment = ({
                         </>
                     )}
                 </Box>
-                <Typography
-                    component="span"
-                    variant="body2"
-                    sx={{ ml: 5, mt: 1, color: grey[800] }}
-                >
-                    {moment(new Date(createdAt)).fromNow(true)}
-                </Typography>
+                <Box sx={{ ml: 5, mt: 1 }}>
+                    <Typography
+                        component="span"
+                        variant="body2"
+                        fontWeight={700}
+                        sx={{
+                            color: grey[900],
+                            '&:hover': { textDecoration: 'underline', cursor: 'pointer' },
+                        }}
+                        onClick={() => setOpenResponseCommentField(true)}
+                    >
+                        Reply
+                    </Typography>
+                    <Typography component="span" variant="body2" sx={{ ml: 2, color: grey[800] }}>
+                        {moment(new Date(createdAt)).fromNow(true)}
+                    </Typography>
+                    {!openResponseCommentField && (
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <IconButton>
+                                <SubdirectoryArrowRight />
+                            </IconButton>
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    color: grey[700],
+                                    mt: 0.5,
+                                    cursor: 'pointer',
+                                    '&:hover': { textDecoration: 'underline' },
+                                }}
+                                onClick={() => setOpenResponseCommentField(true)}
+                            >
+                                6 response
+                            </Typography>
+                        </Box>
+                    )}
+                </Box>
             </Box>
         </Box>
     )
