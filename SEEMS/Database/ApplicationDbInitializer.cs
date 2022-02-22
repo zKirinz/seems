@@ -24,7 +24,7 @@ namespace SEEMS.Database
 			}
 		}
 
-		public static async void SeedUser(ApplicationDbContext ctx)
+		public static void SeedUser(ApplicationDbContext ctx)
 		{
 			if (ctx.Users.Any())
 			{
@@ -41,7 +41,7 @@ namespace SEEMS.Database
 				ctx.Users.Add(item);
 			}
 
-			await ctx.SaveChangesAsync();
+			ctx.SaveChanges();
 		}
 
 		public static void SeedUserMeta(ApplicationDbContext ctx)
@@ -62,7 +62,7 @@ namespace SEEMS.Database
 			}
 		}
 
-		public static async void SeedChainOfEvent(ApplicationDbContext ctx)
+		public static void SeedChainOfEvent(ApplicationDbContext ctx)
 		{
 			if (ctx.ChainOfEvents.Any())
 			{
@@ -77,7 +77,7 @@ namespace SEEMS.Database
 			{
 				ctx.ChainOfEvents.Add(i);
 			}
-			await ctx.SaveChangesAsync();
+			ctx.SaveChanges();
 		}
 
 		public static void SeedEvent(ApplicationDbContext ctx)
