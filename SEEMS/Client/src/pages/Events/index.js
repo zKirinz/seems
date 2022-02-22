@@ -1,32 +1,30 @@
-import { Box } from '@mui/material'
+import { useState } from 'react'
+
+import queryString from 'query-string'
+import { useLocation } from 'react-router-dom'
+
+import { Box, Typography } from '@mui/material'
 
 import EventsList from './EventsList'
-
-const events = [
-    {
-        id: 1,
-        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
-        time: '20-10-2022',
-        mode: 'Offline',
-        title: 'Nulla nisl tellus hendrerit nec dignissim pellentesqu posu in est Suspendisse ',
-        content:
-            'Cras semper, massa vel aliquam luctus, eros odio tempor turpis, ac placerat metus tortor eget magna. Donec mattis posuere pharetra. Donec vestibulum ornare velit ut sollicitudin ut sollicitudin.',
-    },
-    {
-        id: 2,
-        src: 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642134779/Techpeek.png',
-        time: '20-10-2022',
-        mode: 'Online',
-        title: 'Nulla nisl tellus hendrerit nec dignissim pellentesqu posu in est Suspendisse ',
-        content:
-            'Cras semper, massa vel aliquam luctus, eros odio tempor turpis, ac placerat metus tortor eget magna. Donec mattis posuere pharetra. Donec vestibulum ornare velit ut sollicitudin ut sollicitudin.',
-    },
-]
+import Filters from './Filters'
 
 const Events = () => {
+    const { search: searchText } = useLocation()
+    const { search } = queryString.parse(searchText)
+    const [nameFilter, setNameFilter] = useState(search)
+
     return (
-        <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }} px={3} pt={10}>
-            <EventsList events={events} />
+        <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }} mx={8} pt={10}>
+            <Typography variant="h3" color="primary" align="center" mt={1} fontWeight={700}>
+                All Events
+            </Typography>
+            <Box display="flex" mt={5}>
+                <Filters
+                    submitHandler={(searchText) => setNameFilter(searchText)}
+                    defaultText={nameFilter}
+                />
+                <EventsList nameFilter={nameFilter} />
+            </Box>
         </Box>
     )
 }
