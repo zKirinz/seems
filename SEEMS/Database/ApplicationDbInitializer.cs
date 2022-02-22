@@ -114,9 +114,9 @@ namespace SEEMS.Database
 			}
 			foreach (var item in events)
 			{
+				item.StartDate = new DateTime(2022, 2, 25);
 				ctx.Events.Add(item);
 			}
 		}
-
 	}
 }
