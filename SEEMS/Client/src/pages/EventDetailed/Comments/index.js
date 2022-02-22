@@ -43,7 +43,6 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
         commentsActions
             .loadComments(loadMoreCommentsConfig, EventId)
             .then((response) => {
-                console.log(response)
                 initialLoadingComments.current = false
                 const { listResponseComments: loadedComments, hasMoreComment: isHasMoreComments } =
                     response.data.data
