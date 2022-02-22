@@ -220,6 +220,9 @@ namespace SEEMS.Controller
         {
             try
             {
+                var user = GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                var userId = user.Id;
+
                 if (data.numberComments == null || data.numberComments <= 0)
                 {
                     data.numberComments = 5;
@@ -243,6 +246,15 @@ namespace SEEMS.Controller
                         if (commentDTO.NumberReplyComment == 0)
                         {
                             commentDTO.NumberReplyComment = null;
+                        }
+                        commentDTO.NumberLikeComment = NumberLikeComment(comment.Id);
+                        if (user != null)
+                        {
+                            commentDTO.CanLike = CanLikeComment(userId, comment.Id);
+                        }
+                        else
+                        {
+                            commentDTO.CanLike = false;
                         }
                         listResponseComments.Add(commentDTO);
                     }
@@ -289,6 +301,7 @@ namespace SEEMS.Controller
                     foreach (var comment in listReplyComment)
                     {
                         CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+                        commentDTO.NumberLikeComment = NumberLikeComment(comment.Id);
                         listResponseReplyComments.Add(commentDTO);
                     }
 
@@ -445,6 +458,12 @@ namespace SEEMS.Controller
         {
             var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == commentId).Count();
             return numberLikeComment;
+        }
+
+        private bool CanLikeComment(int userId, int commentId)
+        {
+            var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == commentId).FirstOrDefault();
+            return likeComment == null ? true : false;
         }
     }
 }
