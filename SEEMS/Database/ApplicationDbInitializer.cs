@@ -40,7 +40,6 @@ namespace SEEMS.Database
 			{
 				ctx.Users.Add(item);
 			}
-
 			ctx.SaveChanges();
 		}
 

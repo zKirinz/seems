@@ -30,6 +30,10 @@ const UpComingEvents = () => {
     const eventAction = useEventAction()
     const [upcomingEvents, setUpcomingEvents] = useState([])
 
+    const searchFilterSubmitHandler = (searchText) => {
+        history.push('/events?search=' + searchText)
+    }
+
     useEffect(() => {
         eventAction.getUpcomingEvents().then((res) => {
             setUpcomingEvents(res.data.data.events)
@@ -46,7 +50,7 @@ const UpComingEvents = () => {
             {upcomingEvents.length ? (
                 <Box sx={{ maxWidth: 1000, m: '0 auto', display: 'flex', flexDirection: 'column' }}>
                     <Box my={5}>
-                        <SearchField />
+                        <SearchField submitHandler={searchFilterSubmitHandler} />
                     </Box>
                     <Grid container rowGap={6} display="flex" justifyContent="center">
                         {upcomingEvents.map(
