@@ -78,6 +78,10 @@ namespace SEEMS.Controller
 				{
 					var findingOrgId = user.OrganizationId;
 					var listEvents = _context.Events.Where(a => a.OrganizationId == findingOrgId).ToList();
+					listEvents.ForEach(e =>
+					{
+						e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+					});
 					return Ok(
 						new Response(ResponseStatusEnum.Success,
 						new

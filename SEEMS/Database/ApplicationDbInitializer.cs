@@ -35,9 +35,8 @@ namespace SEEMS.Database
 			}
 			List<Organization> organizations = new List<Organization>();
 			organizations.Add(new Organization() { Name = "F-Code", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
-			organizations.Add(new Organization() { Name = "FIA", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
 			organizations.Add(new Organization() { Name = "DSC", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
-			organizations.Add(new Organization() { Name = "SEEMS", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
+			organizations.Add(new Organization() { Name = "FPTU", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
 			foreach (var item in organizations)
 			{
 				ctx.Organizations.Add(item);
@@ -48,7 +47,7 @@ namespace SEEMS.Database
 		public static void SeedUser(ApplicationDbContext ctx)
 		{
 			List<User> users = new List<User>();
-			var orgId = ctx.Organizations.FirstOrDefault(o => o.Name.Equals("SEEMS")).Id;
+			var orgId = ctx.Organizations.FirstOrDefault(o => o.Name.Equals("FPTU")).Id;
 			users.Add(new User() { Email = "thinhltse151082@fpt.edu.vn", OrganizationId = orgId, UserName = "Le Tien Thinh (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "phatdgse140409@fpt.edu.vn", OrganizationId = orgId, UserName = "Duong Gia Phat (K14 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "kienttse151340@fpt.edu.vn", OrganizationId = orgId, UserName = "Tran Trung Kien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
@@ -130,7 +129,7 @@ namespace SEEMS.Database
 			{
 				if (!tmpList.Contains(item, new EventEqualityComparer()))
 				{
-					item.OrganizationId = new Random().Next(1, 4);
+					item.OrganizationId = new Random().Next(1, 3);
 					item.StartDate = new DateTime(2022, new Random().Next(2, 7), new Random().Next(1, 28));
 					ctx.Events.Add(item);
 				}
