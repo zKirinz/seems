@@ -34,7 +34,7 @@ namespace SEEMS.Controller
             _repoManager = repoManager;
         }
 
-        // POST api/<CommentController>
+        // POST api/Comments/
         // Create a comment
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CommentDTO item)
@@ -57,11 +57,11 @@ namespace SEEMS.Controller
 
                     switch (numberOfError)
                     {
-                        case 1: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "EventId does not exist."));
+                        case 1: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId."));
 
-                        case 2: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "ParentCommentId does not exist."));
+                        case 2: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid ParentCommentId."));
 
-                        case 3: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "EventId and ParentCommentId do not exist."));
+                        case 3: return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId and ParentCommentId."));
                     }
 
                     var newComment = _mapper.Map<Comment>(item);
@@ -85,7 +85,7 @@ namespace SEEMS.Controller
 
         }
 
-        // PUT api/<CommentController>/
+        // PUT api/Comments/
         // Edit comment by Id
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CommentDTO newComment)
@@ -100,7 +100,7 @@ namespace SEEMS.Controller
 
                     if (!CheckValidCommentId(id))
                     {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "CommentId does not exist."));
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid CommentId."));
                     }
 
                     if (commentValidationInfo != null)
@@ -133,7 +133,7 @@ namespace SEEMS.Controller
             }
         }
 
-        // DELETE api/<CommentController>/
+        // DELETE api/Comments/
         // Delete comment by Id
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
@@ -148,7 +148,7 @@ namespace SEEMS.Controller
 
                     if (!CheckValidCommentId(id))
                     {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "CommentId does not exist."));
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid CommentId."));
                     }
 
                     if (!CheckValidToAffectComment(userId, role, id))
@@ -174,65 +174,187 @@ namespace SEEMS.Controller
             }
         }
 
+        //// POST api/Comments/
+        //// Load comment
+        //[HttpPost("{id}")]
+        //public IActionResult LoadComments(int id, [FromBody] CommentsLoadMoreDTO data)
+        //{
+        //    try
+        //    {
+        //        int numberComments;
+
+        //        if (data.numberComments == null || data.numberComments <= 0)
+        //        {
+        //            numberComments = 5;
+        //        }
+        //        else
+        //        {
+        //            numberComments = (int)data.numberComments;
+        //        }
+
+        //        if (!CommentsServices.CheckValidEventId(id, _context))
+        //        {
+        //            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This events does not exist"));
+        //        }
+
+        //        var listComment = _context.Comments.Where(x => x.EventId == id).Where(x => x.ParentCommentId == null).ToList();
+
+        //        listComment = listComment.OrderByDescending(x => x.CreatedAt).ToList();
+        //        List<CommentDTO> listResponseComments = new List<CommentDTO>();
+        //        foreach (var comment in listComment)
+        //        {
+        //            CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+        //            listResponseComments.Add(commentDTO);
+        //        }
+
+        //        bool hasMoreComment = (listResponseComments.Count > numberComments);
+
+        //        if (data.lastCommentId == null)
+        //        {
+        //            listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
+        //        }
+        //        else
+        //        {
+        //            var lastCommentId = (int)data.lastCommentId;
+        //            var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
+        //            int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
+        //            if (lastCommentIndex != -1)
+        //            {
+        //                hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
+        //                listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
+        //            }
+        //            else
+        //            {
+        //                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid comment id"));
+        //            }
+        //        }
+
+        //        return Ok(new Response(ResponseStatusEnum.Success,
+        //                               new
+        //                               {
+        //                                   hasMoreComment,
+        //                                   listResponseComments,
+        //                               }));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
+        //    }
+
+        //}
+
+        // POST api/Comments/
+        // Load comment
         [HttpPost("{id}")]
         public IActionResult LoadComments(int id, [FromBody] CommentsLoadMoreDTO data)
         {
             try
             {
-                int numberComments;
-
                 if (data.numberComments == null || data.numberComments <= 0)
                 {
-                    numberComments = 5;
+                    data.numberComments = 5;
                 }
-                else
-                {
-                    numberComments = (int)data.numberComments;
-                }
+                int numberComments = (int)data.numberComments;             
 
-                if (!CommentsServices.CheckValidEventId(id, _context))
+                if (data.action.Contains("load"))
                 {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This events does not exist"));
-                }
-
-                var listComment = _context.Comments.Where(x => x.EventId == id).Where(x => x.ParentCommentId == null).ToList();
-
-                listComment = listComment.OrderByDescending(x => x.CreatedAt).ToList();
-                List<CommentDTO> listResponseComments = new List<CommentDTO>();
-                foreach (var comment in listComment)
-                {
-                    CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                    listResponseComments.Add(commentDTO);
-                }
-
-                bool hasMoreComment = (listResponseComments.Count > numberComments);
-
-                if (data.lastCommentId == null)
-                {
-                    listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
-                }
-                else
-                {
-                    var lastCommentId = (int)data.lastCommentId;
-                    var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
-                    int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
-                    if (lastCommentIndex != -1)
+                    if (!CommentsServices.CheckValidEventId(id, _context))
                     {
-                        hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
-                        listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId."));
+                    }
+
+                    var listComment = _context.Comments.Where(x => x.EventId == id).Where(x => x.ParentCommentId == null).ToList();
+                    listComment = listComment.OrderByDescending(x => x.CreatedAt).ToList();
+                    List<CommentDTO> listResponseComments = new List<CommentDTO>();
+                    foreach (var comment in listComment)
+                    {
+                        CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+                        commentDTO.NumberReplyComment = _context.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
+                        if (commentDTO.NumberReplyComment == 0)
+                        {
+                            commentDTO.NumberReplyComment = null;
+                        }
+                        listResponseComments.Add(commentDTO);
+                    }
+
+                    bool hasMoreComment = (listResponseComments.Count > numberComments);
+
+                    if (data.lastCommentId == null)
+                    {
+                        listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
                     }
                     else
                     {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid comment id"));
+                        var lastCommentId = (int)data.lastCommentId;
+                        var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
+                        int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
+                        if (lastCommentIndex != -1)
+                        {
+                            hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
+                            listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
+                        }
+                        else
+                        {
+                            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid LastCommentId."));
+                        }
                     }
-                }
 
-                return Ok(new Response(ResponseStatusEnum.Success,
-                                       new
-                                       {
-                                           hasMoreComment,
-                                           listResponseComments,
-                                       }));
+                    return Ok(new Response(ResponseStatusEnum.Success,
+                                           new
+                                           {
+                                               hasMoreComment,
+                                               listResponseComments,
+                                           }));
+                } 
+                else if (data.action.Contains("reply")) 
+                {
+                    if (!CommentsServices.CheckValidCommentId(id, _context))
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid CommentId."));
+                    }
+
+                    var listReplyComment = _context.Comments.Where(x => x.ParentCommentId == id).ToList();
+                    listReplyComment = listReplyComment.OrderByDescending(x => x.CreatedAt).ToList();
+                    List<CommentDTO> listResponseReplyComments = new List<CommentDTO>();
+                    foreach (var comment in listReplyComment)
+                    {
+                        CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+                        listResponseReplyComments.Add(commentDTO);
+                    }
+
+                    bool hasMoreComment = (listResponseReplyComments.Count > numberComments);
+
+                    if (data.lastCommentId == null)
+                    {
+                        listResponseReplyComments = listResponseReplyComments.GetRange(0, Math.Min(listResponseReplyComments.Count(), numberComments)).ToList();
+                    }
+                    else
+                    {
+                        var lastCommentId = (int)data.lastCommentId;
+                        var lastCommentIndex = listResponseReplyComments.FindIndex(x => x.Id == lastCommentId);
+                        int range = Math.Min(listResponseReplyComments.Count() - (lastCommentIndex + 1), numberComments);
+                        if (lastCommentIndex != -1)
+                        {
+                            hasMoreComment = ((listResponseReplyComments.Count() - (lastCommentIndex + 1)) > numberComments);
+                            listResponseReplyComments = listResponseReplyComments.GetRange(lastCommentIndex + 1, range).ToList();
+                        }
+                        else
+                        {
+                            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid commentId"));
+                        }
+                    }
+
+                    return Ok(new Response(ResponseStatusEnum.Success,
+                                           new
+                                           {
+                                               hasMoreComment,
+                                               listResponseReplyComments,
+                                           }));
+                } 
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid action"));
+                }
             }
             catch (Exception ex)
             {
