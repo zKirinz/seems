@@ -8,7 +8,7 @@ const EventSummaryInfo = ({ title, content, startTime }) => {
 
     const timeStamp = new Date(startTime)
     const eventStartTime =
-        timeStamp.toLocaleString('en-US', { dateStyle: 'short' }) +
+        timeStamp.toLocaleString('en-US', { dateStyle: 'long' }) +
         ' - ' +
         timeStamp.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' })
 
