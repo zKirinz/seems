@@ -40,8 +40,7 @@ namespace SEEMS.Database
 			{
 				ctx.Users.Add(item);
 			}
-
-			await ctx.SaveChangesAsync();
+			ctx.SaveChanges();
 		}
 
 		public static void SeedUserMeta(ApplicationDbContext ctx)
@@ -77,7 +76,7 @@ namespace SEEMS.Database
 			{
 				ctx.ChainOfEvents.Add(i);
 			}
-			await ctx.SaveChangesAsync();
+			ctx.SaveChanges();
 		}
 
 		public static void SeedEvent(ApplicationDbContext ctx)
