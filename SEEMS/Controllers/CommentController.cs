@@ -128,44 +128,44 @@ namespace SEEMS.Controller
             }
         }
 
-        ////PUT api/Comments
-        ////Like and unlike Comment
-        //[HttpPut]
-        //public async Task<IActionResult> ReactComment([FromBody] JsonResult reactComment)
-        //{
-        //    var commentId = (int)reactComment.Value;
-        //    if (!CheckValidCommentId(commentId))
-        //    {
-        //        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
-        //    }
+        //PUT api/Comments
+        //Like and unlike Comment
+        [HttpPut]
+        public async Task<IActionResult> ReactComment([FromBody] JsonResult reactComment)
+        {
+            var commentId = (int)reactComment.Value;
+            if (!CheckValidCommentId(commentId))
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
+            }
 
-        //    var currentUser = GetCurrentUser(_authManager.GetCurrentEmail(Request));
-        //    if (currentUser == null)
-        //    {
-        //        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
-        //    }
-        //    var userId = currentUser.Id;
+            var currentUser = GetCurrentUser(_authManager.GetCurrentEmail(Request));
+            if (currentUser == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
+            }
+            var userId = currentUser.Id;
 
-        //    var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == commentId).FirstOrDefault();
-        //    if (likeComment == null)
-        //    {
-        //        LikeComment newLikeComment = new LikeComment 
-        //        { 
-        //            CommentId = commentId,
-        //            UserId = userId,
-        //        };
+            var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == commentId).FirstOrDefault();
+            if (likeComment == null)
+            {
+                LikeComment newLikeComment = new LikeComment
+                {
+                    CommentId = commentId,
+                    UserId = userId,
+                };
 
-        //        _context.LikeComments.Add(newLikeComment);
-        //    } 
-        //    else
-        //    {
-        //        _context.LikeComments.Remove(likeComment);
-        //    }
+                _context.LikeComments.Add(newLikeComment);
+            }
+            else
+            {
+                _context.LikeComments.Remove(likeComment);
+            }
 
-        //    _context.SaveChanges();
+            _context.SaveChanges();
 
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
 
         // DELETE api/Comments/
         // Delete comment by Id
@@ -212,75 +212,6 @@ namespace SEEMS.Controller
                 return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
             }
         }
-
-        //// POST api/Comments/
-        //// Load comment
-        //[HttpPost("{id}")]
-        //public IActionResult LoadComments(int id, [FromBody] CommentsLoadMoreDTO data)
-        //{
-        //    try
-        //    {
-        //        int numberComments;
-
-        //        if (data.numberComments == null || data.numberComments <= 0)
-        //        {
-        //            numberComments = 5;
-        //        }
-        //        else
-        //        {
-        //            numberComments = (int)data.numberComments;
-        //        }
-
-        //        if (!CommentsServices.CheckValidEventId(id, _context))
-        //        {
-        //            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This events does not exist"));
-        //        }
-
-        //        var listComment = _context.Comments.Where(x => x.EventId == id).Where(x => x.ParentCommentId == null).ToList();
-
-        //        listComment = listComment.OrderByDescending(x => x.CreatedAt).ToList();
-        //        List<CommentDTO> listResponseComments = new List<CommentDTO>();
-        //        foreach (var comment in listComment)
-        //        {
-        //            CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-        //            listResponseComments.Add(commentDTO);
-        //        }
-
-        //        bool hasMoreComment = (listResponseComments.Count > numberComments);
-
-        //        if (data.lastCommentId == null)
-        //        {
-        //            listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
-        //        }
-        //        else
-        //        {
-        //            var lastCommentId = (int)data.lastCommentId;
-        //            var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
-        //            int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
-        //            if (lastCommentIndex != -1)
-        //            {
-        //                hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
-        //                listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
-        //            }
-        //            else
-        //            {
-        //                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid comment id"));
-        //            }
-        //        }
-
-        //        return Ok(new Response(ResponseStatusEnum.Success,
-        //                               new
-        //                               {
-        //                                   hasMoreComment,
-        //                                   listResponseComments,
-        //                               }));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
-        //    }
-
-        //}
 
         // POST api/Comments/
         // Load comment
@@ -510,5 +441,10 @@ namespace SEEMS.Controller
                                            }));
         }
 
+        private int NumberLikeComment(int commentId)
+        {
+            var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == commentId).Count();
+            return numberLikeComment;
+        }
     }
 }
