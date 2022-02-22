@@ -141,7 +141,7 @@ namespace SEEMS.Controller
                     return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
                 }
 
-                var currentUser = GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
                 if (currentUser == null)
                 {
                     return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
