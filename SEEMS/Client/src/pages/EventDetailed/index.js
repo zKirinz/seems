@@ -63,24 +63,7 @@ const EventDetailed = () => {
                         <Typography paragraph sx={{ color: grey[600], my: 1 }}>
                             {detailedEvent.event.eventDescription}
                         </Typography>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                mt: 2,
-                            }}
-                        >
-                            <Typography
-                                sx={{ mt: 1 }}
-                                variant="h6"
-                                fontWeight={500}
-                                color="secondary"
-                            >
-                                {detailedEvent.event.expectPrice === 0
-                                    ? 'Free'
-                                    : `${detailedEvent.event.expectPrice} VND`}
-                            </Typography>
+                        <Box sx={{ mt: 2 }}>
                             <Button variant="contained">Subscribe</Button>
                         </Box>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 4 }}>
