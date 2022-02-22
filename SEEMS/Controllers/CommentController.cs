@@ -216,11 +216,11 @@ namespace SEEMS.Controller
         // POST api/Comments/
         // Load comment
         [HttpPost("{id}")]
-        public IActionResult LoadComments(int id, [FromBody] CommentsLoadMoreDTO data)
+        public async Task<IActionResult> LoadComments(int id, [FromBody] CommentsLoadMoreDTO data)
         {
             try
             {
-                var user = GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                var user = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
                 var userId = user.Id;
 
                 if (data.numberComments == null || data.numberComments <= 0)
@@ -432,50 +432,50 @@ namespace SEEMS.Controller
             return true;
         }
 
-        //private IActionResult ResponseComment(List<Comment> listComments, int? lastCommentId, int numberComments, int id, string action)
-        //{
-        //    listComments = listComments.OrderByDescending(x => x.CreatedAt).ToList();
-        //    List<CommentDTO> listResponseComments = new List<CommentDTO>();
-        //    foreach (var comment in listComments)
-        //    {
-        //        CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-        //        if (action.Contains("load"))
-        //        {
-        //            commentDTO.NumberReplyComment = _context.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
-        //            if (commentDTO.NumberReplyComment == 0)
-        //            {
-        //                commentDTO.NumberReplyComment = null;
-        //            }
-        //        }            
-        //        listResponseComments.Add(commentDTO);
-        //    }
+        private IActionResult ResponseComment(List<Comment> listComments, int? lastCommentId, int numberComments, int id, string action)
+        {
+            listComments = listComments.OrderByDescending(x => x.CreatedAt).ToList();
+            List<CommentDTO> listResponseComments = new List<CommentDTO>();
+            foreach (var comment in listComments)
+            {
+                CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
+                if (action.Contains("load"))
+                {
+                    commentDTO.NumberReplyComment = _context.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
+                    if (commentDTO.NumberReplyComment == 0)
+                    {
+                        commentDTO.NumberReplyComment = null;
+                    }
+                }
+                listResponseComments.Add(commentDTO);
+            }
 
-        //    bool hasMoreComment = (listResponseComments.Count > numberComments);
-        //    if (lastCommentId == null)
-        //    {
-        //        listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
-        //    }
-        //    else
-        //    {
-        //        var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
-        //        int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
-        //        if (lastCommentIndex != -1)
-        //        {
-        //            hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
-        //            listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
-        //        }
-        //        else
-        //        {
-        //            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid LastCommentId."));
-        //        }
-        //    }
+            bool hasMoreComment = (listResponseComments.Count > numberComments);
+            if (lastCommentId == null)
+            {
+                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
+            }
+            else
+            {
+                var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
+                int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
+                if (lastCommentIndex != -1)
+                {
+                    hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
+                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
+                }
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid LastCommentId."));
+                }
+            }
 
-        //    return Ok(new Response(ResponseStatusEnum.Success,
-        //                                   new
-        //                                   {
-        //                                       hasMoreComment,
-        //                                       listResponseComments,
-        //                                   }));
-        //}
+            return Ok(new Response(ResponseStatusEnum.Success,
+                                           new
+                                           {
+                                               hasMoreComment,
+                                               listResponseComments,
+                                           }));
+        }
     }
 }
