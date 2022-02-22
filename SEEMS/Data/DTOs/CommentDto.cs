@@ -11,7 +11,7 @@
         public string? ImageUrl { get; set; }
         public string? UserName { get; set; }
         public string? Email { get; set; }
-        public bool? CanLike { get; set; }
+        public bool? IsLike { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
 
