@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react'
 
 import { useRecoilValue } from 'recoil'
 
-import Comments from '../../components/Comments'
 import { ModeComment } from '@mui/icons-material'
 import {
     Avatar,
@@ -16,11 +15,14 @@ import {
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
-import authAtom from '../../recoil/auth/atom'
-import { useCommentsAction } from '../../recoil/comment'
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
+import authAtom from '../../../recoil/auth'
+import { useCommentsAction } from '../../../recoil/comment'
+import CommentSection from './Comment'
 
-const CommentsSection = ({ eventId: EventId }) => {
+const CommentsSection = ({ eventId: EventId, numberComments }) => {
     const commentsActions = useCommentsAction()
+    const showSnackBar = useSnackbar()
     const auth = useRecoilValue(authAtom)
     const commentContent = useRef(null)
     const initialLoadingComments = useRef(true)
@@ -29,6 +31,7 @@ const CommentsSection = ({ eventId: EventId }) => {
     const [hasMoreComments, setHasMoreComments] = useState(false)
     const [openCommentField, setOpenCommentField] = useState(false)
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
+        action: 'load',
         numberComments: 4,
         lastCommentId: null,
     })
@@ -48,6 +51,10 @@ const CommentsSection = ({ eventId: EventId }) => {
                 setIsLoading(false)
             })
             .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
                 initialLoadingComments.current = false
                 setIsLoading(false)
             })
@@ -69,6 +76,12 @@ const CommentsSection = ({ eventId: EventId }) => {
                 })
                 .then(() => {
                     setIsLoading(false)
+                })
+                .catch(() => {
+                    showSnackBar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
                 })
         }
     }
@@ -138,27 +151,39 @@ const CommentsSection = ({ eventId: EventId }) => {
                         <CircularProgress disableShrink />
                     </Box>
                 )}
-            <Comments
-                comments={comments}
-                onDeleteComment={deleteCommentHandler}
-                editCommentHandler={editCommentHandler}
-            />
+            {comments.length !== 0 &&
+                comments.map((comment) => (
+                    <CommentSection
+                        key={comment.id}
+                        onDeleteComment={deleteCommentHandler}
+                        editCommentHandler={editCommentHandler}
+                        comment={comment}
+                        EventId={EventId}
+                    />
+                ))}
             {hasMoreComments && (
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                    <Typography
-                        variant="body2"
-                        sx={{
-                            cursor: 'pointer',
-                            '&:hover': { textDecoration: 'underline' },
-                            color: grey[500],
-                            mr: 1,
-                        }}
-                        fontWeight={500}
-                        onClick={loadCommentsHandler}
-                    >
-                        Watch more comments
-                    </Typography>
-                    {isLoading && <CircularProgress disableShrink size={20} />}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                cursor: 'pointer',
+                                '&:hover': { textDecoration: 'underline' },
+                                color: grey[800],
+                                mr: 1,
+                            }}
+                            fontWeight={500}
+                            onClick={loadCommentsHandler}
+                        >
+                            Watch more comments
+                        </Typography>
+                        {isLoading && <CircularProgress disableShrink size={20} />}
+                    </Box>
+                    {!!comments && (
+                        <Typography sx={{ color: grey[500] }}>
+                            {comments.length}/{numberComments}
+                        </Typography>
+                    )}
                 </Box>
             )}
         </React.Fragment>
