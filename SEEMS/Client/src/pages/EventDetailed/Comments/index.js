@@ -27,6 +27,9 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
     const commentContent = useRef(null)
     const initialLoadingComments = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
+    // const [likeComment, setLikeComment] = useState({
+    //     isLike:
+    // })
     const [comments, setComments] = useState([])
     const [hasMoreComments, setHasMoreComments] = useState(false)
     const [openCommentField, setOpenCommentField] = useState(false)
@@ -43,6 +46,7 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
         commentsActions
             .loadComments(loadMoreCommentsConfig, EventId)
             .then((response) => {
+                console.log(response)
                 initialLoadingComments.current = false
                 const { listResponseComments: loadedComments, hasMoreComment: isHasMoreComments } =
                     response.data.data

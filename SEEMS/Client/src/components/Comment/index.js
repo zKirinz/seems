@@ -24,6 +24,7 @@ const Comment = ({
     openResponseCommentField,
     numberReplyComment,
     parentCommentId,
+    reactCommentHandler,
 }) => {
     const [isEditCommentContent, setIsEditCommentContent] = useState(false)
     const auth = useRecoilValue(atom)
@@ -144,6 +145,7 @@ const Comment = ({
                             '&:hover': { textDecoration: 'underline' },
                             mr: 2,
                         }}
+                        onClick={() => reactCommentHandler(id)}
                         fontWeight={500}
                     >
                         Like

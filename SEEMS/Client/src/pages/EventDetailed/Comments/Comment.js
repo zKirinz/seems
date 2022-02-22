@@ -16,15 +16,21 @@ import { grey } from '@mui/material/colors'
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import atom from '../../../recoil/auth'
 import { useCommentsAction } from '../../../recoil/comment'
+import useReactComment from '../../../recoil/reactComment/action'
 import ResponseComments from './ResponseComments'
 
 const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId }) => {
     const commentsActions = useCommentsAction()
+    const reactCommentAction = useReactComment()
     const showSnackBar = useSnackbar()
     const auth = useRecoilValue(atom)
     const commentContent = useRef(null)
     const initialLoadingComments = useRef(true)
     const [openCommentField, setOpenCommentField] = useState(false)
+    const [likeComment, setLikeComment] = useState({
+        isLike: comment.isLike,
+        quantityLike: comment.numberLikeComment,
+    })
     const [responseComments, setResponseComment] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [hasMoreComments, setHasMoreComments] = useState(false)
@@ -117,6 +123,16 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
                 })
             })
     }
+    const reactCommentHandler = (commentId) => {
+        reactCommentAction
+            .reactComment(commentId)
+            .then((response) => {
+                console.log(response)
+            })
+            .catch((error) => {
+                console.log(error.response)
+            })
+    }
     useEffect(() => {
         hasMoreComments &&
             setLoadMoreCommentsConfig((previousValue) => ({
@@ -133,6 +149,7 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
                     {...comment}
                     loadMoreResponseCommentsHandler={loadMoreResponseCommentsHandler}
                     openResponseCommentField={openCommentField}
+                    reactCommentHandler={reactCommentHandler}
                 />
                 {openCommentField && (
                     <Box sx={{ width: '94%', ml: 'auto', mt: 1 }}>
