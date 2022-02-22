@@ -12,7 +12,7 @@ const EventPoster = ({ src, size }) => {
                 backgroundPosition: 'center center',
                 backgroundRepeat: 'no-repeat',
             }}
-        ></Box>
+        />
     )
 }
 

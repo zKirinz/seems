@@ -1,18 +1,10 @@
-import { Typography, useMediaQuery, CardContent } from '@mui/material'
+import { Typography, CardContent } from '@mui/material'
 import { grey } from '@mui/material/colors'
-import { useTheme } from '@mui/material/styles'
 
 const EventSummaryInfo = ({ title, content }) => {
-    const theme = useTheme()
-    const matches = useMediaQuery(theme.breakpoints.up('md'))
-
     return (
-        <CardContent sx={{ px: { xs: 3, md: 8 }, py: { sx: 2, md: 4 } }}>
-            <Typography
-                fontWeight={700}
-                color="primary"
-                variant={`${matches ? 'h6' : 'subtitle1'}`}
-            >
+        <CardContent sx={{ px: 8, py: 4 }}>
+            <Typography fontWeight={700} color="primary" variant="h5">
                 {title}
             </Typography>
             <Typography
@@ -23,11 +15,11 @@ const EventSummaryInfo = ({ title, content }) => {
                     overflow: 'hidden',
                     display: '-webkit-box',
                     WebkitBoxOrient: 'vertical',
-                    WebkitLineClamp: '3',
+                    WebkitLineClamp: '2',
                     textOverflow: 'ellipsis',
                 }}
                 fontWeight={500}
-                variant={`${matches ? 'subtitle2' : 'body2'}`}
+                variant="subtitle2"
             >
                 {content}
             </Typography>
