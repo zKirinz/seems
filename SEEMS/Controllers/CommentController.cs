@@ -149,6 +149,7 @@ namespace SEEMS.Controller
                 var userId = currentUser.Id;
 
                 var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == commentId).FirstOrDefault();
+                bool isLike;
                 if (likeComment == null)
                 {
                     LikeComment newLikeComment = new LikeComment
@@ -158,16 +159,24 @@ namespace SEEMS.Controller
                     };
 
                     _context.LikeComments.Add(newLikeComment);
+                    isLike = true;
                 }
                 else
                 {
                     _context.LikeComments.Remove(likeComment);
+                    isLike = false;
                 }
 
                 _context.SaveChanges();
                 var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == commentId).Count();
 
-                return Ok(new Response(ResponseStatusEnum.Success, numberLikeComment));
+                return Ok(new Response(ResponseStatusEnum.Success,
+                                       new
+                                       {
+                                            numberLikeComment,
+                                            isLike,
+
+                                       }));
             } catch (Exception ex)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
