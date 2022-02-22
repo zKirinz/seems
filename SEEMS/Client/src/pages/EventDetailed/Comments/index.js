@@ -43,6 +43,7 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
         commentsActions
             .loadComments(loadMoreCommentsConfig, EventId)
             .then((response) => {
+                console.log(response)
                 initialLoadingComments.current = false
                 const { listResponseComments: loadedComments, hasMoreComment: isHasMoreComments } =
                     response.data.data
@@ -87,19 +88,37 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
     }
 
     const deleteCommentHandler = (commentId) => {
-        commentsActions.deleteComment(commentId).then(() => {
-            setComments((prevComments) =>
-                prevComments.filter((comment) => comment.id !== commentId)
-            )
-        })
+        commentsActions
+            .deleteComment(commentId)
+            .then(() => {
+                setComments((prevComments) =>
+                    prevComments.filter((comment) => comment.id !== commentId)
+                )
+            })
+            .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+            })
     }
     const editCommentHandler = (commentId, commentContent) => {
-        commentsActions.editComment(commentId, commentContent).then((response) => {
-            const positionIndexComment = comments.findIndex((comment) => comment.id === commentId)
-            const newComments = [...comments]
-            newComments.splice(positionIndexComment, 1, response.data.data)
-            setComments(newComments)
-        })
+        commentsActions
+            .editComment(commentId, commentContent)
+            .then((response) => {
+                const positionIndexComment = comments.findIndex(
+                    (comment) => comment.id === commentId
+                )
+                const newComments = [...comments]
+                newComments.splice(positionIndexComment, 1, response.data.data)
+                setComments(newComments)
+            })
+            .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+            })
     }
     useEffect(() => {
         hasMoreComments &&

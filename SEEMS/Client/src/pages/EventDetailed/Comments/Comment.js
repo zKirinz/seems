@@ -16,13 +16,16 @@ import { grey } from '@mui/material/colors'
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import atom from '../../../recoil/auth'
 import { useCommentsAction } from '../../../recoil/comment'
+import { useReactComment } from '../../../recoil/reactComment'
 import ResponseComments from './ResponseComments'
 
 const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId }) => {
     const commentsActions = useCommentsAction()
+    const reactCommentAction = useReactComment()
     const showSnackBar = useSnackbar()
     const auth = useRecoilValue(atom)
     const commentContent = useRef(null)
+    const [canLike, setCanLike] = useState(comment.canLike)
     const initialLoadingComments = useRef(true)
     const [openCommentField, setOpenCommentField] = useState(false)
     const [responseComments, setResponseComment] = useState([])
@@ -85,12 +88,22 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
             })
     }
     const editResponseCommentHandler = (id, commentContent) => {
-        commentsActions.editComment(id, commentContent).then((response) => {
-            const positionIndexComment = responseComments.findIndex((comment) => comment.id === id)
-            const newComments = [...responseComments]
-            newComments.splice(positionIndexComment, 1, response.data.data)
-            setResponseComment(newComments)
-        })
+        commentsActions
+            .editComment(id, commentContent)
+            .then((response) => {
+                const positionIndexComment = responseComments.findIndex(
+                    (comment) => comment.id === id
+                )
+                const newComments = [...responseComments]
+                newComments.splice(positionIndexComment, 1, response.data.data)
+                setResponseComment(newComments)
+            })
+            .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+            })
     }
     const deleteResponseCommentHandler = (commentId) => {
         commentsActions
@@ -101,6 +114,20 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
                 )
             })
             .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+            })
+    }
+    const reactCommentHandler = (commentId) => {
+        reactCommentAction
+            .reactComment(commentId)
+            .then(() => {
+                setCanLike((previousValue) => !previousValue)
+            })
+            .catch((error) => {
+                console.log(error.response)
                 showSnackBar({
                     severity: 'error',
                     children: 'Something went wrong, please try again.',
@@ -123,6 +150,8 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
                     {...comment}
                     loadMoreResponseCommentsHandler={loadMoreResponseCommentsHandler}
                     openResponseCommentField={openCommentField}
+                    reactCommentHandler={reactCommentHandler}
+                    canLike={canLike}
                 />
                 {openCommentField && (
                     <Box sx={{ width: '94%', ml: 'auto', mt: 1 }}>
@@ -143,6 +172,8 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
                                 comments={responseComments}
                                 editCommentHandler={editResponseCommentHandler}
                                 onDeleteComment={deleteResponseCommentHandler}
+                                reactCommentHandler={reactCommentHandler}
+                                canLike={canLike}
                             />
                         )}
                         {hasMoreComments && (
