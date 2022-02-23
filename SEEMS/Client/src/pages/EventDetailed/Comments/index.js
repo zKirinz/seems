@@ -18,10 +18,12 @@ import { grey } from '@mui/material/colors'
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import authAtom from '../../../recoil/auth'
 import { useCommentsAction } from '../../../recoil/comment'
+import { useReactComment } from '../../../recoil/reactComment'
 import CommentSection from './Comment'
 
 const CommentsSection = ({ eventId: EventId, numberComments }) => {
     const commentsActions = useCommentsAction()
+    const reactCommentAction = useReactComment()
     const showSnackBar = useSnackbar()
     const auth = useRecoilValue(authAtom)
     const commentContent = useRef(null)
@@ -43,6 +45,7 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
         commentsActions
             .loadComments(loadMoreCommentsConfig, EventId)
             .then((response) => {
+                console.log(response)
                 initialLoadingComments.current = false
                 const { listResponseComments: loadedComments, hasMoreComment: isHasMoreComments } =
                     response.data.data
@@ -119,6 +122,29 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                 })
             })
     }
+    const reactCommentHandler = (commentId) => {
+        reactCommentAction
+            .reactComment(commentId)
+            .then((response) => {
+                const responseReaction = response.data.data
+                const positionIndexComment = comments.findIndex(
+                    (comment) => comment.id === commentId
+                )
+                const updateLikeComments = [...comments]
+                updateLikeComments[positionIndexComment].isLike = re
+                // setLikeComment({
+                //     isLike: responseReaction.isLike,
+                //     quantityLike: responseReaction.numberLikeComment,
+                //     commentId: commentId,
+                // })
+            })
+            .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+            })
+    }
     useEffect(() => {
         hasMoreComments &&
             setLoadMoreCommentsConfig((previousValue) => ({
@@ -177,6 +203,7 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                         editCommentHandler={editCommentHandler}
                         comment={comment}
                         EventId={EventId}
+                        reactCommentHandler={reactCommentHandler}
                     />
                 ))}
             {hasMoreComments && (
