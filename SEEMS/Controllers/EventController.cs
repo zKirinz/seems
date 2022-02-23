@@ -106,7 +106,7 @@ namespace SEEMS.Controller
 		[HttpGet("upcoming")]
 		public async Task<ActionResult<List<Event>>> GetUpcoming()
 		{
-			int resultCount;
+			//int resultCount;
 			User currentUser = await GetCurrentUser(Request);
 			try
 			{
@@ -117,7 +117,8 @@ namespace SEEMS.Controller
 				{
 					result = result.Where(e => !e.IsPrivate);
 				}
-				resultCount = Math.Min(10, result.Count());
+				//resultCount = Math.Min(10, result.Count());
+				result = result.OrderByDescending(e => e.StartDate);
 				result.ToList().ForEach(e =>
 				{
 					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
@@ -127,7 +128,7 @@ namespace SEEMS.Controller
 					new
 					{
 						Count = result.Count(),
-						Events = result.ToList().GetRange(0, resultCount)
+						Events = result.ToList()
 					}
 				));
 			}
@@ -170,6 +171,7 @@ namespace SEEMS.Controller
 					foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 				}
 
+				foundResult = foundResult.OrderByDescending(e => e.StartDate);
 				//Implement load more
 
 				if (lastEventID != null)
