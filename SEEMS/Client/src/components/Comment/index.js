@@ -25,11 +25,15 @@ const Comment = ({
     numberReplyComment,
     parentCommentId,
     reactCommentHandler,
+    isLike,
+    likeComment,
 }) => {
     const [isEditCommentContent, setIsEditCommentContent] = useState(false)
     const auth = useRecoilValue(atom)
     const [inputCommentText, setInputCommentText] = useState(commentContent)
     const [confirmDialog, setConfirmDialog] = useState(false)
+    const like =
+        (likeComment?.isLike ?? isLike) && likeComment?.commentId === id ? blue[500] : grey[900]
     const onEditComment = (event) => {
         if (event.target.value.trim().length !== 0 && event.key === 'Enter') {
             editCommentHandler(id, inputCommentText)
@@ -85,6 +89,7 @@ const Comment = ({
                                 }}
                                 onChange={(event) => setInputCommentText(event.target.value)}
                                 onKeyDown={onEditComment}
+                                autoFocus
                             />
                             <Typography
                                 variant="body2"
@@ -144,6 +149,7 @@ const Comment = ({
                             cursor: 'pointer',
                             '&:hover': { textDecoration: 'underline' },
                             mr: 2,
+                            color: like,
                         }}
                         onClick={() => reactCommentHandler(id)}
                         fontWeight={500}

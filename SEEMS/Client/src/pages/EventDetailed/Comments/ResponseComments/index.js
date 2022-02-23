@@ -2,7 +2,12 @@ import React from 'react'
 
 import ResponseComment from './ResponseComment'
 
-const ResponseComments = ({ comments, editCommentHandler, onDeleteComment }) => {
+const ResponseComments = ({
+    comments,
+    editCommentHandler,
+    onDeleteComment,
+    reactCommentHandler,
+}) => {
     return (
         <React.Fragment>
             {comments.map((comment) => (
