@@ -131,40 +131,47 @@ namespace SEEMS.Controller
         //PUT api/Comments
         //Like and unlike Comment
         [HttpPut]
-        public async Task<IActionResult> ReactComment([FromBody] JsonResult reactCommentId)
+        public async Task<IActionResult> ReactComment([FromBody] CommentId comment)
         {
-            var commentId = (int)reactCommentId.Value;
-            if (!CheckValidCommentId(commentId))
+            try
             {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
-            }
-
-            var currentUser = GetCurrentUser(_authManager.GetCurrentEmail(Request));
-            if (currentUser == null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
-            }
-            var userId = currentUser.Id;
-
-            var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == commentId).FirstOrDefault();
-            if (likeComment == null)
-            {
-                LikeComment newLikeComment = new LikeComment
+                var commentId = (int)comment.reactCommentId;
+                if (!CheckValidCommentId(commentId))
                 {
-                    CommentId = commentId,
-                    UserId = userId,
-                };
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
+                }
 
-                _context.LikeComments.Add(newLikeComment);
-            }
-            else
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                if (currentUser == null)
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Fail"));
+                }
+                var userId = currentUser.Id;
+
+                var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == commentId).FirstOrDefault();
+                if (likeComment == null)
+                {
+                    LikeComment newLikeComment = new LikeComment
+                    {
+                        CommentId = commentId,
+                        UserId = userId,
+                    };
+
+                    _context.LikeComments.Add(newLikeComment);
+                }
+                else
+                {
+                    _context.LikeComments.Remove(likeComment);
+                }
+
+                _context.SaveChanges();
+                var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == commentId).Count();
+
+                return Ok(new Response(ResponseStatusEnum.Success, numberLikeComment));
+            } catch (Exception ex)
             {
-                _context.LikeComments.Remove(likeComment);
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
             }
-
-            _context.SaveChanges();
-
-            return NoContent();
         }
 
         // DELETE api/Comments/
@@ -253,16 +260,16 @@ namespace SEEMS.Controller
                             var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
                             if (likeComment == null)
                             {
-                                commentDTO.CanLike = true;
+                                commentDTO.IsLike = false;
                             }
                             else
                             {
-                                commentDTO.CanLike = false;
+                                commentDTO.IsLike = true;
                             }
                         }
                         else
                         {
-                            commentDTO.CanLike = false;
+                            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid token."));
                         }
                         listResponseComments.Add(commentDTO);
                     }
@@ -315,16 +322,16 @@ namespace SEEMS.Controller
                             var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
                             if (likeComment == null)
                             {
-                                commentDTO.CanLike = true;
+                                commentDTO.IsLike = false;
                             }
                             else
                             {
-                                commentDTO.CanLike = false;
+                                commentDTO.IsLike = true;
                             }
                         }
                         else
                         {
-                            commentDTO.CanLike = false;
+                            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid token."));
                         }
                         listResponseReplyComments.Add(commentDTO);
                     }

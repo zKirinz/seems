@@ -11,6 +11,7 @@ const ResponseComments = ({ comments, editCommentHandler, onDeleteComment }) => 
                     comment={comment}
                     editCommentHandler={editCommentHandler}
                     onDeleteComment={onDeleteComment}
+                    reactCommentHandler={reactCommentHandler}
                 />
             ))}
         </React.Fragment>

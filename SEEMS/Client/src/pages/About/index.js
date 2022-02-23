@@ -43,7 +43,7 @@ const About = () => {
                 About Us
             </Typography>
             <Grid container columns={{ md: 10, xs: 12 }} component={Card}>
-                <Grid item xs={12} md={6} position="relative" component={Paper}>
+                <Grid item xs={12} md={5} position="relative" component={Paper}>
                     <CardMedia
                         image={aboutImage.src}
                         alt={aboutImage.alt}
@@ -51,8 +51,8 @@ const About = () => {
                         height="100%"
                     />
                 </Grid>
-                <Grid item xs={12} md={4}>
-                    <CardContent sx={{ p: 3.5 }}>
+                <Grid item xs={12} md={5}>
+                    <CardContent sx={{ p: 5 }}>
                         <Typography
                             paragraph
                             mt={1}

@@ -85,12 +85,22 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
             })
     }
     const editResponseCommentHandler = (id, commentContent) => {
-        commentsActions.editComment(id, commentContent).then((response) => {
-            const positionIndexComment = responseComments.findIndex((comment) => comment.id === id)
-            const newComments = [...responseComments]
-            newComments.splice(positionIndexComment, 1, response.data.data)
-            setResponseComment(newComments)
-        })
+        commentsActions
+            .editComment(id, commentContent)
+            .then((response) => {
+                const positionIndexComment = responseComments.findIndex(
+                    (comment) => comment.id === id
+                )
+                const newComments = [...responseComments]
+                newComments.splice(positionIndexComment, 1, response.data.data)
+                setResponseComment(newComments)
+            })
+            .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+            })
     }
     const deleteResponseCommentHandler = (commentId) => {
         commentsActions
