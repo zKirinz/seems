@@ -16,7 +16,7 @@ import useEventAction from '../../../recoil/event/action'
 const EventsList = () => {
     const auth = useRecoilValue(authAtom)
     const { search: queries } = useLocation()
-    const { search } = queryString.parse(queries)
+    const { search, upcoming } = queryString.parse(queries)
     const eventAction = useEventAction()
     const [events, setEvents] = useState([])
     const [eventsNumber, setEventsNumber] = useState(0)
@@ -53,9 +53,18 @@ const EventsList = () => {
     }
 
     useEffect(() => {
-        let filterString = '?resultCount=6&'
-        if (search) {
-            filterString += 'search=' + search
+        setIsLoading(true)
+
+        let filterString = '?resultCount=6'
+        if (search && search.trim() !== '') {
+            filterString += '&search=' + search
+        }
+        if (upcoming !== undefined) {
+            if (upcoming === 'true') {
+                filterString += '&upcoming=true'
+            } else if (upcoming === 'false') {
+                filterString += '&upcoming=false'
+            }
         }
 
         eventAction
@@ -64,7 +73,7 @@ const EventsList = () => {
                 setEvents(res.data.data.listEvents)
                 setEventsNumber(res.data.data.count)
                 setHasMore(res.data.data.canLoadMore)
-                console.log(res.data.data.listEvents)
+                // console.log(res.data.data.listEvents)
                 setIsLoading(false)
             })
             .catch(() => {
@@ -75,7 +84,7 @@ const EventsList = () => {
                 setIsLoading(false)
             })
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search])
+    }, [search, upcoming])
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" width="100%">
