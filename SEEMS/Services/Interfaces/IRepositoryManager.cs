@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SEEMS.Data.Repositories.Implements;
 
 namespace SEEMS.Services.Interfaces
 {
@@ -12,6 +13,8 @@ namespace SEEMS.Services.Interfaces
         IUserMetaRepository UserMeta { get; }
         
         IChainOfEventsRepository ChainOfEvent { get; }
+        
+        IOrganizationRepository Organization { get; }
 
         Task SaveAsync();
     }
