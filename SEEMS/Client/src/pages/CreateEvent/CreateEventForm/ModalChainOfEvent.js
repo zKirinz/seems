@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 
 import {
     Box,
@@ -41,6 +41,9 @@ const ModalChainOfEvent = ({
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
     const showSnackbar = useSnackbar()
+    const [cloneChainOfEvent, setCloneChainOfEvent] = useState(chainOfEventList)
+    const typingTimeOut = useRef(null)
+    const [filterChainOfEvent, setFilterChainOfEvent] = useState('')
     const isValidForm = categoryName.trim().length !== 0
     const chooseChainOfEventHandler = (id, categoryName) => {
         setChainEvent({ id: id, categoryName: categoryName })
@@ -94,7 +97,13 @@ const ModalChainOfEvent = ({
         setCategoryName(event.target.value)
         error?.categoryName && setError(null)
     }
+    const filterChainOfEventByName = (event) => {
+        const filterSearchValue = event.target.value
+        setFilterChainOfEvent(filterChainOfEvent)
+        if (typingTimeOut.current) clearTimeout(typingTimeOut.current)
 
+        typingTimeOut.current = setTimeout(() => {}, 1500)
+    }
     return (
         <React.Fragment>
             <Modal
@@ -114,6 +123,18 @@ const ModalChainOfEvent = ({
                         p: 4,
                     }}
                 >
+                    <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                        <InputLabel htmlFor="filter-name">Search by name</InputLabel>
+                        <OutlinedInput
+                            id="filter-name"
+                            label="Search by name"
+                            size="small"
+                            required
+                            value={categoryName}
+                            onChange={cateGoryNameHandler}
+                            error={!!error?.categoryName}
+                        />
+                    </FormControl>
                     <FormControl fullWidth>
                         <InputLabel id="category-chain-events">Category name</InputLabel>
                         <Select
@@ -123,7 +144,7 @@ const ModalChainOfEvent = ({
                             sx={{ '& .MuiIconButton-root': { display: 'none' } }}
                             MenuProps={MenuProps}
                         >
-                            {chainOfEventList.map((chainOfEventItem) => (
+                            {cloneChainOfEvent.map((chainOfEventItem) => (
                                 <MenuItem
                                     key={chainOfEventItem.id}
                                     value={chainOfEventItem.categoryName}
