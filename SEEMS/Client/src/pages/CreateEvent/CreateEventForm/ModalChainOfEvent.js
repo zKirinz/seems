@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import {
     Box,
@@ -36,14 +36,15 @@ const ModalChainOfEvent = ({
     onCreateChainOfEvent,
     chainOfEventList,
 }) => {
+    const showSnackbar = useSnackbar()
     const [categoryName, setCategoryName] = useState('')
     const [formCreateNewChainOfEvent, setFormCreateNewChainOfEvent] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
-    const showSnackbar = useSnackbar()
     const [cloneChainOfEvent, setCloneChainOfEvent] = useState(chainOfEventList)
     const typingTimeOut = useRef(null)
     const [filterChainOfEvent, setFilterChainOfEvent] = useState('')
+
     const isValidForm = categoryName.trim().length !== 0
     const chooseChainOfEventHandler = (id, categoryName) => {
         setChainEvent({ id: id, categoryName: categoryName })
@@ -97,13 +98,21 @@ const ModalChainOfEvent = ({
         setCategoryName(event.target.value)
         error?.categoryName && setError(null)
     }
-    const filterChainOfEventByName = (event) => {
+    const filterChainOfEventByNameHandler = (event) => {
         const filterSearchValue = event.target.value
-        setFilterChainOfEvent(filterChainOfEvent)
+        setFilterChainOfEvent(filterSearchValue)
         if (typingTimeOut.current) clearTimeout(typingTimeOut.current)
 
-        typingTimeOut.current = setTimeout(() => {}, 1500)
+        typingTimeOut.current = setTimeout(() => {
+            const filterChainOfEventList = chainOfEventList.filter((chainOfEvent) =>
+                chainOfEvent.categoryName.toLowerCase().includes(filterSearchValue.toLowerCase())
+            )
+            setCloneChainOfEvent(filterChainOfEventList)
+        }, 1000)
     }
+    useEffect(() => {
+        setCloneChainOfEvent(chainOfEventList)
+    }, [chainOfEventList])
     return (
         <React.Fragment>
             <Modal
@@ -129,10 +138,8 @@ const ModalChainOfEvent = ({
                             id="filter-name"
                             label="Search by name"
                             size="small"
-                            required
-                            value={categoryName}
-                            onChange={cateGoryNameHandler}
-                            error={!!error?.categoryName}
+                            value={filterChainOfEvent}
+                            onChange={filterChainOfEventByNameHandler}
                         />
                     </FormControl>
                     <FormControl fullWidth>
@@ -187,7 +194,6 @@ const ModalChainOfEvent = ({
                                     id="name-chain-events"
                                     label="Name"
                                     size="small"
-                                    required
                                     value={categoryName}
                                     onChange={cateGoryNameHandler}
                                     error={!!error?.categoryName}

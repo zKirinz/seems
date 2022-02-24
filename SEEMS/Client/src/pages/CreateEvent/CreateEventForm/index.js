@@ -365,14 +365,16 @@ const CreateEventForm = ({
                     </Box>
                 </Grid>
             </Grid>
-            <ModalChainOfEvent
-                chainOfEvent={chainOfEvent}
-                setChainEvent={setChainOfEvent}
-                isOpenModal={isOpenModal}
-                closeChainOfEventHandler={closeChainOfEventHandler}
-                onCreateChainOfEvent={onCreateChainOfEvent}
-                chainOfEventList={chainOfEventList}
-            />
+            {isOpenModal && (
+                <ModalChainOfEvent
+                    chainOfEvent={chainOfEvent}
+                    setChainEvent={setChainOfEvent}
+                    isOpenModal={isOpenModal}
+                    closeChainOfEventHandler={closeChainOfEventHandler}
+                    onCreateChainOfEvent={onCreateChainOfEvent}
+                    chainOfEventList={chainOfEventList}
+                />
+            )}
         </React.Fragment>
     )
 }
