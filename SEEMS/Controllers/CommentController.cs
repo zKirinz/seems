@@ -263,7 +263,7 @@ namespace SEEMS.Controller
                         {
                             commentDTO.NumberReplyComment = null;
                         }
-                        var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
+                        commentDTO.NumberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
                         if (user != null)
                         {
                             var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
@@ -325,7 +325,7 @@ namespace SEEMS.Controller
                     foreach (var comment in listReplyComment)
                     {
                         CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                        var numberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
+                        commentDTO.NumberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
                         if (user != null)
                         {
                             var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
