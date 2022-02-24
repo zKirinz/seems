@@ -29,4 +29,7 @@ public class UserMetaRepository : RepositoryBase<UserMeta>, IUserMetaRepository
         await FindByCondition(m => m.User.Email.Equals(email), trackChanges)
             .SingleOrDefaultAsync();
 
+    public async Task<UserMeta> GetRoleByUserIdAsync(int id, bool trackChanges) =>
+        await FindByCondition(m => m.UserId == id, trackChanges)
+            .SingleOrDefaultAsync();
 }
