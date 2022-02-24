@@ -21,7 +21,10 @@ const UpComingEvents = () => {
     const showSnackbar = useSnackbar()
 
     const searchFilterSubmitHandler = (searchText) => {
-        history.push('/events?search=' + searchText)
+        searchText = searchText.trim()
+        if (searchText !== '') {
+            history.push('/events?search=' + searchText + '&upcoming=true')
+        }
     }
 
     useEffect(() => {

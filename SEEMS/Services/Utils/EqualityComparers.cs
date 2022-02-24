@@ -9,10 +9,7 @@ namespace SEEMS.Services.Utils
 	{
 		public override bool Equals(User? x, User? y)
 		{
-			if (x.Email.Equals(y.Email, StringComparison.CurrentCultureIgnoreCase))
-				return true;
-			else
-				return false;
+			return x.Email.Equals(y.Email, StringComparison.CurrentCultureIgnoreCase);
 		}
 
 		public override int GetHashCode([DisallowNull] User obj)

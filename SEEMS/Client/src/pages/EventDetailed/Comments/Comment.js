@@ -18,7 +18,13 @@ import atom from '../../../recoil/auth'
 import { useCommentsAction } from '../../../recoil/comment'
 import ResponseComments from './ResponseComments'
 
-const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId }) => {
+const CommentSection = ({
+    onDeleteComment,
+    editCommentHandler,
+    comment,
+    EventId,
+    reactCommentHandler,
+}) => {
     const commentsActions = useCommentsAction()
     const showSnackBar = useSnackbar()
     const auth = useRecoilValue(atom)
@@ -33,7 +39,6 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
         numberComments: 4,
         lastCommentId: null,
     })
-
     const replyCommentHandler = (event) => {
         if (commentContent.current.value.trim().length !== 0 && event.key === 'Enter') {
             setIsLoading(true)
@@ -133,6 +138,7 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
                     {...comment}
                     loadMoreResponseCommentsHandler={loadMoreResponseCommentsHandler}
                     openResponseCommentField={openCommentField}
+                    reactCommentHandler={reactCommentHandler}
                 />
                 {openCommentField && (
                     <Box sx={{ width: '94%', ml: 'auto', mt: 1 }}>
@@ -153,6 +159,7 @@ const CommentSection = ({ onDeleteComment, editCommentHandler, comment, EventId 
                                 comments={responseComments}
                                 editCommentHandler={editResponseCommentHandler}
                                 onDeleteComment={deleteResponseCommentHandler}
+                                reactCommentHandler={reactCommentHandler}
                             />
                         )}
                         {hasMoreComments && (
