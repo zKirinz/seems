@@ -33,7 +33,7 @@ const CommentSection = ({
     const [openCommentField, setOpenCommentField] = useState(false)
     const [responseComments, setResponseComment] = useState([])
     const [isLoading, setIsLoading] = useState(false)
-    const [hasMoreComments, setHasMoreComments] = useState(false)
+    const [hasMoreComments, setHasMoreComments] = useState(true)
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
         action: 'reply',
         numberComments: 4,
@@ -65,29 +65,29 @@ const CommentSection = ({
     }
     const loadMoreResponseCommentsHandler = () => {
         setIsLoading(true)
-        if (initialLoadingComments.current) {
+        if (hasMoreComments) {
             setOpenCommentField(true)
-        }
-        commentsActions
-            .loadComments(loadMoreCommentsConfig, comment.id)
-            .then((response) => {
-                initialLoadingComments.current = false
-                const {
-                    listResponseReplyComments: loadedComments,
-                    hasMoreComment: isHasMoreComments,
-                } = response.data.data
-                setResponseComment((prevComments) => [...prevComments, ...loadedComments])
-                setHasMoreComments(isHasMoreComments)
-                setIsLoading(false)
-            })
-            .catch(() => {
-                showSnackBar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again.',
+            commentsActions
+                .loadComments(loadMoreCommentsConfig, comment.id)
+                .then((response) => {
+                    initialLoadingComments.current = false
+                    const {
+                        listResponseReplyComments: loadedComments,
+                        hasMoreComment: isHasMoreComments,
+                    } = response.data.data
+                    setResponseComment((prevComments) => [...prevComments, ...loadedComments])
+                    setHasMoreComments(isHasMoreComments)
+                    setIsLoading(false)
                 })
-                initialLoadingComments.current = false
-                setIsLoading(false)
-            })
+                .catch(() => {
+                    showSnackBar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again.',
+                    })
+                    initialLoadingComments.current = false
+                    setIsLoading(false)
+                })
+        }
     }
     const editResponseCommentHandler = (id, commentContent) => {
         commentsActions
@@ -123,7 +123,8 @@ const CommentSection = ({
             })
     }
     useEffect(() => {
-        hasMoreComments &&
+        !initialLoadingComments.current &&
+            hasMoreComments &&
             setLoadMoreCommentsConfig((previousValue) => ({
                 ...previousValue,
                 lastCommentId: responseComments[responseComments.length - 1].id,

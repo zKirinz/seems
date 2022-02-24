@@ -45,7 +45,6 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
         commentsActions
             .loadComments(loadMoreCommentsConfig, EventId)
             .then((response) => {
-                console.log(response)
                 initialLoadingComments.current = false
                 const { listResponseComments: loadedComments, hasMoreComment: isHasMoreComments } =
                     response.data.data
@@ -122,21 +121,15 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                 })
             })
     }
-    const reactCommentHandler = (commentId) => {
+    const reactCommentHandler = (commentId, setLikeComment) => {
         reactCommentAction
             .reactComment(commentId)
             .then((response) => {
                 const responseReaction = response.data.data
-                const positionIndexComment = comments.findIndex(
-                    (comment) => comment.id === commentId
-                )
-                const updateLikeComments = [...comments]
-                updateLikeComments[positionIndexComment].isLike = re
-                // setLikeComment({
-                //     isLike: responseReaction.isLike,
-                //     quantityLike: responseReaction.numberLikeComment,
-                //     commentId: commentId,
-                // })
+                setLikeComment({
+                    isLike: responseReaction.isLike,
+                    numberLikeComment: responseReaction.numberLikeComment,
+                })
             })
             .catch(() => {
                 showSnackBar({
