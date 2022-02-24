@@ -125,11 +125,10 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
         reactCommentAction
             .reactComment(commentId)
             .then((response) => {
-                console.log(response)
                 const responseReaction = response.data.data
                 setLikeComment({
                     isLike: responseReaction.isLike,
-                    numberReplyComment: responseReaction.numberLikeComment,
+                    numberLikeComment: responseReaction.numberLikeComment,
                 })
             })
             .catch(() => {

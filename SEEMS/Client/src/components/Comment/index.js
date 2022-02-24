@@ -23,6 +23,7 @@ const Comment = ({
     loadMoreResponseCommentsHandler,
     openResponseCommentField,
     numberReplyComment,
+    numberLikeComment,
     parentCommentId,
     reactCommentHandler,
     isLike,
@@ -31,7 +32,7 @@ const Comment = ({
     const auth = useRecoilValue(atom)
     const [likeComment, setLikeComment] = useState({
         isLike: isLike,
-        numberReplyComment: numberReplyComment,
+        numberLikeComment: numberLikeComment,
     })
     const [inputCommentText, setInputCommentText] = useState(commentContent)
     const [confirmDialog, setConfirmDialog] = useState(false)
@@ -146,7 +147,7 @@ const Comment = ({
                 </Box>
                 <Box sx={{ ml: 5, mt: 1 }}>
                     <Typography component="span" sx={{ mr: 0.5 }}>
-                        {!!likeComment.numberReplyComment && likeComment.numberReplyComment}
+                        {!!likeComment.numberLikeComment && likeComment.numberLikeComment}
                     </Typography>
                     <Typography
                         component="span"
