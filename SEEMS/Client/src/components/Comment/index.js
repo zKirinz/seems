@@ -23,17 +23,20 @@ const Comment = ({
     loadMoreResponseCommentsHandler,
     openResponseCommentField,
     numberReplyComment,
+    numberLikeComment,
     parentCommentId,
     reactCommentHandler,
     isLike,
-    likeComment,
 }) => {
     const [isEditCommentContent, setIsEditCommentContent] = useState(false)
     const auth = useRecoilValue(atom)
+    const [likeComment, setLikeComment] = useState({
+        isLike: isLike,
+        numberLikeComment: numberLikeComment,
+    })
     const [inputCommentText, setInputCommentText] = useState(commentContent)
     const [confirmDialog, setConfirmDialog] = useState(false)
-    const like =
-        (likeComment?.isLike ?? isLike) && likeComment?.commentId === id ? blue[500] : grey[900]
+    const like = likeComment.isLike ? blue[500] : grey[900]
     const onEditComment = (event) => {
         if (event.target.value.trim().length !== 0 && event.key === 'Enter') {
             editCommentHandler(id, inputCommentText)
@@ -143,6 +146,9 @@ const Comment = ({
                     )}
                 </Box>
                 <Box sx={{ ml: 5, mt: 1 }}>
+                    <Typography component="span" sx={{ mr: 0.5 }}>
+                        {!!likeComment.numberLikeComment && likeComment.numberLikeComment}
+                    </Typography>
                     <Typography
                         component="span"
                         sx={{
@@ -151,7 +157,7 @@ const Comment = ({
                             mr: 2,
                             color: like,
                         }}
-                        onClick={() => reactCommentHandler(id)}
+                        onClick={() => reactCommentHandler(id, setLikeComment)}
                         fontWeight={500}
                     >
                         Like
