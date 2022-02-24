@@ -13,6 +13,7 @@ namespace SEEMS.Services
         private IUserMetaRepository _userMetaRepository;
         private IChainOfEventsRepository _chainOfEventsRepository;
         private IOrganizationRepository _organizationRepository;
+        private IEventRepository _eventRepository;
 
         public RepositoryManager(ApplicationDbContext context)
         {
@@ -67,6 +68,18 @@ namespace SEEMS.Services
                     _organizationRepository = new OrganizationRepository(_context);
                 }
                 return _organizationRepository;
+            }
+        }
+
+        public IEventRepository Event
+        {
+            get
+            {
+                if (_eventRepository == null)
+                {
+                    _eventRepository = new EventRepository(_context);
+                }
+                return _eventRepository;
             }
         }
 

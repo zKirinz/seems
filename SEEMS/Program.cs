@@ -19,7 +19,12 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 using System.Security.Claims;
 using System.Text;
-
+using AutoMapper;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
+using SEEMS.Data.Entities.RequestFeatures;
+using SEEMS.Services.Jobs;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -185,6 +190,28 @@ app.MapControllerRoute(
 
 app.MapFallbackToFile("index.html"); ;
 
+
+Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
+{
+	services.AddDbContext<ApplicationDbContext>(options =>
+	{
+		options.UseSqlServer(builder.Configuration.GetConnectionString("AppConnection"));
+	});
+	services.AddAutoMapper(typeof(MappingProfile));
+	services.AddSingleton<IJobFactory, JobFactory>();
+	services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+	services.AddScoped<IRepositoryManager, RepositoryManager>();
+	services.AddScoped<UpdateEventActiveness>();
+
+	# region Addings jobs
+	List<JobMeta> metas = new List<JobMeta>();
+	metas.Add(new JobMeta(Guid.NewGuid(), typeof(UpdateEventActiveness), "Update Activeness job", "0/10 * * * * ?"));
+
+	services.AddSingleton(metas);
+	# endregion
+
+	services.AddHostedService<JobSchedular>();
+}).Build().Run();
 app.Run();
 
 internal class SecureEndpointAuthRequirementFilter : IOperationFilter

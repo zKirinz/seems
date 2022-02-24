@@ -14,6 +14,8 @@ namespace SEEMS.Services.Interfaces
         
         IChainOfEventsRepository ChainOfEvent { get; }
         
+        IEventRepository Event { get; }
+        
         IOrganizationRepository Organization { get; }
 
         Task SaveAsync();

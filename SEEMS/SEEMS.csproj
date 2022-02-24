@@ -18,6 +18,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="DotNet.NLog.NetCore" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="6.0.1" />
     <PackageReference Include="Google.Apis.Auth" Version="1.55.0" />
     <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="6.0.1" />
@@ -33,6 +34,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="NLog" Version="4.7.7" />
+    <PackageReference Include="Quartz.AspNetCore" Version="3.3.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
