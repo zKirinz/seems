@@ -7,6 +7,8 @@ const useEventAction = () => {
 
     const getUpcomingEvents = () => get({ endpoint: '/api/events/upcoming' })
 
+    const getEvents = (filterString) => get({ endpoint: '/api/events' + filterString })
+
     const getMyEvents = () => get({ endpoint: '/api/Events/my-events' })
 
     const getDetailedEvent = (eventId) => get({ endpoint: `/api/events/detail/${eventId}` })
@@ -19,6 +21,7 @@ const useEventAction = () => {
 
     return {
         getUpcomingEvents,
+        getEvents,
         getMyEvents,
         createEvent,
         getDetailedEvent,

@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SEEMS.Data.Entities;
 using SEEMS.Data.Entities.RequestFeatures;
+using SEEMS.Models;
 using SEEMS.Services;
 
 namespace SEEMS.Data.Repositories.Implements
@@ -20,9 +22,9 @@ namespace SEEMS.Data.Repositories.Implements
 
         public void CreateUser(User user) => Create(user);
 
-        public async Task<PaginatedList<User>> GetAllUsersAsync(UserPagination userParams, bool trackChanges)
+        public async Task<PaginatedList<User>?> GetAllUsersAsync(Organization? org, UserParams userParams, bool trackChanges)
         {
-            var users = await FindAll(trackChanges)
+            var users = await FindByCondition(u => u.OrganizationId == org.Id, trackChanges)
                         .OrderBy(u => u.Email)
                         .Skip((userParams.PageNumber - 1) * userParams.PageSize)
                         .Take(userParams.PageSize)

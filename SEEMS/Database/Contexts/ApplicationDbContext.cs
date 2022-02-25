@@ -43,6 +43,9 @@ namespace SEEMS.Contexts
             
             base.OnModelCreating(modelBuilder);
         }
+        public DbSet<LikeComment> LikeComments { get; set; }
+
+        public DbSet<Organization> Organizations { get; set; }
 
         public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
         {

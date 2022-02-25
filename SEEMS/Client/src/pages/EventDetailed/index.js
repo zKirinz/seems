@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import EventPoster from '../../components/EventPoster'
-import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
 import useEventAction from '../../recoil/event/action'
-import CommentsSection from './Comments'
+import CommentsSection from './Comments/index'
 import EventDate from './EventDate'
 
 const EventDetailed = () => {
@@ -47,42 +47,31 @@ const EventDetailed = () => {
             </Box>
         )
     return (
-        <Container fixed sx={{ mt: 15, px: 0 }}>
-            <Grid component={Card} container>
+        <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>
+            <Grid container>
                 <Grid item xs={12} sm={4}>
                     <EventPoster src={detailedEvent.event.imageUrl} size="contain" />
                 </Grid>
-                <Grid item xs={12} sm={8}>
-                    <CardContent sx={{ p: 4 }}>
+                <Grid item xs={12} sm={8} component={Card}>
+                    <CardContent sx={{ p: 5 }}>
                         <Typography variant="h4" color="primary" fontWeight={700}>
                             {detailedEvent.event.eventTitle}
                         </Typography>
-                        <Typography fontWeight={500} sx={{ color: grey[600], mt: 1 }} variant="h6">
-                            {detailedEvent.event.location}
+                        <Typography sx={{ color: grey[600], mt: 1 }} variant="h6">
+                            Take place:{' '}
+                            <Typography
+                                component="span"
+                                fontWeight={500}
+                                variant="h5"
+                                color="secondary"
+                                sx={{ textDecoration: 'underline' }}
+                            >
+                                {detailedEvent.event.location}
+                            </Typography>
                         </Typography>
                         <Typography paragraph sx={{ color: grey[600], my: 1 }}>
                             {detailedEvent.event.eventDescription}
                         </Typography>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                mt: 2,
-                            }}
-                        >
-                            <Typography
-                                sx={{ mt: 1 }}
-                                variant="h6"
-                                fontWeight={500}
-                                color="secondary"
-                            >
-                                {detailedEvent.event.expectPrice === 0
-                                    ? 'Free'
-                                    : `${detailedEvent.event.expectPrice} VND`}
-                            </Typography>
-                            <Button variant="contained">Subscribe</Button>
-                        </Box>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 4 }}>
                             <EventDate
                                 date={new Date(detailedEvent.event.startDate)}
@@ -101,7 +90,7 @@ const EventDetailed = () => {
                     {detailedEvent.numberComments} comments
                 </Typography>
             </Box>
-            <CommentsSection eventId={id} />
+            <CommentsSection eventId={id} numberComments={detailedEvent.numberComments} />
         </Container>
     )
 }

@@ -76,7 +76,12 @@ namespace SEEMS.Controller
 			{
 				if (user != null)
 				{
-					var listEvents = _context.Events.Where(a => a.Client.Id == user.Id).ToList();
+					var findingOrgId = user.OrganizationId;
+					var listEvents = _context.Events.Where(a => a.OrganizationId == findingOrgId).ToList();
+					listEvents.ForEach(e =>
+					{
+						e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+					});
 					return Ok(
 						new Response(ResponseStatusEnum.Success,
 						new
@@ -99,9 +104,9 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("upcoming")]
-		public async Task<ActionResult<List<Event>>> Get()
+		public async Task<ActionResult<List<Event>>> GetUpcoming()
 		{
-			int resultCount;
+			//int resultCount;
 			User currentUser = await GetCurrentUser(Request);
 			try
 			{
@@ -112,13 +117,18 @@ namespace SEEMS.Controller
 				{
 					result = result.Where(e => !e.IsPrivate);
 				}
-				resultCount = Math.Min(10, result.Count());
+				//resultCount = Math.Min(10, result.Count());
+				result = result.OrderByDescending(e => e.StartDate);
+				result.ToList().ForEach(e =>
+				{
+					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+				});
 				return Ok(new Response(
 					ResponseStatusEnum.Success,
 					new
 					{
-						Count = resultCount,
-						Events = result.ToList().GetRange(0, resultCount)
+						Count = result.Count(),
+						Events = result.ToList()
 					}
 				));
 			}
@@ -131,30 +141,47 @@ namespace SEEMS.Controller
 
 
 		[HttpGet()]
-		public async Task<ActionResult<List<Event>>> Get(string? search, int? lastEventID, int resultCount = 10)
+		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
+			int? lastEventID, int resultCount = 10)
 		{
 			try
 			{
 				var allEvents = _context.Events.ToList();
-				var result = allEvents.Where(
-					e => Utilitiies.IsAfterMinutes(e.StartDate, DateTime.Now, 30));
+				IEnumerable<Event> foundResult;
+				if (upcoming == null)
+				{
+					foundResult = allEvents;
+				}
+				else
+				{
+					foundResult = (bool)upcoming ? allEvents.Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
+						allEvents.Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
+				}
+
+				List<Event> returnResult = null;
 				bool failed = false;
+				bool loadMore = false;
+				int lastEventIndex = 0;
 
 				//Filter by title
 				if (!string.IsNullOrEmpty(search))
 				{
-					result = result.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
+					foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 				}
 
+				foundResult = foundResult.OrderByDescending(e => e.StartDate);
 				//Implement load more
+
 				if (lastEventID != null)
 				{
-					var lastEventIndex = result.ToList().FindIndex(e => e.Id == lastEventID);
+					lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
 					if (lastEventIndex > 0)
 					{
-						result = result.ToList().GetRange(
+						returnResult = foundResult.ToList().GetRange(
 							lastEventIndex + 1,
-							Math.Min(resultCount, result.Count() - lastEventIndex - 1));
+							Math.Min(resultCount, foundResult.Count() - lastEventIndex - 1));
 					}
 					else
 					{
@@ -163,8 +190,16 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					result = result.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(result.Count(), resultCount));
+					returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
 				}
+				if (foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
+				{
+					loadMore = true;
+				}
+				returnResult.ForEach(e =>
+				{
+					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+				});
 
 				return failed
 					? BadRequest(
@@ -173,8 +208,9 @@ namespace SEEMS.Controller
 						new Response(ResponseStatusEnum.Success,
 						new
 						{
-							Count = result.Count(),
-							listEvents = result
+							Count = foundResult.Count(),
+							CanLoadMore = loadMore,
+							listEvents = returnResult
 						})
 				);
 			}
@@ -212,7 +248,7 @@ namespace SEEMS.Controller
 								"ID not found"));
 					}
 					newEvent.Id = target.Id;
-					newEvent.ClientId = target.ClientId;
+					newEvent.OrganizationId = target.OrganizationId;
 					_context.Update(newEvent);
 					await _context.SaveChangesAsync();
 					return Ok(
@@ -247,33 +283,41 @@ namespace SEEMS.Controller
 		[HttpDelete("{id}")]
 		public async Task<ActionResult> Delete(int id)
 		{
-			var user = await GetCurrentUser(Request);
-			var userRole = _context.UserMetas.FirstOrDefault(um => um.UserId == user.Id && um.MetaKey == "role").MetaValue;
-			if (userRole == "Organizer" || userRole == "Admin")
+			try
 			{
-				var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
-				if (target is null)
+				var user = await GetCurrentUser(Request);
+				var userRole = _context.UserMetas.FirstOrDefault(um => um.UserId == user.Id && um.MetaKey == "role").MetaValue;
+				if (userRole == "Organizer" || userRole == "Admin")
+				{
+					var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
+					if (target is null)
+					{
+						return BadRequest(
+								new Response(ResponseStatusEnum.Fail,
+								false,
+								"ID not found"));
+					}
+					_context.Events.Remove(target);
+					await _context.SaveChangesAsync();
+					return Ok(
+								new Response(ResponseStatusEnum.Success,
+								true,
+								"Delete event successfully"));
+				}
+				else
 				{
 					return BadRequest(
-							new Response(ResponseStatusEnum.Fail,
-							false,
-							"ID not found"));
+						new Response(
+							ResponseStatusEnum.Fail,
+							"Invalid role"
+						)
+					);
 				}
-				_context.Events.Remove(target);
-				await _context.SaveChangesAsync();
-				return Ok(
-							new Response(ResponseStatusEnum.Success,
-							true,
-							"Delete event successfully"));
 			}
-			else
+			catch (Exception ex)
 			{
-				return BadRequest(
-					new Response(
-						ResponseStatusEnum.Fail,
-						"Invalid role"
-					)
-				);
+				return StatusCode(StatusCodes.Status500InternalServerError,
+					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
 			}
 		}
 
@@ -297,7 +341,7 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
-					newEvent.ClientId = user.Id;
+					newEvent.OrganizationId = user.Id;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));

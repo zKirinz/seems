@@ -1,4 +1,4 @@
-import privateHome from './privateHome'
-import publicHome from './publicHome'
+import privateHome from './Private'
+import publicHome from './Public'
 
 export { privateHome, publicHome }

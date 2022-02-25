@@ -18,8 +18,8 @@ namespace SEEMS.Models
 		[ForeignKey("ChainOfEvent")]
 		public int? ChainOfEventId { get; set; }
 
-		[ForeignKey("User")]
-		public int ClientId { get; set; }
+		[ForeignKey("Organization")]
+		public int OrganizationId { get; set; }
 
 		public bool IsPrivate { get; set; }
 
@@ -45,6 +45,7 @@ namespace SEEMS.Models
 
 		[JsonIgnore]
 		public List<Comment>? Comments { get; set; }
+		public Organization? Organization { get; set; }
 
 	}
 }

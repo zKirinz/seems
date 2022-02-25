@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Extensions;
+using SEEMS.Data.Entities;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
@@ -65,9 +66,14 @@ namespace SEEMS.Controllers
                 _mapper.Map(currentUser, user);
                 await _repoService.SaveAsync();
             } 
-
+            
             var currentRole = await _repoService.UserMeta.GetRolesAsync(currentUser.Email, false);
-            var accessToken = await _authService.GenerateToken(currentUser, currentRole);
+            var currentOrg = await _repoService.Organization.GetOrganizationAsync(currentUser.OrganizationId, false);
+            if (currentOrg == null)
+            {
+                currentOrg = new Organization {Name = "Anonymous"};
+            }
+            var accessToken = await _authService.GenerateToken(currentUser, currentRole, currentOrg);
 
             Response.Cookies.Append("jwt", accessToken, new CookieOptions
             {
