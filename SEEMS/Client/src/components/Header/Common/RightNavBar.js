@@ -107,7 +107,13 @@ const RightNavBar = () => {
                                     {auth.email}
                                 </Typography>
                                 <Divider textAlign="center" sx={{ width: '100%', mt: 2 }}>
-                                    <Chip label={auth.role} />
+                                    <Chip
+                                        label={
+                                            auth.role !== 'User'
+                                                ? `${auth.role} - ${auth.organization}`
+                                                : `${auth.role}`
+                                        }
+                                    />
                                 </Divider>
                             </Box>
 
