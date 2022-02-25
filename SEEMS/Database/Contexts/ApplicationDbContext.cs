@@ -3,6 +3,7 @@ using SEEMS.Data.Entities;
 using SEEMS.Data.Models;
 using SEEMS.Models;
 using System;
+using SEEMS.Infrastructures.Extensions;
 
 namespace SEEMS.Contexts
 {
@@ -30,6 +31,18 @@ namespace SEEMS.Contexts
 
         public DbSet<UserMeta> UserMetas { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            if (modelBuilder == null)
+                throw new ArgumentNullException(nameof(modelBuilder));
+
+            modelBuilder.AddRemovePluralizeConvention();
+            modelBuilder.AddRemoveOneToManyCascadeConvention();
+            
+            modelBuilder.ApplyConventions();
+            
+            base.OnModelCreating(modelBuilder);
+        }
         public DbSet<LikeComment> LikeComments { get; set; }
 
         public DbSet<Organization> Organizations { get; set; }

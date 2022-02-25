@@ -7,7 +7,7 @@ import authAtom from '../../recoil/auth'
 import EventPoster from '../EventPoster'
 import EventSummaryInfo from './EventSummaryInfo'
 
-const EventCard = ({ id, imageUrl, title, description, startDate, organizer }) => {
+const EventCard = ({ id, imageUrl, title, description, startDate, organizer, isAdmin }) => {
     const auth = useRecoilValue(authAtom)
     const history = useHistory()
 
@@ -48,17 +48,22 @@ const EventCard = ({ id, imageUrl, title, description, startDate, organizer }) =
                 </Typography>
                 {auth.email && (
                     <Box>
-                        <Button
-                            variant="contained"
-                            onClick={() => history.push(`/events/register/${id}`)}
-                            sx={{ mx: 1 }}
-                        >
-                            Register
-                        </Button>
+                        {!isAdmin && (
+                            <Button
+                                variant="contained"
+                                onClick={() => history.push(`/events/register/${id}`)}
+                                sx={{ mx: 1 }}
+                            >
+                                Register
+                            </Button>
+                        )}
+
                         <Button
                             variant="contained"
                             color="secondary"
-                            onClick={() => history.push(`/events/${id}`)}
+                            onClick={() =>
+                                history.push(isAdmin ? `/admin/events/${id}` : `/events/${id}`)
+                            }
                             sx={{ mx: 1 }}
                         >
                             Read More

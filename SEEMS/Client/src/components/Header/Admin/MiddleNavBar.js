@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
-import { Event, Home } from '@mui/icons-material'
+import { Event as EventIcon, Home as HomeIcon, Person as PersonIcon } from '@mui/icons-material'
 import { Box, Button, IconButton, Tooltip } from '@mui/material'
 import { yellow, grey } from '@mui/material/colors'
 
@@ -27,20 +27,36 @@ const MiddleNavBar = () => {
         >
             <Button
                 component={NavLink}
-                to="/"
+                to="/admin"
                 sx={{ px: 2, py: 1.25, position: 'relative' }}
                 exact={true}
             >
                 <Tooltip title="Home">
                     <IconButton size="medium">
-                        <Home fontSize="large" sx={{ color: grey[100] }} />
+                        <HomeIcon fontSize="large" sx={{ color: grey[100] }} />
                     </IconButton>
                 </Tooltip>
             </Button>
-            <Button component={NavLink} to="/events" sx={{ px: 2, py: 1.25, position: 'relative' }}>
+            <Button
+                component={NavLink}
+                to="/admin/users"
+                sx={{ px: 2, py: 1.25, position: 'relative' }}
+                exact={true}
+            >
+                <Tooltip title="Users">
+                    <IconButton size="medium">
+                        <PersonIcon fontSize="large" sx={{ color: grey[100] }} />
+                    </IconButton>
+                </Tooltip>
+            </Button>
+            <Button
+                component={NavLink}
+                to="/admin/events"
+                sx={{ px: 2, py: 1.25, position: 'relative' }}
+            >
                 <Tooltip title="Events">
                     <IconButton size="medium">
-                        <Event fontSize="large" sx={{ color: grey[100] }} />
+                        <EventIcon fontSize="large" sx={{ color: grey[100] }} />
                     </IconButton>
                 </Tooltip>
             </Button>
