@@ -15,12 +15,14 @@ namespace SEEMS.Services
     {
 
         private readonly IConfiguration _configuration;
+        private readonly IRepositoryManager _repoManager;
 
         public readonly DateTime EXPIRED_AT = DateTime.UtcNow.AddMinutes(20);
 
-        public AuthManager(IConfiguration config)
+        public AuthManager(IConfiguration config, IRepositoryManager repoManager)
         {
-            this._configuration = config;
+            _configuration = config;
+            _repoManager = repoManager;
         }
 
 
@@ -49,7 +51,7 @@ namespace SEEMS.Services
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
 
-        private async Task<List<Claim>> GetClaims(User user, UserMeta roleMeta, Organization? organization)
+        private Task<List<Claim>> GetClaims(User user, UserMeta roleMeta, Organization? organization)
         {
             var claims = new List<Claim>
             {
@@ -60,7 +62,7 @@ namespace SEEMS.Services
                new Claim("image", user.ImageUrl)
             };
 
-            return claims;
+            return Task.FromResult(claims);
         }
 
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
@@ -82,22 +84,27 @@ namespace SEEMS.Services
         public User? GetUserInfo(AuthenticateResult info)
         {
             var email = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
-            
-            if (!email.Value.EndsWith("fpt.edu.vn")) {
+            User user; 
+            if (email != null && !email.Value.EndsWith("fpt.edu.vn")) {
                 return null;
             }
+            
+            user = _repoManager.User.GetUserAsync(email.Value, false).Result;
 
-            var name = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
-            var image = info.Principal.Claims.FirstOrDefault(x => x.Type == "picture");
-
-            return new User
-            #pragma warning disable CS8602 // Dereference of a possibly null reference.
+            if (user != null) return user;
+            {
+                var name = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
+                var image = info.Principal.Claims.FirstOrDefault(x => x.Type == "picture");
+            
+                user = new User()
                 {
                     Email = email.Value,
                     UserName = name.Value,
                     ImageUrl = image.Value
                 };
-            #pragma warning restore CS8602 // Dereference of a possibly null reference.
+            
+                return user;
+            }
 
         }
 
