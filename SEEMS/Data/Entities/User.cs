@@ -17,6 +17,6 @@ namespace SEEMS.Data.Models
 		public string ImageUrl { get; set; }
 
 		public bool Active { get; set; }
-
-	}
+        public Organization Organization { get; set; }
+    }
 }
