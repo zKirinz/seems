@@ -13,4 +13,6 @@ public interface IUserMetaRepository
     Task<UserMeta> GetRolesAsync(string email, bool trackChanges);
     
     Task<List<UserMeta>>GetRolesByNameAsync(string roleName, bool trackChanges);
+
+    Task<UserMeta> GetRoleByUserIdAsync(int id, bool trackChanges);
 }

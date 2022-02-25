@@ -32,4 +32,7 @@ public class UserMetaRepository : RepositoryBase<UserMeta>, IUserMetaRepository
     public async Task<List<UserMeta>> GetRolesByNameAsync(string roleName, bool trackChanges) =>
         await FindByCondition(m => m.MetaValue.Equals(roleName), trackChanges)
             .ToListAsync();
+    public async Task<UserMeta> GetRoleByUserIdAsync(int id, bool trackChanges) =>
+        await FindByCondition(m => m.UserId == id, trackChanges)
+            .SingleOrDefaultAsync();
 }
