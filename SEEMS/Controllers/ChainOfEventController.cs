@@ -103,6 +103,10 @@ public class ChainOfEventController : ControllerBase
         {
             return UnprocessableEntity(new Response(ResponseStatusEnum.Error, "", $"Id {id} is not exist", 422));
         }
+        catch (DbUpdateException e)
+        {
+            return UnprocessableEntity(new Response(ResponseStatusEnum.Error, "", e.Message, 422));
+        }
         
         return NoContent();
     }
