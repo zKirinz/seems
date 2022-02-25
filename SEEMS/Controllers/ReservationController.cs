@@ -1,43 +1,64 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using SEEMS.Contexts;
+using SEEMS.Data.DTOs;
+using SEEMS.Data.Models;
+using SEEMS.Models;
+using SEEMS.Services;
+using SEEMS.Services.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace SEEMS.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Reservations")]
     [ApiController]
     public class ReservationController : ControllerBase
     {
-        // GET: api/<ReservationController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly IAuthManager _authManager;
+        private IRepositoryManager _repoManager;
+        public ReservationController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager, IRepositoryManager repoManager)
         {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<ReservationController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
+            _context = context;
+            _mapper = mapper;
+            _authManager = authManager;
+            _repoManager = repoManager;
         }
 
         // POST api/<ReservationController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post([FromBody] ReservationDTO reservationDTO)
         {
+            try
+            {
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                if (currentUser != null)
+                {
+                    var userId = currentUser.Id;
+                    if (!CommentsServices.CheckValidEventId(reservationDTO.EventId, _context))
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId"));
+                    }
+                    var reservation = _mapper.Map<Reservation>(reservationDTO);
+                    reservation.UserId = userId;
+                    _context.Add(reservation);
+                    _context.SaveChanges();
+
+                    return Ok(new Response(ResponseStatusEnum.Success, reservation));
+                }
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid token"));
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
+            }
         }
 
-        // PUT api/<ReservationController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<ReservationController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
     }
 }
