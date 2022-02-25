@@ -17,11 +17,13 @@ namespace SEEMS.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IAuthManager _authManager;
         private IRepositoryManager _repoManager;
-        public ReservationController(ApplicationDbContext context, IMapper mapper, IRepositoryManager repoManager)
+        public ReservationController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager, IRepositoryManager repoManager)
         {
             _context = context;
             _mapper = mapper;
+            _authManager = authManager;
             _repoManager = repoManager;
         }
 
@@ -31,16 +33,16 @@ namespace SEEMS.Controllers
         {
             try
             {
-                //var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-                if (/*currentUser != null*/ 1 == 1)
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                if (currentUser != null)
                 {
-                    //var userId = currentUser.Id;
+                    var userId = currentUser.Id;
                     if (!CommentsServices.CheckValidEventId(reservationDTO.EventId, _context))
                     {
                         return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId"));
                     }
                     var reservation = _mapper.Map<Reservation>(reservationDTO);
-                    reservation.UserId = 2;
+                    reservation.UserId = userId;
                     _context.Add(reservation);
                     _context.SaveChanges();
 
