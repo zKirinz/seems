@@ -1,5 +1,19 @@
+import React from 'react'
+
+import Hero from '../../../components/Hero'
+import { Box } from '@mui/material'
+
+import UpComingEvents from './UpcomingEvents'
+
 const AdminHome = () => {
-    return <h1>Welcome to Admin Home page</h1>
+    return (
+        <Box component="main" sx={{ mt: 8.5 }}>
+            <Hero />
+            <Box px={5} py={12}>
+                <UpComingEvents />
+            </Box>
+        </Box>
+    )
 }
 
 export default AdminHome
