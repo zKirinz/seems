@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
+using SEEMS.Data.Entities.RequestFeatures;
 
 namespace SEEMS.Services
 {
@@ -24,11 +25,15 @@ namespace SEEMS.Services
 		public String? Message { get; protected set; }
 		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 		public int? Code { get; protected set; }
+		
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public PaginationMeta? Pagination { get; protected set; }
 	}
 
 	public class Response : JsendResponse
 	{
-		public Response(ResponseStatusEnum status, [Optional] Object data, [Optional] String msg, [Optional] int? code)
+		public Response(ResponseStatusEnum status, [Optional] Object data, [Optional] String msg, 
+			[Optional] int? code, [Optional] PaginationMeta? meta)
 		{
 			Status = Enum.GetName(status).ToLower();
 			Data = data;
@@ -50,6 +55,8 @@ namespace SEEMS.Services
 			}
 			else
 				Code = code;
+
+			Pagination = meta;
 		}
 	}
 }

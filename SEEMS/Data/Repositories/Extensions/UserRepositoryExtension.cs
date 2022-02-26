@@ -22,6 +22,6 @@ public static class UserRepositoryExtension
         => string.IsNullOrWhiteSpace(role) ? users : users.Join(context.UserMetas, 
             user => user.Id, meta => meta.UserId, 
             (user, meta) => new { User = user, UserMeta = meta })
-            .Where(userAndRole => userAndRole.UserMeta.MetaValue.Equals(role)).Select(u => u.User);
+            .Where(userAndRole => userAndRole.UserMeta.MetaValue.Equals(role)).Select(u =>  u.User);
     
 }
