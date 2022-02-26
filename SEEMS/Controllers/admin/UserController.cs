@@ -35,29 +35,17 @@ public class UserController : ControllerBase
     [HttpGet("")]
     public async Task<IActionResult> GetListUsers([FromQuery] UserParams userParams)
     {
+        var listUsers = await _repoManager.User.GetAllUsersAsync(userParams, false);
 
-        Organization? organizationToFilter;
-        
-        PaginatedList<User>? listUsers = null;
-
-        if (userParams.Organization != null)
-        {
-            organizationToFilter =
-                        await _repoManager.Organization.GetOrganizationByName(userParams.Organization, false);
-            
-            listUsers = await _repoManager.User.GetAllUsersAsync(organizationToFilter, userParams, false);
-        }
-
-        userParams.Organization = "fptu";
-        var roleToFilter = await _repoManager.UserMeta.GetRolesByNameAsync(userParams.Role, false);
-        if (listUsers.Any(user => roleToFilter.Any(u => user.Id == u.UserId)))
-        {
-            var check = listUsers.Where(user => roleToFilter.Any(us => user.Id == us.UserId));
-            listUsers = PaginatedList<User>.Create(check.ToList(), userParams.PageNumber, userParams.PageSize);
-        }
+        var all = await _repoManager.User.GetAllUsersAsync(
+            new UserPagination
+            {
+                PageNumber = userParams.PageNumber,
+                PageSize = userParams.PageSize
+            }, false);
         
         Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(listUsers.Meta));
-        return Ok(listUsers);
+        return Ok(new Response(ResponseStatusEnum.Success, listUsers, "", 200));
     }
    
     [ValidateModel]
