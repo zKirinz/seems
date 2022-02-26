@@ -7,85 +7,85 @@ using SEEMS.Infrastructures.Extensions;
 
 namespace SEEMS.Contexts
 {
-    public class ApplicationDbContext : DbContext
-    {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-        {
-        }
+	public class ApplicationDbContext : DbContext
+	{
+		public ApplicationDbContext( DbContextOptions<ApplicationDbContext> options ) : base(options)
+		{
+		}
 
-        public DbSet<Comment> Comments { get; set; }
+		public DbSet<Comment> Comments { get; set; }
 
-        public DbSet<CommentMeta> CommentMetas { get; set; }
+		public DbSet<CommentMeta> CommentMetas { get; set; }
 
-        public DbSet<ChainOfEvent> ChainOfEvents { get; set; }
+		public DbSet<ChainOfEvent> ChainOfEvents { get; set; }
 
-        public DbSet<Event> Events { get; set; }
+		public DbSet<Event> Events { get; set; }
 
-        public DbSet<EventMeta> EventMetas { get; set; }
+		public DbSet<EventMeta> EventMetas { get; set; }
 
-        public DbSet<Reservation> Reservations { get; set; }
+		public DbSet<Reservation> Reservations { get; set; }
 
-        public DbSet<FeedBack> FeedBacks { get; set; }
+		public DbSet<FeedBack> FeedBacks { get; set; }
 
-        public DbSet<User> Users { get; set; }
+		public DbSet<User> Users { get; set; }
 
-        public DbSet<UserMeta> UserMetas { get; set; }
+		public DbSet<UserMeta> UserMetas { get; set; }
+		public DbSet<LikeComment> LikeComments { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            if (modelBuilder == null)
-                throw new ArgumentNullException(nameof(modelBuilder));
+		public DbSet<Organization> Organizations { get; set; }
 
-            modelBuilder.AddRemovePluralizeConvention();
-            modelBuilder.AddRemoveOneToManyCascadeConvention();
-            
-            modelBuilder.ApplyConventions();
-            
-            base.OnModelCreating(modelBuilder);
-        }
-        public DbSet<LikeComment> LikeComments { get; set; }
+		protected override void OnModelCreating( ModelBuilder modelBuilder )
+		{
+			if (modelBuilder == null)
+				throw new ArgumentNullException(nameof(modelBuilder));
 
-        public DbSet<Organization> Organizations { get; set; }
+			modelBuilder.AddRemovePluralizeConvention();
+			modelBuilder.AddRemoveOneToManyCascadeConvention();
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
-        {
-            var entries = ChangeTracker
-                .Entries()
-                .Where(e => e.Entity is AbstractEntity<int> && (
-                    e.State == EntityState.Added
-                    || e.State == EntityState.Modified));
+			modelBuilder.ApplyConventions();
 
-            foreach (var entityEntry in entries)
-            {
-                ((AbstractEntity<int>) entityEntry.Entity).ModifiedAt = DateTime.Now;
+			base.OnModelCreating(modelBuilder);
+		}
 
-                if (entityEntry.State == EntityState.Added)
-                {
-                    ((AbstractEntity<int>) entityEntry.Entity).CreatedAt = DateTime.Now;
-                }
-            } 
-            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        }
+		public override Task<int> SaveChangesAsync( bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken() )
+		{
+			var entries = ChangeTracker
+				.Entries()
+				.Where(e => e.Entity is AbstractEntity<int> && (
+					e.State == EntityState.Added
+					|| e.State == EntityState.Modified));
 
-        public override int SaveChanges()
-        {
-            var entries = ChangeTracker
-                .Entries()
-                .Where(e => e.Entity is AbstractEntity<int> && (
-                    e.State == EntityState.Added
-                    || e.State == EntityState.Modified));
+			foreach (var entityEntry in entries)
+			{
+				((AbstractEntity<int>) entityEntry.Entity).ModifiedAt = DateTime.Now;
 
-            foreach (var entityEntry in entries)
-            {
-                ((AbstractEntity<int>) entityEntry.Entity).ModifiedAt = DateTime.Now;
+				if (entityEntry.State == EntityState.Added)
+				{
+					((AbstractEntity<int>) entityEntry.Entity).CreatedAt = DateTime.Now;
+				}
+			}
+			return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+		}
 
-                if (entityEntry.State == EntityState.Added)
-                {
-                    ((AbstractEntity<int>) entityEntry.Entity).CreatedAt = DateTime.Now;
-                }
-            }
+		public override int SaveChanges()
+		{
+			var entries = ChangeTracker
+				.Entries()
+				.Where(e => e.Entity is AbstractEntity<int> && (
+					e.State == EntityState.Added
+					|| e.State == EntityState.Modified));
 
-            return base.SaveChanges();
-        }
-    }
+			foreach (var entityEntry in entries)
+			{
+				((AbstractEntity<int>) entityEntry.Entity).ModifiedAt = DateTime.Now;
+
+				if (entityEntry.State == EntityState.Added)
+				{
+					((AbstractEntity<int>) entityEntry.Entity).CreatedAt = DateTime.Now;
+				}
+			}
+
+			return base.SaveChanges();
+		}
+	}
 }

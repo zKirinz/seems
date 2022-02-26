@@ -10,7 +10,7 @@ namespace SEEMS.Database
 {
 	public static class ApplicationDbInitializer
 	{
-		public static void Initialize(IServiceProvider serviceProvider)
+		public static void Initialize( IServiceProvider serviceProvider )
 		{
 			using (var context = new ApplicationDbContext(
 				serviceProvider.GetRequiredService<
@@ -27,7 +27,7 @@ namespace SEEMS.Database
 			}
 		}
 
-		public static void SeedOrganization(ApplicationDbContext ctx)
+		public static void SeedOrganization( ApplicationDbContext ctx )
 		{
 			if (ctx.Organizations.Any())
 			{
@@ -44,7 +44,7 @@ namespace SEEMS.Database
 			ctx.SaveChanges();
 		}
 
-		public static void SeedUser(ApplicationDbContext ctx)
+		public static void SeedUser( ApplicationDbContext ctx )
 		{
 			List<User> users = new List<User>();
 			var orgId = ctx.Organizations.FirstOrDefault(o => o.Name.Equals("FPTU")).Id;
@@ -64,7 +64,7 @@ namespace SEEMS.Database
 			ctx.SaveChanges();
 		}
 
-		public static void SeedUserMeta(ApplicationDbContext ctx)
+		public static void SeedUserMeta( ApplicationDbContext ctx )
 		{
 			List<UserMeta> userMetas = new List<UserMeta>();
 			List<int> userIds = ctx.Users.Select(x => x.Id).ToList();
@@ -80,7 +80,7 @@ namespace SEEMS.Database
 			}
 		}
 
-		public static void SeedChainOfEvent(ApplicationDbContext ctx)
+		public static void SeedChainOfEvent( ApplicationDbContext ctx )
 		{
 			List<ChainOfEvent> chainOfEvents = new List<ChainOfEvent>();
 			chainOfEvents.Add(new ChainOfEvent() { CategoryName = "Tech Talk", CreatedBy = 1, ImageUrl = "https://www.sunymaritime.edu/sites/default/files/styles/medium_625px_by_410px_scale/public/2018-02/tech_talks_logo_color_preview.jpeg?itok=bEG5QRwk" });
@@ -95,7 +95,7 @@ namespace SEEMS.Database
 			ctx.SaveChanges();
 		}
 
-		public static void SeedEvent(ApplicationDbContext ctx)
+		public static void SeedEvent( ApplicationDbContext ctx )
 		{
 			List<Event> events = new List<Event>();
 			var chainOfEventTechTalkId = ctx.ChainOfEvents.FirstOrDefault(e => e.CategoryName.Contains("Tech Talk")).Id;
