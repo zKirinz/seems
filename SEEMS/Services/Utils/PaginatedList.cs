@@ -4,7 +4,6 @@ namespace SEEMS.Services
 {
     public class PaginatedList<T> : List<T>
     {
-		
         public PaginationMeta Meta { get; set; }
 
         public PaginatedList(List<T> items, int count, int pageNumber, int pageSize)

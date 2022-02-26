@@ -22,12 +22,14 @@ namespace SEEMS.Controller
 		private readonly ApplicationDbContext _context;
 		private readonly IMapper _mapper;
 		private readonly IAuthManager _authManager;
+		private readonly IRepositoryManager _repositoryManager;
 
-		public EventController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager)
+		public EventController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager, IRepositoryManager repositoryManager)
 		{
 			_context = context;
 			_mapper = mapper;
 			_authManager = authManager;
+			_repositoryManager = repositoryManager;
 		}
 
 		[HttpGet("detail/{id}")]
