@@ -36,16 +36,33 @@ public class UserController : ControllerBase
     public async Task<IActionResult> GetListUsers([FromQuery] UserParams userParams)
     {
         var listUsers = await _repoManager.User.GetAllUsersAsync(userParams, false);
-
-        var all = await _repoManager.User.GetAllUsersAsync(
-            new UserPagination
+        List<UserDTO> result = new List<UserDTO>();
+        for (var i = 0; i < listUsers.Count; i++)
+        {
+            var roleByUserId = await _repoManager.UserMeta.GetRoleByUserIdAsync(listUsers[i].Id, false);
+            if (listUsers[i].OrganizationId == 0)
             {
-                PageNumber = userParams.PageNumber,
-                PageSize = userParams.PageSize
-            }, false);
-        
-        Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(listUsers.Meta));
-        return Ok(new Response(ResponseStatusEnum.Success, listUsers, "", 200));
+                result.Add(new UserDTO
+                    {
+                        User = listUsers[i],
+                        Organization = "Anonymous", 
+                        Role = roleByUserId.MetaValue
+                    });    
+            }
+            else
+            { 
+                var orgByUserId = await _repoManager.Organization.GetOrganizationAsync(listUsers[i].OrganizationId, false);
+                result.Add(new UserDTO
+                        {
+                            User = listUsers[i],
+                            Organization = orgByUserId.Name, 
+                            Role = roleByUserId.MetaValue
+                        });    
+            }
+            
+
+        }
+        return Ok(new Response(ResponseStatusEnum.Success, result, $"Found {listUsers.Meta.TotalCount} result(s)", 200, listUsers.Meta));
     }
    
     [ValidateModel]
