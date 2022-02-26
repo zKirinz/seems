@@ -135,99 +135,84 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet()]
-		public IActionResult Get()
+		public async Task<ActionResult<List<Event>>> Get( string? search, bool? upcoming,
+			int? lastEventID, int resultCount = 10 )
 		{
 			try
 			{
-				var events = _repository.Event.GetAllEvents();
-				return Ok(events);
+				var allEvents = _context.Events.ToList();
+				IEnumerable<Event> foundResult;
+				if (upcoming == null)
+				{
+					foundResult = allEvents;
+				}
+				else
+				{
+					foundResult = (bool) upcoming ? allEvents.Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
+						allEvents.Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
+				}
+
+				List<Event> returnResult = null;
+				bool failed = false;
+				bool loadMore = false;
+				int lastEventIndex = 0;
+
+				//Filter by title
+				if (!string.IsNullOrEmpty(search))
+				{
+					foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
+				}
+
+				foundResult = foundResult.OrderByDescending(e => e.StartDate);
+				//Implement load more
+
+				if (lastEventID != null)
+				{
+					lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
+					if (lastEventIndex > 0)
+					{
+						returnResult = foundResult.ToList().GetRange(
+							lastEventIndex + 1,
+							Math.Min(resultCount, foundResult.Count() - lastEventIndex - 1));
+					}
+					else
+					{
+						failed = true;
+					}
+				}
+				else
+				{
+					returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
+				}
+				if (foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
+				{
+					loadMore = true;
+				}
+				returnResult.ForEach(e =>
+				{
+					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+				});
+
+				return failed
+					? BadRequest(
+						new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
+					: Ok(
+						new Response(ResponseStatusEnum.Success,
+						new
+						{
+							Count = foundResult.Count(),
+							CanLoadMore = loadMore,
+							listEvents = returnResult
+						})
+				);
 			}
 			catch (Exception ex)
 			{
-				return BadRequest();
+				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
 			}
-			return StatusCode(500, "Internal server error");
 		}
-
-		//[HttpGet()]
-		//public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
-		//	int? lastEventID, int resultCount = 10)
-		//{
-		//	try
-		//	{
-		//		var allEvents = _context.Events.ToList();
-		//		IEnumerable<Event> foundResult;
-		//		if (upcoming == null)
-		//		{
-		//			foundResult = allEvents;
-		//		}
-		//		else
-		//		{
-		//			foundResult = (bool)upcoming ? allEvents.Where(
-		//				e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
-		//				allEvents.Where(
-		//				e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
-		//		}
-
-		//		List<Event> returnResult = null;
-		//		bool failed = false;
-		//		bool loadMore = false;
-		//		int lastEventIndex = 0;
-
-		//		//Filter by title
-		//		if (!string.IsNullOrEmpty(search))
-		//		{
-		//			foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
-		//		}
-
-		//		foundResult = foundResult.OrderByDescending(e => e.StartDate);
-		//		//Implement load more
-
-		//		if (lastEventID != null)
-		//		{
-		//			lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
-		//			if (lastEventIndex > 0)
-		//			{
-		//				returnResult = foundResult.ToList().GetRange(
-		//					lastEventIndex + 1,
-		//					Math.Min(resultCount, foundResult.Count() - lastEventIndex - 1));
-		//			}
-		//			else
-		//			{
-		//				failed = true;
-		//			}
-		//		}
-		//		else
-		//		{
-		//			returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
-		//		}
-		//		if (foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
-		//		{
-		//			loadMore = true;
-		//		}
-		//		returnResult.ForEach(e =>
-		//		{
-		//			e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
-		//		});
-
-		//		return failed
-		//			? BadRequest(
-		//				new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
-		//			: Ok(
-		//				new Response(ResponseStatusEnum.Success,
-		//				new
-		//				{
-		//					Count = foundResult.Count(),
-		//					CanLoadMore = loadMore,
-		//					listEvents = returnResult
-		//				})
-		//		);
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
-		//	}
-		//}
 
 		[HttpPut("{id}")]
 		public async Task<ActionResult<bool>> Update( int id, [FromBody] EventDTO eventDTO )
