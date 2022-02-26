@@ -9,8 +9,8 @@ namespace SEEMS.Infrastructures.Attributes;
 
 public class RoleBasedAuthorizationAttribute : Attribute, IAuthorizationFilter
 {
-    private IAuthManager _authManager;
-    private IRepositoryManager _repoManager;
+    private IAuthManager? _authManager;
+    private IRepositoryManager? _repoManager;
 
     public string? RoleBased { get; set; }
     
@@ -21,27 +21,24 @@ public class RoleBasedAuthorizationAttribute : Attribute, IAuthorizationFilter
 
         if (context.HttpContext.Request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
         {
-            string token = headers.First();
-            var currentEmail = _authManager.DecodeToken(token).Claims.FirstOrDefault(x => x.Type == "email").Value;
+            var token = headers.First();
+            var currentEmail = _authManager?.DecodeToken(token).Claims.FirstOrDefault(x => x.Type == "email")?.Value;
 
-            var role = _repoManager.UserMeta.GetRolesAsync(currentEmail, false).Result.MetaValue;
+            var role = _repoManager?.UserMeta.GetRolesAsync(currentEmail, false).Result.MetaValue;
 
             if (!IsValidTokenByEmail(currentEmail, role))
             {
                 DisplayResponse(context, 401, "Your token is invalid");
             }
 
-            if (role != null)
+            if (!role.Equals(RoleBased))
             {
-                if (!role.Equals(RoleBased))
-                {
-                    DisplayResponse(context, 403, $"{role} is not allowed to operate this process");
-                }
-                else
-                {
-                    context.HttpContext.Response.Headers.Add(HeaderNames.Authorization, $"{token}");
-                    return;
-                }
+                DisplayResponse(context, 403, $"{role} is not allowed to operate this process");
+            }
+            else
+            {
+                context.HttpContext.Response.Headers.Add(HeaderNames.Authorization, $"{token}");
+                return;
             }
         }
         else
