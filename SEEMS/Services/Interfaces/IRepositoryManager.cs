@@ -7,14 +7,14 @@ using SEEMS.Data.Repositories.Implements;
 
 namespace SEEMS.Services.Interfaces
 {
-	public interface IRepositoryManager
-	{
-		IUserRepository User { get; }
-		IUserMetaRepository UserMeta { get; }
-
-		IChainOfEventsRepository ChainOfEvent { get; }
-
-		IOrganizationRepository Organization { get; }
+    public interface IRepositoryManager
+    {
+        IUserRepository User { get; }
+        IUserMetaRepository UserMeta { get; }
+        
+        IChainOfEventsRepository ChainOfEvent { get; }
+        
+        IOrganizationRepository Organization { get; }
 
 		IEventRepository Event { get; }
 
