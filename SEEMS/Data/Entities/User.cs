@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
 
 using SEEMS.Data.Entities;
 
@@ -12,7 +13,7 @@ namespace SEEMS.Data.Models
 	public class User : AbstractEntity<int>
 	{
 		[JsonIgnore]
-		[ForeignKey("Organization")]
+		[ForeignKey("Organization"), DefaultValue(0)]
 		public int OrganizationId { get; set; }
 		public string Email { get; internal set; }
 		public string UserName { get; internal set; }

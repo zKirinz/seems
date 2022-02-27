@@ -45,7 +45,6 @@ public class UserController : ControllerBase
                 result.Add(new UserDTO
                     {
                         User = listUsers[i],
-                        Organization = "Anonymous", 
                         Role = roleByUserId.MetaValue
                     });    
             }
@@ -68,15 +67,14 @@ public class UserController : ControllerBase
     [ValidateModel]
     [RoleBasedAuthorization(RoleBased = RoleTypes.ADM)]
     [HttpPut("{id}")]
-    public async Task<IActionResult> SetRole(int id, [FromBody] RoleToUpdateDTO dto)
+    public async Task<IActionResult> SetRole(int id, [FromBody] RoleToUpdateDto dto)
     {
         string[] roleCanBeUpdated =  { RoleTypes.CUSR, RoleTypes.ORG };
 
         if (!roleCanBeUpdated.Contains(dto.Role))
-            return UnprocessableEntity(new Response(ResponseStatusEnum.Fail, "", "Can not update admin role", 422));
+            return UnprocessableEntity(new Response(ResponseStatusEnum.Fail, "", $"Can not update {dto.Role}  role", 422));
         try
         {
-                     
             var entity = await _repoManager.UserMeta.GetRoleByUserIdAsync(id, true);
                     
             if (entity == null) throw new ArgumentNullException();
@@ -89,5 +87,26 @@ public class UserController : ControllerBase
         {
             return UnprocessableEntity(new Response(ResponseStatusEnum.Error, "", $"Id {id} is not existed", 422));
         }
+    }
+    
+    [ValidateModel]
+    [RoleBasedAuthorization(RoleBased = RoleTypes.ADM)]
+    [HttpPut("/status/{id}")]
+    public async Task<IActionResult> BanUser(int id, [FromBody] StatusToUpdateDto dto)
+    {
+        try
+        {
+            var entity = await _repoManager.User.GetUserAsync(id, true);
+            if (entity == null) throw new ArgumentNullException();
+            _mapper.Map(dto, entity);
+            await _repoManager.SaveAsync();
+
+            return Ok(new Response(ResponseStatusEnum.Success, entity, $"Set activeness of user {entity.UserName} to {dto.Active} successfully"));
+        }
+        catch (ArgumentNullException)
+        {
+            return UnprocessableEntity(new Response(ResponseStatusEnum.Error, "", $"Id {id} is not existed", 422));
+        }
+        
     }
 }
