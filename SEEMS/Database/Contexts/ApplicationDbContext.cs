@@ -42,14 +42,12 @@ namespace SEEMS.Contexts
 
 			modelBuilder.AddRemovePluralizeConvention();
 			modelBuilder.AddRemoveOneToManyCascadeConvention();
-			/*
-			  modelBuilder.ApplyConfiguration(new OrganizationConfiguration());
+
+			modelBuilder.ApplyConfiguration(new OrganizationConfiguration());
 			modelBuilder.ApplyConfiguration(new UserConfiguration());
 			modelBuilder.ApplyConfiguration(new UserMetaConfiguration());
 			modelBuilder.ApplyConfiguration(new ChainOfEventsConfiguration());
 			modelBuilder.ApplyConfiguration(new EventConfiguration());
-			*/
-
 
 			modelBuilder.ApplyConventions();
 
