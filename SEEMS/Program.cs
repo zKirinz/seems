@@ -131,6 +131,12 @@ services.Configure<ApiBehaviorOptions>(options =>
 
 var app = builder.Build();
 
+//using (var scope = app.Services.CreateScope())
+//{
+//	ApplicationDbInitializer.Initialize(scope.ServiceProvider);
+//}
+
+
 app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseCookiePolicy(new CookiePolicyOptions
 {
