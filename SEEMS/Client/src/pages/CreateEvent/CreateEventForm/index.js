@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 
-import { CameraAlt, Delete } from '@mui/icons-material'
+import { CameraAlt, Close } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -248,7 +248,7 @@ const CreateEventForm = ({
                                         variant="outlined"
                                         color="primary"
                                         sx={{ fontWeight: 500 }}
-                                        deleteIcon={<Delete />}
+                                        deleteIcon={<Close />}
                                         onDelete={() => setChainOfEvent(null)}
                                     />
                                 )}
