@@ -17,35 +17,42 @@ namespace SEEMS.Controller
 	[ApiController]
 	[ApiExplorerSettings(GroupName = "v1")]
 	public class EventController : ControllerBase
-
 	{
 		private readonly ApplicationDbContext _context;
 		private readonly IMapper _mapper;
 		private readonly IAuthManager _authManager;
+		private readonly IRepositoryManager _repository;
 
-		public EventController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager)
+		public EventController( ApplicationDbContext context, IMapper mapper, IAuthManager authManager, IRepositoryManager repositoryManager )
 		{
 			_context = context;
 			_mapper = mapper;
 			_authManager = authManager;
+			_repository = repositoryManager;
 		}
 
-		[HttpGet("detail/{id}")]
-		public async Task<IActionResult> GetEventDetail(int id)
+		[HttpGet("{id}")]
+		public async Task<IActionResult> GetEventDetail( int eventId )
 		{
-			Event foundEvent = null;
+			Event? foundEvent = null;
 			int commentCount = 0;
 			try
 			{
-				foundEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+				foundEvent = _repository.Event.GetEvent(eventId);
 				if (foundEvent == null)
-				{
 					throw new Exception("Can't find the event");
-				}
-				else
-				{
-					commentCount = _context.Comments.Where(c => c.EventId == foundEvent.Id).Count();
-				}
+
+				commentCount = _repository.Comment.CountCommentsOfEvent(eventId);
+				return Ok(
+					new Response(
+						ResponseStatusEnum.Success,
+						new
+						{
+							CommentCount = commentCount,
+							Event = foundEvent,
+						}
+					)
+				);
 			}
 			catch (Exception ex)
 			{
@@ -56,16 +63,6 @@ namespace SEEMS.Controller
 					)
 				);
 			}
-			return Ok(
-				new Response(
-					ResponseStatusEnum.Success,
-					new
-					{
-						CommentCount = commentCount,
-						Event = foundEvent,
-					}
-				)
-			);
 		}
 
 		[HttpGet("my-events")]
@@ -139,89 +136,103 @@ namespace SEEMS.Controller
 			}
 		}
 
-
 		[HttpGet()]
-		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
-			int? lastEventID, int resultCount = 10)
+		public IActionResult Get()
 		{
 			try
 			{
-				var allEvents = _context.Events.ToList();
-				IEnumerable<Event> foundResult;
-				if (upcoming == null)
-				{
-					foundResult = allEvents;
-				}
-				else
-				{
-					foundResult = (bool)upcoming ? allEvents.Where(
-						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
-						allEvents.Where(
-						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
-				}
-
-				List<Event> returnResult = null;
-				bool failed = false;
-				bool loadMore = false;
-				int lastEventIndex = 0;
-
-				//Filter by title
-				if (!string.IsNullOrEmpty(search))
-				{
-					foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
-				}
-
-				foundResult = foundResult.OrderByDescending(e => e.StartDate);
-				//Implement load more
-
-				if (lastEventID != null)
-				{
-					lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
-					if (lastEventIndex > 0)
-					{
-						returnResult = foundResult.ToList().GetRange(
-							lastEventIndex + 1,
-							Math.Min(resultCount, foundResult.Count() - lastEventIndex - 1));
-					}
-					else
-					{
-						failed = true;
-					}
-				}
-				else
-				{
-					returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
-				}
-				if (foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
-				{
-					loadMore = true;
-				}
-				returnResult.ForEach(e =>
-				{
-					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
-				});
-
-				return failed
-					? BadRequest(
-						new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
-					: Ok(
-						new Response(ResponseStatusEnum.Success,
-						new
-						{
-							Count = foundResult.Count(),
-							CanLoadMore = loadMore,
-							listEvents = returnResult
-						})
-				);
+				var events = _repository.Event.GetAllEvents();
+				return Ok(events);
 			}
 			catch (Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+				return BadRequest();
 			}
+			return StatusCode(500, "Internal server error");
 		}
 
+		//[HttpGet()]
+		//public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
+		//	int? lastEventID, int resultCount = 10)
+		//{
+		//	try
+		//	{
+		//		var allEvents = _context.Events.ToList();
+		//		IEnumerable<Event> foundResult;
+		//		if (upcoming == null)
+		//		{
+		//			foundResult = allEvents;
+		//		}
+		//		else
+		//		{
+		//			foundResult = (bool)upcoming ? allEvents.Where(
+		//				e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
+		//				allEvents.Where(
+		//				e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
+		//		}
+
+		//		List<Event> returnResult = null;
+		//		bool failed = false;
+		//		bool loadMore = false;
+		//		int lastEventIndex = 0;
+
+		//		//Filter by title
+		//		if (!string.IsNullOrEmpty(search))
+		//		{
+		//			foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
+		//		}
+
+		//		foundResult = foundResult.OrderByDescending(e => e.StartDate);
+		//		//Implement load more
+
+		//		if (lastEventID != null)
+		//		{
+		//			lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
+		//			if (lastEventIndex > 0)
+		//			{
+		//				returnResult = foundResult.ToList().GetRange(
+		//					lastEventIndex + 1,
+		//					Math.Min(resultCount, foundResult.Count() - lastEventIndex - 1));
+		//			}
+		//			else
+		//			{
+		//				failed = true;
+		//			}
+		//		}
+		//		else
+		//		{
+		//			returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
+		//		}
+		//		if (foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
+		//		{
+		//			loadMore = true;
+		//		}
+		//		returnResult.ForEach(e =>
+		//		{
+		//			e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+		//		});
+
+		//		return failed
+		//			? BadRequest(
+		//				new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
+		//			: Ok(
+		//				new Response(ResponseStatusEnum.Success,
+		//				new
+		//				{
+		//					Count = foundResult.Count(),
+		//					CanLoadMore = loadMore,
+		//					listEvents = returnResult
+		//				})
+		//		);
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
+		//	}
+		//}
+
 		[HttpPut("{id}")]
-		public async Task<ActionResult<bool>> Update(int id, [FromBody] EventDTO eventDTO)
+		public async Task<ActionResult<bool>> Update( int id, [FromBody] EventDTO eventDTO )
 		{
 			try
 			{
@@ -281,7 +292,7 @@ namespace SEEMS.Controller
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<ActionResult> Delete(int id)
+		public async Task<ActionResult> Delete( int id )
 		{
 			try
 			{
@@ -322,7 +333,7 @@ namespace SEEMS.Controller
 		}
 
 		[HttpPost]
-		public async Task<ActionResult> AddEvent(EventDTO eventDTO)
+		public async Task<ActionResult> AddEvent( EventDTO eventDTO )
 		{
 			eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
 			eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
@@ -353,7 +364,7 @@ namespace SEEMS.Controller
 					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
 			}
 		}
-		private async Task<User> GetCurrentUser(HttpRequest req)
+		private async Task<User> GetCurrentUser( HttpRequest req )
 		{
 			var email = _authManager.GetCurrentEmail(req);
 			var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
