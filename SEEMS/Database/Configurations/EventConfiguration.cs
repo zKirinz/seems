@@ -42,7 +42,7 @@ namespace SEEMS.Database.Configurations
 			int idSeed = -1;
 			foreach (var item in events)
 			{
-				item.OrganizationId = new Random().Next(-4, -1);
+				item.OrganizationId = new Random().Next(-3, 0);
 				item.StartDate = new DateTime(2022, new Random().Next(2, 7), new Random().Next(1, 28));
 				item.Id = idSeed--;
 			}

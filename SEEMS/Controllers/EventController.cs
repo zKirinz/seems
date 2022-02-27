@@ -34,15 +34,13 @@ namespace SEEMS.Controller
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetEventDetail( int eventId )
 		{
-			Event? foundEvent = null;
-			int commentCount = 0;
 			try
 			{
-				foundEvent = _repository.Event.GetEvent(eventId);
+				Event? foundEvent = _repository.Event.GetEvent(eventId);
 				if (foundEvent == null)
 					throw new Exception("Can't find the event");
 
-				commentCount = _repository.Comment.CountCommentsOfEvent(eventId);
+				int commentCount = _repository.Comment.CountCommentsOfEvent(eventId);
 				return Ok(
 					new Response(
 						ResponseStatusEnum.Success,
