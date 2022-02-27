@@ -1,14 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SEEMS.Contexts;
 using SEEMS.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using SEEMS.Data.Entities;
 using SEEMS.Data.Entities.RequestFeatures;
 using SEEMS.Data.Repositories.Extensions;
-using SEEMS.Models;
 using SEEMS.Services;
 
 namespace SEEMS.Data.Repositories.Implements
