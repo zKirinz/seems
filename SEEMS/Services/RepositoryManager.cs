@@ -14,8 +14,9 @@ namespace SEEMS.Services
 		private IChainOfEventsRepository _chainOfEventsRepository;
 		private IOrganizationRepository _organizationRepository;
 		private IEventRepository _eventRepository;
+		private ICommentRepository _commentRepository;
 
-		public RepositoryManager(ApplicationDbContext context)
+		public RepositoryManager( ApplicationDbContext context )
 		{
 			_context = context;
 		}
@@ -80,6 +81,18 @@ namespace SEEMS.Services
 					_eventRepository = new EventRepository(_context);
 				}
 				return _eventRepository;
+			}
+		}
+
+		public ICommentRepository Comment
+		{
+			get
+			{
+				if (_commentRepository == null)
+				{
+					_commentRepository = new CommentRepository(_context);
+				}
+				return _commentRepository;
 			}
 		}
 

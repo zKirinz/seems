@@ -1,4 +1,5 @@
-﻿using SEEMS.Models;
+﻿using SEEMS.Data.Models;
+using SEEMS.Models;
 
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -14,5 +15,7 @@ namespace SEEMS.Data.Entities
 		public string Description { get; set; }
 		[JsonIgnore()]
 		public List<Event>? Events { get; set; }
+		[JsonIgnore()]
+		public List<User> Users { get; set; }
 	}
 }

@@ -11,8 +11,6 @@ using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 
-using System;
-
 namespace SEEMS.Controller
 {
 	[Route("api/Events")]
@@ -33,22 +31,28 @@ namespace SEEMS.Controller
 			_repository = repositoryManager;
 		}
 
-		[HttpGet("detail/{id}")]
-		public async Task<IActionResult> GetEventDetail( int id )
+		[HttpGet("{id}")]
+		public async Task<IActionResult> GetEventDetail( int eventId )
 		{
-			Event foundEvent = null;
+			Event? foundEvent = null;
 			int commentCount = 0;
 			try
 			{
-				foundEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+				foundEvent = _repository.Event.GetEvent(eventId);
 				if (foundEvent == null)
-				{
 					throw new Exception("Can't find the event");
-				}
-				else
-				{
-					commentCount = _context.Comments.Where(c => c.EventId == foundEvent.Id).Count();
-				}
+
+				commentCount = _repository.Comment.CountCommentsOfEvent(eventId);
+				return Ok(
+					new Response(
+						ResponseStatusEnum.Success,
+						new
+						{
+							CommentCount = commentCount,
+							Event = foundEvent,
+						}
+					)
+				);
 			}
 			catch (Exception ex)
 			{
@@ -59,16 +63,6 @@ namespace SEEMS.Controller
 					)
 				);
 			}
-			return Ok(
-				new Response(
-					ResponseStatusEnum.Success,
-					new
-					{
-						CommentCount = commentCount,
-						Event = foundEvent,
-					}
-				)
-			);
 		}
 
 		[HttpGet("my-events")]

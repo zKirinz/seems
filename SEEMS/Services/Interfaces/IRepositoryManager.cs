@@ -18,6 +18,8 @@ namespace SEEMS.Services.Interfaces
 
 		IEventRepository Event { get; }
 
+		ICommentRepository Comment { get; }
+
 		Task SaveAsync();
 	}
 }
