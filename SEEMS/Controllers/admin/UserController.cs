@@ -55,7 +55,7 @@ public class UserController : ControllerBase
                 result.Add(new UserDTO
                         {
                             User = listUsers[i],
-                            Organization = orgByUserId.Name, 
+                            Organization = orgByUserId?.Name, 
                             Role = roleByUserId.MetaValue
                         });    
             }
