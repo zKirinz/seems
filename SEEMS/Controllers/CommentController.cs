@@ -259,26 +259,15 @@ namespace SEEMS.Controller
                     {
                         CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
                         commentDTO.NumberReplyComment = _context.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
-                        if (commentDTO.NumberReplyComment == 0)
-                        {
-                            commentDTO.NumberReplyComment = null;
-                        }
                         commentDTO.NumberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
-                        if (user != null)
+                        var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
+                        if (likeComment == null)
                         {
-                            var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
-                            if (likeComment == null)
-                            {
-                                commentDTO.IsLike = false;
-                            }
-                            else
-                            {
-                                commentDTO.IsLike = true;
-                            }
+                            commentDTO.IsLike = false;
                         }
                         else
                         {
-                            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid token."));
+                            commentDTO.IsLike = true;
                         }
                         listResponseComments.Add(commentDTO);
                     }
@@ -326,21 +315,15 @@ namespace SEEMS.Controller
                     {
                         CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
                         commentDTO.NumberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
-                        if (user != null)
+                        commentDTO.NumberReplyComment = 0;
+                        var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
+                        if (likeComment == null)
                         {
-                            var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
-                            if (likeComment == null)
-                            {
-                                commentDTO.IsLike = false;
-                            }
-                            else
-                            {
-                                commentDTO.IsLike = true;
-                            }
+                            commentDTO.IsLike = false;
                         }
                         else
                         {
-                            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid token."));
+                            commentDTO.IsLike = true;
                         }
                         listResponseReplyComments.Add(commentDTO);
                     }
@@ -446,52 +429,6 @@ namespace SEEMS.Controller
             }
 
             return true;
-        }
-
-        private IActionResult ResponseComment(List<Comment> listComments, int? lastCommentId, int numberComments, int id, string action)
-        {
-            listComments = listComments.OrderByDescending(x => x.CreatedAt).ToList();
-            List<CommentDTO> listResponseComments = new List<CommentDTO>();
-            foreach (var comment in listComments)
-            {
-                CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                if (action.Contains("load"))
-                {
-                    commentDTO.NumberReplyComment = _context.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
-                    if (commentDTO.NumberReplyComment == 0)
-                    {
-                        commentDTO.NumberReplyComment = null;
-                    }
-                }
-                listResponseComments.Add(commentDTO);
-            }
-
-            bool hasMoreComment = (listResponseComments.Count > numberComments);
-            if (lastCommentId == null)
-            {
-                listResponseComments = listResponseComments.GetRange(0, Math.Min(listResponseComments.Count(), numberComments)).ToList();
-            }
-            else
-            {
-                var lastCommentIndex = listResponseComments.FindIndex(x => x.Id == lastCommentId);
-                int range = Math.Min(listResponseComments.Count() - (lastCommentIndex + 1), numberComments);
-                if (lastCommentIndex != -1)
-                {
-                    hasMoreComment = ((listResponseComments.Count() - (lastCommentIndex + 1)) > numberComments);
-                    listResponseComments = listResponseComments.GetRange(lastCommentIndex + 1, range).ToList();
-                }
-                else
-                {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid LastCommentId."));
-                }
-            }
-
-            return Ok(new Response(ResponseStatusEnum.Success,
-                                           new
-                                           {
-                                               hasMoreComment,
-                                               listResponseComments,
-                                           }));
-        }
+        }       
     }
 }
