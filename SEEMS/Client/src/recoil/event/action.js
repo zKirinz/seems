@@ -11,7 +11,7 @@ const useEventAction = () => {
 
     const getMyEvents = () => get({ endpoint: '/api/Events/my-events' })
 
-    const getDetailedEvent = (eventId) => get({ endpoint: `/api/events/detail/${eventId}` })
+    const getDetailedEvent = (eventId) => get({ endpoint: `/api/events/${eventId}` })
 
     const createEvent = (eventData) =>
         post({

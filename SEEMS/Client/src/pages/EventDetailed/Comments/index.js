@@ -21,7 +21,7 @@ import { useCommentsAction } from '../../../recoil/comment'
 import { useReactComment } from '../../../recoil/reactComment'
 import CommentSection from './Comment'
 
-const CommentsSection = ({ eventId: EventId, numberComments }) => {
+const CommentsSection = ({ eventId: EventId, numberComments, numberRootComments }) => {
     const commentsActions = useCommentsAction()
     const reactCommentAction = useReactComment()
     const showSnackBar = useSnackbar()
@@ -30,8 +30,10 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
     const initialLoadingComments = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
     const [comments, setComments] = useState([])
+    const [quantityComment, setQuantityComment] = useState(0)
     const [hasMoreComments, setHasMoreComments] = useState(false)
     const [openCommentField, setOpenCommentField] = useState(false)
+    const [quantityRootComment, setQuantityRootComment] = useState(0)
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
         action: 'load',
         numberComments: 4,
@@ -74,10 +76,10 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                 .then((response) => {
                     const newComment = response.data.data
                     setComments((previousComments) => [newComment, ...previousComments])
-                    commentContent.current.value = ''
-                })
-                .then(() => {
+                    setQuantityComment((previousQuantity) => previousQuantity + 1)
+                    setQuantityRootComment((previousQuantity) => previousQuantity + 1)
                     setIsLoading(false)
+                    commentContent.current.value = ''
                 })
                 .catch(() => {
                     showSnackBar({
@@ -95,6 +97,8 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                 setComments((prevComments) =>
                     prevComments.filter((comment) => comment.id !== commentId)
                 )
+                setQuantityComment((previousQuantity) => previousQuantity - 1)
+                setQuantityRootComment((previousQuantity) => previousQuantity - 1)
             })
             .catch(() => {
                 showSnackBar({
@@ -145,85 +149,100 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                 lastCommentId: comments[comments.length - 1].id,
             }))
     }, [hasMoreComments, comments])
+
+    useEffect(() => {
+        setQuantityComment(numberComments)
+        setQuantityRootComment(numberRootComments)
+    }, [numberComments, numberRootComments])
     return (
         <React.Fragment>
-            <Box sx={{ mb: 2 }}>
-                <Divider sx={{ mb: 1 }} />
-                <Button
-                    startIcon={<ModeComment />}
-                    color="primary"
-                    onClick={loadCommentsHandler}
-                    disabled={!initialLoadingComments.current}
-                >
-                    Comment
-                </Button>
-                <Divider sx={{ mt: 1 }} />
+            <Box sx={{ mt: 2 }}>
+                <Typography sx={{ color: grey[600], display: 'block', mb: 2 }} align="right">
+                    {quantityComment} comments
+                </Typography>
             </Box>
-            {openCommentField && (
-                <Box sx={{ display: 'flex' }}>
-                    <Avatar alt="avatar" src={auth.image} />
-                    <FormControl fullWidth sx={{ ml: 2 }}>
-                        <OutlinedInput
-                            placeholder="Write your comment..."
-                            size="small"
-                            sx={{
-                                borderRadius: 8,
-                            }}
-                            autoFocus
-                            inputRef={commentContent}
-                            onKeyDown={createCommentHandler}
-                        />
-                    </FormControl>
+            <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
+                <Box sx={{ mb: 2 }}>
+                    <Divider sx={{ mb: 1 }} />
+                    <Button
+                        startIcon={<ModeComment />}
+                        color="primary"
+                        onClick={loadCommentsHandler}
+                        disabled={!initialLoadingComments.current}
+                    >
+                        Comment
+                    </Button>
+                    <Divider sx={{ mt: 1 }} />
                 </Box>
-            )}
-            {isLoading && initialLoadingComments.current && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                    <CircularProgress disableShrink />
-                </Box>
-            )}
-            {isLoading &&
-                !initialLoadingComments.current &&
-                !!commentContent.current?.value.trim() && (
+                {openCommentField && (
+                    <Box sx={{ display: 'flex' }}>
+                        <Avatar alt="avatar" src={auth.image} />
+                        <FormControl fullWidth sx={{ ml: 2 }}>
+                            <OutlinedInput
+                                placeholder="Write your comment..."
+                                size="small"
+                                sx={{
+                                    borderRadius: 8,
+                                }}
+                                autoFocus
+                                inputRef={commentContent}
+                                onKeyDown={createCommentHandler}
+                                multiline
+                                maxRows={20}
+                            />
+                        </FormControl>
+                    </Box>
+                )}
+                {isLoading && initialLoadingComments.current && (
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <CircularProgress disableShrink />
                     </Box>
                 )}
-            {comments.length !== 0 &&
-                comments.map((comment) => (
-                    <CommentSection
-                        key={comment.id}
-                        onDeleteComment={deleteCommentHandler}
-                        editCommentHandler={editCommentHandler}
-                        comment={comment}
-                        EventId={EventId}
-                        reactCommentHandler={reactCommentHandler}
-                    />
-                ))}
-            {hasMoreComments && (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                cursor: 'pointer',
-                                '&:hover': { textDecoration: 'underline' },
-                                color: grey[800],
-                                mr: 1,
-                            }}
-                            fontWeight={500}
-                            onClick={loadCommentsHandler}
-                        >
-                            Watch more comments
-                        </Typography>
-                        {isLoading && <CircularProgress disableShrink size={20} />}
-                    </Box>
-                    {!!comments && (
-                        <Typography sx={{ color: grey[500] }}>
-                            {comments.length}/{numberComments}
-                        </Typography>
+                {isLoading &&
+                    !initialLoadingComments.current &&
+                    !!commentContent.current?.value.trim() && (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                            <CircularProgress disableShrink />
+                        </Box>
                     )}
-                </Box>
-            )}
+                {comments.length !== 0 &&
+                    comments.map((comment) => (
+                        <CommentSection
+                            key={comment.id}
+                            onDeleteComment={deleteCommentHandler}
+                            editCommentHandler={editCommentHandler}
+                            comment={comment}
+                            EventId={EventId}
+                            reactCommentHandler={reactCommentHandler}
+                            setQuantityComment={setQuantityComment}
+                        />
+                    ))}
+                {hasMoreComments && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    cursor: 'pointer',
+                                    '&:hover': { textDecoration: 'underline' },
+                                    color: grey[800],
+                                    mr: 1,
+                                }}
+                                fontWeight={500}
+                                onClick={loadCommentsHandler}
+                            >
+                                Watch more comments
+                            </Typography>
+                            {isLoading && <CircularProgress disableShrink size={20} />}
+                        </Box>
+                        {!!comments && (
+                            <Typography sx={{ color: grey[500] }}>
+                                {comments.length}/{quantityRootComment}
+                            </Typography>
+                        )}
+                    </Box>
+                )}
+            </Box>
         </React.Fragment>
     )
 }

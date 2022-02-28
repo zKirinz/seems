@@ -1,7 +1,8 @@
 import { Avatar, Box, Typography, useMediaQuery } from '@mui/material'
+import { grey } from '@mui/material/colors'
 import { useTheme } from '@mui/material/styles'
 
-import HeroImage from '../../assets/images/hero.jpg'
+import HeroImage from '../../assets/images/hero.png'
 
 const Hero = () => {
     const theme = useTheme()
@@ -22,16 +23,16 @@ const Hero = () => {
                     right: 0,
                     bottom: 0,
                     left: 0,
-                    backgroundColor: 'rgba(0,0,0,.5)',
+                    backgroundColor: 'rgba(0,0,0,.65)',
                     px: 5,
                     pb: 5,
                     pt: 7,
                 }}
             >
                 <Typography
-                    sx={{ letterSpacing: 2, my: 2 }}
+                    sx={{ letterSpacing: 2, my: 2, WebkitTextStroke: '2px #8D8383' }}
                     variant={`${matches ? 'h1' : 'h2'}`}
-                    color="secondary"
+                    color="primary"
                     fontWeight={900}
                     align="center"
                 >
@@ -39,10 +40,9 @@ const Hero = () => {
                 </Typography>
                 <Typography
                     paragraph
-                    color="secondary"
                     variant={`${matches ? 'h5' : 'subtitle1'}`}
                     align="center"
-                    sx={{ maxWidth: 1000, m: '0 auto' }}
+                    sx={{ maxWidth: 1000, m: '0 auto', color: grey[100], lineHeight: 1.6 }}
                 >
                     Where FPT students will have the opportunity to enhance technical skills as well
                     as soft skill through many software academic events and activities related to

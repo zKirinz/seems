@@ -1,26 +1,23 @@
 import moment from 'moment'
 
+import { CalendarToday } from '@mui/icons-material'
 import { Typography } from '@mui/material'
+import { blueGrey } from '@mui/material/colors'
 import { Box } from '@mui/system'
 
-const EventDate = ({ nameDate, date }) => {
+const EventDate = ({ startDate, endDate }) => {
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '50%',
-            }}
-        >
-            <Typography variant="h4" fontWeight={700} sx={{ fontStyle: 'italic' }}>
-                {nameDate}
+        <Box sx={{ display: 'flex', alignItems: 'center', my: 2 }}>
+            <CalendarToday color="primary" />
+            <Typography
+                variant="h5"
+                fontWeight={500}
+                color="primary"
+                sx={{ ml: 1.5, color: blueGrey[900] }}
+            >
+                {moment(startDate).format('MMM Do YYYY, HH:mm A')} -{' '}
+                {moment(endDate).format('MMM Do YYYY, HH:mm A')}
             </Typography>
-            <Typography variant="h5" fontWeight={500} color="primary" sx={{ my: 1 }}>
-                {moment(date).format('MMM Do YYYY')}
-            </Typography>
-            <Typography variant="h6">{moment(date).format('HH:mm A')}</Typography>
         </Box>
     )
 }

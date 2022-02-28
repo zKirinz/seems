@@ -24,6 +24,7 @@ const CommentSection = ({
     comment,
     EventId,
     reactCommentHandler,
+    setQuantityComment,
 }) => {
     const commentsActions = useCommentsAction()
     const showSnackBar = useSnackbar()
@@ -32,8 +33,9 @@ const CommentSection = ({
     const initialLoadingComments = useRef(true)
     const [openCommentField, setOpenCommentField] = useState(false)
     const [responseComments, setResponseComment] = useState([])
+    const [numberResponseComment, setNumberResponseComment] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
-    const [hasMoreComments, setHasMoreComments] = useState(true)
+    const [hasMoreComments, setHasMoreComments] = useState(false)
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
         action: 'reply',
         numberComments: 4,
@@ -52,6 +54,8 @@ const CommentSection = ({
                 .then((response) => {
                     const replication = response.data.data
                     setResponseComment((previousValue) => [replication, ...previousValue])
+                    setNumberResponseComment((previousNumber) => previousNumber + 1)
+                    setQuantityComment((previousNumber) => previousNumber + 1)
                     commentContent.current.value = ''
                     setIsLoading(false)
                 })
@@ -65,8 +69,32 @@ const CommentSection = ({
     }
     const loadMoreResponseCommentsHandler = () => {
         setIsLoading(true)
-        if (hasMoreComments) {
-            setOpenCommentField(true)
+        setOpenCommentField(true)
+        commentsActions
+            .loadComments(loadMoreCommentsConfig, comment.id)
+            .then((response) => {
+                initialLoadingComments.current = false
+                const {
+                    listResponseReplyComments: loadedComments,
+                    hasMoreComment: isHasMoreComments,
+                } = response.data.data
+                setResponseComment((prevComments) => [...prevComments, ...loadedComments])
+                setHasMoreComments(isHasMoreComments)
+                setIsLoading(false)
+            })
+            .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+                initialLoadingComments.current = false
+                setIsLoading(false)
+            })
+    }
+    const openReplyTextBoxHandler = () => {
+        setOpenCommentField(true)
+        if (initialLoadingComments.current) {
+            setIsLoading(true)
             commentsActions
                 .loadComments(loadMoreCommentsConfig, comment.id)
                 .then((response) => {
@@ -114,6 +142,8 @@ const CommentSection = ({
                 setResponseComment((prevComments) =>
                     prevComments.filter((comment) => comment.id !== commentId)
                 )
+                setNumberResponseComment((previousNumber) => previousNumber - 1)
+                setQuantityComment((previousNumber) => previousNumber - 1)
             })
             .catch(() => {
                 showSnackBar({
@@ -123,13 +153,15 @@ const CommentSection = ({
             })
     }
     useEffect(() => {
-        !initialLoadingComments.current &&
-            hasMoreComments &&
+        hasMoreComments &&
             setLoadMoreCommentsConfig((previousValue) => ({
                 ...previousValue,
                 lastCommentId: responseComments[responseComments.length - 1].id,
             }))
     }, [hasMoreComments, responseComments])
+    useEffect(() => {
+        setNumberResponseComment(comment.numberReplyComment)
+    }, [comment])
     return (
         <React.Fragment>
             <Box>
@@ -140,8 +172,9 @@ const CommentSection = ({
                     loadMoreResponseCommentsHandler={loadMoreResponseCommentsHandler}
                     openResponseCommentField={openCommentField}
                     reactCommentHandler={reactCommentHandler}
+                    openReplyTextBoxHandler={openReplyTextBoxHandler}
                 />
-                {openCommentField && (
+                {openCommentField !== 0 && (
                     <Box sx={{ width: '94%', ml: 'auto', mt: 1 }}>
                         {isLoading && initialLoadingComments.current && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
@@ -183,7 +216,7 @@ const CommentSection = ({
                                 </Box>
                                 {!!comment?.numberReplyComment && (
                                     <Typography sx={{ color: grey[500] }}>
-                                        {responseComments.length}/{comment.numberReplyComment}
+                                        {responseComments.length}/{numberResponseComment}
                                     </Typography>
                                 )}
                             </Box>
@@ -201,6 +234,8 @@ const CommentSection = ({
                                         inputRef={commentContent}
                                         autoFocus
                                         onKeyDown={replyCommentHandler}
+                                        multiline
+                                        maxRows={20}
                                     />
                                 </FormControl>
                             </Box>
