@@ -33,7 +33,7 @@ const CommentSection = ({
     const [openCommentField, setOpenCommentField] = useState(false)
     const [responseComments, setResponseComment] = useState([])
     const [isLoading, setIsLoading] = useState(false)
-    const [hasMoreComments, setHasMoreComments] = useState(true)
+    const [hasMoreComments, setHasMoreComments] = useState(false)
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
         action: 'reply',
         numberComments: 4,
@@ -65,8 +65,34 @@ const CommentSection = ({
     }
     const loadMoreResponseCommentsHandler = () => {
         setIsLoading(true)
-        if (hasMoreComments) {
-            setOpenCommentField(true)
+        setOpenCommentField(true)
+        commentsActions
+            .loadComments(loadMoreCommentsConfig, comment.id)
+            .then((response) => {
+                initialLoadingComments.current = false
+                const {
+                    listResponseReplyComments: loadedComments,
+                    hasMoreComment: isHasMoreComments,
+                } = response.data.data
+                setResponseComment((prevComments) => [...prevComments, ...loadedComments])
+                setHasMoreComments(isHasMoreComments)
+                setIsLoading(false)
+            })
+            .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again.',
+                })
+                initialLoadingComments.current = false
+                setIsLoading(false)
+            })
+    }
+    const openReplyTextBoxHandler = (event) => {
+        event.target.hash = ''
+        // event.preventDefault()
+        setOpenCommentField(true)
+        if (initialLoadingComments.current) {
+            setIsLoading(true)
             commentsActions
                 .loadComments(loadMoreCommentsConfig, comment.id)
                 .then((response) => {
@@ -123,8 +149,7 @@ const CommentSection = ({
             })
     }
     useEffect(() => {
-        !initialLoadingComments.current &&
-            hasMoreComments &&
+        hasMoreComments &&
             setLoadMoreCommentsConfig((previousValue) => ({
                 ...previousValue,
                 lastCommentId: responseComments[responseComments.length - 1].id,
@@ -140,8 +165,9 @@ const CommentSection = ({
                     loadMoreResponseCommentsHandler={loadMoreResponseCommentsHandler}
                     openResponseCommentField={openCommentField}
                     reactCommentHandler={reactCommentHandler}
+                    openReplyTextBoxHandler={openReplyTextBoxHandler}
                 />
-                {openCommentField && (
+                {openCommentField !== 0 && (
                     <Box sx={{ width: '94%', ml: 'auto', mt: 1 }}>
                         {isLoading && initialLoadingComments.current && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
@@ -201,6 +227,8 @@ const CommentSection = ({
                                         inputRef={commentContent}
                                         autoFocus
                                         onKeyDown={replyCommentHandler}
+                                        multiline
+                                        maxRows={20}
                                     />
                                 </FormControl>
                             </Box>

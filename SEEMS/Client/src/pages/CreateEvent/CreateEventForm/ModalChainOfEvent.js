@@ -116,11 +116,12 @@ const ModalChainOfEvent = ({
                 >
                     <IconButton
                         onClick={closeChainOfEventHandler}
-                        sx={{ position: 'absolute', top: 5, right: 5 }}
+                        sx={{ position: 'absolute', top: 10, right: 15 }}
                     >
                         <Close />
                     </IconButton>
                     <Autocomplete
+                        sx={{ pt: 3 }}
                         value={selectedValue}
                         isOptionEqualToValue={(option, value) => option.categoryName === value}
                         onChange={(_, chainOfEvent) => chooseChainOfEventHandler(chainOfEvent)}
