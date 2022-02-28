@@ -86,6 +86,37 @@ namespace SEEMS.Controllers
             }
         }
 
+        // GET api/Reservations
+        // Get all registered events
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                if (currentUser != null)
+                {
+                    var userId = currentUser.Id;
+                    var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
+                    if (listReservation.Any())
+                    {
+                        return Ok(new Response(ResponseStatusEnum.Success, listReservation));
+                    }
+                    else
+                    {
+                        return Ok(new Response(ResponseStatusEnum.Success, "", "You have not registered to participate in any event yet"));
+                    }
+                }
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue"));
+                }
+            } catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
+            }
+        }
+
         private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
     }
 }
