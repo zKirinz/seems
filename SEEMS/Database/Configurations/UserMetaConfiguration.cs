@@ -11,7 +11,7 @@ namespace SEEMS.Database.Configurations
 		public void Configure( EntityTypeBuilder<UserMeta> builder )
 		{
 			var userMetas = new List<UserMeta>();
-			for (int i = -1; i > -5; i--)
+			for (int i = -1; i >= -5; i--)
 			{
 				userMetas.Add(new UserMeta()
 				{
