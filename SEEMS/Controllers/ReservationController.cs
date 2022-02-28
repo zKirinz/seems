@@ -27,7 +27,8 @@ namespace SEEMS.Controllers
             _repoManager = repoManager;
         }
 
-        // POST api/<ReservationController>
+        // POST api/Reservations
+        // Register a event
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] ReservationDTO reservationDTO)
         {
@@ -50,8 +51,34 @@ namespace SEEMS.Controllers
                 }
                 else
                 {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid token"));
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue"));
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
+            }
+        }
+
+        // PUT api/Reservations/id
+        // Check/Uncheck attendance
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] List<AttendanceForReservationDTO> listAttendance)
+        {
+            try
+            {
+                foreach (var attendance in listAttendance)
+                {
+                    var reservation = _context.Reservations.FirstOrDefault(x => x.Id == attendance.Id);
+                    if (reservation != null)
+                    {
+                        reservation.Attend = attendance.Attend;
+                        _context.Reservations.Update(reservation);
+                        _context.SaveChanges();
+                    }
+                }
+
+                return Ok(new Response(ResponseStatusEnum.Success, ""));
             }
             catch (Exception ex)
             {
