@@ -117,6 +117,37 @@ namespace SEEMS.Controllers
             }
         }
 
+        // GET api/Reservations/id
+        // Get all user registered for an event
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            try
+            {
+                var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
+                if (anEvent != null)
+                {
+                    var listRegisteredUser = _context.Reservations.Where(x => x.EventId == id).ToList();
+                    if (listRegisteredUser.Any())
+                    {
+                        return Ok(new Response(ResponseStatusEnum.Success, listRegisteredUser));
+                    }
+                    else
+                    {
+                        return Ok(new Response(ResponseStatusEnum.Success, "", "No user have registered yet"));
+                    }
+                }
+                else
+                {
+                    return Ok(new Response(ResponseStatusEnum.Success, "", "Invalid eventId"));
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
+            }
+        }
+
         private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
     }
 }
