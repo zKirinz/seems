@@ -35,29 +35,34 @@ public class UserController : ControllerBase
     [HttpGet("")]
     public async Task<IActionResult> GetListUsers([FromQuery] UserParams userParams)
     {
-
-        Organization? organizationToFilter;
-        
-        PaginatedList<User>? listUsers = null;
-
-        if (userParams.Organization != null)
+        var listUsers = await _repoManager.User.GetAllUsersAsync(userParams, false);
+        List<UserDTO> result = new List<UserDTO>();
+        for (var i = 0; i < listUsers.Count; i++)
         {
-            organizationToFilter =
-                        await _repoManager.Organization.GetOrganizationByName(userParams.Organization, false);
+            var roleByUserId = await _repoManager.UserMeta.GetRoleByUserIdAsync(listUsers[i].Id, false);
+            if (listUsers[i].OrganizationId == 0)
+            {
+                result.Add(new UserDTO
+                    {
+                        User = listUsers[i],
+                        Organization = "Anonymous", 
+                        Role = roleByUserId.MetaValue
+                    });    
+            }
+            else
+            { 
+                var orgByUserId = await _repoManager.Organization.GetOrganizationAsync(listUsers[i].OrganizationId, false);
+                result.Add(new UserDTO
+                        {
+                            User = listUsers[i],
+                            Organization = orgByUserId.Name, 
+                            Role = roleByUserId.MetaValue
+                        });    
+            }
             
-            listUsers = await _repoManager.User.GetAllUsersAsync(organizationToFilter, userParams, false);
-        }
 
-        userParams.Organization = "fptu";
-        var roleToFilter = await _repoManager.UserMeta.GetRolesByNameAsync(userParams.Role, false);
-        if (listUsers.Any(user => roleToFilter.Any(u => user.Id == u.UserId)))
-        {
-            var check = listUsers.Where(user => roleToFilter.Any(us => user.Id == us.UserId));
-            listUsers = PaginatedList<User>.Create(check.ToList(), userParams.PageNumber, userParams.PageSize);
         }
-        
-        Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(listUsers.Meta));
-        return Ok(listUsers);
+        return Ok(new Response(ResponseStatusEnum.Success, result, $"Found {listUsers.Meta.TotalCount} result(s)", 200, listUsers.Meta));
     }
    
     [ValidateModel]

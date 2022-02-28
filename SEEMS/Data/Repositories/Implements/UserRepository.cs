@@ -1,13 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SEEMS.Contexts;
 using SEEMS.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using SEEMS.Data.Entities;
 using SEEMS.Data.Entities.RequestFeatures;
-using SEEMS.Models;
+using SEEMS.Data.Repositories.Extensions;
 using SEEMS.Services;
 
 namespace SEEMS.Data.Repositories.Implements
@@ -22,20 +17,31 @@ namespace SEEMS.Data.Repositories.Implements
 
         public void CreateUser(User user) => Create(user);
 
-        public async Task<PaginatedList<User>?> GetAllUsersAsync(Organization? org, UserParams userParams, bool trackChanges)
+        public async Task<PaginatedList<User>?> GetAllUsersAsync(UserParams param, bool trackChanges)
         {
-            var users = await FindByCondition(u => u.OrganizationId == org.Id, trackChanges)
-                        .OrderBy(u => u.Email)
-                        .Skip((userParams.PageNumber - 1) * userParams.PageSize)
-                        .Take(userParams.PageSize)
+            var users = await FindAll(trackChanges)
+                        .FilterUsersByOrg(_context, param.Organization)
+                        .FilterUsersByRole(_context, param.Role)
                         .ToListAsync();
-            return PaginatedList<User>.Create(users, userParams.PageNumber, userParams.PageSize);
-        } 
+            return PaginatedList<User>.Create(users, param.PageNumber, param.PageSize);
+        }
+
+        public async Task<PaginatedList<User>?> GetAllUsersAsync(UserPagination param, bool trackChanges)
+        {
+            var user= await FindAll(false)
+                .OrderBy(u => u.Id)
+                .Skip((param.PageNumber - 1) * param.PageSize)
+                .ToListAsync();
+            return PaginatedList<User>.Create(user, param.PageNumber, param.PageSize);
+        }
+
+        public int GetCount(List<User> except, bool trackChanges) =>  FindAll(trackChanges).ToList().Except(except).Count(); 
 
         public async Task<User> GetUserAsync(string email, bool trackChanges) =>
         #pragma warning disable CS8603 // Possible null reference return.
            await FindByCondition(u => u.Email.Equals(email), trackChanges)
             .SingleOrDefaultAsync();
         #pragma warning restore CS8603 // Possible null reference return.
+        
     }
 }
