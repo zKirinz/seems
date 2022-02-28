@@ -16,6 +16,10 @@ namespace SEEMS.Services.Interfaces
         
         IOrganizationRepository Organization { get; }
 
-        Task SaveAsync();
-    }
+		IEventRepository Event { get; }
+
+		ICommentRepository Comment { get; }
+
+		Task SaveAsync();
+	}
 }

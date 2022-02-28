@@ -14,4 +14,7 @@ public class OrganizationRepository : RepositoryBase<Organization>, IOrganizatio
             await FindByCondition(org => org.Id == id, trackChanges)
                 .SingleOrDefaultAsync();
 
+    public async Task<Organization> GetOrganizationByName(string? name, bool trackChanges) =>
+        await FindByCondition(org => org.Name.ToLower().Equals(name), trackChanges)
+            .SingleOrDefaultAsync();
 }

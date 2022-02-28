@@ -7,7 +7,6 @@ import {
     Login as LoginIcon,
     Logout as LogoutIcon,
     Add as AddIcon,
-    Notifications as NotificationsIcon,
     Event as EventIcon,
 } from '@mui/icons-material'
 import {
@@ -18,7 +17,6 @@ import {
     Menu,
     MenuItem,
     ListItemIcon,
-    Badge,
     Typography,
     Button,
     Divider,
@@ -52,19 +50,9 @@ const RightNavBar = () => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 {auth.email ? (
                     <React.Fragment>
-                        <Tooltip title="Notification">
-                            <IconButton size="large" sx={{ mr: 1 }}>
-                                <Badge badgeContent={3} color="info">
-                                    <NotificationsIcon
-                                        fontSize="large"
-                                        sx={{ color: (theme) => theme.palette.grey[100] }}
-                                    />
-                                </Badge>
-                            </IconButton>
-                        </Tooltip>
                         <Tooltip title="Account settings">
                             <IconButton onClick={handleClick} size="large">
-                                <Avatar sx={{ width: 40, height: 40 }}>H</Avatar>
+                                <Avatar src={auth.image} sx={{ width: 40, height: 40 }} />
                             </IconButton>
                         </Tooltip>
 
@@ -119,7 +107,13 @@ const RightNavBar = () => {
                                     {auth.email}
                                 </Typography>
                                 <Divider textAlign="center" sx={{ width: '100%', mt: 2 }}>
-                                    <Chip label={auth.role} />
+                                    <Chip
+                                        label={
+                                            auth.role !== 'User'
+                                                ? `${auth.role} - ${auth.organization}`
+                                                : `${auth.role}`
+                                        }
+                                    />
                                 </Divider>
                             </Box>
 

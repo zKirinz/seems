@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -80,10 +79,10 @@ services.AddAuthentication(options =>
 	.AddGoogle(options =>
 	{
 		IConfigurationSection googleAuthNSection = configuration.GetSection("Authentication:Google");
-		options.ClientId = googleAuthNSection["ClientId"];
-		options.ClientSecret = googleAuthNSection["ClientSecret"];
+		options.ClientId = googleAuthNSection ["ClientId"];
+		options.ClientSecret = googleAuthNSection ["ClientSecret"];
 		options.Scope.Add("profile");
-		options.Events.OnCreatingTicket = (context) =>
+		options.Events.OnCreatingTicket = ( context ) =>
 		{
 			var picture = context.User.GetProperty("picture").GetString();
 			context.Identity.AddClaim(new Claim("picture", picture));
@@ -101,11 +100,6 @@ services.Configure<CookiePolicyOptions>(options =>
 	options.MinimumSameSitePolicy = SameSiteMode.Strict;
 });
 
-services.AddAuthorization(options =>
-{
-	options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Admin"));
-	options.AddPolicy("Organizer", policy => policy.RequireClaim("Organizer"));
-});
 services.AddScoped<IAuthManager, AuthManager>();
 services.AddScoped<IRepositoryManager, RepositoryManager>();
 services.AddScoped<IControllerBaseServices<ChainOfEvent>, ControllerBaseServices<ChainOfEvent>>();
@@ -137,10 +131,11 @@ services.Configure<ApiBehaviorOptions>(options =>
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-	ApplicationDbInitializer.Initialize(scope.ServiceProvider);
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//	ApplicationDbInitializer.Initialize(scope.ServiceProvider);
+//}
+
 
 app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 app.UseCookiePolicy(new CookiePolicyOptions
@@ -157,8 +152,8 @@ else
 	app.UseSwaggerUI(s =>
 	{
 		s.SwaggerEndpoint("/swagger/v1/swagger.json", "Seem API v1");
-		s.OAuthClientId(configuration.GetSection("Authentication:Google")["ClientId"]);
-		s.OAuthClientSecret(configuration.GetSection("Authentication:Google")["ClientSecret"]);
+		s.OAuthClientId(configuration.GetSection("Authentication:Google") ["ClientId"]);
+		s.OAuthClientSecret(configuration.GetSection("Authentication:Google") ["ClientSecret"]);
 		s.OAuthAppName("Google");
 		s.OAuthUseBasicAuthenticationWithAccessCodeGrant();
 	});
@@ -171,10 +166,10 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.Use((httpContext, next) => // For the oauth2-less!
+app.Use(( httpContext, next ) => // For the oauth2-less!
 {
-	if (httpContext.Request.Headers["X-Authorization"].Any())
-		httpContext.Request.Headers.Add("Authorization", httpContext.Request.Headers["X-Authorization"]);
+	if (httpContext.Request.Headers ["X-Authorization"].Any())
+		httpContext.Request.Headers.Add("Authorization", httpContext.Request.Headers ["X-Authorization"]);
 
 	return next();
 });
@@ -183,22 +178,23 @@ app.MapControllerRoute(
 	name: "default",
 	pattern: "{controller}/{action=Index}/{id?}");
 
-app.MapFallbackToFile("index.html"); ;
+app.MapFallbackToFile("index.html");
+;
 
 app.Run();
 
 internal class SecureEndpointAuthRequirementFilter : IOperationFilter
 {
-    public void Apply(OpenApiOperation operation, OperationFilterContext context)
-    {
-        if (!context.ApiDescription
-                .ActionDescriptor
-                .EndpointMetadata
-                .OfType<RoleBasedAuthorizationAttribute>()
-                .Any())
-        {
-            return;
-        }
+	public void Apply( OpenApiOperation operation, OperationFilterContext context )
+	{
+		if (!context.ApiDescription
+				.ActionDescriptor
+				.EndpointMetadata
+				.OfType<RoleBasedAuthorizationAttribute>()
+				.Any())
+		{
+			return;
+		}
 
 		operation.Security = new List<OpenApiSecurityRequirement>
 		{

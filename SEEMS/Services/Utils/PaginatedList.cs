@@ -26,5 +26,15 @@ namespace SEEMS.Services
             var items = source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
+
+        public static PaginatedList<T> Except(List<T> source, List<T> listToExcept, int pageIndex, int pageSize)
+        {
+            if (listToExcept.Count == 0)
+            {
+                return Create(source, pageIndex, pageSize);
+            }
+            var items = source.Except(listToExcept).ToList();
+            return Create(items, pageIndex, pageSize);
+        }
     }
 }

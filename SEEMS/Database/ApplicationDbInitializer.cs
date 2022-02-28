@@ -10,7 +10,7 @@ namespace SEEMS.Database
 {
 	public static class ApplicationDbInitializer
 	{
-		public static void Initialize(IServiceProvider serviceProvider)
+		public static void Initialize( IServiceProvider serviceProvider )
 		{
 			using (var context = new ApplicationDbContext(
 				serviceProvider.GetRequiredService<
@@ -27,16 +27,17 @@ namespace SEEMS.Database
 			}
 		}
 
-		public static void SeedOrganization(ApplicationDbContext ctx)
+		public static void SeedOrganization( ApplicationDbContext ctx )
 		{
 			if (ctx.Organizations.Any())
 			{
 				return;
 			}
 			List<Organization> organizations = new List<Organization>();
-			organizations.Add(new Organization() { Name = "F-Code", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
-			organizations.Add(new Organization() { Name = "DSC", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
-			organizations.Add(new Organization() { Name = "FPTU", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
+			organizations.Add(new Organization() { Id = -1, Name = "F-Code", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
+			organizations.Add(new Organization() { Id = -2, Name = "DSC", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
+			organizations.Add(new Organization() { Id = -3, Name = "FPTU", Description = "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like)." });
+			organizations.Add(new Organization() { Id = -4, Name = "FPTer", Description = "Other user in our system" });
 			foreach (var item in organizations)
 			{
 				ctx.Organizations.Add(item);
@@ -44,7 +45,7 @@ namespace SEEMS.Database
 			ctx.SaveChanges();
 		}
 
-		public static void SeedUser(ApplicationDbContext ctx)
+		public static void SeedUser( ApplicationDbContext ctx )
 		{
 			List<User> users = new List<User>();
 			var orgId = ctx.Organizations.FirstOrDefault(o => o.Name.Equals("FPTU")).Id;
@@ -53,6 +54,13 @@ namespace SEEMS.Database
 			users.Add(new User() { Email = "kienttse151340@fpt.edu.vn", OrganizationId = orgId, UserName = "Tran Trung Kien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "nguyennkse140132@fpt.edu.vn", OrganizationId = orgId, UserName = "Nguyen Khoi Nguyen (K13 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 			users.Add(new User() { Email = "hienbtse150763@fpt.edu.vn", OrganizationId = orgId, UserName = "Bui The Hien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
+
+			//Add 5 FPTU Admin
+			for (int i = 1; i <= 5; i++)
+			{
+				users.Add(new User() { Email = $"fptu{-i}@fpt.edu.vn", OrganizationId = -3, UserName = $"Anonymous {-i}", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
+			}
+
 			var tmpUserList = ctx.Users.ToList();
 			foreach (var item in users)
 			{
@@ -64,7 +72,7 @@ namespace SEEMS.Database
 			ctx.SaveChanges();
 		}
 
-		public static void SeedUserMeta(ApplicationDbContext ctx)
+		public static void SeedUserMeta( ApplicationDbContext ctx )
 		{
 			List<UserMeta> userMetas = new List<UserMeta>();
 			List<int> userIds = ctx.Users.Select(x => x.Id).ToList();
@@ -73,6 +81,15 @@ namespace SEEMS.Database
 			{
 				userMetas.Add(new UserMeta() { MetaKey = "role", MetaValue = "Organizer", UserId = id });
 			}
+			int kienId = ctx.Users.FirstOrDefault(u => u.Email.Contains("kientt")).Id;
+
+			//Add 5 FPTU Admin
+			for (int i = 1; i <= 5; i++)
+			{
+				userMetas.Add(new UserMeta() { MetaKey = "role", MetaValue = "Admin", UserId = -i });
+			}
+
+			tmpUserMetaList.FirstOrDefault(um => um.UserId == kienId).MetaValue = "Admin";
 			foreach (var i in userMetas)
 			{
 				if (!tmpUserMetaList.Contains(i, new UserMetaEqualityComparer()))
@@ -80,7 +97,7 @@ namespace SEEMS.Database
 			}
 		}
 
-		public static void SeedChainOfEvent(ApplicationDbContext ctx)
+		public static void SeedChainOfEvent( ApplicationDbContext ctx )
 		{
 			List<ChainOfEvent> chainOfEvents = new List<ChainOfEvent>();
 			chainOfEvents.Add(new ChainOfEvent() { CategoryName = "Tech Talk", CreatedBy = 1, ImageUrl = "https://www.sunymaritime.edu/sites/default/files/styles/medium_625px_by_410px_scale/public/2018-02/tech_talks_logo_color_preview.jpeg?itok=bEG5QRwk" });
@@ -95,7 +112,7 @@ namespace SEEMS.Database
 			ctx.SaveChanges();
 		}
 
-		public static void SeedEvent(ApplicationDbContext ctx)
+		public static void SeedEvent( ApplicationDbContext ctx )
 		{
 			List<Event> events = new List<Event>();
 			var chainOfEventTechTalkId = ctx.ChainOfEvents.FirstOrDefault(e => e.CategoryName.Contains("Tech Talk")).Id;

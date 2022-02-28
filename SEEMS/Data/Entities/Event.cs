@@ -35,9 +35,6 @@ namespace SEEMS.Models
 		public DateTime EndDate { get; set; }
 
 		[JsonIgnore]
-		public User? Client { get; set; }
-
-		[JsonIgnore]
 		public ChainOfEvent? ChainOfEvent { get; set; }
 
 		[JsonIgnore]
