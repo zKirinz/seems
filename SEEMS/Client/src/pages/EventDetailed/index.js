@@ -3,8 +3,9 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import EventPoster from '../../components/EventPoster'
+import { Festival } from '@mui/icons-material'
 import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
-import { grey } from '@mui/material/colors'
+import { blueGrey, grey } from '@mui/material/colors'
 
 import useEventAction from '../../recoil/event/action'
 import CommentsSection from './Comments/index'
@@ -57,31 +58,23 @@ const EventDetailed = () => {
                         <Typography variant="h4" color="primary" fontWeight={700}>
                             {detailedEvent.event.eventTitle}
                         </Typography>
-                        <Typography sx={{ color: grey[600], mt: 1 }} variant="h6">
-                            Take place:{' '}
+                        <Box display="flex" alignItems="center" sx={{ my: 2 }}>
+                            <Festival color="primary" fontSize="medium" />
                             <Typography
-                                component="span"
-                                fontWeight={500}
+                                fontWeight={600}
                                 variant="h5"
-                                color="secondary"
-                                sx={{ textDecoration: 'underline' }}
+                                sx={{ ml: 1.5, color: blueGrey[900] }}
                             >
                                 {detailedEvent.event.location}
                             </Typography>
-                        </Typography>
-                        <Typography paragraph sx={{ color: grey[600], my: 1 }}>
+                        </Box>
+                        <EventDate
+                            startDate={new Date(detailedEvent.event.startDate)}
+                            endDate={new Date(detailedEvent.event.endDate)}
+                        />
+                        <Typography paragraph sx={{ color: blueGrey[900], my: 1.5 }} variant="h6">
                             {detailedEvent.event.eventDescription}
                         </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 4 }}>
-                            <EventDate
-                                date={new Date(detailedEvent.event.startDate)}
-                                nameDate="Start"
-                            />
-                            <EventDate
-                                nameDate="End"
-                                date={new Date(detailedEvent.event.endDate)}
-                            />
-                        </Box>
                     </CardContent>
                 </Grid>
             </Grid>
