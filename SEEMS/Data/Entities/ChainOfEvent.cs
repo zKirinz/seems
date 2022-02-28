@@ -16,11 +16,11 @@ namespace SEEMS.Models
         [StringLength(255)]
         public String? ImageUrl { get; set; }
         
-        [ForeignKey("User")]
+        [ForeignKey("Oganization")]
         public int? CreatedBy { get; set; }
         
         [JsonIgnore]
-        public User? User { get; set; }
+        public Organization? Organization{ get; set; }
 
         [JsonIgnore]
         public List<Event>? Events { get; set; }

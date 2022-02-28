@@ -3,6 +3,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
 using SEEMS.Data.Models;
@@ -23,7 +26,7 @@ namespace SEEMS.Controller
 		private readonly IAuthManager _authManager;
 		private readonly IRepositoryManager _repository;
 
-		public EventController( ApplicationDbContext context, IMapper mapper, IAuthManager authManager, IRepositoryManager repositoryManager )
+		public EventController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager, IRepositoryManager repositoryManager)
 		{
 			_context = context;
 			_mapper = mapper;
@@ -32,12 +35,12 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetEventDetail( int eventId )
+		public async Task<IActionResult> GetEventDetail(int eventId)
 		{
 			try
 			{
 				Event? foundEvent = _repository.Event.GetEvent(eventId);
-				if (foundEvent == null)
+				if(foundEvent == null)
 					throw new Exception("Can't find the event");
 
 				int commentCount = _repository.Comment.CountCommentsOfEvent(eventId);
@@ -52,7 +55,7 @@ namespace SEEMS.Controller
 					)
 				);
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return BadRequest(
 					new Response(
@@ -64,18 +67,18 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("my-events")]
-		public async Task<ActionResult<List<Event>>> GetMyEvents( string? search, bool? upcoming,
-			int? lastEventID, int resultCount = 10 )
+		public async Task<ActionResult<List<Event>>> GetMyEvents(string? search, bool? upcoming,
+			int? lastEventID, int resultCount = 10)
 		{
 			User user = await GetCurrentUser(Request);
 			try
 			{
-				if (user != null)
+				if(user != null)
 				{
 					var findingOrgId = user.OrganizationId;
 					var allEvents = _context.Events.Where(a => a.OrganizationId == findingOrgId).ToList();
 					IEnumerable<Event> foundResult;
-					if (upcoming == null)
+					if(upcoming == null)
 					{
 						foundResult = allEvents;
 					}
@@ -93,7 +96,7 @@ namespace SEEMS.Controller
 					int lastEventIndex = 0;
 
 					//Filter by title
-					if (!string.IsNullOrEmpty(search))
+					if(!string.IsNullOrEmpty(search))
 					{
 						foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 					}
@@ -101,10 +104,10 @@ namespace SEEMS.Controller
 					foundResult = foundResult.OrderByDescending(e => e.StartDate);
 					//Implement load more
 
-					if (lastEventID != null)
+					if(lastEventID != null)
 					{
 						lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
-						if (lastEventIndex > 0)
+						if(lastEventIndex > 0)
 						{
 							returnResult = foundResult.ToList().GetRange(
 								lastEventIndex + 1,
@@ -119,15 +122,18 @@ namespace SEEMS.Controller
 					{
 						returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
 					}
-					if (foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
+					if(foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
 					{
 						loadMore = true;
 					}
+					var dtoResult = new List<EventDTO>();
 					returnResult.ForEach(e =>
 					{
-						e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+						var eMapped = _mapper.Map<EventDTO>(e);
+						eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
+						eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+						dtoResult.Add(eMapped);
 					});
-
 					return failed
 						? BadRequest(
 							new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
@@ -137,20 +143,8 @@ namespace SEEMS.Controller
 							{
 								Count = foundResult.Count(),
 								CanLoadMore = loadMore,
-								listEvents = returnResult
+								listEvents = dtoResult
 							})
-					);
-					foundResult.ToList().ForEach(e =>
-					{
-						e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
-					});
-					return Ok(
-						new Response(ResponseStatusEnum.Success,
-						new
-						{
-							Count = foundResult.Count(),
-							Events = foundResult
-						})
 					);
 				}
 				else
@@ -158,7 +152,7 @@ namespace SEEMS.Controller
 					throw new Exception("Invalid User profile");
 				}
 			}
-			catch (Exception e)
+			catch(Exception e)
 			{
 				return BadRequest(new Response(ResponseStatusEnum.Error, e.Message));
 			}
@@ -174,7 +168,7 @@ namespace SEEMS.Controller
 				var result = _context.Events.ToList().Where(
 						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30);
 
-				if (currentUser == null)
+				if(currentUser == null)
 				{
 					result = result.Where(e => !e.IsPrivate);
 				}
@@ -193,7 +187,7 @@ namespace SEEMS.Controller
 					}
 				));
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError,
 					new Response(ResponseStatusEnum.Error, msg: ex.Message));
@@ -201,14 +195,14 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet()]
-		public async Task<ActionResult<List<Event>>> Get( string? search, bool? upcoming,
-			int? lastEventID, int resultCount = 10 )
+		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
+			int? lastEventID, int resultCount = 10)
 		{
 			try
 			{
 				var allEvents = _context.Events.ToList();
 				IEnumerable<Event> foundResult;
-				if (upcoming == null)
+				if(upcoming == null)
 				{
 					foundResult = allEvents;
 				}
@@ -226,7 +220,7 @@ namespace SEEMS.Controller
 				int lastEventIndex = 0;
 
 				//Filter by title
-				if (!string.IsNullOrEmpty(search))
+				if(!string.IsNullOrEmpty(search))
 				{
 					foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 				}
@@ -234,10 +228,10 @@ namespace SEEMS.Controller
 				foundResult = foundResult.OrderByDescending(e => e.StartDate);
 				//Implement load more
 
-				if (lastEventID != null)
+				if(lastEventID != null)
 				{
 					lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
-					if (lastEventIndex > 0)
+					if(lastEventIndex > 0)
 					{
 						returnResult = foundResult.ToList().GetRange(
 							lastEventIndex + 1,
@@ -252,13 +246,17 @@ namespace SEEMS.Controller
 				{
 					returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
 				}
-				if (foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
+				if(foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
 				{
 					loadMore = true;
 				}
+				var dtoResult = new List<EventDTO>();
 				returnResult.ForEach(e =>
 				{
-					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+					var eMapped = _mapper.Map<EventDTO>(e);
+					eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
+					eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+					dtoResult.Add(eMapped);
 				});
 
 				return failed
@@ -270,18 +268,18 @@ namespace SEEMS.Controller
 						{
 							Count = foundResult.Count(),
 							CanLoadMore = loadMore,
-							listEvents = returnResult
+							listEvents = dtoResult
 						})
 				);
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError, new Response(ResponseStatusEnum.Error, msg: ex.Message));
 			}
 		}
 
 		[HttpPut("{id}")]
-		public async Task<ActionResult<bool>> Update( int id, [FromBody] EventDTO eventDTO )
+		public async Task<ActionResult<bool>> Update(int id, [FromBody] EventDTO eventDTO)
 		{
 			try
 			{
@@ -289,18 +287,18 @@ namespace SEEMS.Controller
 				eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
 				var user = await GetCurrentUser(Request);
 				var userMeta = _context.UserMetas.FirstOrDefault(x => x.UserId == user.Id);
-				if (userMeta.MetaValue.Equals("Organizer", StringComparison.CurrentCultureIgnoreCase)
+				if(userMeta.MetaValue.Equals("Organizer", StringComparison.CurrentCultureIgnoreCase)
 					&& user.Id == id)
 				{
 					EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
-					if (eventValidationInfo != null)
+					if(eventValidationInfo != null)
 						return BadRequest(
 								new Response(ResponseStatusEnum.Fail,
 								eventValidationInfo,
 								"Some fields didn't match requirements"));
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
-					if (target is null)
+					if(target is null)
 					{
 						return BadRequest(
 								new Response(ResponseStatusEnum.Fail,
@@ -330,7 +328,7 @@ namespace SEEMS.Controller
 					);
 				}
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return StatusCode(
 					StatusCodes.Status500InternalServerError,
@@ -341,16 +339,16 @@ namespace SEEMS.Controller
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<ActionResult> Delete( int id )
+		public async Task<ActionResult> Delete(int id)
 		{
 			try
 			{
 				var user = await GetCurrentUser(Request);
 				var userRole = _context.UserMetas.FirstOrDefault(um => um.UserId == user.Id && um.MetaKey == "role").MetaValue;
-				if (userRole == "Organizer" || userRole == "Admin")
+				if(userRole == "Organizer" || userRole == "Admin")
 				{
 					var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
-					if (target is null)
+					if(target is null)
 					{
 						return BadRequest(
 								new Response(ResponseStatusEnum.Fail,
@@ -374,7 +372,7 @@ namespace SEEMS.Controller
 					);
 				}
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError,
 					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
@@ -382,14 +380,14 @@ namespace SEEMS.Controller
 		}
 
 		[HttpPost]
-		public async Task<ActionResult> AddEvent( EventDTO eventDTO )
+		public async Task<ActionResult> AddEvent(EventDTO eventDTO)
 		{
 			eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
 			eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
 			try
 			{
-				if (eventValidationInfo != null)
+				if(eventValidationInfo != null)
 				{
 					return BadRequest(
 						new Response(ResponseStatusEnum.Fail,
@@ -407,13 +405,13 @@ namespace SEEMS.Controller
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
 				}
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError,
 					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
 			}
 		}
-		private async Task<User> GetCurrentUser( HttpRequest req )
+		private async Task<User> GetCurrentUser(HttpRequest req)
 		{
 			var email = _authManager.GetCurrentEmail(req);
 			var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == email);

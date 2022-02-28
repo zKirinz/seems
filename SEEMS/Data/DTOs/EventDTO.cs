@@ -5,11 +5,13 @@ namespace SEEMS.Data.DTO
 {
 	public class EventDTO
 	{
+		public int? Id { get; set; }
 		[Required]
 		public string EventTitle { get; set; }
 		[Required]
 		public string EventDescription { get; set; }
 		public int? CommentsNum { get; set; }
+		public string? OrganizationName { get; set; }
 		public int? ChainOfEventId { get; set; }
 		[Required]
 		public bool IsPrivate { get; set; }
