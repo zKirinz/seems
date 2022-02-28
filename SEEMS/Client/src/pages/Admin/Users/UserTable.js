@@ -86,43 +86,51 @@ const columns = [
     { id: 'action', label: 'Action', align: 'center' },
 ]
 
-const UserTable = ({ emailFilter, roleFilter, organizationFilter }) => {
+const UserTable = ({ emailFilter, roleFilter, organizationFilter, statusFilter }) => {
     const usersAction = useUsersAction()
+    const [userData, setUserData] = useState([])
     const [rows, setRows] = useState([])
     const [page, setPage] = useState(0)
+    const [reset, setReset] = useState(0)
     const rowsPerPage = 6
 
     useEffect(() => {
-        usersAction.getUsers().then((res) => setRows(res.data.data))
+        usersAction.getUsers().then((res) => {
+            setUserData(res.data.data)
+            setRows(res.data.data)
+        })
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [reset])
 
     useEffect(() => {
-        console.log(emailFilter, roleFilter, organizationFilter)
+        setPage(0)
         setRows(
-            rows.filter(({ user, organization, role = 'User' }) => {
-                console.log('1')
+            userData.filter(({ user, organization, role = 'User' }) => {
                 if (
                     emailFilter.trim() !== '' &&
                     !user.email.toLowerCase().includes(emailFilter.toLowerCase())
                 ) {
-                    console.log(user.email.toLowerCase())
                     return false
                 }
                 if (roleFilter !== 'All' && role !== roleFilter) {
-                    console.log('3')
                     return false
                 }
                 if (organizationFilter !== 'All' && organization !== organizationFilter) {
-                    console.log('4')
                     return false
                 }
-                console.log('5')
+                if (statusFilter !== 'All') {
+                    if (user.active && statusFilter === 'Inactive') {
+                        return false
+                    }
+                    if (!user.active && statusFilter === 'Active') {
+                        return false
+                    }
+                }
                 return true
             })
         )
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [emailFilter, roleFilter, organizationFilter])
+    }, [emailFilter, roleFilter, organizationFilter, statusFilter])
 
     const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
@@ -155,12 +163,14 @@ const UserTable = ({ emailFilter, roleFilter, organizationFilter }) => {
                             return (
                                 <UserTableRow
                                     key={user.id}
+                                    id={user.id}
                                     email={user.email}
                                     userName={user.userName}
                                     imageUrl={user.imageUrl}
                                     organization={organization}
                                     role={role}
                                     active={user.active}
+                                    resetHandler={() => setReset(reset + 1)}
                                 />
                             )
                         })}
