@@ -41,7 +41,7 @@ const RightNavBar = () => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Tooltip title="Account settings">
                     <IconButton onClick={handleClick} size="large">
-                        <Avatar sx={{ width: 40, height: 40 }}>H</Avatar>
+                        <Avatar src={auth.image} sx={{ width: 40, height: 40 }} />
                     </IconButton>
                 </Tooltip>
 
