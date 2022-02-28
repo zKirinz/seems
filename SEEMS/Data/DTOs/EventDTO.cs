@@ -11,6 +11,7 @@ namespace SEEMS.Data.DTO
 		[Required]
 		public string EventDescription { get; set; }
 		public int? CommentsNum { get; set; }
+		public int? RootCommentsNum { get; set; }
 		public string? OrganizationName { get; set; }
 		public int? ChainOfEventId { get; set; }
 		[Required]
