@@ -5,16 +5,18 @@ import { useRecoilValue } from 'recoil'
 
 import EventPoster from '../../components/EventPoster'
 import { Festival } from '@mui/icons-material'
-import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
 import atom from '../../recoil/auth'
 import useEventAction from '../../recoil/event/action'
 import CommentsSection from './Comments/index'
 import EventDate from './EventDate'
+import RegisterButton from './RegisterButton'
 
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
+    console.log(auth)
     const { id } = useParams()
     const { getDetailedEvent } = useEventAction()
     const [error, setError] = useState(null)
@@ -80,12 +82,8 @@ const EventDetailed = () => {
                         <Typography paragraph sx={{ color: blueGrey[900], my: 1.5 }} variant="h6">
                             {detailedEvent.event.eventDescription}
                         </Typography>
-                        {!auth.role === 'Admin' && (
-                            <Box sx={{ position: 'absolute', bottom: 30, right: 30 }}>
-                                <Button variant="contained">Register</Button>
-                            </Box>
-                        )}
                     </CardContent>
+                    {!(auth.role === 'Admin') && <RegisterButton />}
                 </Grid>
             </Grid>
             <CommentsSection
