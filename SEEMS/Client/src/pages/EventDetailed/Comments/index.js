@@ -21,7 +21,7 @@ import { useCommentsAction } from '../../../recoil/comment'
 import { useReactComment } from '../../../recoil/reactComment'
 import CommentSection from './Comment'
 
-const CommentsSection = ({ eventId: EventId, numberComments }) => {
+const CommentsSection = ({ eventId: EventId, numberComments, numberRootComments }) => {
     const commentsActions = useCommentsAction()
     const reactCommentAction = useReactComment()
     const showSnackBar = useSnackbar()
@@ -30,8 +30,10 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
     const initialLoadingComments = useRef(true)
     const [isLoading, setIsLoading] = useState(false)
     const [comments, setComments] = useState([])
+    const [quantityComment, setQuantityComment] = useState(0)
     const [hasMoreComments, setHasMoreComments] = useState(false)
     const [openCommentField, setOpenCommentField] = useState(false)
+    const [quantityRootComment, setQuantityRootComment] = useState(0)
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
         action: 'load',
         numberComments: 4,
@@ -74,10 +76,10 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                 .then((response) => {
                     const newComment = response.data.data
                     setComments((previousComments) => [newComment, ...previousComments])
-                    commentContent.current.value = ''
-                })
-                .then(() => {
+                    setQuantityComment((previousQuantity) => previousQuantity + 1)
+                    setQuantityRootComment((previousQuantity) => previousQuantity + 1)
                     setIsLoading(false)
+                    commentContent.current.value = ''
                 })
                 .catch(() => {
                     showSnackBar({
@@ -95,6 +97,8 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                 setComments((prevComments) =>
                     prevComments.filter((comment) => comment.id !== commentId)
                 )
+                setQuantityComment((previousQuantity) => previousQuantity - 1)
+                setQuantityRootComment((previousQuantity) => previousQuantity - 1)
             })
             .catch(() => {
                 showSnackBar({
@@ -145,8 +149,18 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                 lastCommentId: comments[comments.length - 1].id,
             }))
     }, [hasMoreComments, comments])
+
+    useEffect(() => {
+        setQuantityComment(numberComments)
+        setQuantityRootComment(numberRootComments)
+    }, [numberComments, numberRootComments])
     return (
         <React.Fragment>
+            <Box sx={{ mt: 2 }}>
+                <Typography sx={{ color: grey[600], display: 'block', mb: 2 }} align="right">
+                    {quantityComment} comments
+                </Typography>
+            </Box>
             <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
                 <Box sx={{ mb: 2 }}>
                     <Divider sx={{ mb: 1 }} />
@@ -200,6 +214,7 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                             comment={comment}
                             EventId={EventId}
                             reactCommentHandler={reactCommentHandler}
+                            setQuantityComment={setQuantityComment}
                         />
                     ))}
                 {hasMoreComments && (
@@ -222,7 +237,7 @@ const CommentsSection = ({ eventId: EventId, numberComments }) => {
                         </Box>
                         {!!comments && (
                             <Typography sx={{ color: grey[500] }}>
-                                {comments.length}/{numberComments}
+                                {comments.length}/{quantityRootComment}
                             </Typography>
                         )}
                     </Box>

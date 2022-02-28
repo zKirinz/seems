@@ -1,31 +1,36 @@
 import { useEffect, useState } from 'react'
 
 import { useParams } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
 
 import EventPoster from '../../components/EventPoster'
 import { Festival } from '@mui/icons-material'
-import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
-import { blueGrey, grey } from '@mui/material/colors'
+import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { blueGrey } from '@mui/material/colors'
 
+import atom from '../../recoil/auth'
 import useEventAction from '../../recoil/event/action'
 import CommentsSection from './Comments/index'
 import EventDate from './EventDate'
 
 const EventDetailed = () => {
+    const auth = useRecoilValue(atom)
     const { id } = useParams()
     const { getDetailedEvent } = useEventAction()
     const [error, setError] = useState(null)
     const [detailedEvent, setDetailedEvent] = useState({
         numberComments: 0,
         event: {},
+        numberRootComments: 0,
     })
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
-                const { event: responseEvent, commentCount } = response.data.data
+                const { event: responseEvent } = response.data.data
                 setDetailedEvent({
-                    numberComments: commentCount,
+                    numberComments: responseEvent.commentsNum,
                     event: responseEvent,
+                    numberRootComments: responseEvent.rootCommentsNum,
                 })
             })
             .catch((errorResponse) => {
@@ -53,7 +58,7 @@ const EventDetailed = () => {
                 <Grid item xs={12} sm={4}>
                     <EventPoster src={detailedEvent.event.imageUrl} size="contain" />
                 </Grid>
-                <Grid item xs={12} sm={8} component={Card}>
+                <Grid item xs={12} sm={8} component={Card} sx={{ position: 'relative' }}>
                     <CardContent sx={{ p: 5 }}>
                         <Typography variant="h4" color="primary" fontWeight={700}>
                             {detailedEvent.event.eventTitle}
@@ -75,15 +80,19 @@ const EventDetailed = () => {
                         <Typography paragraph sx={{ color: blueGrey[900], my: 1.5 }} variant="h6">
                             {detailedEvent.event.eventDescription}
                         </Typography>
+                        {!auth.role === 'Admin' && (
+                            <Box sx={{ position: 'absolute', bottom: 30, right: 30 }}>
+                                <Button variant="contained">Register</Button>
+                            </Box>
+                        )}
                     </CardContent>
                 </Grid>
             </Grid>
-            <Box sx={{ mt: 2 }}>
-                <Typography sx={{ color: grey[600], display: 'block', mb: 2 }} align="right">
-                    {detailedEvent.numberComments} comments
-                </Typography>
-            </Box>
-            <CommentsSection eventId={id} numberComments={detailedEvent.numberComments} />
+            <CommentsSection
+                eventId={id}
+                numberComments={detailedEvent.numberComments}
+                numberRootComments={detailedEvent.numberRootComments}
+            />
         </Container>
     )
 }

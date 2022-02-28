@@ -24,6 +24,7 @@ const CommentSection = ({
     comment,
     EventId,
     reactCommentHandler,
+    setQuantityComment,
 }) => {
     const commentsActions = useCommentsAction()
     const showSnackBar = useSnackbar()
@@ -32,6 +33,7 @@ const CommentSection = ({
     const initialLoadingComments = useRef(true)
     const [openCommentField, setOpenCommentField] = useState(false)
     const [responseComments, setResponseComment] = useState([])
+    const [numberResponseComment, setNumberResponseComment] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const [hasMoreComments, setHasMoreComments] = useState(false)
     const [loadMoreCommentsConfig, setLoadMoreCommentsConfig] = useState({
@@ -52,6 +54,8 @@ const CommentSection = ({
                 .then((response) => {
                     const replication = response.data.data
                     setResponseComment((previousValue) => [replication, ...previousValue])
+                    setNumberResponseComment((previousNumber) => previousNumber + 1)
+                    setQuantityComment((previousNumber) => previousNumber + 1)
                     commentContent.current.value = ''
                     setIsLoading(false)
                 })
@@ -87,9 +91,7 @@ const CommentSection = ({
                 setIsLoading(false)
             })
     }
-    const openReplyTextBoxHandler = (event) => {
-        event.target.hash = ''
-        // event.preventDefault()
+    const openReplyTextBoxHandler = () => {
         setOpenCommentField(true)
         if (initialLoadingComments.current) {
             setIsLoading(true)
@@ -140,6 +142,8 @@ const CommentSection = ({
                 setResponseComment((prevComments) =>
                     prevComments.filter((comment) => comment.id !== commentId)
                 )
+                setNumberResponseComment((previousNumber) => previousNumber - 1)
+                setQuantityComment((previousNumber) => previousNumber - 1)
             })
             .catch(() => {
                 showSnackBar({
@@ -155,6 +159,9 @@ const CommentSection = ({
                 lastCommentId: responseComments[responseComments.length - 1].id,
             }))
     }, [hasMoreComments, responseComments])
+    useEffect(() => {
+        setNumberResponseComment(comment.numberReplyComment)
+    }, [comment])
     return (
         <React.Fragment>
             <Box>
@@ -209,7 +216,7 @@ const CommentSection = ({
                                 </Box>
                                 {!!comment?.numberReplyComment && (
                                     <Typography sx={{ color: grey[500] }}>
-                                        {responseComments.length}/{comment.numberReplyComment}
+                                        {responseComments.length}/{numberResponseComment}
                                     </Typography>
                                 )}
                             </Box>
