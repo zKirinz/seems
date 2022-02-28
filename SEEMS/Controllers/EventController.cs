@@ -35,22 +35,24 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetEventDetail(int eventId)
+		public async Task<IActionResult> GetEventDetail(int id)
 		{
 			try
 			{
-				Event? foundEvent = _repository.Event.GetEvent(eventId);
+				Event? foundEvent = _repository.Event.GetEvent(id);
 				if(foundEvent == null)
 					throw new Exception("Can't find the event");
+				EventDTO dtoEvent = _mapper.Map<EventDTO>(foundEvent);
+				dtoEvent.CommentsNum = _repository.Comment.CountCommentsOfEvent(id);
+				dtoEvent.RootCommentsNum = _context.Comments.Where(c => c.EventId == id && c.ParentCommentId == null).Count();
 
-				int commentCount = _repository.Comment.CountCommentsOfEvent(eventId);
+
 				return Ok(
 					new Response(
 						ResponseStatusEnum.Success,
 						new
 						{
-							CommentCount = commentCount,
-							Event = foundEvent,
+							Event = dtoEvent,
 						}
 					)
 				);
