@@ -16,7 +16,6 @@ import RegisterButton from './RegisterButton'
 
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
-    console.log(auth)
     const { id } = useParams()
     const { getDetailedEvent } = useEventAction()
     const [error, setError] = useState(null)
@@ -65,11 +64,11 @@ const EventDetailed = () => {
                         <Typography variant="h4" color="primary" fontWeight={700}>
                             {detailedEvent.event.eventTitle}
                         </Typography>
-                        <Box display="flex" alignItems="center" sx={{ my: 2 }}>
+                        <Box display="flex" alignItems="center" sx={{ my: 0.5 }}>
                             <Festival color="primary" fontSize="medium" />
                             <Typography
-                                fontWeight={600}
-                                variant="h5"
+                                fontWeight={500}
+                                variant="h6"
                                 sx={{ ml: 1.5, color: blueGrey[900] }}
                             >
                                 {detailedEvent.event.location}
@@ -79,7 +78,11 @@ const EventDetailed = () => {
                             startDate={new Date(detailedEvent.event.startDate)}
                             endDate={new Date(detailedEvent.event.endDate)}
                         />
-                        <Typography paragraph sx={{ color: blueGrey[900], my: 1.5 }} variant="h6">
+                        <Typography
+                            paragraph
+                            sx={{ color: blueGrey[900], mt: 0.5 }}
+                            variant="subtitle1"
+                        >
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>

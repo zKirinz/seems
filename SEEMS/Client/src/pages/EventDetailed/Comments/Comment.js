@@ -174,7 +174,7 @@ const CommentSection = ({
                     reactCommentHandler={reactCommentHandler}
                     openReplyTextBoxHandler={openReplyTextBoxHandler}
                 />
-                {openCommentField !== 0 && (
+                {openCommentField && (
                     <Box sx={{ width: '94%', ml: 'auto', mt: 1 }}>
                         {isLoading && initialLoadingComments.current && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
