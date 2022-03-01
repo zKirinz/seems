@@ -1,6 +1,6 @@
 ﻿namespace SEEMS.Data.DTOs
 {
-    public class AttendanceForReservationDTO
+    public class ReservationForAttendanceReqDTO
     {
         public int Id { get; set; }
         public bool Attend { get; set; }

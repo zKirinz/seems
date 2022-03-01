@@ -70,7 +70,7 @@ namespace SEEMS.Controllers
         // PUT api/Reservations/id
         // Check/Uncheck attendance
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] List<AttendanceForReservationDTO> listAttendance)
+        public async Task<IActionResult> Put([FromBody] List<ReservationForAttendanceReqDTO> listAttendance)
         {
             try
             {
@@ -147,13 +147,18 @@ namespace SEEMS.Controllers
                     var listRegisteredUser = _context.Reservations.Where(x => x.EventId == id).ToList();
                     if (listRegisteredUser.Any())
                     {
-                        List<User> listUser = new List<User>();
+                        List<ReservationForAttendanceResDTO> listUser = new List<ReservationForAttendanceResDTO>();
                         User user = new User();
                         foreach (var reservation in listRegisteredUser)
                         {
                             user = _context.Users.Where(x => x.Id == reservation.UserId).FirstOrDefault();
                             if (user != null)
-                                listUser.Add(user);
+                            {
+                                var userAttendance = _mapper.Map<ReservationForAttendanceResDTO>(user);
+                                userAttendance.ReservationId = reservation.Id;
+                                userAttendance.Attend = reservation.Attend;
+                                listUser.Add(userAttendance);
+                            }
                         }
                         return Ok(new Response(ResponseStatusEnum.Success, listUser));
                     }
@@ -175,40 +180,34 @@ namespace SEEMS.Controllers
 
         // PUT api/Reservations/id
         // Unregister event
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete]
+        public async Task<IActionResult> Delete([FromBody] ReservationDTO reservationDTO)
         {
             try
             {
+                var id = (int)reservationDTO.EventId;
                 var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
                 if (currentUser != null)
                 {
                     var userId = currentUser.Id;
-                    var reservation = _context.Reservations.FirstOrDefault(x => x.Id == id);
-                    if (reservation != null)
+                    var events = _context.Events.FirstOrDefault(x => x.Id == id);
+                    if (events != null)
                     {
-                        var events = _context.Events.Where(x => x.Id == reservation.EventId).FirstOrDefault();
-                        if (reservation.UserId == userId)
+                        if (events.StartDate.Subtract(DateTime.Now).TotalHours < 1)
                         {
-                            if (events.StartDate.Subtract(DateTime.Now).TotalHours < 1)
-                            {
-                                _context.Reservations.Remove(reservation);
-                                _context.SaveChanges();
-                                return Ok(new Response(ResponseStatusEnum.Success, "", "Unregister successfully"));
-                            }
-                            else
-                            {
-                                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You must unregister for the event 1 hour before the event starts."));
-                            }
+                            var reservation = _context.Reservations.FirstOrDefault(x => x.UserId == userId && x.EventId == id);
+                            _context.Reservations.Remove(reservation);
+                            _context.SaveChanges();
+                            return Ok(new Response(ResponseStatusEnum.Success, "", "Unregister successfully"));
                         }
                         else
                         {
-                            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission."));
+                            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You must unregister for the event 1 hour before the event starts."));
                         }
                     }
                     else
                     {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid ReservationId"));
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId"));
                     }
                 }
                 else

@@ -3,6 +3,6 @@
     public class ReservationDTO
     {
         public int EventId { get; set; }
-        public bool Attend { get; set; } = false;
+        private bool Attend { get; set; } = false;
     }
 }
