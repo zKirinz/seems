@@ -15,6 +15,7 @@ import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
 import RegisterButton from './RegisterButton'
+import UnRegisterButton from './UnRegisterButton'
 
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
@@ -22,7 +23,7 @@ const EventDetailed = () => {
     const { getDetailedEvent, getMyEvents } = useEventAction()
     const [error, setError] = useState(null)
     const [isMyEvent, setIsMyEvent] = useState(true)
-
+    const [isRegistered, setIsRegistered] = useState(false)
     const showSnackbar = useSnackbar()
 
     const [detailedEvent, setDetailedEvent] = useState({
@@ -33,29 +34,32 @@ const EventDetailed = () => {
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
-                const { event: responseEvent } = response.data.data
+                const { event: responseEvent, registered } = response.data.data
                 setDetailedEvent({
                     numberComments: responseEvent.commentsNum,
                     event: responseEvent,
                     numberRootComments: responseEvent.rootCommentsNum,
                 })
+                setIsRegistered(registered)
             })
             .catch((errorResponse) => {
                 const errorMessage = errorResponse.response.data.data
                 setError(errorMessage)
             })
-        getMyEvents('')
-            .then((response) => {
-                const myEvents = response.data.data.listEvents
-                const isMine = myEvents.some((myEvent) => myEvent.id === +id)
-                setIsMyEvent(isMine)
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+        if (auth.role === 'Organizer') {
+            getMyEvents('')
+                .then((response) => {
+                    const myEvents = response.data.data.listEvents
+                    const isMine = myEvents.some((myEvent) => myEvent.id === +id)
+                    setIsMyEvent(isMine)
                 })
-            })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                })
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     if (error)
@@ -98,13 +102,18 @@ const EventDetailed = () => {
                         />
                         <Typography
                             paragraph
-                            sx={{ color: blueGrey[900], mt: 0.5 }}
+                            sx={{ color: blueGrey[900], mt: 1.5 }}
                             variant="subtitle1"
                         >
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {!(auth.role === 'Admin') && !isMyEvent && <RegisterButton />}
+                    {auth.role === 'User' && isRegistered && <UnRegisterButton />}
+                    {auth.role === 'User' && !isRegistered && <RegisterButton />}
+                    {auth.role === 'Organizer' && !isMyEvent && isRegistered && (
+                        <UnRegisterButton />
+                    )}
+                    {auth.role === 'Organizer' && !isMyEvent && !isRegistered && <RegisterButton />}
                     {auth.role === 'Organizer' && isMyEvent && <EditEventButton />}
                     {auth.role === 'Admin' && <EditEventButton />}
                 </Grid>
