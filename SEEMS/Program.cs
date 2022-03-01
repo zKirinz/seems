@@ -18,7 +18,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 using System.Security.Claims;
 using System.Text;
-
+using SEEMS.Data.Models;
 using SameSiteMode = Microsoft.AspNetCore.Http.SameSiteMode;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -103,6 +103,7 @@ services.Configure<CookiePolicyOptions>(options =>
 services.AddScoped<IAuthManager, AuthManager>();
 services.AddScoped<IRepositoryManager, RepositoryManager>();
 services.AddScoped<IControllerBaseServices<ChainOfEvent>, ControllerBaseServices<ChainOfEvent>>();
+services.AddScoped<IControllerBaseServices<User>, ControllerBaseServices<User>>();
 services.AddScoped<RoleBasedAuthorizationAttribute>();
 services.AddScoped<AuthManager>();
 services.AddEndpointsApiExplorer();
