@@ -85,8 +85,8 @@ namespace SEEMS.Services
             responseComment.Email = email;
             responseComment.CreatedAt = comment.CreatedAt;
             responseComment.ModifiedAt = comment.ModifiedAt;
-            responseComment.NumberReplyComment = dbContext.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
-            responseComment.NumberLikeComment = dbContext.LikeComments.Where(x => x.CommentId == comment.Id).Count();
+            //responseComment.NumberReplyComment = dbContext.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
+            //responseComment.NumberLikeComment = dbContext.LikeComments.Where(x => x.CommentId == comment.Id).Count();
             return responseComment;
         }
 

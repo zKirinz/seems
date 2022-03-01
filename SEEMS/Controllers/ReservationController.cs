@@ -42,6 +42,12 @@ namespace SEEMS.Controllers
                     {
                         return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId"));
                     }
+
+                    var startDateEvent = _context.Events.Where(x => x.Id == reservationDTO.EventId).SingleOrDefault().StartDate;
+                    if (startDateEvent.Subtract(DateTime.Now).TotalDays < 1)
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You must register for the event 1 day before the event starts."));
+                    }
                     var reservation = _mapper.Map<Reservation>(reservationDTO);
                     reservation.UserId = userId;
                     _context.Add(reservation);
@@ -140,6 +146,55 @@ namespace SEEMS.Controllers
                 else
                 {
                     return Ok(new Response(ResponseStatusEnum.Success, "", "Invalid eventId"));
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
+            }
+        }
+
+        // PUT api/Reservations/id
+        // Unregister event
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                if (currentUser != null)
+                {
+                    var userId = currentUser.Id;
+                    var reservation = _context.Reservations.FirstOrDefault(x => x.Id == id);
+                    if (reservation != null)
+                    {
+                        var events = _context.Events.Where(x => x.Id == reservation.EventId).FirstOrDefault();
+                        if (reservation.UserId == userId)
+                        {
+                            if (events.StartDate.Subtract(DateTime.Now).TotalHours < 1)
+                            {
+                                _context.Reservations.Remove(reservation);
+                                _context.SaveChanges();
+                                return Ok(new Response(ResponseStatusEnum.Success, "", "Unregister successfully"));
+                            }
+                            else
+                            {
+                                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You must unregister for the event 1 hour before the event starts."));
+                            }
+                        }
+                        else
+                        {
+                            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You don't have permission."));
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid ReservationId"));
+                    }
+                }
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue"));
                 }
             }
             catch (Exception ex)
