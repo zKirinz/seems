@@ -193,7 +193,7 @@ namespace SEEMS.Controllers
                     var events = _context.Events.FirstOrDefault(x => x.Id == id);
                     if (events != null)
                     {
-                        if (events.StartDate.Subtract(DateTime.Now).TotalHours < 1)
+                        if (events.StartDate.Subtract(DateTime.Now).TotalHours > 1)
                         {
                             var reservation = _context.Reservations.FirstOrDefault(x => x.UserId == userId && x.EventId == id);
                             _context.Reservations.Remove(reservation);
