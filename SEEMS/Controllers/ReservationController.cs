@@ -70,7 +70,7 @@ namespace SEEMS.Controllers
         // PUT api/Reservations/id
         // Check/Uncheck attendance
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] List<AttendanceForReservationDTO> listAttendance)
+        public async Task<IActionResult> Put([FromBody] List<ReservationForAttendanceReqDTO> listAttendance)
         {
             try
             {
@@ -147,13 +147,18 @@ namespace SEEMS.Controllers
                     var listRegisteredUser = _context.Reservations.Where(x => x.EventId == id).ToList();
                     if (listRegisteredUser.Any())
                     {
-                        List<User> listUser = new List<User>();
+                        List<ReservationForAttendanceResDTO> listUser = new List<ReservationForAttendanceResDTO>();
                         User user = new User();
                         foreach (var reservation in listRegisteredUser)
                         {
                             user = _context.Users.Where(x => x.Id == reservation.UserId).FirstOrDefault();
                             if (user != null)
-                                listUser.Add(user);
+                            {
+                                var userAttendance = _mapper.Map<ReservationForAttendanceResDTO>(user);
+                                userAttendance.ReservationId = reservation.Id;
+                                userAttendance.Attend = reservation.Attend;
+                                listUser.Add(userAttendance);
+                            }
                         }
                         return Ok(new Response(ResponseStatusEnum.Success, listUser));
                     }
