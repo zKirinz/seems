@@ -269,6 +269,7 @@ namespace SEEMS.Controller
                         {
                             commentDTO.IsLike = true;
                         }
+                        //commentDTO.IsLike = CommentsServices.CheckCurrentUserHasLikeComment(userId, comment.Id, _context);
                         listResponseComments.Add(commentDTO);
                     }
 
@@ -325,6 +326,7 @@ namespace SEEMS.Controller
                         {
                             commentDTO.IsLike = true;
                         }
+                        //commentDTO.IsLike = CommentsServices.CheckCurrentUserHasLikeComment(userId, comment.Id, _context);
                         listResponseReplyComments.Add(commentDTO);
                     }
 
