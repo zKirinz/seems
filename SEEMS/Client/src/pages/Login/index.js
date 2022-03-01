@@ -43,6 +43,11 @@ const Login = () => {
     useEffect(() => {
         if (error && error === 'fpt-invalid-email') {
             showSnackbar({ severity: 'error', children: 'Your email is not allowed to access.' })
+        } else if (error && error === 'inactive-user') {
+            showSnackbar({
+                severity: 'error',
+                children: 'Your email is banned, please contact Admin to unban.',
+            })
         } else if (error) {
             showSnackbar({
                 severity: 'error',
