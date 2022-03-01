@@ -55,7 +55,7 @@ const Filters = () => {
             }
         }
 
-        history.push('/events/me' + filterString)
+        history.push('/admin/events/me' + filterString)
     }
 
     useEffect(() => {

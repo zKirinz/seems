@@ -43,5 +43,9 @@ namespace SEEMS.Data.Repositories.Implements
             .SingleOrDefaultAsync();
         #pragma warning restore CS8603 // Possible null reference return.
         
+       public async Task<User> GetUserAsync(int id, bool trackChanges) =>
+            await FindByCondition(u => u.Id == id, trackChanges)
+                .SingleOrDefaultAsync();
+        
     }
 }

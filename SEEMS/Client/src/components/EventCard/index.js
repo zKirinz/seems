@@ -7,7 +7,16 @@ import authAtom from '../../recoil/auth'
 import EventPoster from '../EventPoster'
 import EventSummaryInfo from './EventSummaryInfo'
 
-const EventCard = ({ id, imageUrl, title, description, startDate, organizer, isAdmin }) => {
+const EventCard = ({
+    id,
+    imageUrl,
+    title,
+    description,
+    startDate,
+    organizer,
+    isAdmin,
+    commentsNum,
+}) => {
     const auth = useRecoilValue(authAtom)
     const history = useHistory()
 
@@ -32,6 +41,11 @@ const EventCard = ({ id, imageUrl, title, description, startDate, organizer, isA
                     </Grid>
                 </Grid>
             </Box>
+            {auth.email && (
+                <Box position="absolute" bottom={180} right={50}>
+                    <Typography color="secondary">{commentsNum} comments</Typography>
+                </Box>
+            )}
             <Box
                 position="absolute"
                 bottom={30}
@@ -47,28 +61,16 @@ const EventCard = ({ id, imageUrl, title, description, startDate, organizer, isA
                     / {eventStartTime(startDate)}
                 </Typography>
                 {auth.email && (
-                    <Box>
-                        {!isAdmin && (
-                            <Button
-                                variant="contained"
-                                onClick={() => history.push(`/events/register/${id}`)}
-                                sx={{ mx: 1 }}
-                            >
-                                Register
-                            </Button>
-                        )}
-
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() =>
-                                history.push(isAdmin ? `/admin/events/${id}` : `/events/${id}`)
-                            }
-                            sx={{ mx: 1 }}
-                        >
-                            Read More
-                        </Button>
-                    </Box>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() =>
+                            history.push(isAdmin ? `/admin/events/${id}` : `/events/${id}`)
+                        }
+                        sx={{ mx: 1 }}
+                    >
+                        Read More
+                    </Button>
                 )}
             </Box>
         </Card>
