@@ -58,9 +58,13 @@ namespace SEEMS.Services
                new Claim("email", user.Email),
                new Claim("name", user.UserName),
                new Claim("role", roleMeta.MetaValue),
-               new Claim("organization", organization.Name),
                new Claim("image", user.ImageUrl)
             };
+
+            if (organization != null)
+            {
+                claims.Add(new Claim("organization", organization.Name));
+            }
 
             return Task.FromResult(claims);
         }
@@ -89,7 +93,9 @@ namespace SEEMS.Services
                 return null;
             }
             
+            user = _repoManager.User.GetUserAsync(email.Value, false).Result;
 
+            if (user != null) return user;
             {
                 var name = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
                 var image = info.Principal.Claims.FirstOrDefault(x => x.Type == "picture");
