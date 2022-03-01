@@ -33,18 +33,14 @@ const UserTableRow = ({
         setEditedRole(roleTarget)
     }
 
-    const saveEditHandler = () => {
+    const saveEditHandler = async () => {
         setIsEdit(false)
-        userAction
-            .updateUser({
+        await userAction
+            .updateUserRole({
                 id,
                 role: editedRole,
                 organization: editedOrganization !== 'None' ? editedOrganization : 'FPT-er',
                 active: editedActive === 'Active' ? true : false,
-            })
-            .then((res) => {
-                console.log(res)
-                resetHandler()
             })
             .catch(() => {
                 showSnackbar({
@@ -52,7 +48,29 @@ const UserTableRow = ({
                     children: 'Something went wrong, please try again later.',
                 })
                 setIsLoading(false)
+                return
             })
+
+        await userAction
+            .updateUserOrganizationActive({
+                id,
+                organization: editedOrganization !== 'None' ? editedOrganization : 'FPT-er',
+                active: editedActive === 'Active' ? true : false,
+            })
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
+                setIsLoading(false)
+                return
+            })
+
+        showSnackbar({
+            severity: 'success',
+            children: `Update user ${email} successfully.`,
+        })
+        resetHandler()
     }
 
     return (
@@ -115,24 +133,28 @@ const UserTableRow = ({
                 )}
             </TableCell>
             <TableCell align="center">
-                {isEdit ? (
-                    <Button
-                        variant="outlined"
-                        color="secondary"
-                        startIcon={<TurnedInIcon />}
-                        onClick={saveEditHandler}
-                    >
-                        Save
-                    </Button>
-                ) : (
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        startIcon={<EditIcon />}
-                        onClick={() => setIsEdit(true)}
-                    >
-                        Edit
-                    </Button>
+                {role !== 'Admin' && (
+                    <React.Fragment>
+                        {isEdit ? (
+                            <Button
+                                variant="outlined"
+                                color="secondary"
+                                startIcon={<TurnedInIcon />}
+                                onClick={saveEditHandler}
+                            >
+                                Save
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                startIcon={<EditIcon />}
+                                onClick={() => setIsEdit(true)}
+                            >
+                                Edit
+                            </Button>
+                        )}
+                    </React.Fragment>
                 )}
             </TableCell>
         </TableRow>

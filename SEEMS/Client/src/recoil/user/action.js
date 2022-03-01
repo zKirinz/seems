@@ -6,11 +6,18 @@ const useUsersAction = () => {
             endpoint: '/api/admin/users',
         })
 
-    const updateUser = ({ id, role, organization, active }) =>
+    const updateUserRole = ({ id, role }) =>
         put({
             endpoint: `/api/admin/users/${id}`,
             body: {
                 role,
+            },
+        })
+
+    const updateUserOrganizationActive = ({ id, organization, active }) =>
+        put({
+            endpoint: `/api/admin/users/edit/${id}`,
+            body: {
                 organization,
                 active,
             },
@@ -18,7 +25,8 @@ const useUsersAction = () => {
 
     return {
         getUsers,
-        updateUser,
+        updateUserRole,
+        updateUserOrganizationActive,
     }
 }
 
