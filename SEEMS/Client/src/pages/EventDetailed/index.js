@@ -15,6 +15,7 @@ import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
 import RegisterButton from './RegisterButton'
+import UnRegisterButton from './UnRegisterButton'
 
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
@@ -22,7 +23,7 @@ const EventDetailed = () => {
     const { getDetailedEvent, getMyEvents } = useEventAction()
     const [error, setError] = useState(null)
     const [isMyEvent, setIsMyEvent] = useState(true)
-
+    const [isRegistered, setIsRegistered] = useState(false)
     const showSnackbar = useSnackbar()
 
     const [detailedEvent, setDetailedEvent] = useState({
@@ -33,12 +34,13 @@ const EventDetailed = () => {
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
-                const { event: responseEvent } = response.data.data
+                const { event: responseEvent, registered } = response.data.data
                 setDetailedEvent({
                     numberComments: responseEvent.commentsNum,
                     event: responseEvent,
                     numberRootComments: responseEvent.rootCommentsNum,
                 })
+                setIsRegistered(registered)
             })
             .catch((errorResponse) => {
                 const errorMessage = errorResponse.response.data.data
@@ -106,8 +108,12 @@ const EventDetailed = () => {
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {auth.role === 'User' && <RegisterButton />}
-                    {auth.role === 'Organizer' && !isMyEvent && <RegisterButton />}
+                    {auth.role === 'User' && isRegistered && <UnRegisterButton />}
+                    {auth.role === 'User' && !isRegistered && <RegisterButton />}
+                    {auth.role === 'Organizer' && !isMyEvent && isRegistered && (
+                        <UnRegisterButton />
+                    )}
+                    {auth.role === 'Organizer' && !isMyEvent && !isRegistered && <RegisterButton />}
                     {auth.role === 'Organizer' && isMyEvent && <EditEventButton />}
                     {auth.role === 'Admin' && <EditEventButton />}
                 </Grid>
