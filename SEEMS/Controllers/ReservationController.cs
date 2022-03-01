@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SEEMS.Contexts;
+using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
 using SEEMS.Models;
@@ -43,7 +44,7 @@ namespace SEEMS.Controllers
                         return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId"));
                     }
 
-                    var startDateEvent = _context.Events.Where(x => x.Id == reservationDTO.EventId).SingleOrDefault().StartDate;
+                    var startDateEvent = _context.Events.FirstOrDefault(x => x.Id == reservationDTO.EventId).StartDate;
                     if (startDateEvent.Subtract(DateTime.Now).TotalDays < 1)
                     {
                         return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You must register for the event 1 day before the event starts."));
@@ -106,7 +107,17 @@ namespace SEEMS.Controllers
                     var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
                     if (listReservation.Any())
                     {
-                        return Ok(new Response(ResponseStatusEnum.Success, listReservation));
+                        List<EventDTO> listEventDTO = new List<EventDTO>();
+                        foreach (var reservation in listReservation)
+                        {
+                            var events = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId); 
+                            var eventDTO = _mapper.Map<EventDTO>(events);
+                            eventDTO.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
+                            eventDTO.OrganizationName = _context.Organizations.FirstOrDefault(x => x.Id == events.OrganizationId).Name;
+                            listEventDTO.Add(eventDTO);
+                        }
+
+                        return Ok(new Response(ResponseStatusEnum.Success, listEventDTO));
                     }
                     else
                     {
@@ -136,7 +147,15 @@ namespace SEEMS.Controllers
                     var listRegisteredUser = _context.Reservations.Where(x => x.EventId == id).ToList();
                     if (listRegisteredUser.Any())
                     {
-                        return Ok(new Response(ResponseStatusEnum.Success, listRegisteredUser));
+                        List<User> listUser = new List<User>();
+                        User user = new User();
+                        foreach (var reservation in listRegisteredUser)
+                        {
+                            user = _context.Users.Where(x => x.Id == reservation.UserId).FirstOrDefault();
+                            if (user != null)
+                                listUser.Add(user);
+                        }
+                        return Ok(new Response(ResponseStatusEnum.Success, listUser));
                     }
                     else
                     {
