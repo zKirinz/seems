@@ -75,7 +75,7 @@ public class AuthenticationController : ControllerBase
             
         var currentRole = await _repoService.UserMeta.GetRolesAsync(currentUser.Email, false);
         var currentOrg = await _repoService.Organization.GetOrganizationAsync(currentUser.OrganizationId, false) ??
-                         new Organization {Name = "Anonymous"};
+                         null;
         var accessToken = await _authService.GenerateToken(currentUser, currentRole, currentOrg);
 
         Response.Cookies.Append("jwt", accessToken, new CookieOptions
