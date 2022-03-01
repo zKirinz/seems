@@ -1,10 +1,6 @@
-import { useHistory } from 'react-router-dom'
-
 import { get, post } from '../../utils/ApiCaller'
 
 const useEventAction = () => {
-    const history = useHistory()
-
     const getUpcomingEvents = () => get({ endpoint: '/api/events/upcoming' })
 
     const getEvents = (filterString) => get({ endpoint: '/api/events' + filterString })
@@ -17,7 +13,7 @@ const useEventAction = () => {
         post({
             endpoint: '/api/events',
             body: eventData,
-        }).then(() => history.push('/events'))
+        })
 
     return {
         getUpcomingEvents,
