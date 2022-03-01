@@ -3,9 +3,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
 using SEEMS.Data.Models;
@@ -176,16 +173,20 @@ namespace SEEMS.Controller
 				}
 				//resultCount = Math.Min(10, result.Count());
 				result = result.OrderByDescending(e => e.StartDate);
+				var dtoResult = new List<EventDTO>();
 				result.ToList().ForEach(e =>
 				{
-					e.Organization = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId);
+					var eMapped = _mapper.Map<EventDTO>(e);
+					eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
+					eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+					dtoResult.Add(eMapped);
 				});
 				return Ok(new Response(
 					ResponseStatusEnum.Success,
 					new
 					{
-						Count = result.Count(),
-						Events = result.ToList()
+						Count = dtoResult.Count(),
+						Events = dtoResult
 					}
 				));
 			}
@@ -401,7 +402,7 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
-					newEvent.OrganizationId = user.Id;
+					newEvent.OrganizationId = user.OrganizationId;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
@@ -413,6 +414,7 @@ namespace SEEMS.Controller
 					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
 			}
 		}
+
 		private async Task<User> GetCurrentUser(HttpRequest req)
 		{
 			var email = _authManager.GetCurrentEmail(req);
