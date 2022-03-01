@@ -1,10 +1,8 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
 using SEEMS.Data.Entities;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Entities.RequestFeatures;
