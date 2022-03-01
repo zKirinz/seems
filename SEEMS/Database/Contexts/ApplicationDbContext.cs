@@ -18,8 +18,6 @@ namespace SEEMS.Contexts
 
 		public DbSet<CommentMeta> CommentMetas { get; set; }
 
-		public DbSet<ChainOfEvent> ChainOfEvents { get; set; }
-
 		public DbSet<Event> Events { get; set; }
 
 		public DbSet<EventMeta> EventMetas { get; set; }
@@ -46,7 +44,6 @@ namespace SEEMS.Contexts
 			modelBuilder.ApplyConfiguration(new OrganizationConfiguration());
 			modelBuilder.ApplyConfiguration(new UserConfiguration());
 			modelBuilder.ApplyConfiguration(new UserMetaConfiguration());
-			modelBuilder.ApplyConfiguration(new ChainOfEventsConfiguration());
 			modelBuilder.ApplyConfiguration(new EventConfiguration());
 
 			modelBuilder.ApplyConventions();

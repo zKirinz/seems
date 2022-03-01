@@ -102,7 +102,7 @@ services.Configure<CookiePolicyOptions>(options =>
 
 services.AddScoped<IAuthManager, AuthManager>();
 services.AddScoped<IRepositoryManager, RepositoryManager>();
-services.AddScoped<IControllerBaseServices<ChainOfEvent>, ControllerBaseServices<ChainOfEvent>>();
+//services.AddScoped<IControllerBaseServices<ChainOfEvent>, ControllerBaseServices<ChainOfEvent>>();
 services.AddScoped<IControllerBaseServices<User>, ControllerBaseServices<User>>();
 services.AddScoped<RoleBasedAuthorizationAttribute>();
 services.AddScoped<AuthManager>();

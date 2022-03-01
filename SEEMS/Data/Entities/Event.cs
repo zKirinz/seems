@@ -15,9 +15,6 @@ namespace SEEMS.Models
 		[StringLength(2000)]
 		public String EventDescription { get; set; }
 
-		[ForeignKey("ChainOfEvent")]
-		public int? ChainOfEventId { get; set; }
-
 		[ForeignKey("Organization")]
 		public int OrganizationId { get; set; }
 
@@ -34,8 +31,6 @@ namespace SEEMS.Models
 
 		public DateTime EndDate { get; set; }
 
-		[JsonIgnore]
-		public ChainOfEvent? ChainOfEvent { get; set; }
 
 		[JsonIgnore]
 		public List<Reservation>? Reservations { get; set; }
