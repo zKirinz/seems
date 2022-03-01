@@ -7,7 +7,7 @@ import { useRecoilValue } from 'recoil'
 
 import EventCard from '../../../components/EventCard'
 import { EventBusy as EventBusyIcon, EventRepeat as EventRepeatIcon } from '@mui/icons-material'
-import { Grid, Box, Alert, Link, CircularProgress } from '@mui/material'
+import { Grid, Box, Alert, Link, CircularProgress, Typography, Divider } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import authAtom from '../../../recoil/auth'
@@ -32,25 +32,25 @@ const EventsList = () => {
         </Box>
     )
 
-    // const loadMoreHandler = () => {
-    //     let params = '?resultCount=6&'
-    //     params += 'lastEventID=' + lastEventId
+    const loadMoreHandler = () => {
+        let params = '?resultCount=6&'
+        params += 'lastEventID=' + lastEventId
 
-    //     eventAction
-    //         .getEvents(params)
-    //         .then((res) => {
-    //             setTimeout(() => {
-    //                 setEvents(events.concat(res.data.data.listEvents))
-    //                 setHasMore(res.data.data.canLoadMore)
-    //             }, 1600)
-    //         })
-    //         .catch(() => {
-    //             showSnackbar({
-    //                 severity: 'error',
-    //                 children: 'Something went wrong, please try again later.',
-    //             })
-    //         })
-    // }
+        eventAction
+            .getMyEvents(params)
+            .then((res) => {
+                setTimeout(() => {
+                    setEvents(events.concat(res.data.data.listEvents))
+                    setHasMore(res.data.data.canLoadMore)
+                }, 1600)
+            })
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
+            })
+    }
 
     useEffect(() => {
         setIsLoading(true)
@@ -68,11 +68,11 @@ const EventsList = () => {
         }
 
         eventAction
-            .getMyEvents()
+            .getMyEvents(filterString)
             .then((res) => {
-                setEvents(res.data.data.events)
-                // setEventsNumber(res.data.data.count)
-                // setHasMore(res.data.data.canLoadMore)
+                setEvents(res.data.data.listEvents)
+                setEventsNumber(res.data.data.count)
+                setHasMore(res.data.data.canLoadMore)
                 // console.log(res.data.data.listEvents)
                 setIsLoading(false)
             })
@@ -95,17 +95,17 @@ const EventsList = () => {
             alignItems="center"
             width="100%"
         >
-            {/* <Box display="flex" flexDirection="column" alignItems="flex-end" width="100%" mb={5}>
+            <Box display="flex" flexDirection="column" alignItems="flex-end" width="100%" mb={5}>
                 <Typography>{eventsNumber} results</Typography>
                 <Divider sx={{ width: '30%', height: '5px', backgroundColor: 'grey' }} />
-            </Box> */}
+            </Box>
             {isLoading ? (
                 <Loading />
             ) : events.length ? (
                 <InfiniteScroll
                     dataLength={events.length}
                     loader={<Loading />}
-                    // next={loadMoreHandler}
+                    next={loadMoreHandler}
                     hasMore={hasMore}
                     endMessage={
                         <Box display="flex" justifyContent="center" mt={4}>
@@ -124,7 +124,8 @@ const EventsList = () => {
                                     eventDescription,
                                     startDate,
                                     imageUrl,
-                                    organization,
+                                    organizationName,
+                                    commentsNum,
                                 },
                                 i,
                                 { length }
@@ -141,7 +142,8 @@ const EventsList = () => {
                                             description={eventDescription}
                                             startDate={startDate}
                                             imageUrl={imageUrl}
-                                            organizer={organization.name}
+                                            organizer={organizationName}
+                                            commentsNum={commentsNum}
                                         />
                                     </Grid>
                                 )

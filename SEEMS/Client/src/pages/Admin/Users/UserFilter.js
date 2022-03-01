@@ -18,6 +18,8 @@ const UserFilter = ({
     roleSubmitHandler,
     organization,
     organizationSubmitHandler,
+    status,
+    statusSubmitHandler,
 }) => {
     const [emailSearchText, setEmailSearchText] = useState('')
 
@@ -53,6 +55,18 @@ const UserFilter = ({
                     <MenuItem value="FPTU">FPTU</MenuItem>
                     <MenuItem value="F-Code">F-Code</MenuItem>
                     <MenuItem value="DSC">DSC</MenuItem>
+                </Select>
+            </FormControl>
+            <FormControl sx={{ width: '120px', mx: 1 }}>
+                <InputLabel>Status</InputLabel>
+                <Select
+                    value={status}
+                    label="Status"
+                    onChange={(e) => statusSubmitHandler(e.target.value)}
+                >
+                    <MenuItem value="All">All</MenuItem>
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Inactive">Inactive</MenuItem>
                 </Select>
             </FormControl>
             <FormControl variant="standard" sx={{ width: '200px', mx: 1 }}>

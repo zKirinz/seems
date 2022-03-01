@@ -4,8 +4,10 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 
 import { AdminLayout, CommonLayout } from '../components/Layout'
 
+import EventPage from '../pages/Events'
 import { publicHome, privateHome } from '../pages/Home'
 import LoadingPage from '../pages/Loading'
+import LoginPage from '../pages/Login'
 import HybridRoute from './HybridRoute'
 import PrivateRoute from './PrivateRoute'
 import PublicRoute from './PublicRoute'
@@ -14,7 +16,7 @@ const publicRoutes = [
     {
         path: '/login',
         name: 'login',
-        component: lazy(() => import('../pages/Login')),
+        component: LoginPage,
     },
 ]
 
@@ -45,7 +47,7 @@ const privateRoutes = [
     {
         path: '/events',
         name: 'events',
-        component: lazy(() => import('../pages/Events')),
+        component: EventPage,
         layout: 'common',
         role: ['user', 'organizer'],
     },
@@ -81,6 +83,13 @@ const privateRoutes = [
         path: '/admin/users',
         name: 'admin users',
         component: lazy(() => import('../pages/Admin/Users')),
+        layout: 'admin',
+        role: ['admin'],
+    },
+    {
+        path: '/admin/events/:id',
+        name: 'admin event detailed',
+        component: lazy(() => import('../pages/EventDetailed')),
         layout: 'admin',
         role: ['admin'],
     },

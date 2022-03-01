@@ -1,32 +1,24 @@
 import React, { useState } from 'react'
 
+import { Close } from '@mui/icons-material'
 import {
     Box,
     FormControl,
     InputLabel,
-    Select,
-    MenuItem,
     Typography,
     OutlinedInput,
     Button,
     Modal,
     FormHelperText,
     CircularProgress,
+    Autocomplete,
+    TextField,
+    IconButton,
 } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
-
-const ITEM_HEIGHT = 48
-const ITEM_PADDING_TOP = 8
-const MenuProps = {
-    PaperProps: {
-        style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        },
-    },
-}
 
 const ModalChainOfEvent = ({
     chainOfEvent,
@@ -36,23 +28,32 @@ const ModalChainOfEvent = ({
     onCreateChainOfEvent,
     chainOfEventList,
 }) => {
+    const showSnackbar = useSnackbar()
     const [categoryName, setCategoryName] = useState('')
     const [formCreateNewChainOfEvent, setFormCreateNewChainOfEvent] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState(null)
-    const showSnackbar = useSnackbar()
-    const isValidForm = categoryName.trim().length !== 0
-    const chooseChainOfEventHandler = (id, categoryName) => {
-        setChainEvent({ id: id, categoryName: categoryName })
-        closeChainOfEventHandler()
-        setFormCreateNewChainOfEvent(false)
-    }
+    const [inputValue, setInputValue] = useState(() => {
+        return chainOfEvent ? chainOfEvent.categoryName : ''
+    })
+    const [selectedValue, setSelectedValue] = useState(() => {
+        return chainOfEvent ? chainOfEvent.categoryName : null
+    })
 
-    const dropChainOfEventHandler = () => {
-        setChainEvent(null)
-        setCategoryName('')
-        setFormCreateNewChainOfEvent(false)
-        closeChainOfEventHandler()
+    const isValidForm = categoryName.trim().length !== 0
+
+    const chooseChainOfEventHandler = (chainOfEventSelected) => {
+        if (chainOfEventSelected) {
+            setChainEvent({
+                id: chainOfEventSelected.id,
+                categoryName: chainOfEventSelected.categoryName,
+            })
+            setSelectedValue(chainOfEventSelected.categoryName)
+            closeChainOfEventHandler()
+            setFormCreateNewChainOfEvent(false)
+        } else {
+            setSelectedValue(null)
+        }
     }
 
     const submitFormHandler = (event) => {
@@ -94,7 +95,6 @@ const ModalChainOfEvent = ({
         setCategoryName(event.target.value)
         error?.categoryName && setError(null)
     }
-
     return (
         <React.Fragment>
             <Modal
@@ -111,38 +111,31 @@ const ModalChainOfEvent = ({
                         width: 600,
                         bgcolor: 'background.paper',
                         boxShadow: 24,
-                        p: 4,
+                        p: 5,
                     }}
                 >
-                    <FormControl fullWidth>
-                        <InputLabel id="category-chain-events">Category name</InputLabel>
-                        <Select
-                            labelId="category-chain-events"
-                            value={chainOfEvent?.categoryName ?? ''}
-                            label="Category name"
-                            sx={{ '& .MuiIconButton-root': { display: 'none' } }}
-                            MenuProps={MenuProps}
-                        >
-                            {chainOfEventList.map((chainOfEventItem) => (
-                                <MenuItem
-                                    key={chainOfEventItem.id}
-                                    value={chainOfEventItem.categoryName}
-                                    onClick={() =>
-                                        chooseChainOfEventHandler(
-                                            chainOfEventItem.id,
-                                            chainOfEventItem.categoryName
-                                        )
-                                    }
-                                    sx={{ position: 'relative' }}
-                                >
-                                    {chainOfEventItem.categoryName}
-                                </MenuItem>
-                            ))}
-                            <MenuItem value="None" onClick={dropChainOfEventHandler}>
-                                None
-                            </MenuItem>
-                        </Select>
-                    </FormControl>
+                    <IconButton
+                        onClick={closeChainOfEventHandler}
+                        sx={{ position: 'absolute', top: 10, right: 15 }}
+                    >
+                        <Close />
+                    </IconButton>
+                    <Autocomplete
+                        sx={{ pt: 3 }}
+                        value={selectedValue}
+                        isOptionEqualToValue={(option, value) => option.categoryName === value}
+                        onChange={(_, chainOfEvent) => chooseChainOfEventHandler(chainOfEvent)}
+                        inputValue={inputValue}
+                        onInputChange={(_, chainOfEventChanged) => {
+                            setInputValue(chainOfEventChanged)
+                        }}
+                        options={chainOfEventList.map((chainOfEventItem) => ({
+                            ...chainOfEventItem,
+                            label: chainOfEventItem.categoryName,
+                        }))}
+                        fullWidth
+                        renderInput={(params) => <TextField {...params} label="chain of event" />}
+                    />
                     <Typography variant="subtitle1" sx={{ mt: 2 }}>
                         Do not see suitable chain of events?{'  '}
                         <Typography
@@ -166,7 +159,6 @@ const ModalChainOfEvent = ({
                                     id="name-chain-events"
                                     label="Name"
                                     size="small"
-                                    required
                                     value={categoryName}
                                     onChange={cateGoryNameHandler}
                                     error={!!error?.categoryName}
