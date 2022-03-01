@@ -4,8 +4,7 @@ import { Box, Typography } from '@mui/material'
 
 import authAtom from '../../../recoil/auth'
 import EventsList from './EventsList'
-
-// import Filters from './Filters'
+import Filters from './Filters'
 
 const MyEvents = () => {
     const auth = useRecoilValue(authAtom)
@@ -16,7 +15,7 @@ const MyEvents = () => {
                 {auth.organization} Events
             </Typography>
             <Box display="flex" mt={5} mb={10}>
-                {/* <Filters /> */}
+                <Filters />
                 <EventsList />
             </Box>
         </Box>
