@@ -23,7 +23,7 @@ const UpComingEvents = () => {
     const searchFilterSubmitHandler = (searchText) => {
         searchText = searchText.trim()
         if (searchText !== '') {
-            history.push('/events?search=' + searchText + '&upcoming=true')
+            history.push('/admin/events?search=' + searchText + '&upcoming=true')
         }
     }
 
