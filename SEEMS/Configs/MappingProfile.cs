@@ -18,8 +18,6 @@ public class MappingProfile : Profile
 			.ForMember(x => x.CreatedAt, opt => opt.Ignore())
 			.ForMember(x => x.ModifiedAt, opt => opt.Ignore());
 		CreateMap<Comment, CommentDTO>();
-		CreateMap<ChainOfEventForCreationDto, ChainOfEvent>();
-		CreateMap<ChainOfEventForUpdateDTO, ChainOfEvent>().ForMember(x => x.Id, opt => opt.Ignore());
 		CreateMap<User, User>()
 			.ForMember(x => x.Id, opt => opt.Ignore())
 			.ForMember(x => x.OrganizationId, opt => opt.Ignore())

@@ -11,7 +11,6 @@ namespace SEEMS.Services
 		private ApplicationDbContext _context;
 		private IUserRepository _userRepository;
 		private IUserMetaRepository _userMetaRepository;
-		private IChainOfEventsRepository _chainOfEventsRepository;
 		private IOrganizationRepository _organizationRepository;
 		private IEventRepository _eventRepository;
 		private ICommentRepository _commentRepository;
@@ -44,19 +43,6 @@ namespace SEEMS.Services
                 }
 
                 return _userMetaRepository;
-            }
-        }
-
-        public IChainOfEventsRepository ChainOfEvent
-        {
-            get
-            {
-                if (_chainOfEventsRepository == null)
-                {
-                    _chainOfEventsRepository = new ChainOfEventRepository(_context);
-                }
-
-                return _chainOfEventsRepository;
             }
         }
 
