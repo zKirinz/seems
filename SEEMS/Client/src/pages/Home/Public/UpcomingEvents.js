@@ -51,7 +51,7 @@ const UpcomingEvents = () => {
                             eventDescription,
                             startDate,
                             imageUrl,
-                            organization,
+                            organizationName,
                         }) => (
                             <EventCard
                                 key={id}
@@ -60,7 +60,7 @@ const UpcomingEvents = () => {
                                 description={eventDescription}
                                 startDate={startDate}
                                 imageUrl={imageUrl}
-                                organizer={organization.name}
+                                organizer={organizationName}
                             />
                         )
                     )}
