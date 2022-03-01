@@ -67,7 +67,7 @@ namespace SEEMS.Controller
 
 		[HttpGet("my-events")]
 		public async Task<ActionResult<List<Event>>> GetMyEvents(string? search, bool? upcoming,
-			int? lastEventID, int resultCount = 10)
+			int? lastEventID, int resultCount = 1000)
 		{
 			User user = await GetCurrentUser(Request);
 			try
