@@ -44,18 +44,20 @@ const EventDetailed = () => {
                 const errorMessage = errorResponse.response.data.data
                 setError(errorMessage)
             })
-        getMyEvents('')
-            .then((response) => {
-                const myEvents = response.data.data.listEvents
-                const isMine = myEvents.some((myEvent) => myEvent.id === +id)
-                setIsMyEvent(isMine)
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+        if (auth.role === 'Organizer') {
+            getMyEvents('')
+                .then((response) => {
+                    const myEvents = response.data.data.listEvents
+                    const isMine = myEvents.some((myEvent) => myEvent.id === +id)
+                    setIsMyEvent(isMine)
                 })
-            })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                })
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     if (error)
@@ -98,13 +100,14 @@ const EventDetailed = () => {
                         />
                         <Typography
                             paragraph
-                            sx={{ color: blueGrey[900], mt: 0.5 }}
+                            sx={{ color: blueGrey[900], mt: 1.5 }}
                             variant="subtitle1"
                         >
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {!(auth.role === 'Admin') && !isMyEvent && <RegisterButton />}
+                    {auth.role === 'User' && <RegisterButton />}
+                    {auth.role === 'Organizer' && !isMyEvent && <RegisterButton />}
                     {auth.role === 'Organizer' && isMyEvent && <EditEventButton />}
                     {auth.role === 'Admin' && <EditEventButton />}
                 </Grid>
