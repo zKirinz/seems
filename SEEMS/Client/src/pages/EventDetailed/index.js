@@ -8,17 +8,23 @@ import { Festival } from '@mui/icons-material'
 import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
+import { useSnackbar } from '../../HOCs/SnackbarContext'
 import atom from '../../recoil/auth'
 import useEventAction from '../../recoil/event/action'
 import CommentsSection from './Comments/index'
+import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
 import RegisterButton from './RegisterButton'
 
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
     const { id } = useParams()
-    const { getDetailedEvent } = useEventAction()
+    const { getDetailedEvent, getMyEvents } = useEventAction()
     const [error, setError] = useState(null)
+    const [isMyEvent, setIsMyEvent] = useState(true)
+
+    const showSnackbar = useSnackbar()
+
     const [detailedEvent, setDetailedEvent] = useState({
         numberComments: 0,
         event: {},
@@ -37,6 +43,18 @@ const EventDetailed = () => {
             .catch((errorResponse) => {
                 const errorMessage = errorResponse.response.data.data
                 setError(errorMessage)
+            })
+        getMyEvents('')
+            .then((response) => {
+                const myEvents = response.data.data.listEvents
+                const isMine = myEvents.some((myEvent) => myEvent.id === +id)
+                setIsMyEvent(isMine)
+            })
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
             })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -86,7 +104,9 @@ const EventDetailed = () => {
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {!(auth.role === 'Admin') && <RegisterButton />}
+                    {!(auth.role === 'Admin') && !isMyEvent && <RegisterButton />}
+                    {auth.role === 'Organizer' && isMyEvent && <EditEventButton />}
+                    {auth.role === 'Admin' && <EditEventButton />}
                 </Grid>
             </Grid>
             <CommentsSection
