@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
@@ -54,7 +55,7 @@ public class UserController : ControllerBase
                 result.Add(new UserDTO
                         {
                             User = listUsers[i],
-                            Organization = orgByUserId.Name, 
+                            Organization = orgByUserId?.Name, 
                             Role = roleByUserId.MetaValue
                         });    
             }
@@ -91,22 +92,51 @@ public class UserController : ControllerBase
     
     [ValidateModel]
     [RoleBasedAuthorization(RoleBased = RoleTypes.ADM)]
-    [HttpPut("/status/{id}")]
-    public async Task<IActionResult> BanUser(int id, [FromBody] StatusToUpdateDto dto)
+    [HttpPut("edit/{id}")]
+    public async Task<IActionResult> PartialUpdateUser(int id, [FromBody] UserForUpdateDto dto) 
     {
+        if (dto == null)
+        {
+            return BadRequest(new Response(ResponseStatusEnum.Fail, "", "patch document sent from client is null"));
+        } 
+        
         try
         {
+            
             var entity = await _repoManager.User.GetUserAsync(id, true);
+            if (dto.Organization != null)
+            {
+                var org = await _repoManager.Organization.GetOrganizationByName(dto.Organization, false);
+                dto.Org = org;
+            }
+            else
+            {
+                dto.Org = entity.Organization;
+            }
+
+            dto.Active ??= entity.Active;
             if (entity == null) throw new ArgumentNullException();
             _mapper.Map(dto, entity);
             await _repoManager.SaveAsync();
+            
+            var returnUser = await _repoManager.User.GetUserAsync(entity.Id, false);
+            returnUser.Organization = await _repoManager.Organization.GetOrganizationAsync(returnUser.OrganizationId, false);
 
-            return Ok(new Response(ResponseStatusEnum.Success, entity, $"Set activeness of user {entity.UserName} to {dto.Active} successfully"));
+            var returnRole = await _repoManager.UserMeta.GetRoleByUserIdAsync(returnUser.Id, false);
+            
+            return Ok(new Response(ResponseStatusEnum.Success, ReturnUser(returnUser, returnRole), $"Update user {entity.UserName} successfully"));
         }
-        catch (ArgumentNullException)
+        catch (ArgumentNullException e)
         {
             return UnprocessableEntity(new Response(ResponseStatusEnum.Error, "", $"Id {id} is not existed", 422));
         }
         
     }
+
+    private static UserDTO ReturnUser(User user, UserMeta role) => new()
+    {
+        User = user,
+        Organization = user.Organization.Name,
+        Role = role.MetaValue
+    };
 }

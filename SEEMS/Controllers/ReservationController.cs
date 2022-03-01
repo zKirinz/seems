@@ -27,7 +27,8 @@ namespace SEEMS.Controllers
             _repoManager = repoManager;
         }
 
-        // POST api/<ReservationController>
+        // POST api/Reservations
+        // Register a event
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] ReservationDTO reservationDTO)
         {
@@ -50,7 +51,95 @@ namespace SEEMS.Controllers
                 }
                 else
                 {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid token"));
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue"));
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
+            }
+        }
+
+        // PUT api/Reservations/id
+        // Check/Uncheck attendance
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] List<AttendanceForReservationDTO> listAttendance)
+        {
+            try
+            {
+                foreach (var attendance in listAttendance)
+                {
+                    var reservation = _context.Reservations.FirstOrDefault(x => x.Id == attendance.Id);
+                    if (reservation != null)
+                    {
+                        reservation.Attend = attendance.Attend;
+                        _context.Reservations.Update(reservation);
+                        _context.SaveChanges();
+                    }
+                }
+
+                return Ok(new Response(ResponseStatusEnum.Success, ""));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
+            }
+        }
+
+        // GET api/Reservations
+        // Get all registered events
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                if (currentUser != null)
+                {
+                    var userId = currentUser.Id;
+                    var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
+                    if (listReservation.Any())
+                    {
+                        return Ok(new Response(ResponseStatusEnum.Success, listReservation));
+                    }
+                    else
+                    {
+                        return Ok(new Response(ResponseStatusEnum.Success, "", "You have not registered to participate in any event yet"));
+                    }
+                }
+                else
+                {
+                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue"));
+                }
+            } catch (Exception ex)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
+            }
+        }
+
+        // GET api/Reservations/id
+        // Get all user registered for an event
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            try
+            {
+                var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
+                if (anEvent != null)
+                {
+                    var listRegisteredUser = _context.Reservations.Where(x => x.EventId == id).ToList();
+                    if (listRegisteredUser.Any())
+                    {
+                        return Ok(new Response(ResponseStatusEnum.Success, listRegisteredUser));
+                    }
+                    else
+                    {
+                        return Ok(new Response(ResponseStatusEnum.Success, "", "No user have registered yet"));
+                    }
+                }
+                else
+                {
+                    return Ok(new Response(ResponseStatusEnum.Success, "", "Invalid eventId"));
                 }
             }
             catch (Exception ex)

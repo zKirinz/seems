@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Search as SearchIcon } from '@mui/icons-material'
 import { FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput } from '@mui/material'
 
-const SearchField = ({ submitHandler, defaultText = '' }) => {
+const SearchField = ({ submitHandler, defaultText = '', label = 'Search for events name' }) => {
     const [searchText, setSearchText] = useState(defaultText)
 
     const onEnterSearch = (e) => {
@@ -14,7 +14,7 @@ const SearchField = ({ submitHandler, defaultText = '' }) => {
 
     return (
         <FormControl variant="outlined" fullWidth>
-            <InputLabel htmlFor="outlined-adornment-password">Search for events name</InputLabel>
+            <InputLabel htmlFor="outlined-adornment-password">{label}</InputLabel>
             <OutlinedInput
                 id="outlined-adornment-password"
                 type="text"
@@ -28,7 +28,7 @@ const SearchField = ({ submitHandler, defaultText = '' }) => {
                         </IconButton>
                     </InputAdornment>
                 }
-                label="Search for events name"
+                label={label}
             />
         </FormControl>
     )

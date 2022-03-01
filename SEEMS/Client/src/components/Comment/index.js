@@ -3,9 +3,9 @@ import React, { useState } from 'react'
 import moment from 'moment'
 import { useRecoilValue } from 'recoil'
 
-import { Clear, Edit, SubdirectoryArrowRight } from '@mui/icons-material'
-import { Avatar, Box, IconButton, OutlinedInput, Typography } from '@mui/material'
-import { blue, grey } from '@mui/material/colors'
+import { Clear, Edit, SubdirectoryArrowRight, ThumbUpAlt } from '@mui/icons-material'
+import { Avatar, Box, IconButton, Link, OutlinedInput, Typography } from '@mui/material'
+import { blue, blueGrey, grey } from '@mui/material/colors'
 
 import atom from '../../recoil/auth'
 import AlertConfirm from '../ConfirmDialog'
@@ -26,6 +26,7 @@ const Comment = ({
     numberLikeComment,
     parentCommentId,
     reactCommentHandler,
+    openReplyTextBoxHandler,
     isLike,
 }) => {
     const [isEditCommentContent, setIsEditCommentContent] = useState(false)
@@ -62,7 +63,7 @@ const Comment = ({
     return (
         <Box sx={{ display: 'flex', alignItems: 'flex-start', mt: 3 }}>
             <Avatar alt={alt} src={src}></Avatar>
-            <Box width="100%" display="flex" flexDirection="column">
+            <Box display="flex" flexDirection="column">
                 <Box
                     sx={{
                         ml: 2,
@@ -70,13 +71,70 @@ const Comment = ({
                         px: 3,
                         py: 2,
                         borderRadius: 8,
-                        width: '95%',
                         position: 'relative',
                     }}
                 >
-                    <Typography variant="subtitle1" fontWeight={600} sx={{ color: grey[800] }}>
-                        {userName}
-                    </Typography>
+                    {!!likeComment.numberLikeComment && (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                position: 'absolute',
+                                bottom: -12,
+                                right: 10,
+                                bgcolor: blueGrey[100],
+                                py: 0.25,
+                                px: 0.5,
+                                borderRadius: 8,
+                            }}
+                        >
+                            <ThumbUpAlt
+                                fontSize="small"
+                                sx={{ color: `${blue[500]} !important` }}
+                            />
+                            {likeComment.numberLikeComment > 1 && (
+                                <Typography component="span" sx={{ mx: 0.5 }} variant="body2">
+                                    {likeComment.numberLikeComment}
+                                </Typography>
+                            )}
+                        </Box>
+                    )}
+                    <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        sx={{ mb: 0.5 }}
+                    >
+                        <Typography variant="subtitle1" fontWeight={600} sx={{ color: grey[800] }}>
+                            {userName}
+                        </Typography>
+                        <Box sx={{ ml: 5 }}>
+                            {email === auth.email && (
+                                <>
+                                    {!isEditCommentContent && (
+                                        <IconButton
+                                            aria-label="edit comment"
+                                            component="span"
+                                            sx={{ color: grey[900] }}
+                                            onClick={onOpenEditCommentField}
+                                            size="small"
+                                        >
+                                            <Edit fontSize="small" />
+                                        </IconButton>
+                                    )}
+                                    <IconButton
+                                        aria-label="delete comment"
+                                        component="span"
+                                        sx={{ color: grey[900] }}
+                                        onClick={openDialog}
+                                        size="small"
+                                    >
+                                        <Clear fontSize="small" />
+                                    </IconButton>
+                                </>
+                            )}
+                        </Box>
+                    </Box>
                     {!isEditCommentContent && (
                         <Typography paragraph sx={{ mb: 0 }}>
                             {commentContent}
@@ -117,38 +175,8 @@ const Comment = ({
                     >
                         Are you sure you want to delete this comment?
                     </AlertConfirm>
-                    {email === auth.email && (
-                        <>
-                            <IconButton
-                                aria-label="delete comment"
-                                component="span"
-                                sx={{ position: 'absolute', right: 10, top: 10, color: grey[900] }}
-                                onClick={openDialog}
-                            >
-                                <Clear />
-                            </IconButton>
-                            {!isEditCommentContent && (
-                                <IconButton
-                                    aria-label="edit comment"
-                                    component="span"
-                                    sx={{
-                                        position: 'absolute',
-                                        right: 40,
-                                        top: 10,
-                                        color: grey[900],
-                                    }}
-                                    onClick={onOpenEditCommentField}
-                                >
-                                    <Edit />
-                                </IconButton>
-                            )}
-                        </>
-                    )}
                 </Box>
                 <Box sx={{ ml: 5, mt: 1 }}>
-                    <Typography component="span" sx={{ mr: 0.5 }}>
-                        {!!likeComment.numberLikeComment && likeComment.numberLikeComment}
-                    </Typography>
                     <Typography
                         component="span"
                         sx={{
@@ -163,19 +191,15 @@ const Comment = ({
                         Like
                     </Typography>
                     {!parentCommentId && (
-                        <Typography
-                            component="span"
+                        <Link
+                            underline="hover"
                             variant="body2"
                             fontWeight={700}
-                            sx={{
-                                color: grey[900],
-                                '&:hover': { textDecoration: 'underline', cursor: 'pointer' },
-                                mr: 2,
-                            }}
-                            onClick={loadMoreResponseCommentsHandler}
+                            sx={{ color: grey[900], cursor: 'pointer', mr: 2 }}
+                            onClick={openReplyTextBoxHandler}
                         >
                             Reply
-                        </Typography>
+                        </Link>
                     )}
                     <Typography component="span" variant="body2" sx={{ color: grey[800] }}>
                         {moment(new Date(createdAt)).fromNow(true)}
