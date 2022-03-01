@@ -22,7 +22,7 @@ namespace SEEMS.Configs
 			CreateMap<ChainOfEventForCreationDto, ChainOfEvent>();
 			CreateMap<ChainOfEventForUpdateDTO, ChainOfEvent>().ForMember(x => x.Id, opt => opt.Ignore());
 			CreateMap<User, User>().ForMember(x => x.Id, opt => opt.Ignore()).ForMember(x => x.OrganizationId, opt => opt.Ignore());
-			CreateMap<RoleToUpdateDTO, UserMeta>().ForMember(x => x.MetaValue, opt => opt.MapFrom(e => e.Role));
+			CreateMap<RoleToUpdateDto, UserMeta>().ForMember(x => x.MetaValue, opt => opt.MapFrom(e => e.Role));
 			CreateMap<ReservationDTO, Reservation>().ForMember(x => x.Attend, opt => opt.Ignore());
 		}
 	}

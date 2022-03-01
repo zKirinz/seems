@@ -68,7 +68,7 @@ public class UserController : ControllerBase
     [ValidateModel]
     [RoleBasedAuthorization(RoleBased = RoleTypes.ADM)]
     [HttpPut("{id}")]
-    public async Task<IActionResult> SetRole(int id, [FromBody] RoleToUpdateDTO dto)
+    public async Task<IActionResult> SetRole(int id, [FromBody] RoleToUpdateDto dto)
     {
         string[] roleCanBeUpdated =  { RoleTypes.CUSR, RoleTypes.ORG };
 

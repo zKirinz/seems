@@ -6,6 +6,7 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Extensions;
 using SEEMS.Data.Entities;
+using SEEMS.Data.Models;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
@@ -20,16 +21,18 @@ namespace SEEMS.Controllers;
 [Route("/api/[controller]")]
 public class AuthenticationController : ControllerBase
 {
-    private const string BaseUiDomain = "http://localhost:44449/login";
     private readonly IAuthManager _authService;
     private readonly IRepositoryManager _repoService;
     private readonly IMapper _mapper;
+    private readonly IControllerBaseServices<User> _baseServices;
 
-    public AuthenticationController(IAuthManager authService, IRepositoryManager repoService, IMapper mapper)
+    public AuthenticationController(IAuthManager authService, IRepositoryManager repoService, IMapper mapper,
+        IControllerBaseServices<User> baseServices)
     {
         _authService = authService;
         _repoService = repoService;
         _mapper = mapper;
+        _baseServices = baseServices;
     }
         
     [HttpGet("")]
@@ -51,7 +54,7 @@ public class AuthenticationController : ControllerBase
 
         if (currentUser == null)
         {
-            return Redirect($"{BaseUiDomain}?error=fpt-invalid-email");
+            return Redirect($"{MapLoginUiDomain()}?error=fpt-invalid-email");
         }
         if (await _repoService.User.GetUserAsync(currentUser.Email, false) == null)
         {
@@ -62,6 +65,10 @@ public class AuthenticationController : ControllerBase
         else
         {
             var user = await _repoService.User.GetUserAsync(currentUser.Email, true);
+            if (!user.Active)
+            {
+                return Redirect($"{MapLoginUiDomain()}?error=inactive-user");
+            }
             _mapper.Map(currentUser, user);
             await _repoService.SaveAsync();
         } 
@@ -76,7 +83,7 @@ public class AuthenticationController : ControllerBase
             HttpOnly = true
         });
 
-        return Redirect($"{BaseUiDomain}?token={accessToken}");
+        return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
     }
         
     [HttpPost]
@@ -94,7 +101,7 @@ public class AuthenticationController : ControllerBase
                 var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
                 var roleClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "role").Value;
 
-                UserMeta roleBasedEmail = await _repoService.UserMeta.GetRolesAsync(emailClaim, false);
+                var roleBasedEmail = await _repoService.UserMeta.GetRolesAsync(emailClaim, false);
                         
                 if (await _repoService.User.GetUserAsync(emailClaim, false) != null)
                 {
@@ -116,5 +123,10 @@ public class AuthenticationController : ControllerBase
         }
             
         return Ok(new Response(status, ""));
+    }
+
+    private string MapLoginUiDomain()
+    {
+        return _baseServices.GetUiDomain() + "/login";
     }
 }
