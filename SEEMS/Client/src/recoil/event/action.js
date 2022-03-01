@@ -19,12 +19,21 @@ const useEventAction = () => {
             body: eventData,
         }).then(() => history.push('/events'))
 
+    const registerEvent = (eventId) =>
+        post({
+            endpoint: '/api/reservations',
+            body: {
+                eventId,
+            },
+        })
+
     return {
         getUpcomingEvents,
         getEvents,
         getMyEvents,
         createEvent,
         getDetailedEvent,
+        registerEvent,
     }
 }
 

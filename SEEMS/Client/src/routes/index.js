@@ -80,6 +80,13 @@ const privateRoutes = [
         role: ['admin'],
     },
     {
+        path: '/admin/events',
+        name: 'admin events',
+        component: lazy(() => import('../pages/Admin/Events')),
+        layout: 'admin',
+        role: ['admin'],
+    },
+    {
         path: '/admin/events/me',
         name: 'admin my events',
         component: lazy(() => import('../pages/Admin/MyEvents')),

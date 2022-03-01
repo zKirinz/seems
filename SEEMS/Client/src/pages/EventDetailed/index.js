@@ -104,7 +104,7 @@ const EventDetailed = () => {
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {!(auth.role === 'Admin') && !isMyEvent && <RegisterButton />}
+                    {!(auth.role === 'Admin') && !isMyEvent && <RegisterButton eventId={id} />}
                     {auth.role === 'Organizer' && isMyEvent && <EditEventButton />}
                     {auth.role === 'Admin' && <EditEventButton />}
                 </Grid>
