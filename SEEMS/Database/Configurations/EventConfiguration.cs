@@ -43,7 +43,8 @@ namespace SEEMS.Database.Configurations
 			foreach (var item in events)
 			{
 				item.OrganizationId = new Random().Next(-3, 0);
-				item.StartDate = new DateTime(2022, new Random().Next(2, 7), new Random().Next(1, 28));
+				item.StartDate = new DateTime(2022, new Random().Next(2, 8), new Random().Next(1, 28));
+				item.EndDate = item.StartDate.AddDays(new Random().Next(2, 31));
 				item.Id = idSeed--;
 			}
 			builder.HasData(events);
