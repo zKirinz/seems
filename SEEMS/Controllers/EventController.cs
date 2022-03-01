@@ -42,14 +42,15 @@ namespace SEEMS.Controller
 				EventDTO dtoEvent = _mapper.Map<EventDTO>(foundEvent);
 				dtoEvent.CommentsNum = _repository.Comment.CountCommentsOfEvent(id);
 				dtoEvent.RootCommentsNum = _context.Comments.Where(c => c.EventId == id && c.ParentCommentId == null).Count();
-
-
+				var user = await GetCurrentUser(Request);
+				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
 				return Ok(
 					new Response(
 						ResponseStatusEnum.Success,
 						new
 						{
 							Event = dtoEvent,
+							Registered = registered
 						}
 					)
 				);
