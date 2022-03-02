@@ -419,6 +419,47 @@ namespace SEEMS.Controller
 			}
 		}
 
+		[HttpGet("is-mine/{id}")]
+		public async Task<ActionResult> IsMyEvent(int id)
+		{
+			try
+			{
+				var user = await GetCurrentUser(Request);
+				var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+				if(myEvent != null)
+				{
+					var isMine = user.OrganizationId == myEvent.OrganizationId;
+					return Ok(
+						new Response(
+							ResponseStatusEnum.Success,
+							new
+							{
+								IsMine = isMine
+							}
+						)
+					);
+				}
+				else
+				{
+					return BadRequest(
+						new Response(
+							ResponseStatusEnum.Fail,
+							msg: "Event does not existed!"
+						)
+						);
+				}
+			}
+			catch(Exception ex)
+			{
+				return StatusCode(
+				   StatusCodes.Status500InternalServerError,
+				   new Response(ResponseStatusEnum.Error,
+				   msg: ex.Message)
+			   );
+			}
+
+		}
+
 		private async Task<User> GetCurrentUser(HttpRequest req)
 		{
 			var email = _authManager.GetCurrentEmail(req);
