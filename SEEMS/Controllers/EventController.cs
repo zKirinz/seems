@@ -291,45 +291,48 @@ namespace SEEMS.Controller
 				eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
 				var user = await GetCurrentUser(Request);
 				var userMeta = _context.UserMetas.FirstOrDefault(x => x.UserId == user.Id);
-				if(userMeta.MetaValue.Equals("Organizer", StringComparison.CurrentCultureIgnoreCase)
-					&& user.Id == id)
+				var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+				if(myEvent == null)
 				{
-					EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
-					if(eventValidationInfo != null)
-						return BadRequest(
-								new Response(ResponseStatusEnum.Fail,
-								eventValidationInfo,
-								"Some fields didn't match requirements"));
-					var newEvent = _mapper.Map<Event>(eventDTO);
-					var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
-					if(target is null)
-					{
-						return BadRequest(
-								new Response(ResponseStatusEnum.Fail,
-								false,
-								"ID not found"));
-					}
-					newEvent.Id = target.Id;
-					newEvent.OrganizationId = target.OrganizationId;
-					_context.Update(newEvent);
-					await _context.SaveChangesAsync();
-					return Ok(
-					new Response(
-						ResponseStatusEnum.Success,
-						newEvent,
-						msg: "Succefully Update"
-						)
-					);
+					return BadRequest(
+									new Response(ResponseStatusEnum.Fail,
+									false,
+									"ID not found"));
 				}
 				else
 				{
-					return BadRequest(
+					if(userMeta.MetaValue.Equals("Organizer", StringComparison.CurrentCultureIgnoreCase)
+						&& user.OrganizationId == myEvent.Id)
+					{
+						EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
+						if(eventValidationInfo != null)
+							return BadRequest(
+									new Response(ResponseStatusEnum.Fail,
+									eventValidationInfo,
+									"Some fields didn't match requirements"));
+						var newEvent = _mapper.Map<Event>(eventDTO);
+						newEvent.Id = myEvent.Id;
+						newEvent.OrganizationId = myEvent.OrganizationId;
+						_context.Update(newEvent);
+						await _context.SaveChangesAsync();
+						return Ok(
 						new Response(
-							ResponseStatusEnum.Fail,
-							code: 400,
-							msg: "Just Organizer who created event can update this event"
-						)
-					);
+							ResponseStatusEnum.Success,
+							newEvent,
+							msg: "Succefully Update"
+							)
+						);
+					}
+					else
+					{
+						return BadRequest(
+							new Response(
+								ResponseStatusEnum.Fail,
+								code: 400,
+								msg: "Just Organizer who created event can update this event"
+							)
+						);
+					}
 				}
 			}
 			catch(Exception ex)
@@ -414,6 +417,47 @@ namespace SEEMS.Controller
 				return StatusCode(StatusCodes.Status500InternalServerError,
 					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
 			}
+		}
+
+		[HttpGet("is-mine/{id}")]
+		public async Task<ActionResult> IsMyEvent(int id)
+		{
+			try
+			{
+				var user = await GetCurrentUser(Request);
+				var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+				if(myEvent != null)
+				{
+					var isMine = user.OrganizationId == myEvent.OrganizationId;
+					return Ok(
+						new Response(
+							ResponseStatusEnum.Success,
+							new
+							{
+								IsMine = isMine
+							}
+						)
+					);
+				}
+				else
+				{
+					return BadRequest(
+						new Response(
+							ResponseStatusEnum.Fail,
+							msg: "Event does not existed!"
+						)
+						);
+				}
+			}
+			catch(Exception ex)
+			{
+				return StatusCode(
+				   StatusCodes.Status500InternalServerError,
+				   new Response(ResponseStatusEnum.Error,
+				   msg: ex.Message)
+			   );
+			}
+
 		}
 
 		private async Task<User> GetCurrentUser(HttpRequest req)
