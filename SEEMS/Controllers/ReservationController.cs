@@ -70,22 +70,22 @@ namespace SEEMS.Controllers
         // PUT api/Reservations/id
         // Check/Uncheck attendance
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] List<ReservationForAttendanceReqDTO> listAttendance)
+        public async Task<IActionResult> Put([FromBody] ReservationForAttendanceReqDTO attendance)
         {
             try
             {
-                foreach (var attendance in listAttendance)
+                var reservation = _context.Reservations.FirstOrDefault(x => x.Id == attendance.Id);
+                if (reservation != null)
                 {
-                    var reservation = _context.Reservations.FirstOrDefault(x => x.Id == attendance.Id);
-                    if (reservation != null)
-                    {
-                        reservation.Attend = attendance.Attend;
-                        _context.Reservations.Update(reservation);
-                        _context.SaveChanges();
-                    }
+                    reservation.Attend = attendance.Attend;
+                    _context.Reservations.Update(reservation);
+                    _context.SaveChanges();
+                    return Ok(new Response(ResponseStatusEnum.Success, ""));
                 }
-
-                return Ok(new Response(ResponseStatusEnum.Success, ""));
+                else
+                {
+                    return Ok(new Response(ResponseStatusEnum.Fail, "", "Invalid reservationId"));
+                }              
             }
             catch (Exception ex)
             {
