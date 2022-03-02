@@ -178,7 +178,7 @@ namespace SEEMS.Controllers
             }
         }
 
-        // PUT api/Reservations/id
+        // DELETE api/Reservations/id
         // Unregister event
         [HttpDelete]
         public async Task<IActionResult> Delete([FromBody] ReservationDTO reservationDTO)
