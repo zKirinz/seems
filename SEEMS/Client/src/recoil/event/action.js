@@ -1,4 +1,4 @@
-import { get, post } from '../../utils/ApiCaller'
+import { get, post, put } from '../../utils/ApiCaller'
 
 const useEventAction = () => {
     const getUpcomingEvents = () => get({ endpoint: '/api/events/upcoming' })
@@ -15,12 +15,16 @@ const useEventAction = () => {
             body: eventData,
         })
 
+    const updateEvent = (eventId, eventData) => {
+        return put({ endpoint: `/api/events/${eventId}`, body: eventData })
+    }
     return {
         getUpcomingEvents,
         getEvents,
         getMyEvents,
         createEvent,
         getDetailedEvent,
+        updateEvent,
     }
 }
 
