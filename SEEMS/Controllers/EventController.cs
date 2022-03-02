@@ -291,7 +291,7 @@ namespace SEEMS.Controller
 				eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
 				var user = await GetCurrentUser(Request);
 				var userMeta = _context.UserMetas.FirstOrDefault(x => x.UserId == user.Id);
-				var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+				var myEvent = _context.Events.AsNoTracking().FirstOrDefault(e => e.Id == id);
 				if(myEvent == null)
 				{
 					return BadRequest(
@@ -302,7 +302,7 @@ namespace SEEMS.Controller
 				else
 				{
 					if(userMeta.MetaValue.Equals("Organizer", StringComparison.CurrentCultureIgnoreCase)
-						&& user.OrganizationId == myEvent.Id)
+						&& user.OrganizationId == myEvent.OrganizationId)
 					{
 						EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
 						if(eventValidationInfo != null)
