@@ -18,6 +18,8 @@ const useEventAction = () => {
     const updateEvent = (eventId, eventData) => {
         return put({ endpoint: `/api/events/${eventId}`, body: eventData })
     }
+
+    const checkIsMyEvent = (id) => get({ endpoint: `/api/events/is-mine/${id}` })
     return {
         getUpcomingEvents,
         getEvents,
@@ -25,6 +27,7 @@ const useEventAction = () => {
         createEvent,
         getDetailedEvent,
         updateEvent,
+        checkIsMyEvent,
     }
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { useHistory, useParams } from 'react-router-dom'
+import { useHistory, useLocation, useParams } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
@@ -11,12 +11,28 @@ import UpdateEventForm from './UpdateEventForm'
 const UpdateEvent = () => {
     const showSnackbar = useSnackbar()
     const eventActions = useEventAction()
-    const { getDetailedEvent } = useEventAction()
+    const { getDetailedEvent, checkIsMyEvent } = useEventAction()
     const { id } = useParams()
     const [myEvent, setMyEvent] = useState({})
     const [error, setError] = useState(null)
     const history = useHistory()
+    const { pathname } = useLocation()
+
     useEffect(() => {
+        checkIsMyEvent(id)
+            .then((response) => {
+                const isMine = response.data.data.isMine
+                if (isMine === false) {
+                    const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
+                    history.push(newUrl)
+                }
+            })
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
+            })
         getDetailedEvent(id)
             .then((response) => {
                 const { event: responseEvent } = response.data.data
@@ -28,13 +44,19 @@ const UpdateEvent = () => {
                     children: 'Something went wrong, please try again later.',
                 })
             })
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     const updateEventHandler = (eventData) => {
         eventActions
             .updateEvent(id, eventData)
             .then(() => {
-                history.push('/events/me')
+                showSnackbar({
+                    severity: 'success',
+                    children: 'Update event successfully.',
+                })
+                const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
+                history.push(newUrl)
             })
             .catch((errorResponse) => {
                 if (errorResponse.response.status === 400) {
@@ -45,6 +67,10 @@ const UpdateEvent = () => {
                         description: errorData.description,
                     })
                 }
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Update event unsuccessfully',
+                })
             })
     }
     return (
