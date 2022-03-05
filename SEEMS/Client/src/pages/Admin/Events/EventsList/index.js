@@ -5,13 +5,13 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
-import EventCard from '../../../components/EventCard'
+import EventCard from '../../../../components/EventCard'
 import { EventBusy as EventBusyIcon, EventRepeat as EventRepeatIcon } from '@mui/icons-material'
 import { Grid, Box, Alert, Link, CircularProgress, Divider, Typography } from '@mui/material'
 
-import { useSnackbar } from '../../../HOCs/SnackbarContext'
-import authAtom from '../../../recoil/auth'
-import useEventAction from '../../../recoil/event/action'
+import { useSnackbar } from '../../../../HOCs/SnackbarContext'
+import authAtom from '../../../../recoil/auth'
+import useEventAction from '../../../../recoil/event/action'
 
 const EventsList = () => {
     const auth = useRecoilValue(authAtom)
@@ -116,7 +116,7 @@ const EventsList = () => {
                                     eventDescription,
                                     startDate,
                                     imageUrl,
-                                    organizationName,
+                                    organization,
                                     commentsNum,
                                 },
                                 i,
@@ -134,8 +134,9 @@ const EventsList = () => {
                                             description={eventDescription}
                                             startDate={startDate}
                                             imageUrl={imageUrl}
-                                            organizer={organizationName}
+                                            organizer={organization?.name}
                                             commentsNum={commentsNum}
+                                            isAdmin
                                         />
                                     </Grid>
                                 )
