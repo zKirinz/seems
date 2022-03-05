@@ -23,10 +23,26 @@ const useUsersAction = () => {
             },
         })
 
+    const getRegisteredUserOfEvent = (eventId) =>
+        get({
+            endpoint: `/api/reservations/${eventId}`,
+        })
+
+    const takeUserAttendOfEvent = ({ reservationId, attend }) =>
+        put({
+            endpoint: `/api/reservations`,
+            body: {
+                id: reservationId,
+                attend,
+            },
+        })
+
     return {
         getUsers,
         updateUserRole,
         updateUserOrganizationActive,
+        getRegisteredUserOfEvent,
+        takeUserAttendOfEvent,
     }
 }
 

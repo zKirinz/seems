@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-import { useParams } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
 import EventPoster from '../../components/EventPoster'
@@ -11,6 +11,7 @@ import { blueGrey } from '@mui/material/colors'
 import { useSnackbar } from '../../HOCs/SnackbarContext'
 import atom from '../../recoil/auth'
 import useEventAction from '../../recoil/event/action'
+import CheckAttendanceButton from './CheckAttendanceButton'
 import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
@@ -19,11 +20,13 @@ import UnRegisterButton from './UnRegisterButton'
 
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
+    const history = useHistory()
     const { id } = useParams()
     const { getDetailedEvent, getMyEvents } = useEventAction()
     const [error, setError] = useState(null)
     const [isMyEvent, setIsMyEvent] = useState(true)
     const [isRegistered, setIsRegistered] = useState(false)
+    const [reset, setReset] = useState(0)
     const showSnackbar = useSnackbar()
 
     const [detailedEvent, setDetailedEvent] = useState({
@@ -61,7 +64,8 @@ const EventDetailed = () => {
                 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [reset])
+
     if (error)
         return (
             <Box
@@ -75,6 +79,7 @@ const EventDetailed = () => {
                 <Typography variant="h4">{error}</Typography>
             </Box>
         )
+
     return (
         <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>
             <Grid container>
@@ -108,16 +113,36 @@ const EventDetailed = () => {
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {auth.role === 'User' && isRegistered && <UnRegisterButton eventId={id} />}
-                    {auth.role === 'User' && !isRegistered && <RegisterButton eventId={id} />}
+                    {auth.role === 'User' && isRegistered && (
+                        <UnRegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
+                    )}
+                    {auth.role === 'User' && !isRegistered && (
+                        <RegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
+                    )}
                     {auth.role === 'Organizer' && !isMyEvent && isRegistered && (
-                        <UnRegisterButton eventId={id} />
+                        <UnRegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
                     )}
                     {auth.role === 'Organizer' && !isMyEvent && !isRegistered && (
-                        <RegisterButton eventId={id} />
+                        <RegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
                     )}
-                    {auth.role === 'Organizer' && isMyEvent && <EditEventButton />}
-                    {auth.role === 'Admin' && <EditEventButton />}
+                    {auth.role === 'Organizer' && isMyEvent && (
+                        <React.Fragment>
+                            <EditEventButton />
+                            <CheckAttendanceButton
+                                onClickHandler={() => history.push(`/events/me/${id}/attendance`)}
+                            />
+                        </React.Fragment>
+                    )}
+                    {auth.role === 'Admin' && (
+                        <React.Fragment>
+                            <EditEventButton />
+                            <CheckAttendanceButton
+                                onClickHandler={() =>
+                                    history.push(`/admin/events/me/${id}/attendance`)
+                                }
+                            />
+                        </React.Fragment>
+                    )}
                 </Grid>
             </Grid>
             <CommentsSection

@@ -3,7 +3,7 @@ import { Box, Button } from '@mui/material'
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import useEventAction from '../../../recoil/event/action'
 
-const RegisterButton = ({ eventId }) => {
+const RegisterButton = ({ eventId, resetHandler }) => {
     const eventAction = useEventAction()
     const showSnackbar = useSnackbar()
 
@@ -15,11 +15,12 @@ const RegisterButton = ({ eventId }) => {
                     severity: 'success',
                     children: 'Something went wrong, please try again later.',
                 })
+                resetHandler()
             })
             .catch(() => {
                 showSnackbar({
                     severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+                    children: 'Register successfully.',
                 })
             })
     }

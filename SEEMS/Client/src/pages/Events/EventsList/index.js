@@ -116,7 +116,7 @@ const EventsList = () => {
                                     eventDescription,
                                     startDate,
                                     imageUrl,
-                                    organization,
+                                    organizationName,
                                     commentsNum,
                                 },
                                 i,
@@ -134,7 +134,7 @@ const EventsList = () => {
                                             description={eventDescription}
                                             startDate={startDate}
                                             imageUrl={imageUrl}
-                                            organizer={organization?.name}
+                                            organizer={organizationName}
                                             commentsNum={commentsNum}
                                         />
                                     </Grid>
