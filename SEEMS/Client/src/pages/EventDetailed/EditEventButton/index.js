@@ -8,8 +8,9 @@ const EditEventButton = () => {
     const navigateUpdateFormHandler = () => {
         history.push(`${location.pathname}/update`)
     }
+
     return (
-        <Box sx={{ position: 'absolute', bottom: 30, right: 30 }}>
+        <Box sx={{ position: 'absolute', bottom: 30, right: 220 }}>
             <Button variant="contained" onClick={navigateUpdateFormHandler}>
                 Edit
             </Button>

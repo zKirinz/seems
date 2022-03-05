@@ -32,6 +32,7 @@ const UpComingEvents = () => {
             .getUpcomingEvents()
             .then((res) => {
                 setUpcomingEvents(res.data.data.events)
+                console.log(res.data.data.events)
                 setIsLoading(false)
             })
             .catch(() => {
@@ -67,6 +68,7 @@ const UpComingEvents = () => {
                                 startDate,
                                 imageUrl,
                                 organizationName,
+                                commentsNum,
                             }) => (
                                 <Grid item xs={12} key={id}>
                                     <EventCard
@@ -76,6 +78,7 @@ const UpComingEvents = () => {
                                         startDate={startDate}
                                         imageUrl={imageUrl}
                                         organizer={organizationName}
+                                        commentsNum={commentsNum}
                                         isAdmin
                                     />
                                 </Grid>

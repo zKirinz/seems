@@ -17,7 +17,7 @@ public class UserMetaRepository : RepositoryBase<UserMeta>, IUserMetaRepository
     
     public void RegisterRole(User user, string role)
     {
-        UserMeta roleMeta = new UserMeta();
+        var roleMeta = new UserMeta();
         roleMeta.User = user;
         roleMeta.MetaKey = "role";
         roleMeta.MetaValue = role;
