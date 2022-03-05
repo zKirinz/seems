@@ -20,7 +20,7 @@ import UnRegisterButton from './UnRegisterButton'
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
     const { id } = useParams()
-    const { getDetailedEvent, getMyEvents } = useEventAction()
+    const { getDetailedEvent, checkIsMyEvent } = useEventAction()
     const [error, setError] = useState(null)
     const [isMyEvent, setIsMyEvent] = useState(true)
     const [isRegistered, setIsRegistered] = useState(false)
@@ -46,11 +46,11 @@ const EventDetailed = () => {
                 const errorMessage = errorResponse.response.data.data
                 setError(errorMessage)
             })
-        if (auth.role === 'Organizer') {
-            getMyEvents('')
+
+        if (auth.role !== 'User') {
+            checkIsMyEvent(id)
                 .then((response) => {
-                    const myEvents = response.data.data.listEvents
-                    const isMine = myEvents.some((myEvent) => myEvent.id === +id)
+                    const isMine = response.data.data.isMine
                     setIsMyEvent(isMine)
                 })
                 .catch(() => {

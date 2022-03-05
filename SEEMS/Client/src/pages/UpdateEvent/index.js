@@ -33,6 +33,7 @@ const UpdateEvent = () => {
                     children: 'Something went wrong, please try again later.',
                 })
             })
+
         getDetailedEvent(id)
             .then((response) => {
                 const { event: responseEvent } = response.data.data

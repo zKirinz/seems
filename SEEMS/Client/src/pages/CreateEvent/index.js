@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { useHistory } from 'react-router-dom'
+import { useHistory, useLocation } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
@@ -11,10 +11,13 @@ const CreateEvent = () => {
     const eventActions = useEventAction()
     const [error, setError] = useState(null)
     const history = useHistory()
+    const { pathname } = useLocation()
     const createEventHandler = (eventData) => {
         eventActions
             .createEvent(eventData)
-            .then(() => history.push('/events'))
+            .then((response) => {
+                console.log(response)
+            })
             .catch((errorResponse) => {
                 if (errorResponse.response.status === 400) {
                     const errorData = errorResponse.response.data.data
