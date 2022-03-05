@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react'
 
-import { CameraAlt, Delete } from '@mui/icons-material'
+import { useRecoilValue } from 'recoil'
+
+import { CameraAlt } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
 import {
     Box,
     Button,
-    Checkbox,
     FormControl,
     FormControlLabel,
     FormHelperText,
@@ -19,24 +20,18 @@ import {
     TextField,
     Paper,
     Typography,
-    Chip,
 } from '@mui/material'
 
-import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import usePrompt from '../../../hooks/use-prompt'
-import ModalChainOfEvent from './ModalChainOfEvent'
+import authAtom from '../../../recoil/auth/atom'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
 const defaultTextFieldValue = { value: '', isTouched: false }
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
-const CreateEventForm = ({
-    onCreateEvent,
-    error,
-    setError,
-    onCreateChainOfEvent,
-    onLoadChainOfEvent,
-}) => {
+
+const CreateEventForm = ({ onCreateEvent, error, setError }) => {
+    const auth = useRecoilValue(authAtom)
     const startDateDefault = useMemo(() => {
         return new Date(new Date().getTime() + 24 * 3600 * 1000)
     }, [])
@@ -51,11 +46,6 @@ const CreateEventForm = ({
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
     const [posterUrl, setPosterUrl] = useState({ src })
-    const [isOpenModal, setIsOpenModal] = useState(false)
-    const [chainOfEvent, setChainOfEvent] = useState(null)
-    const [chainOfEventList, setChainOfEventList] = useState([])
-
-    const showSnackbar = useSnackbar()
 
     useEffect(() => {
         return () => {
@@ -112,23 +102,6 @@ const CreateEventForm = ({
     const finishFormEntering = () => {
         setFormIsTouched(false)
     }
-    const openChainOfEventHandler = () => {
-        setIsOpenModal(true)
-        onLoadChainOfEvent()
-            .then((response) => {
-                const listChainOfEvent = response.data.data
-                setChainOfEventList(listChainOfEvent)
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again.',
-                })
-            })
-    }
-    const closeChainOfEventHandler = () => {
-        setIsOpenModal(false)
-    }
     const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
     const locationIsInValid = isEmpty(location.value) && location.isTouched
     const descriptionIsInValid = isEmpty(description.value) && description.isTouched
@@ -144,7 +117,7 @@ const CreateEventForm = ({
             isPrivate,
             startDate: startDate,
             endDate: endDate,
-            chainOfEventId: chainOfEvent?.id,
+            organizationName: auth.organization,
         }
         onCreateEvent(eventDetailed)
     }
@@ -230,27 +203,6 @@ const CreateEventForm = ({
                                             ? `${error.description}`
                                             : 'Description must not be empty'}
                                     </FormHelperText>
-                                )}
-                            </FormControl>
-                            <FormControl
-                                sx={{ ml: 1.5, flexDirection: 'row', alignItems: 'center' }}
-                                fullWidth
-                            >
-                                <FormControlLabel
-                                    control={<Checkbox />}
-                                    label="Chain of events"
-                                    checked={!!chainOfEvent}
-                                    onChange={openChainOfEventHandler}
-                                />
-                                {chainOfEvent && (
-                                    <Chip
-                                        label={chainOfEvent.categoryName}
-                                        variant="outlined"
-                                        color="primary"
-                                        sx={{ fontWeight: 500 }}
-                                        deleteIcon={<Delete />}
-                                        onDelete={() => setChainOfEvent(null)}
-                                    />
                                 )}
                             </FormControl>
                             <FormControl
@@ -365,14 +317,6 @@ const CreateEventForm = ({
                     </Box>
                 </Grid>
             </Grid>
-            <ModalChainOfEvent
-                chainOfEvent={chainOfEvent}
-                setChainEvent={setChainOfEvent}
-                isOpenModal={isOpenModal}
-                closeChainOfEventHandler={closeChainOfEventHandler}
-                onCreateChainOfEvent={onCreateChainOfEvent}
-                chainOfEventList={chainOfEventList}
-            />
         </React.Fragment>
     )
 }

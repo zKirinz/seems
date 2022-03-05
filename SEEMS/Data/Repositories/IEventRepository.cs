@@ -1,10 +1,10 @@
-using SEEMS.Models;
+﻿using SEEMS.Models;
 
-namespace SEEMS.Data.Repositories;
-
-public interface IEventRepository
+namespace SEEMS.Data.Repositories
 {
-    Task<IEnumerable<Event>> GetEventsAboutToStartAsync();
-
-    Task<Event> GetEventAsync(int id, bool trackChanges);
+	public interface IEventRepository
+	{
+		IEnumerable<Event> GetAllEvents( bool trackChanges = false );
+		Event GetEvent( int id, bool trackChanges = false );
+	}
 }

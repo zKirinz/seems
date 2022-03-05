@@ -23,18 +23,18 @@ public class UpdateEventActiveness : IJob
     {
 
         _logger.LogInformation($"Update Activeness for Events: {context.JobDetail.JobType}");
-        var x = _repoManager.Event.GetEventsAboutToStartAsync().Result;
+        // var x = _repoManager.Event.GetEventsAboutToStartAsync().Result;
         
-        foreach (var @event in x)
-        {
-            @event.Active = true;
-            var id = @event.Id;
-            var newEvent = _repoManager.Event.GetEventAsync(@event.Id, true).Result;
-            
-            _mapper.Map(@event, newEvent);
-        }
+        // foreach (var @event in x)
+        // {
+        //     @event.Active = true;
+        //     var id = @event.Id;
+        //     // var newEvent = _repoManager.Event.GetEventAsync(@event.Id, true).Result;
+        //     
+        //     _mapper.Map(@event, newEvent);
+        // }
 
-        _repoManager.SaveAsync();
+        // _repoManager.SaveAsync();
         
         return Task.CompletedTask;
     }

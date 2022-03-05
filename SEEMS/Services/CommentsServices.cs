@@ -85,7 +85,15 @@ namespace SEEMS.Services
             responseComment.Email = email;
             responseComment.CreatedAt = comment.CreatedAt;
             responseComment.ModifiedAt = comment.ModifiedAt;
+            responseComment.NumberReplyComment = dbContext.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
+            responseComment.NumberLikeComment = dbContext.LikeComments.Where(x => x.CommentId == comment.Id).Count();
             return responseComment;
+        }
+
+        public static bool CheckCurrentUserHasLikeComment(int userId, int commentId, ApplicationDbContext dbContext)
+        {
+            var likeComment = dbContext.LikeComments.Where(x => x.UserId == userId && x.CommentId == commentId).FirstOrDefault();
+            return likeComment != null ? true : false;
         }
 
     }

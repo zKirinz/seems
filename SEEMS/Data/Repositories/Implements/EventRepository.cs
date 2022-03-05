@@ -1,23 +1,22 @@
-using Microsoft.EntityFrameworkCore;
-using SEEMS.Contexts;
+﻿using SEEMS.Contexts;
 using SEEMS.Models;
 
-namespace SEEMS.Data.Repositories.Implements;
-
-public class EventRepository : RepositoryBase<Event>, IEventRepository
+namespace SEEMS.Data.Repositories.Implements
 {
-    public EventRepository(ApplicationDbContext context) : base(context)
-    {
-    }
-    
-    public async Task<IEnumerable<Event>> GetEventsAboutToStartAsync()
-    {
-        var tommorow = DateTime.Today.AddDays(1);
-        
-        return  await FindAll(false).Where(x => x.StartDate == tommorow).ToListAsync();
-    }
+	public class EventRepository : RepositoryBase<Event>, IEventRepository
+	{
+		public EventRepository( ApplicationDbContext context ) : base(context)
+		{
+		}
 
-    public async Task<Event> GetEventAsync(int id, bool trackChanges) =>
-        await FindByCondition(e => e.Id == id, trackChanges)
-            .SingleOrDefaultAsync();
+		public IEnumerable<Event> GetAllEvents( bool trackChanges )
+			=> FindAll(trackChanges)
+			.OrderBy(c => c.StartDate)
+			.ToList();
+
+		public Event GetEvent( int id, bool trackChanges = false )
+			=> FindByCondition(c => c.Id.Equals(id), trackChanges)
+			.SingleOrDefault();
+
+	}
 }

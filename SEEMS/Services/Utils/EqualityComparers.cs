@@ -32,19 +32,6 @@ namespace SEEMS.Services.Utils
 		}
 	}
 
-	public class ChainOfEventEqualityComparer : EqualityComparer<ChainOfEvent>
-	{
-		public override bool Equals(ChainOfEvent? x, ChainOfEvent? y)
-		{
-			return x.CategoryName.Equals(y.CategoryName, StringComparison.CurrentCultureIgnoreCase);
-		}
-
-		public override int GetHashCode([DisallowNull] ChainOfEvent obj)
-		{
-			throw new NotImplementedException();
-		}
-	}
-
 	public class EventEqualityComparer : EqualityComparer<Event>
 	{
 		public override bool Equals(Event? x, Event? y)

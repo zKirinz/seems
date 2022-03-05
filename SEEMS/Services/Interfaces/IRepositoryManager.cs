@@ -12,12 +12,12 @@ namespace SEEMS.Services.Interfaces
         IUserRepository User { get; }
         IUserMetaRepository UserMeta { get; }
         
-        IChainOfEventsRepository ChainOfEvent { get; }
-        
-        IEventRepository Event { get; }
-        
         IOrganizationRepository Organization { get; }
 
-        Task SaveAsync();
-    }
+		IEventRepository Event { get; }
+
+		ICommentRepository Comment { get; }
+
+		Task SaveAsync();
+	}
 }

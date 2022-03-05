@@ -1,36 +1,65 @@
 import { useEffect, useState } from 'react'
 
 import { useParams } from 'react-router-dom'
+import { useRecoilValue } from 'recoil'
 
 import EventPoster from '../../components/EventPoster'
+import { Festival } from '@mui/icons-material'
 import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
-import { grey } from '@mui/material/colors'
+import { blueGrey } from '@mui/material/colors'
 
+import { useSnackbar } from '../../HOCs/SnackbarContext'
+import atom from '../../recoil/auth'
 import useEventAction from '../../recoil/event/action'
 import CommentsSection from './Comments/index'
+import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
+import RegisterButton from './RegisterButton'
+import UnRegisterButton from './UnRegisterButton'
 
 const EventDetailed = () => {
+    const auth = useRecoilValue(atom)
     const { id } = useParams()
-    const { getDetailedEvent } = useEventAction()
+    const { getDetailedEvent, getMyEvents } = useEventAction()
     const [error, setError] = useState(null)
+    const [isMyEvent, setIsMyEvent] = useState(true)
+    const [isRegistered, setIsRegistered] = useState(false)
+    const showSnackbar = useSnackbar()
+
     const [detailedEvent, setDetailedEvent] = useState({
         numberComments: 0,
         event: {},
+        numberRootComments: 0,
     })
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
-                const { event: responseEvent, commentCount } = response.data.data
+                const { event: responseEvent, registered } = response.data.data
                 setDetailedEvent({
-                    numberComments: commentCount,
+                    numberComments: responseEvent.commentsNum,
                     event: responseEvent,
+                    numberRootComments: responseEvent.rootCommentsNum,
                 })
+                setIsRegistered(registered)
             })
             .catch((errorResponse) => {
                 const errorMessage = errorResponse.response.data.data
                 setError(errorMessage)
             })
+        if (auth.role === 'Organizer') {
+            getMyEvents('')
+                .then((response) => {
+                    const myEvents = response.data.data.listEvents
+                    const isMine = myEvents.some((myEvent) => myEvent.id === +id)
+                    setIsMyEvent(isMine)
+                })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                })
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     if (error)
@@ -52,45 +81,48 @@ const EventDetailed = () => {
                 <Grid item xs={12} sm={4}>
                     <EventPoster src={detailedEvent.event.imageUrl} size="contain" />
                 </Grid>
-                <Grid item xs={12} sm={8} component={Card}>
+                <Grid item xs={12} sm={8} component={Card} sx={{ position: 'relative' }}>
                     <CardContent sx={{ p: 5 }}>
                         <Typography variant="h4" color="primary" fontWeight={700}>
                             {detailedEvent.event.eventTitle}
                         </Typography>
-                        <Typography sx={{ color: grey[600], mt: 1 }} variant="h6">
-                            Take place:{' '}
+                        <Box display="flex" alignItems="center" sx={{ my: 0.5 }}>
+                            <Festival color="primary" fontSize="medium" />
                             <Typography
-                                component="span"
                                 fontWeight={500}
-                                variant="h5"
-                                color="secondary"
-                                sx={{ textDecoration: 'underline' }}
+                                variant="h6"
+                                sx={{ ml: 1.5, color: blueGrey[900] }}
                             >
                                 {detailedEvent.event.location}
                             </Typography>
-                        </Typography>
-                        <Typography paragraph sx={{ color: grey[600], my: 1 }}>
+                        </Box>
+                        <EventDate
+                            startDate={new Date(detailedEvent.event.startDate)}
+                            endDate={new Date(detailedEvent.event.endDate)}
+                        />
+                        <Typography
+                            paragraph
+                            sx={{ color: blueGrey[900], mt: 1.5 }}
+                            variant="subtitle1"
+                        >
                             {detailedEvent.event.eventDescription}
                         </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 4 }}>
-                            <EventDate
-                                date={new Date(detailedEvent.event.startDate)}
-                                nameDate="Start"
-                            />
-                            <EventDate
-                                nameDate="End"
-                                date={new Date(detailedEvent.event.endDate)}
-                            />
-                        </Box>
                     </CardContent>
+                    {auth.role === 'User' && isRegistered && <UnRegisterButton />}
+                    {auth.role === 'User' && !isRegistered && <RegisterButton />}
+                    {auth.role === 'Organizer' && !isMyEvent && isRegistered && (
+                        <UnRegisterButton />
+                    )}
+                    {auth.role === 'Organizer' && !isMyEvent && !isRegistered && <RegisterButton />}
+                    {auth.role === 'Organizer' && isMyEvent && <EditEventButton />}
+                    {auth.role === 'Admin' && <EditEventButton />}
                 </Grid>
             </Grid>
-            <Box sx={{ mt: 2 }}>
-                <Typography sx={{ color: grey[600], display: 'block', mb: 2 }} align="right">
-                    {detailedEvent.numberComments} comments
-                </Typography>
-            </Box>
-            <CommentsSection eventId={id} numberComments={detailedEvent.numberComments} />
+            <CommentsSection
+                eventId={id}
+                numberComments={detailedEvent.numberComments}
+                numberRootComments={detailedEvent.numberRootComments}
+            />
         </Container>
     )
 }
