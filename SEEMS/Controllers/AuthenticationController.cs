@@ -58,9 +58,9 @@ public class AuthenticationController : ControllerBase
         }
         if (await _repoService.User.GetUserAsync(currentUser.Email, false) == null)
         {
-            _repoService.User.CreateUser(currentUser);
+            CreateNewUser(currentUser); 
             _repoService.UserMeta.RegisterRole(currentUser, RoleTypes.CUSR);
-            await _repoService.SaveAsync();
+            await _repoService.SaveAsync(); 
         }
         else
         {
@@ -128,6 +128,14 @@ public class AuthenticationController : ControllerBase
     private string MapLoginUiDomain()
     {
         return _baseServices.GetUiDomain() + "/login";
+    }
+
+    private async void CreateNewUser(User currentUser)
+    {
+        var organization = await _repoService.Organization.GetOrganizationByName("FPT-er", false);
+        currentUser.OrganizationId = organization.Id;
+        currentUser.Active = true;
+        _repoService.User.CreateUser(currentUser);
     }
 }
 
