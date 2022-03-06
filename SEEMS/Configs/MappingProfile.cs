@@ -31,5 +31,6 @@ public class MappingProfile : Profile
 			.ForMember(x => x.Active, opt => opt.MapFrom(x => x.Active));
 		CreateMap<ReservationDTO, Reservation>().ForMember(x => x.Attend, opt => opt.Ignore());
 		CreateMap<User, ReservationForAttendanceResDTO>();
+		CreateMap<Event, Event>();
 	}
 }
