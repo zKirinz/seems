@@ -11,9 +11,8 @@ import UpdateEventForm from './UpdateEventForm'
 const UpdateEvent = () => {
     const showSnackbar = useSnackbar()
     const eventActions = useEventAction()
-    const { getDetailedEvent, checkIsMyEvent } = useEventAction()
+    const { checkIsMyEvent } = useEventAction()
     const { id } = useParams()
-    const [myEvent, setMyEvent] = useState({})
     const [error, setError] = useState(null)
     const history = useHistory()
     const { pathname } = useLocation()
@@ -26,18 +25,6 @@ const UpdateEvent = () => {
                     const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
                     history.push(newUrl)
                 }
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
-                })
-            })
-
-        getDetailedEvent(id)
-            .then((response) => {
-                const { event: responseEvent } = response.data.data
-                setMyEvent(responseEvent)
             })
             .catch(() => {
                 showSnackbar({
@@ -80,10 +67,10 @@ const UpdateEvent = () => {
                 Update Event
             </Typography>
             <UpdateEventForm
-                event={myEvent}
                 error={error}
                 setError={setError}
                 updateEventHandler={updateEventHandler}
+                id={id}
             />
         </Box>
     )

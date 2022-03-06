@@ -21,17 +21,20 @@ import {
 } from '@mui/material'
 
 import usePrompt from '../../hooks/use-prompt'
+import { useEventAction } from '../../recoil/event'
 
 const defaultTextFieldValue = { value: '', isTouched: false }
 
 const isEmpty = (incomeValue) => incomeValue?.trim().length === 0
 
-const UpdateEventForm = ({ event, error, setError, updateEventHandler }) => {
+const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
+    const { getDetailedEvent } = useEventAction()
     const { routerPrompt, setFormIsTouched } = usePrompt('Changes you made may not be saved.')
     const [eventName, setEventName] = useState(defaultTextFieldValue)
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [eventFields, setEventFields] = useState({})
+
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
         setEventName((previousValue) => ({ ...previousValue, value: event.target.value }))
@@ -86,11 +89,34 @@ const UpdateEventForm = ({ event, error, setError, updateEventHandler }) => {
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
 
     useEffect(() => {
-        setEventName((previousValue) => ({ ...previousValue, value: event.eventTitle }))
-        setLocation((previousValue) => ({ ...previousValue, value: event.location }))
-        setDescription((previousValue) => ({ ...previousValue, value: event.eventDescription }))
-        setEventFields(event)
-    }, [event])
+        getDetailedEvent(id)
+            .then((response) => {
+                const { event: responseEvent } = response.data.data
+                setEventFields(responseEvent)
+
+                setEventName((previousValue) => ({
+                    ...previousValue,
+                    value: responseEvent.eventTitle,
+                }))
+
+                setLocation((previousValue) => ({
+                    ...previousValue,
+                    value: responseEvent.location,
+                }))
+
+                setDescription((previousValue) => ({
+                    ...previousValue,
+                    value: responseEvent.eventDescription,
+                }))
+            })
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
+            })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <React.Fragment>
@@ -101,7 +127,7 @@ const UpdateEventForm = ({ event, error, setError, updateEventHandler }) => {
                         <Box
                             component="img"
                             alt="school-image"
-                            src={event.imageUrl}
+                            src={eventFields.imageUrl}
                             sx={{
                                 width: '100%',
                                 aspectRatio: '1 / 1',
