@@ -69,6 +69,8 @@ public class AuthenticationController : ControllerBase
             {
                 return Redirect($"{MapLoginUiDomain()}?error=inactive-user");
             }
+
+            currentUser.OrganizationId = user.OrganizationId;
             _mapper.Map(currentUser, user);
             await _repoService.SaveAsync();
         } 
