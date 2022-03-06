@@ -9,29 +9,29 @@ namespace SEEMS.Services;
 public class JobSchedular : IHostedService
 {
     public IScheduler Scheduler { get; set; }
-    private readonly IJobFactory jobFactory;
-    private readonly List<JobMeta> jobMetadatas;
-    private readonly ISchedulerFactory schedulerFactory;
+    private readonly IJobFactory _jobFactory;
+    private readonly List<JobMeta> _jobMeta;
+    private readonly ISchedulerFactory _schedulerFactory;
 
-    public JobSchedular(ISchedulerFactory schedulerFactory, List<JobMeta> jobMetadatas, IJobFactory jobFactory)
+    public JobSchedular(ISchedulerFactory schedulerFactory, List<JobMeta> jobMeta, IJobFactory jobFactory)
     {
-        this.jobFactory = jobFactory;
-        this.schedulerFactory = schedulerFactory;
-        this.jobMetadatas = jobMetadatas;
+        _jobFactory = jobFactory;
+        _schedulerFactory = schedulerFactory;
+        _jobMeta = jobMeta;
     }
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        Scheduler = await schedulerFactory.GetScheduler();
+        Scheduler = await _schedulerFactory.GetScheduler();
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped<IRepositoryManager, RepositoryManager>();
         var serviceProvider = serviceCollection.BuildServiceProvider();
         
-        Scheduler.JobFactory = jobFactory;
+        Scheduler.JobFactory = _jobFactory;
 
-        jobMetadatas.ForEach(jobMetadata =>
+        _jobMeta.ForEach(jobMetadata =>
         {
-            IJobDetail jobDetail = CreateJob(jobMetadata);
-            ITrigger trigger = CreateTrigger(jobMetadata);
+            var jobDetail = CreateJob(jobMetadata);
+            var trigger = CreateTrigger(jobMetadata);
             Scheduler.ScheduleJob(jobDetail, trigger, cancellationToken).GetAwaiter();
         });
         await Scheduler.Start(cancellationToken);
