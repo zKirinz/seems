@@ -32,7 +32,6 @@ const UpComingEvents = () => {
             .getUpcomingEvents()
             .then((res) => {
                 setUpcomingEvents(res.data.data.events)
-                console.log(res.data.data.events)
                 setIsLoading(false)
             })
             .catch(() => {
