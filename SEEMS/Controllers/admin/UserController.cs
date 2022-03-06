@@ -38,7 +38,9 @@ public class UserController : ControllerBase
 		for(var i = 0; i < listUsers.Count; i++)
 		{
 			var roleByUserId = await _repoManager.UserMeta.GetRoleByUserIdAsync(listUsers[i].Id, false);
-			if(listUsers[i].OrganizationId == 0)
+			//todo: ThinhLe temporarily set the if value
+			//if(listUsers[i].OrganizationId == 0)
+			if(listUsers[i].Organization == 0)
 			{
 				result.Add(new UserDTO
 				{
@@ -104,11 +106,11 @@ public class UserController : ControllerBase
 			if(dto.Organization != null)
 			{
 				var org = await _repoManager.Organization.GetOrganizationByName(dto.Organization, false);
-				dto.Org = org;
+				//dto.Org = org;
 			}
 			else
 			{
-				dto.Org = entity.Organization;
+				//dto.Org = entity.Organization;
 			}
 
 			dto.Active ??= entity.Active;
@@ -118,7 +120,7 @@ public class UserController : ControllerBase
 			await _repoManager.SaveAsync();
 
 			var returnUser = await _repoManager.User.GetUserAsync(entity.Id, false);
-			returnUser.Organization = await _repoManager.Organization.GetOrganizationAsync(returnUser.OrganizationId, false);
+			returnUser.Organization = await _repoManager.Organization.GetOrganizationAsync(returnUser./*OrganizationId*/Organization, false);
 
 			var returnRole = await _repoManager.UserMeta.GetRoleByUserIdAsync(returnUser.Id, false);
 
@@ -133,7 +135,7 @@ public class UserController : ControllerBase
 	private static UserDTO ReturnUser(User user, UserMeta role) => new()
 	{
 		User = user,
-		Organization = user.Organization.Name,
+		Organization = user.Organization.ToString(),
 		Role = role.MetaValue
 	};
 }
