@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SEEMS.Infrastructures.Commons;
+
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace SEEMS.Data.DTO
@@ -12,7 +14,7 @@ namespace SEEMS.Data.DTO
 		public string EventDescription { get; set; }
 		public int? CommentsNum { get; set; }
 		public int? RootCommentsNum { get; set; }
-		public string? OrganizationName { get; set; }
+		public OrganizationEnum? OrganizationEnum { get; set; }
 		public int? ChainOfEventId { get; set; }
 		[Required]
 		public bool IsPrivate { get; set; }

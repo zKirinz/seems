@@ -11,7 +11,7 @@ namespace SEEMS.Services.Interfaces
     public interface IAuthManager
     {
 
-        public Task<string> GenerateToken(User user, UserMeta roleMeta, Organization? organization);
+        public Task<string> GenerateToken(User user, UserMeta roleMeta/*, Organization? organization*/);
 
         public JwtSecurityToken DecodeToken(string token);
 

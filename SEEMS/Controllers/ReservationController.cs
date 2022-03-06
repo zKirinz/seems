@@ -113,7 +113,7 @@ namespace SEEMS.Controllers
                             var events = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId); 
                             var eventDTO = _mapper.Map<EventDTO>(events);
                             eventDTO.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
-                            eventDTO.OrganizationName = _context.Organizations.FirstOrDefault(x => x.Id == events.OrganizationId).Name;
+                            //eventDTO.OrganizationName = _context.Organizations.FirstOrDefault(x => x.Id == events.OrganizationId).Name;
                             listEventDTO.Add(eventDTO);
                         }
 

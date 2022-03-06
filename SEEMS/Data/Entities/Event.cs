@@ -1,5 +1,6 @@
 ﻿using SEEMS.Data.Entities;
 using SEEMS.Data.Models;
+using SEEMS.Infrastructures.Commons;
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,8 +16,8 @@ namespace SEEMS.Models
 		[StringLength(2000)]
 		public String EventDescription { get; set; }
 
-		[ForeignKey("Organization")]
-		public int OrganizationId { get; set; }
+		[Required]
+		public OrganizationEnum Organization { get; set; }
 
 		public bool IsPrivate { get; set; }
 
@@ -31,13 +32,10 @@ namespace SEEMS.Models
 
 		public DateTime EndDate { get; set; }
 
-
 		[JsonIgnore]
 		public List<Reservation>? Reservations { get; set; }
 
 		[JsonIgnore]
 		public List<Comment>? Comments { get; set; }
-		public Organization? Organization { get; set; }
-
 	}
 }

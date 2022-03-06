@@ -50,11 +50,11 @@ public class UserController : ControllerBase
 			}
 			else
 			{
-				var orgByUserId = await _repoManager.Organization.GetOrganizationAsync(listUsers[i].OrganizationId, false);
+				//var orgByUserId = await _repoManager.Organization.GetOrganizationAsync(listUsers[i].OrganizationId, false);
 				result.Add(new UserDTO
 				{
 					User = listUsers[i],
-					Organization = orgByUserId?.Name,
+					//Organization = orgByUserId?.Name,
 					Role = roleByUserId.MetaValue
 				});
 			}
@@ -105,7 +105,7 @@ public class UserController : ControllerBase
 			var entity = await _repoManager.User.GetUserAsync(id, true);
 			if(dto.Organization != null)
 			{
-				var org = await _repoManager.Organization.GetOrganizationByName(dto.Organization, false);
+				//var org = await _repoManager.Organization.GetOrganizationByName(dto.Organization, false);
 				//dto.Org = org;
 			}
 			else
@@ -120,7 +120,7 @@ public class UserController : ControllerBase
 			await _repoManager.SaveAsync();
 
 			var returnUser = await _repoManager.User.GetUserAsync(entity.Id, false);
-			returnUser.Organization = await _repoManager.Organization.GetOrganizationAsync(returnUser./*OrganizationId*/Organization, false);
+			//returnUser.Organization = await _repoManager.Organization.GetOrganizationAsync(returnUser./*OrganizationId*/Organization, false);
 
 			var returnRole = await _repoManager.UserMeta.GetRoleByUserIdAsync(returnUser.Id, false);
 

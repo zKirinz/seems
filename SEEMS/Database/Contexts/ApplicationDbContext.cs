@@ -5,12 +5,14 @@ using SEEMS.Models;
 using System;
 using SEEMS.Infrastructures.Extensions;
 using SEEMS.Database.Configurations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using SEEMS.Infrastructures.Commons;
 
 namespace SEEMS.Contexts
 {
 	public class ApplicationDbContext : DbContext
 	{
-		public ApplicationDbContext( DbContextOptions<ApplicationDbContext> options ) : base(options)
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
 		{
 		}
 
@@ -31,17 +33,20 @@ namespace SEEMS.Contexts
 		public DbSet<UserMeta> UserMetas { get; set; }
 		public DbSet<LikeComment> LikeComments { get; set; }
 
-		public DbSet<Organization> Organizations { get; set; }
-
-		protected override void OnModelCreating( ModelBuilder modelBuilder )
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			if (modelBuilder == null)
+			if(modelBuilder == null)
 				throw new ArgumentNullException(nameof(modelBuilder));
 
 			modelBuilder.AddRemovePluralizeConvention();
 			modelBuilder.AddRemoveOneToManyCascadeConvention();
+			modelBuilder.Entity<User>()
+						.Property(u => u.Organization)
+						.HasConversion(new EnumToStringConverter<OrganizationEnum>());
+			modelBuilder.Entity<Event>()
+						.Property(u => u.Organization)
+						.HasConversion(new EnumToStringConverter<OrganizationEnum>());
 
-			modelBuilder.ApplyConfiguration(new OrganizationConfiguration());
 			modelBuilder.ApplyConfiguration(new UserConfiguration());
 			modelBuilder.ApplyConfiguration(new UserMetaConfiguration());
 			modelBuilder.ApplyConfiguration(new EventConfiguration());
@@ -51,7 +56,7 @@ namespace SEEMS.Contexts
 			base.OnModelCreating(modelBuilder);
 		}
 
-		public override Task<int> SaveChangesAsync( bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken() )
+		public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
 		{
 			var entries = ChangeTracker
 				.Entries()
@@ -59,11 +64,11 @@ namespace SEEMS.Contexts
 					e.State == EntityState.Added
 					|| e.State == EntityState.Modified));
 
-			foreach (var entityEntry in entries)
+			foreach(var entityEntry in entries)
 			{
 				((AbstractEntity<int>) entityEntry.Entity).ModifiedAt = DateTime.Now;
 
-				if (entityEntry.State == EntityState.Added)
+				if(entityEntry.State == EntityState.Added)
 				{
 					((AbstractEntity<int>) entityEntry.Entity).CreatedAt = DateTime.Now;
 				}
@@ -79,11 +84,11 @@ namespace SEEMS.Contexts
 					e.State == EntityState.Added
 					|| e.State == EntityState.Modified));
 
-			foreach (var entityEntry in entries)
+			foreach(var entityEntry in entries)
 			{
 				((AbstractEntity<int>) entityEntry.Entity).ModifiedAt = DateTime.Now;
 
-				if (entityEntry.State == EntityState.Added)
+				if(entityEntry.State == EntityState.Added)
 				{
 					((AbstractEntity<int>) entityEntry.Entity).CreatedAt = DateTime.Now;
 				}

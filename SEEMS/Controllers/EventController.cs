@@ -75,8 +75,8 @@ namespace SEEMS.Controller
 			{
 				if(user != null)
 				{
-					var findingOrgId = user.OrganizationId;
-					var allEvents = _context.Events.Where(a => a.OrganizationId == findingOrgId).ToList();
+					//var findingOrgId = user.OrganizationId;
+					var allEvents = _context.Events.Where(a => a.Organization == user.Organization).ToList();
 					IEnumerable<Event> foundResult;
 					if(upcoming == null)
 					{
@@ -131,7 +131,7 @@ namespace SEEMS.Controller
 					{
 						var eMapped = _mapper.Map<EventDTO>(e);
 						eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-						eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+						//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
 						dtoResult.Add(eMapped);
 					});
 					return failed
@@ -179,7 +179,7 @@ namespace SEEMS.Controller
 				{
 					var eMapped = _mapper.Map<EventDTO>(e);
 					eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-					eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+					//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
 					dtoResult.Add(eMapped);
 				});
 				return Ok(new Response(
@@ -259,7 +259,7 @@ namespace SEEMS.Controller
 				{
 					var eMapped = _mapper.Map<EventDTO>(e);
 					eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-					eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+					//eMapped.O = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
 					dtoResult.Add(eMapped);
 				});
 
@@ -302,7 +302,7 @@ namespace SEEMS.Controller
 				else
 				{
 					if(userMeta.MetaValue.Equals("Organizer", StringComparison.CurrentCultureIgnoreCase)
-						&& user.OrganizationId == myEvent.OrganizationId)
+						&& user.Organization.Equals(myEvent.Organization))
 					{
 						EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
 						if(eventValidationInfo != null)
@@ -312,7 +312,7 @@ namespace SEEMS.Controller
 									"Some fields didn't match requirements"));
 						var newEvent = _mapper.Map<Event>(eventDTO);
 						newEvent.Id = myEvent.Id;
-						newEvent.OrganizationId = myEvent.OrganizationId;
+						newEvent.Organization = myEvent.Organization;
 						_context.Update(newEvent);
 						await _context.SaveChangesAsync();
 						return Ok(
@@ -406,7 +406,7 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
-					newEvent.OrganizationId = user.OrganizationId;
+					newEvent.Organization = user.Organization;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
@@ -428,7 +428,7 @@ namespace SEEMS.Controller
 				var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
 				if(myEvent != null)
 				{
-					var isMine = user.OrganizationId == myEvent.OrganizationId;
+					var isMine = user.Organization.Equals(myEvent.Organization);
 					return Ok(
 						new Response(
 							ResponseStatusEnum.Success,

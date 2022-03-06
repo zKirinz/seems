@@ -2,9 +2,9 @@
 {
 	public enum OrganizationEnum
 	{
-		FPTU,
-		FPTer,
-		FCode,
-		DSC
+		FPTU = 0,
+		FPTer = 1,
+		FCode = 2,
+		DSC = 3
 	}
 }

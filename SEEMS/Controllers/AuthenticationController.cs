@@ -74,16 +74,17 @@ public class AuthenticationController : ControllerBase
         } 
             
         var currentRole = await _repoService.UserMeta.GetRolesAsync(currentUser.Email, false);
-        var currentOrg = await _repoService.Organization.GetOrganizationAsync(currentUser.OrganizationId, false) ??
-                         null;
-        var accessToken = await _authService.GenerateToken(currentUser, currentRole, currentOrg);
+        //var currentOrg = await _repoService.Organization.GetOrganizationAsync(currentUser.OrganizationId, false) ??
+                         //null;
+        //var accessToken = await _authService.GenerateToken(currentUser, currentRole, currentOrg);
 
-        Response.Cookies.Append("jwt", accessToken, new CookieOptions
-        {
-            HttpOnly = true
-        });
+        //Response.Cookies.Append("jwt", accessToken, new CookieOptions
+        //{
+        //    HttpOnly = true
+        //});
 
-        return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
+        //return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
+        return Redirect($"{MapLoginUiDomain()}?token=");
     }
         
     [HttpPost]
@@ -132,10 +133,10 @@ public class AuthenticationController : ControllerBase
 
     private async void CreateNewUser(User currentUser)
     {
-        var organization = await _repoService.Organization.GetOrganizationByName("FPT-er", false);
-        currentUser.OrganizationId = organization.Id;
-        currentUser.Active = true;
-        _repoService.User.CreateUser(currentUser);
+        //var organization = await _repoService.Organization.GetOrganizationByName("FPT-er", false);
+        //currentUser.OrganizationId = organization.Id;
+        //currentUser.Active = true;
+        //_repoService.User.CreateUser(currentUser);
     }
 }
 

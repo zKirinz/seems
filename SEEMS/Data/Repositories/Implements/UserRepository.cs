@@ -20,7 +20,7 @@ namespace SEEMS.Data.Repositories.Implements
         public async Task<PaginatedList<User>?> GetAllUsersAsync(UserParams param, bool trackChanges)
         {
             var users = await FindAll(trackChanges)
-                        .FilterUsersByOrg(_context, param.Organization)
+                        //.FilterUsersByOrg(_context, param.Organization)
                         .FilterUsersByRole(_context, param.Role)
                         .ToListAsync();
             return PaginatedList<User>.Create(users, param.PageNumber, param.PageSize);

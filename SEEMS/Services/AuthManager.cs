@@ -26,10 +26,10 @@ namespace SEEMS.Services
         }
 
 
-        public async Task<string> GenerateToken(User user, UserMeta roleMeta, Organization? organization)
+        public async Task<string> GenerateToken(User user, UserMeta roleMeta/*, Organization? organization*/)
         {
             var signinCredentials = GetSigninCredentials();
-            var claims = await GetClaims(user, roleMeta, organization);
+            var claims = await GetClaims(user, roleMeta/*, organization*/);
             var tokenOptions = GenerateTokenOptions(signinCredentials, claims);
 
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
@@ -51,7 +51,7 @@ namespace SEEMS.Services
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
 
-        private Task<List<Claim>> GetClaims(User user, UserMeta roleMeta, Organization? organization)
+        private Task<List<Claim>> GetClaims(User user, UserMeta roleMeta/*, Organization? organization*/)
         {
             var claims = new List<Claim>
             {
@@ -61,10 +61,10 @@ namespace SEEMS.Services
                new Claim("image", user.ImageUrl)
             };
 
-            if (organization != null)
-            {
-                claims.Add(new Claim("organization", organization.Name));
-            }
+            //if (organization != null)
+            //{
+            //    claims.Add(new Claim("organization", organization.Name));
+            //}
 
             return Task.FromResult(claims);
         }
