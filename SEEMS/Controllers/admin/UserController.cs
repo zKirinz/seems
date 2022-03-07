@@ -83,7 +83,7 @@ public class UserController : ControllerBase
 		{
 			var entity = await _repoManager.User.GetUserAsync(id, true);
 			
-			dto.Organization ??= entity.Organization.GetDisplayName();
+			dto.Organization ??= entity.OrganizationName.GetDisplayName();
 			dto.Active ??= entity.Active;
 			if(entity == null)
 				throw new ArgumentNullException();
@@ -105,7 +105,7 @@ public class UserController : ControllerBase
 	private static UserDTO ReturnUser(User user, UserMeta role) => new()
 	{
 		User = user,
-		Organization = user.Organization.GetDisplayName(),
+		Organization = user.OrganizationName.GetDisplayName(),
 		Role = role.MetaValue
 	};
 }

@@ -13,11 +13,11 @@ namespace SEEMS.Database.Configurations
 		public void Configure(EntityTypeBuilder<User> builder)
 		{
 			List<User> listUsers = new();
-			listUsers.Add(new User() { Id = -1, Email = "thinhltse151082@fpt.edu.vn", Organization = OrganizationEnum.FPTU, UserName = "Le Tien Thinh (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
-			listUsers.Add(new User() { Id = -2, Email = "phatdgse140409@fpt.edu.vn", Organization = OrganizationEnum.FPTU, UserName = "Duong Gia Phat (K14 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
-			listUsers.Add(new User() { Id = -3, Email = "kienttse151340@fpt.edu.vn", Organization = OrganizationEnum.FPTU, UserName = "Tran Trung Kien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
-			listUsers.Add(new User() { Id = -4, Email = "nguyennkse140132@fpt.edu.vn", Organization = OrganizationEnum.FPTU, UserName = "Nguyen Khoi Nguyen (K13 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
-			listUsers.Add(new User() { Id = -5, Email = "hienbtse150763@fpt.edu.vn", Organization = OrganizationEnum.FPTU, UserName = "Bui The Hien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
+			listUsers.Add(new User() { Id = -1, Email = "thinhltse151082@fpt.edu.vn", OrganizationName = OrganizationEnum.FPTU, UserName = "Le Tien Thinh (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
+			listUsers.Add(new User() { Id = -2, Email = "phatdgse140409@fpt.edu.vn", OrganizationName = OrganizationEnum.FPTU, UserName = "Duong Gia Phat (K14 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
+			listUsers.Add(new User() { Id = -3, Email = "kienttse151340@fpt.edu.vn", OrganizationName = OrganizationEnum.FPTU, UserName = "Tran Trung Kien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
+			listUsers.Add(new User() { Id = -4, Email = "nguyennkse140132@fpt.edu.vn", OrganizationName = OrganizationEnum.FPTU, UserName = "Nguyen Khoi Nguyen (K13 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
+			listUsers.Add(new User() { Id = -5, Email = "hienbtse150763@fpt.edu.vn", OrganizationName = OrganizationEnum.FPTU, UserName = "Bui The Hien (K15 HCM)", ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c", Active = true });
 
 			//5 admin fptu
 			for(int i = 6; i <= 10; i++)
@@ -27,7 +27,7 @@ namespace SEEMS.Database.Configurations
 					Id = -i,
 					Email = $"adminfptu{i}@fpt.edu.vn",
 					Active = true,
-					Organization = OrganizationEnum.FPTU,
+					OrganizationName = OrganizationEnum.FPTU,
 					ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c",
 					UserName = $"Admin FPTU {i}"
 				});
@@ -40,7 +40,7 @@ namespace SEEMS.Database.Configurations
 					Id = -i,
 					Email = $"userfpter{i}@fpt.edu.vn",
 					Active = true,
-					Organization = OrganizationEnum.FPTer,
+					OrganizationName = OrganizationEnum.FPTer,
 					ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c",
 					UserName = $"User FPTer {i}"
 				});
@@ -53,7 +53,7 @@ namespace SEEMS.Database.Configurations
 					Id = -i,
 					Email = $"organizerdsc{i}@fpt.edu.vn",
 					Active = true,
-					Organization = OrganizationEnum.DSC,
+					OrganizationName = OrganizationEnum.DSC,
 					ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c",
 					UserName = $"Orgranizer DSC {i}"
 				});
@@ -66,7 +66,7 @@ namespace SEEMS.Database.Configurations
 					Id = -i,
 					Email = $"organizerfcode{i}@fpt.edu.vn",
 					Active = true,
-					Organization = OrganizationEnum.FCode,
+					OrganizationName = OrganizationEnum.FCode,
 					ImageUrl = "https://lh3.googleusercontent.com/a/AATXAJyyQqWunLakO_S0SuQXM-BFY9gBLJUZEkUML-Wy=s96-c",
 					UserName = $"Orgranizer FCode {i}"
 				});

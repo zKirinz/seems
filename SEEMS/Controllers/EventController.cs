@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
+using SEEMS.Data.DTOs.Event;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
@@ -43,6 +45,7 @@ namespace SEEMS.Controller
 				dtoEvent.CommentsNum = _repository.Comment.CountCommentsOfEvent(id);
 				dtoEvent.RootCommentsNum = _context.Comments.Where(c => c.EventId == id && c.ParentCommentId == null).Count();
 				dtoEvent.RegisteredNum = _repository.Reservation.GetRegisteredNum(id);
+				dtoEvent.OrganizationName = OrganizationEnumHelper.ToString(foundEvent.OrganizationName);
 				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
 				return Ok(
@@ -69,7 +72,7 @@ namespace SEEMS.Controller
 
 		[HttpGet("my-events")]
 		public async Task<ActionResult<List<Event>>> GetMyEvents(string? search, bool? upcoming,
-			int? lastEventID, int resultCount = 1000)
+			int? lastEventID, bool? active, int resultCount = 1000)
 		{
 			User user = await GetCurrentUser(Request);
 			try
@@ -77,7 +80,7 @@ namespace SEEMS.Controller
 				if(user != null)
 				{
 					//var findingOrgId = user.OrganizationId;
-					var allEvents = _context.Events.Where(a => a.Organization == user.Organization).ToList();
+					var allEvents = _context.Events.Where(a => a.OrganizationName == user.OrganizationName).ToList();
 					IEnumerable<Event> foundResult;
 					if(upcoming == null)
 					{
@@ -89,6 +92,13 @@ namespace SEEMS.Controller
 							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
 							allEvents.Where(
 							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
+					}
+
+					if(active != null)
+					{
+						foundResult = (bool) active
+							? foundResult.Where(e => e.Active)
+							: foundResult.Where(e => !e.Active);
 					}
 
 					List<Event> returnResult = null;
@@ -132,6 +142,7 @@ namespace SEEMS.Controller
 					{
 						var eMapped = _mapper.Map<EventDTO>(e);
 						eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
+						eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 						//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
 						dtoResult.Add(eMapped);
 					});
@@ -181,6 +192,7 @@ namespace SEEMS.Controller
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
 					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
+					eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 					dtoResult.Add(eMapped);
 				});
 				return Ok(new Response(
@@ -201,7 +213,7 @@ namespace SEEMS.Controller
 
 		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
-			int? lastEventID, int resultCount = 10)
+			int? lastEventID, bool? active, int resultCount = 10)
 		{
 			try
 			{
@@ -217,6 +229,13 @@ namespace SEEMS.Controller
 						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
 						allEvents.Where(
 						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
+				}
+
+				if(active != null)
+				{
+					foundResult = (bool) active
+						? foundResult.Where(e => e.Active)
+						: foundResult.Where(e => !e.Active);
 				}
 
 				List<Event> returnResult = null;
@@ -260,6 +279,7 @@ namespace SEEMS.Controller
 				{
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
+					eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
 					dtoResult.Add(eMapped);
 				});
@@ -284,14 +304,10 @@ namespace SEEMS.Controller
 		}
 
 		[HttpPut("{id}")]
-		public async Task<ActionResult<bool>> Update(int id, [FromBody] EventDTO eventDTO)
+		public async Task<ActionResult<bool>> Update(int id, [FromBody] EventForUpdateDTO eventDTO)
 		{
 			try
 			{
-				eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
-				eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
-				var user = await GetCurrentUser(Request);
-				var userMeta = _context.UserMetas.FirstOrDefault(x => x.UserId == user.Id);
 				var myEvent = _context.Events.AsNoTracking().FirstOrDefault(e => e.Id == id);
 				if(myEvent == null)
 				{
@@ -302,38 +318,24 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					if(userMeta.MetaValue.Equals("Organizer", StringComparison.CurrentCultureIgnoreCase)
-						&& user.Organization.Equals(myEvent.Organization))
-					{
-						EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
-						if(eventValidationInfo != null)
-							return BadRequest(
-									new Response(ResponseStatusEnum.Fail,
-									eventValidationInfo,
-									"Some fields didn't match requirements"));
-						var newEvent = _mapper.Map<Event>(eventDTO);
-						newEvent.Id = myEvent.Id;
-						newEvent.Organization = myEvent.Organization;
-						_context.Update(newEvent);
-						await _context.SaveChangesAsync();
-						return Ok(
-						new Response(
-							ResponseStatusEnum.Success,
-							newEvent,
-							msg: "Succefully Update"
-							)
-						);
-					}
-					else
-					{
+					EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
+					if(eventValidationInfo != null)
 						return BadRequest(
-							new Response(
-								ResponseStatusEnum.Fail,
-								code: 400,
-								msg: "Just Organizer who created event can update this event"
-							)
-						);
-					}
+								new Response(ResponseStatusEnum.Fail,
+								eventValidationInfo,
+								"Some fields didn't match requirements"));
+					myEvent.EventTitle = eventDTO.EventTitle;
+					myEvent.EventDescription = eventDTO.EventDescription;
+					myEvent.Location = eventDTO.Location;
+					_context.Update(myEvent);
+					await _context.SaveChangesAsync();
+					return Ok(
+					new Response(
+						ResponseStatusEnum.Success,
+						myEvent,
+						msg: "Succefully Update"
+						)
+					);
 				}
 			}
 			catch(Exception ex)
@@ -408,8 +410,11 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
-					newEvent.Organization = user.Organization;
-					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null ? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6)) : eventDTO.RegistrationDeadline;
+					newEvent.OrganizationName = user.OrganizationName;
+					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null
+						? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6))
+						: eventDTO.RegistrationDeadline;
+					eventDTO.OrganizationName = OrganizationEnumHelper.ToString(newEvent.OrganizationName);
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
@@ -431,7 +436,7 @@ namespace SEEMS.Controller
 				var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
 				if(myEvent != null)
 				{
-					var isMine = user.Organization.Equals(myEvent.Organization);
+					var isMine = user.OrganizationName.Equals(myEvent.OrganizationName);
 					return Ok(
 						new Response(
 							ResponseStatusEnum.Success,

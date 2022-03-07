@@ -58,7 +58,7 @@ namespace SEEMS.Services
             {
                new Claim("email", user.Email),
                new Claim("name", user.UserName),
-               new Claim("organization", user.Organization.GetDisplayName()),
+               new Claim("organization", user.OrganizationName.GetDisplayName()),
                new Claim("role", roleMeta.MetaValue),
                new Claim("image", user.ImageUrl)
             };
