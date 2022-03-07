@@ -12,8 +12,6 @@ namespace SEEMS.Services.Interfaces
         IUserRepository User { get; }
         IUserMetaRepository UserMeta { get; }
         
-        IOrganizationRepository Organization { get; }
-
 		IEventRepository Event { get; }
 
 		ICommentRepository Comment { get; }

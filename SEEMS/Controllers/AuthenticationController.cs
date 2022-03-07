@@ -70,22 +70,21 @@ public class AuthenticationController : ControllerBase
                 return Redirect($"{MapLoginUiDomain()}?error=inactive-user");
             }
 
-            currentUser.OrganizationId = user.OrganizationId;
+            //currentUser.OrganizationId = user.OrganizationId;
             _mapper.Map(currentUser, user);
             await _repoService.SaveAsync();
         } 
             
         var currentRole = await _repoService.UserMeta.GetRolesAsync(currentUser.Email, false);
-        var currentOrg = await _repoService.Organization.GetOrganizationAsync(currentUser.OrganizationId, false) ??
-                         null;
-        var accessToken = await _authService.GenerateToken(currentUser, currentRole, currentOrg);
+        var accessToken = await _authService.GenerateToken(currentUser, currentRole);
 
         Response.Cookies.Append("jwt", accessToken, new CookieOptions
         {
             HttpOnly = true
         });
 
-        return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
+        return Ok(accessToken);
+        //return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
     }
         
     [HttpPost]
@@ -134,8 +133,7 @@ public class AuthenticationController : ControllerBase
 
     private async void CreateNewUser(User currentUser)
     {
-        var organization = await _repoService.Organization.GetOrganizationByName("FPT-er", false);
-        currentUser.OrganizationId = organization.Id;
+        currentUser.Organization = OrganizationEnum.FPTer;
         currentUser.Active = true;
         _repoService.User.CreateUser(currentUser);
     }

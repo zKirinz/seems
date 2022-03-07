@@ -2,7 +2,7 @@ using AutoMapper;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.OpenApi.Extensions;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Entities.RequestFeatures;
 using SEEMS.Data.Models;
@@ -34,30 +34,11 @@ public class UserController : ControllerBase
 	public async Task<IActionResult> GetListUsers([FromQuery] UserParams userParams)
 	{
 		var listUsers = await _repoManager.User.GetAllUsersAsync(userParams, false);
-		List<UserDTO> result = new List<UserDTO>();
+		var result = new List<UserDTO>();
 		for(var i = 0; i < listUsers.Count; i++)
 		{
 			var roleByUserId = await _repoManager.UserMeta.GetRoleByUserIdAsync(listUsers[i].Id, false);
-			if(listUsers[i].OrganizationId == 0)
-			{
-				result.Add(new UserDTO
-				{
-					User = listUsers[i],
-					Role = roleByUserId.MetaValue
-				});
-			}
-			else
-			{
-				var orgByUserId = await _repoManager.Organization.GetOrganizationAsync(listUsers[i].OrganizationId, false);
-				result.Add(new UserDTO
-				{
-					User = listUsers[i],
-					Organization = orgByUserId?.Name,
-					Role = roleByUserId.MetaValue
-				});
-			}
-
-
+			result.Add(ReturnUser(listUsers[i], roleByUserId));
 		}
 		return Ok(new Response(ResponseStatusEnum.Success, result, $"Found {listUsers.Meta.TotalCount} result(s)", 200, listUsers.Meta));
 	}
@@ -101,16 +82,8 @@ public class UserController : ControllerBase
 		try
 		{
 			var entity = await _repoManager.User.GetUserAsync(id, true);
-			if(dto.Organization != null)
-			{
-				var org = await _repoManager.Organization.GetOrganizationByName(dto.Organization, false);
-				dto.Org = org;
-			}
-			else
-			{
-				dto.Org = entity.Organization;
-			}
-
+			
+			dto.Organization ??= entity.Organization.GetDisplayName();
 			dto.Active ??= entity.Active;
 			if(entity == null)
 				throw new ArgumentNullException();
@@ -118,7 +91,6 @@ public class UserController : ControllerBase
 			await _repoManager.SaveAsync();
 
 			var returnUser = await _repoManager.User.GetUserAsync(entity.Id, false);
-			returnUser.Organization = await _repoManager.Organization.GetOrganizationAsync(returnUser.OrganizationId, false);
 
 			var returnRole = await _repoManager.UserMeta.GetRoleByUserIdAsync(returnUser.Id, false);
 
@@ -133,7 +105,7 @@ public class UserController : ControllerBase
 	private static UserDTO ReturnUser(User user, UserMeta role) => new()
 	{
 		User = user,
-		Organization = user.Organization.Name,
+		Organization = user.Organization.GetDisplayName(),
 		Role = role.MetaValue
 	};
 }

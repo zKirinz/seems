@@ -10,6 +10,4 @@ public class UserForUpdateDto
     
     [JsonIgnore]
     public string? Organization { get; set; }
-    [JsonIgnore] 
-    public Organization? Org { get; set; }
 }
