@@ -15,8 +15,6 @@ import CheckAttendanceButton from './CheckAttendanceButton'
 import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
-import RegisterButton from './RegisterButton'
-import UnRegisterButton from './UnRegisterButton'
 
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
@@ -25,8 +23,6 @@ const EventDetailed = () => {
     const { getDetailedEvent, checkIsMyEvent } = useEventAction()
     const [error, setError] = useState(null)
     const [isMyEvent, setIsMyEvent] = useState(true)
-    const [isRegistered, setIsRegistered] = useState(false)
-    const [reset, setReset] = useState(0)
     const showSnackbar = useSnackbar()
 
     const [detailedEvent, setDetailedEvent] = useState({
@@ -37,13 +33,12 @@ const EventDetailed = () => {
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
-                const { event: responseEvent, registered } = response.data.data
+                const { event: responseEvent } = response.data.data
                 setDetailedEvent({
                     numberComments: responseEvent.commentsNum,
                     event: responseEvent,
                     numberRootComments: responseEvent.rootCommentsNum,
                 })
-                setIsRegistered(registered)
             })
             .catch((errorResponse) => {
                 const errorMessage = errorResponse.response.data.data
@@ -64,7 +59,7 @@ const EventDetailed = () => {
                 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reset])
+    }, [])
 
     if (error)
         return (
@@ -113,23 +108,13 @@ const EventDetailed = () => {
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {auth.role === 'User' && isRegistered && (
-                        <UnRegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
-                    )}
-                    {auth.role === 'User' && !isRegistered && (
-                        <RegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
-                    )}
-                    {auth.role === 'Organizer' && !isMyEvent && isRegistered && (
-                        <UnRegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
-                    )}
-                    {auth.role === 'Organizer' && !isMyEvent && !isRegistered && (
-                        <RegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
-                    )}
-                    {auth.role === 'Organizer' && isMyEvent && (
+                    {isMyEvent && (
                         <React.Fragment>
                             <EditEventButton />
                             <CheckAttendanceButton
-                                onClickHandler={() => history.push(`/events/me/${id}/attendance`)}
+                                onClickHandler={() =>
+                                    history.push(`/admin/events/me/${id}/attendance`)
+                                }
                             />
                         </React.Fragment>
                     )}
