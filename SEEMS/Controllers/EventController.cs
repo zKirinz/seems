@@ -8,6 +8,7 @@ using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs.Event;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
@@ -44,6 +45,7 @@ namespace SEEMS.Controller
 				dtoEvent.CommentsNum = _repository.Comment.CountCommentsOfEvent(id);
 				dtoEvent.RootCommentsNum = _context.Comments.Where(c => c.EventId == id && c.ParentCommentId == null).Count();
 				dtoEvent.RegisteredNum = _repository.Reservation.GetRegisteredNum(id);
+				dtoEvent.OrganizationName = OrganizationEnumHelper.ToString(foundEvent.OrganizationName);
 				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
 				return Ok(
@@ -70,7 +72,7 @@ namespace SEEMS.Controller
 
 		[HttpGet("my-events")]
 		public async Task<ActionResult<List<Event>>> GetMyEvents(string? search, bool? upcoming,
-			int? lastEventID, int resultCount = 1000)
+			int? lastEventID, bool? active, int resultCount = 1000)
 		{
 			User user = await GetCurrentUser(Request);
 			try
@@ -90,6 +92,13 @@ namespace SEEMS.Controller
 							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
 							allEvents.Where(
 							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
+					}
+
+					if(active != null)
+					{
+						foundResult = (bool) active
+							? foundResult.Where(e => e.Active)
+							: foundResult.Where(e => !e.Active);
 					}
 
 					List<Event> returnResult = null;
@@ -133,6 +142,7 @@ namespace SEEMS.Controller
 					{
 						var eMapped = _mapper.Map<EventDTO>(e);
 						eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
+						eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 						//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
 						dtoResult.Add(eMapped);
 					});
@@ -182,6 +192,7 @@ namespace SEEMS.Controller
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
 					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
+					eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 					dtoResult.Add(eMapped);
 				});
 				return Ok(new Response(
@@ -202,7 +213,7 @@ namespace SEEMS.Controller
 
 		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
-			int? lastEventID, int resultCount = 10)
+			int? lastEventID, bool? active, int resultCount = 10)
 		{
 			try
 			{
@@ -218,6 +229,13 @@ namespace SEEMS.Controller
 						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
 						allEvents.Where(
 						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
+				}
+
+				if(active != null)
+				{
+					foundResult = (bool) active
+						? foundResult.Where(e => e.Active)
+						: foundResult.Where(e => !e.Active);
 				}
 
 				List<Event> returnResult = null;
@@ -392,7 +410,10 @@ namespace SEEMS.Controller
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
 					newEvent.OrganizationName = user.OrganizationName;
-					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null ? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6)) : eventDTO.RegistrationDeadline;
+					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null
+						? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6))
+						: eventDTO.RegistrationDeadline;
+					eventDTO.OrganizationName = OrganizationEnumHelper.ToString(newEvent.OrganizationName);
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));

@@ -114,7 +114,7 @@ namespace SEEMS.Controllers
                             var events = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId); 
                             var registeredEvents = _mapper.Map<RegisteredEventsDTO>(events);
                             registeredEvents.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
-                            registeredEvents.OrganizationName = Enum.GetName(typeof(OrganizationEnum), events.Organization);
+                            registeredEvents.OrganizationName = Enum.GetName(typeof(OrganizationEnum), events.OrganizationName);
                             registeredEvents.ReservationId = reservation.Id;
                             registeredEvents.FeedBack = reservation.Attend;
                             listRegisteredEvents.Add(registeredEvents);
