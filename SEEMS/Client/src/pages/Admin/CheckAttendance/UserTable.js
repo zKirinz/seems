@@ -23,7 +23,7 @@ import {
     useTheme,
 } from '@mui/material'
 
-import { useUsersAction } from '../../recoil/user'
+import { useUsersAction } from '../../../recoil/user'
 import UserTableRow from './UserTableRow'
 
 function TablePaginationActions(props) {

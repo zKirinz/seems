@@ -1,6 +1,6 @@
 import React from 'react'
 
-import Comment from '../../../../components/Comment'
+import Comment from '../../../../../components/Comment'
 
 const ResponseComment = ({ comment, editCommentHandler, onDeleteComment, reactCommentHandler }) => {
     return (

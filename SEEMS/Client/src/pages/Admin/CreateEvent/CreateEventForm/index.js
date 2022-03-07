@@ -23,8 +23,8 @@ import {
     Checkbox,
 } from '@mui/material'
 
-import usePrompt from '../../../hooks/use-prompt'
-import authAtom from '../../../recoil/auth/atom'
+import usePrompt from '../../../../hooks/use-prompt'
+import authAtom from '../../../../recoil/auth/atom'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 const defaultTextFieldValue = { value: '', isTouched: false }

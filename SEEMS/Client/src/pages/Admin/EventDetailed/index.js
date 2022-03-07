@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from 'react'
 
 import { useHistory, useParams } from 'react-router-dom'
-import { useRecoilValue } from 'recoil'
 
-import EventPoster from '../../components/EventPoster'
+import EventPoster from '../../../components/EventPoster'
 import { Festival } from '@mui/icons-material'
 import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
-import { useSnackbar } from '../../HOCs/SnackbarContext'
-import atom from '../../recoil/auth'
-import useEventAction from '../../recoil/event/action'
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
+import useEventAction from '../../../recoil/event/action'
 import CheckAttendanceButton from './CheckAttendanceButton'
 import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
 
 const EventDetailed = () => {
-    const auth = useRecoilValue(atom)
     const history = useHistory()
     const { id } = useParams()
     const { getDetailedEvent, checkIsMyEvent } = useEventAction()
     const [error, setError] = useState(null)
-    const [isMyEvent, setIsMyEvent] = useState(true)
+    const [isMyEvent, setIsMyEvent] = useState(false)
     const showSnackbar = useSnackbar()
 
     const [detailedEvent, setDetailedEvent] = useState({
@@ -45,19 +42,17 @@ const EventDetailed = () => {
                 setError(errorMessage)
             })
 
-        if (auth.role !== 'User') {
-            checkIsMyEvent(id)
-                .then((response) => {
-                    const isMine = response.data.data.isMine
-                    setIsMyEvent(isMine)
+        checkIsMyEvent(id)
+            .then((response) => {
+                const isMine = response.data.data.isMine
+                setIsMyEvent(isMine)
+            })
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
                 })
-                .catch(() => {
-                    showSnackbar({
-                        severity: 'error',
-                        children: 'Something went wrong, please try again later.',
-                    })
-                })
-        }
+            })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

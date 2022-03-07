@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 
 import { useRecoilValue } from 'recoil'
 
-import Comment from '../../../components/Comment'
+import Comment from '../../../../components/Comment'
 import {
     Avatar,
     Box,
@@ -13,9 +13,9 @@ import {
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
-import { useSnackbar } from '../../../HOCs/SnackbarContext'
-import atom from '../../../recoil/auth'
-import { useCommentsAction } from '../../../recoil/comment'
+import { useSnackbar } from '../../../../HOCs/SnackbarContext'
+import atom from '../../../../recoil/auth'
+import { useCommentsAction } from '../../../../recoil/comment'
 import ResponseComments from './ResponseComments'
 
 const CommentSection = ({

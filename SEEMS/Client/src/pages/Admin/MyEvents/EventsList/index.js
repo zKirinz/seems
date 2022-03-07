@@ -142,6 +142,7 @@ const EventsList = () => {
                                             imageUrl={imageUrl}
                                             organizer={organizationName}
                                             commentsNum={commentsNum}
+                                            isAdmin
                                         />
                                     </Grid>
                                 )
