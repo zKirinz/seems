@@ -133,7 +133,7 @@ public class AuthenticationController : ControllerBase
 
     private async void CreateNewUser(User currentUser)
     {
-        currentUser.Organization = OrganizationEnum.FPTer;
+        currentUser.OrganizationName = OrganizationEnum.FPTer;
         currentUser.Active = true;
         _repoService.User.CreateUser(currentUser);
     }

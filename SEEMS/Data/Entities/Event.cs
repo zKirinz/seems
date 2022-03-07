@@ -17,7 +17,7 @@ namespace SEEMS.Models
 		public string EventDescription { get; set; }
 
 		[Required]
-		public OrganizationEnum Organization { get; set; }
+		public OrganizationEnum OrganizationName { get; set; }
 
 		[Required(ErrorMessage = "Participant num is required")]
 		public int ParticipantNum { get; set; }

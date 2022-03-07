@@ -8,7 +8,7 @@ namespace SEEMS.Data.Models
 	[Index(nameof(Email), IsUnique = true)]
 	public class User : AbstractEntity<int>
 	{
-		public OrganizationEnum Organization { get; set; }
+		public OrganizationEnum OrganizationName { get; set; }
 		public string Email { get; internal set; }
 		public string UserName { get; internal set; }
 

@@ -15,7 +15,7 @@ public static class UserRepositoryExtension
         string? org)
         => string.IsNullOrWhiteSpace(org)
             ? users
-            : users.Where(u => u.Organization == (OrganizationEnum)Enum.Parse(typeof(OrganizationEnum), org));
+            : users.Where(u => u.OrganizationName == (OrganizationEnum)Enum.Parse(typeof(OrganizationEnum), org));
 
     public static IQueryable<User> FilterUsersByRole(this IQueryable<User> users, ApplicationDbContext context, string? role)
         => string.IsNullOrWhiteSpace(role) ? users : users.Join(context.UserMetas, 

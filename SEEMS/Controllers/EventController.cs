@@ -78,7 +78,7 @@ namespace SEEMS.Controller
 				if(user != null)
 				{
 					//var findingOrgId = user.OrganizationId;
-					var allEvents = _context.Events.Where(a => a.Organization == user.Organization).ToList();
+					var allEvents = _context.Events.Where(a => a.OrganizationName == user.OrganizationName).ToList();
 					IEnumerable<Event> foundResult;
 					if(upcoming == null)
 					{
@@ -391,7 +391,7 @@ namespace SEEMS.Controller
 					eventDTO.Active = true;
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
-					newEvent.Organization = user.Organization;
+					newEvent.OrganizationName = user.OrganizationName;
 					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null ? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6)) : eventDTO.RegistrationDeadline;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
@@ -414,7 +414,7 @@ namespace SEEMS.Controller
 				var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
 				if(myEvent != null)
 				{
-					var isMine = user.Organization.Equals(myEvent.Organization);
+					var isMine = user.OrganizationName.Equals(myEvent.OrganizationName);
 					return Ok(
 						new Response(
 							ResponseStatusEnum.Success,

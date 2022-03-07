@@ -1,10 +1,13 @@
-﻿namespace SEEMS.Infrastructures.Commons
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+
+namespace SEEMS.Infrastructures.Commons
 {
 	public enum OrganizationEnum
 	{
 		FPTU = 0,
-		FPTer = 1,
-		FCode = 2,
-		DSC = 3
+		FCode = 1,
+		DSC = 2,
+		FPTer = 3,
 	}
 }
