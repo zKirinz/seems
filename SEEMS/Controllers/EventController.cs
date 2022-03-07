@@ -392,8 +392,8 @@ namespace SEEMS.Controller
 		[HttpPost]
 		public async Task<ActionResult> AddEvent(EventDTO eventDTO)
 		{
-			//eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
-			//eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
+			// eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
+			// eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
 			eventDTO.RegistrationDeadline ??= ((DateTime) eventDTO.RegistrationDeadline).ToLocalTime();
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
 			try

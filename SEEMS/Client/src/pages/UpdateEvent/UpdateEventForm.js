@@ -7,6 +7,7 @@ import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
 import {
     Box,
     Button,
+    Checkbox,
     FormControl,
     FormControlLabel,
     FormHelperText,
@@ -234,6 +235,37 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     />
                                 </RadioGroup>
                             </FormControl>
+                            <FormControl sx={{ ml: 1.5 }}>
+                                <FormControlLabel
+                                    disabled
+                                    control={<Checkbox />}
+                                    label="Participant limitation"
+                                    checked={eventFields.participantNum > 0 ? true : false}
+                                />
+                            </FormControl>
+                            {eventFields.participantNum > 0 && (
+                                <FormControl fullWidth required sx={{ m: 1.5 }}>
+                                    <InputLabel htmlFor="limit" shrink>
+                                        Participants limitation
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        disabled
+                                        id="limit"
+                                        label="Participants limitation"
+                                        inputProps={{
+                                            type: 'number',
+                                            min: 1,
+                                            inputMode: 'numeric',
+                                            pattern: '[0-9]*',
+                                        }}
+                                        defaultValue={eventFields.participantNum}
+                                        sx={{
+                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
+                                                { display: 'none' },
+                                        }}
+                                    />
+                                </FormControl>
+                            )}
                         </Box>
                         <Box
                             sx={{
@@ -244,22 +276,42 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                             }}
                         >
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <FormControl disabled>
+                                <Box
+                                    sx={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: { sm: 'center', xs: 'flex-start' },
+                                        flexDirection: { sm: 'row', xs: 'column' },
+                                        mb: 2,
+                                    }}
+                                >
+                                    <FormControl disabled>
+                                        <MobileDateTimePicker
+                                            disabled
+                                            value={eventFields.startDate}
+                                            label="Start Date"
+                                            inputFormat="yyyy/MM/dd hh:mm a"
+                                            mask="___/__/__ __:__ _M"
+                                            renderInput={(params) => <TextField {...params} />}
+                                        />
+                                    </FormControl>
+                                    <Box sx={{ mx: { sm: 2 }, my: { xs: 2, sm: 0 } }}>To</Box>
+                                    <FormControl>
+                                        <MobileDateTimePicker
+                                            disabled
+                                            value={eventFields.endDate}
+                                            label="End Date"
+                                            inputFormat="yyyy/MM/dd hh:mm a"
+                                            mask="___/__/__ __:__ _M"
+                                            renderInput={(params) => <TextField {...params} />}
+                                        />
+                                    </FormControl>
+                                </Box>
+                                <FormControl fullWidth sx={{ my: 1.5 }}>
                                     <MobileDateTimePicker
                                         disabled
-                                        value={eventFields.startDate}
-                                        label="Start Date"
-                                        inputFormat="yyyy/MM/dd hh:mm a"
-                                        mask="___/__/__ __:__ _M"
-                                        renderInput={(params) => <TextField {...params} />}
-                                    />
-                                </FormControl>
-                                <Box sx={{ mx: { sm: 2 }, my: { xs: 2, sm: 0 } }}>To</Box>
-                                <FormControl>
-                                    <MobileDateTimePicker
-                                        disabled
-                                        value={eventFields.endDate}
-                                        label="End Date"
+                                        value={eventFields.registrationDeadline}
+                                        label="Close registration date"
                                         inputFormat="yyyy/MM/dd hh:mm a"
                                         mask="___/__/__ __:__ _M"
                                         renderInput={(params) => <TextField {...params} />}
