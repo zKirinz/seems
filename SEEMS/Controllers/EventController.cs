@@ -279,6 +279,7 @@ namespace SEEMS.Controller
 				{
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
+					eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
 					dtoResult.Add(eMapped);
 				});
