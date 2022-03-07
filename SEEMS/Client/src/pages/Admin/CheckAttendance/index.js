@@ -4,8 +4,8 @@ import { useHistory, useParams } from 'react-router-dom'
 
 import { Typography, Box } from '@mui/material'
 
-import { useSnackbar } from '../../HOCs/SnackbarContext'
-import useEventAction from '../../recoil/event/action'
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
+import useEventAction from '../../../recoil/event/action'
 import UserFilter from './UserFilter'
 import UserTable from './UserTable'
 
