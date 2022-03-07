@@ -73,7 +73,6 @@ const EventsList = () => {
                 setEvents(res.data.data.listEvents)
                 setEventsNumber(res.data.data.count)
                 setHasMore(res.data.data.canLoadMore)
-                // console.log(res.data.data.listEvents)
                 setIsLoading(false)
             })
             .catch(() => {
