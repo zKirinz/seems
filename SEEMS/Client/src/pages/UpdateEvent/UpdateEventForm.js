@@ -91,6 +91,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
+                console.log(response)
                 const { event: responseEvent } = response.data.data
                 setEventFields(responseEvent)
 
