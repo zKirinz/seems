@@ -11,7 +11,8 @@
 		public const int MaxLocationLength = 50;
 		public const int MinDayBeforeStarted = 1;
 		public const int MinMinutesOfEvent = 5;
-		public const int MinHoursRegistrationDeadline = 6;
+		public const int MinHoursRegistrationFromStart = 6;
+		public const int MinHoursRegistrationFromNow = 12;
 
 		public string? Title { get; set; }
 		public string? Description { get; set; }
