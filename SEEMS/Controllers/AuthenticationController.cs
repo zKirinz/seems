@@ -74,17 +74,15 @@ public class AuthenticationController : ControllerBase
         } 
             
         var currentRole = await _repoService.UserMeta.GetRolesAsync(currentUser.Email, false);
-        //var currentOrg = await _repoService.Organization.GetOrganizationAsync(currentUser.OrganizationId, false) ??
-                         //null;
-        //var accessToken = await _authService.GenerateToken(currentUser, currentRole, currentOrg);
+        var accessToken = await _authService.GenerateToken(currentUser, currentRole);
 
-        //Response.Cookies.Append("jwt", accessToken, new CookieOptions
-        //{
-        //    HttpOnly = true
-        //});
+        Response.Cookies.Append("jwt", accessToken, new CookieOptions
+        {
+            HttpOnly = true
+        });
 
+        return Ok(accessToken);
         //return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
-        return Redirect($"{MapLoginUiDomain()}?token=");
     }
         
     [HttpPost]
@@ -133,10 +131,9 @@ public class AuthenticationController : ControllerBase
 
     private async void CreateNewUser(User currentUser)
     {
-        //var organization = await _repoService.Organization.GetOrganizationByName("FPT-er", false);
-        //currentUser.OrganizationId = organization.Id;
-        //currentUser.Active = true;
-        //_repoService.User.CreateUser(currentUser);
+        currentUser.Organization = OrganizationEnum.FPTer;
+        currentUser.Active = true;
+        _repoService.User.CreateUser(currentUser);
     }
 }
 

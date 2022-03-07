@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Extensions;
 using SEEMS.Data.Entities;
 using SEEMS.Models;
 
@@ -26,10 +27,10 @@ namespace SEEMS.Services
         }
 
 
-        public async Task<string> GenerateToken(User user, UserMeta roleMeta/*, Organization? organization*/)
+        public async Task<string> GenerateToken(User user, UserMeta roleMeta)
         {
             var signinCredentials = GetSigninCredentials();
-            var claims = await GetClaims(user, roleMeta/*, organization*/);
+            var claims = await GetClaims(user, roleMeta);
             var tokenOptions = GenerateTokenOptions(signinCredentials, claims);
 
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
@@ -51,20 +52,16 @@ namespace SEEMS.Services
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
 
-        private Task<List<Claim>> GetClaims(User user, UserMeta roleMeta/*, Organization? organization*/)
+        private Task<List<Claim>> GetClaims(User user, UserMeta roleMeta)
         {
             var claims = new List<Claim>
             {
                new Claim("email", user.Email),
                new Claim("name", user.UserName),
+               new Claim("organization", user.Organization.GetDisplayName()),
                new Claim("role", roleMeta.MetaValue),
                new Claim("image", user.ImageUrl)
             };
-
-            //if (organization != null)
-            //{
-            //    claims.Add(new Claim("organization", organization.Name));
-            //}
 
             return Task.FromResult(claims);
         }
