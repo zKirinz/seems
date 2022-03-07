@@ -23,8 +23,8 @@ import {
     Checkbox,
 } from '@mui/material'
 
-import usePrompt from '../../../hooks/use-prompt'
-import authAtom from '../../../recoil/auth/atom'
+import usePrompt from '../../../../hooks/use-prompt'
+import authAtom from '../../../../recoil/auth/atom'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 const defaultTextFieldValue = { value: '', isTouched: false }
@@ -94,8 +94,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         setParticipantsLimited(event.target.value)
     }
     const registrationTimeChangeHandler = (newDate) => {
-        error?.registrationDeadline &&
-            setError((previousError) => ({ ...previousError, registrationDeadline: null }))
         setRegistrationTime(newDate)
     }
     const uploadImageHandler = (event) => {
@@ -138,9 +136,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             isPrivate,
             startDate: startDate,
             endDate: endDate,
-            organization: auth.organization,
-            participantNum: +participantsLimited,
-            registrationDeadline: registrationTime,
+            organizationName: auth.organization,
         }
         onCreateEvent(eventDetailed)
     }
@@ -357,12 +353,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         mask="___/__/__ __:__ _M"
                                         renderInput={(params) => <TextField {...params} />}
                                     />
-                                    {error?.registrationDeadline && (
-                                        <FormHelperText error={!!error?.registrationDeadline}>
-                                            {error?.registrationDeadline &&
-                                                `${error.registrationDeadline}`}
-                                        </FormHelperText>
-                                    )}
                                 </FormControl>
                             </LocalizationProvider>
                         </Box>
