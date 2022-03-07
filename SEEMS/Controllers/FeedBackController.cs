@@ -128,7 +128,55 @@ namespace SEEMS.Controllers
             return Ok(new Response(ResponseStatusEnum.Success, feedBack));
         }
 
+        //Get all feedback of an event
+        [HttpPost("{id}")]
+        public async Task<IActionResult> Post(int id)
+        {
+            var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+            if (currentUser == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
+            }
 
+            var role = _context.UserMetas.SingleOrDefault(x => x.UserId == currentUser.Id).MetaValue;
+            if (!role.Contains(RoleTypes.ADM) || !role.Contains(RoleTypes.ORG))
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
+            }
+
+            var anEvent = _context.Events.SingleOrDefault(x => x.Id == id);
+            if (anEvent == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid eventId."));
+            }
+
+            var listReservation = _context.Reservations.Where(x => x.EventId == id).ToList();
+            List<FeedBack> listFeedBacks = new List<FeedBack>();
+            FeedBack feedBack = new FeedBack();
+            int averageRating = 0;
+            foreach (var reservation in listReservation)
+            {
+                feedBack = _context.FeedBacks.SingleOrDefault(x => x.ReservationId == reservation.Id);
+                if (feedBack != null)
+                {
+                    listFeedBacks.Add(feedBack);
+                    averageRating += feedBack.Rating;
+                }
+            }
+
+            if (listFeedBacks.Count == 0)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Success, "", "The event has no feedback yet."));
+            }
+
+            averageRating /= listFeedBacks.Count;
+            return Ok(new Response(ResponseStatusEnum.Success,
+                                   new
+                                   {
+                                       averageRating,
+                                       listFeedBacks
+                                   }));
+        }
         private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
     }
 }
