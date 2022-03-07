@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
+using SEEMS.Data.ValidationInfo;
+using SEEMS.Infrastructures.Commons;
+using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 
@@ -27,50 +30,144 @@ namespace SEEMS.Controllers
             _repoManager = repoManager;
         }
 
+        //Get a feedback
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-            if (currentUser != null)
-            {
-                var userId = currentUser.Id;
-                var reservation = _context.Reservations.FirstOrDefault(x => x.Id == id);
-                if (reservation != null)
-                {
-                    if (reservation.UserId == userId)
-                    {
-                        var feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == id);
-                        return Ok(new Response(ResponseStatusEnum.Success, feedBack));
-                    }
-                    else
-                    {
-                        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
-                    }
-                }
-                else
-                {
-                    return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid reservationId"));
-                }
-            }
-            else
+            if (currentUser == null)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
             }
+
+            var userId = currentUser.Id;
+            var reservation = _context.Reservations.FirstOrDefault(x => x.Id == id);
+            if (reservation == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid reservationId"));
+            }
+
+            if (reservation.UserId != userId)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
+            }
+
+            var feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == id);
+            return Ok(new Response(ResponseStatusEnum.Success, feedBack));        
         }
 
+
+        //Create a feedback
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] FeedBackDTO feedBackDTO)
         {
             var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-            if (currentUser != null)
-            {
-                var userId = currentUser.Id;
-                return Ok();
-            }
-            else
+            if (currentUser == null)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
             }
+
+            var userId = currentUser.Id;
+            var reservation = _context.Reservations.SingleOrDefault(x => x.Id == feedBackDTO.ReservationId);
+            if (reservation == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid reservationId."));
+            }
+
+            if (reservation.UserId != userId)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
+            }
+
+            var feedBackValidate = FeedBacksServices.CheckValidatedFeedBack(feedBackDTO.Rating, feedBackDTO.Content);
+            if (feedBackValidate != null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, feedBackValidate));
+            }
+
+            var feedBack = _mapper.Map<FeedBack>(feedBackDTO);
+            _context.FeedBacks.Add(feedBack);
+            _context.SaveChanges();
+            return Ok(new Response(ResponseStatusEnum.Success, feedBack));
+        }
+
+        //Update a feedback
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] FeedBackForUpdateDTO feedBackForUpdate)
+        {
+            var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+            if (currentUser == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
+            }
+
+            var userId = currentUser.Id;
+            var feedBack = _context.FeedBacks.SingleOrDefault(x => x.Id == feedBackForUpdate.FeedBackId);
+            if (feedBack == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid FeedBackId."));
+            }
+
+            var reservation = _context.Reservations.SingleOrDefault(x => x.Id == feedBack.ReservationId);
+            if (reservation.UserId != userId)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
+            }
+
+            feedBack = _mapper.Map<FeedBack>(feedBackForUpdate);
+            _context.FeedBacks.Update(feedBack);
+            _context.SaveChanges();
+            return Ok(new Response(ResponseStatusEnum.Success, feedBack));
+        }
+
+        //Get all feedback of an event
+        [HttpPost("{id}")]
+        public async Task<IActionResult> Post(int id)
+        {
+            var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+            if (currentUser == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
+            }
+
+            var role = _context.UserMetas.SingleOrDefault(x => x.UserId == currentUser.Id).MetaValue;
+            if (!role.Contains(RoleTypes.ADM) || !role.Contains(RoleTypes.ORG))
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
+            }
+
+            var anEvent = _context.Events.SingleOrDefault(x => x.Id == id);
+            if (anEvent == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid eventId."));
+            }
+
+            var listReservation = _context.Reservations.Where(x => x.EventId == id).ToList();
+            List<FeedBack> listFeedBacks = new List<FeedBack>();
+            FeedBack feedBack = new FeedBack();
+            int? averageRating = 0; 
+            foreach (var reservation in listReservation)
+            {
+                feedBack = _context.FeedBacks.SingleOrDefault(x => x.ReservationId == reservation.Id);
+                if (feedBack != null)
+                {                    
+                    listFeedBacks.Add(feedBack);
+                    averageRating += feedBack.Rating;
+                }
+            }
+
+            if (listFeedBacks.Count == 0)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Success, "", "The event has no feedback yet."));
+            }
+
+            averageRating /= listFeedBacks.Count;
+            return Ok(new Response(ResponseStatusEnum.Success,
+                                   new
+                                   {
+                                       averageRating,
+                                       listFeedBacks
+                                   }));
         }
 
         private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
