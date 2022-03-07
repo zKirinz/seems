@@ -89,10 +89,7 @@ namespace SEEMS.Services
             if (email != null && !email.Value.EndsWith("fpt.edu.vn")) {
                 return null;
             }
-            
-            user = _repoManager.User.GetUserAsync(email.Value, false).Result;
 
-            if (user != null) return user;
             {
                 var name = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
                 var image = info.Principal.Claims.FirstOrDefault(x => x.Type == "picture");

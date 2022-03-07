@@ -20,7 +20,7 @@ namespace SEEMS.Models
         [JsonIgnore]
         public User? User { get; set; }
         [JsonIgnore]
-        public List<FeedBack> FeedBacks { get; set; }
+        public FeedBack FeedBack { get; set; }
 
     }
 }

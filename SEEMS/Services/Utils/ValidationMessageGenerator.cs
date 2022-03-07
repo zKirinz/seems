@@ -2,7 +2,7 @@
 {
 	public class ValidationMessageGenerator
 	{
-		public static string? GetIntRangeValidateMsg(String field, int checkValue, int min, int max)
+		public static string? GetIntRangeValidateMsg(string field, int checkValue, int min, int max)
 		{
 			if (checkValue < min ||
 				checkValue > max)

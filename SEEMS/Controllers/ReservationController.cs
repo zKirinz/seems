@@ -107,17 +107,19 @@ namespace SEEMS.Controllers
                     var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
                     if (listReservation.Any())
                     {
-                        List<EventDTO> listEventDTO = new List<EventDTO>();
+                        List<RegisteredEventsDTO> listRegisteredEvents = new List<RegisteredEventsDTO>();
                         foreach (var reservation in listReservation)
                         {
                             var events = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId); 
-                            var eventDTO = _mapper.Map<EventDTO>(events);
-                            eventDTO.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
-                            //eventDTO.OrganizationName = _context.Organizations.FirstOrDefault(x => x.Id == events.OrganizationId).Name;
-                            listEventDTO.Add(eventDTO);
+                            var registeredEvents = _mapper.Map<RegisteredEventsDTO>(events);
+                            registeredEvents.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
+                            registeredEvents.OrganizationName = _context.Organizations.FirstOrDefault(x => x.Id == events.OrganizationId).Name;
+                            registeredEvents.ReservationId = reservation.Id;
+                            registeredEvents.FeedBack = reservation.Attend;
+                            listRegisteredEvents.Add(registeredEvents);
                         }
 
-                        return Ok(new Response(ResponseStatusEnum.Success, listEventDTO));
+                        return Ok(new Response(ResponseStatusEnum.Success, listRegisteredEvents));
                     }
                     else
                     {

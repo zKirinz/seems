@@ -68,7 +68,7 @@ const UserTableRow = ({
 
         showSnackbar({
             severity: 'success',
-            children: `Update user ${email} successfully.`,
+            children: `Update user ${email} attendance successfully.`,
         })
         resetHandler()
     }
