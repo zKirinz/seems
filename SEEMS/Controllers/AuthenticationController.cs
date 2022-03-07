@@ -83,8 +83,7 @@ public class AuthenticationController : ControllerBase
             HttpOnly = true
         });
 
-        return Ok(accessToken);
-        //return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
+        return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
     }
         
     [HttpPost]
