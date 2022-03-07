@@ -7,14 +7,16 @@ using SEEMS.Data.Repositories.Implements;
 
 namespace SEEMS.Services.Interfaces
 {
-    public interface IRepositoryManager
-    {
-        IUserRepository User { get; }
-        IUserMetaRepository UserMeta { get; }
-        
+	public interface IRepositoryManager
+	{
+		IUserRepository User { get; }
+		IUserMetaRepository UserMeta { get; }
+
 		IEventRepository Event { get; }
 
 		ICommentRepository Comment { get; }
+
+		IReservationRepository Reservation { get; }
 
 		Task SaveAsync();
 	}

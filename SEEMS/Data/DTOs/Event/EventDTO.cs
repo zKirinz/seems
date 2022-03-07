@@ -15,8 +15,9 @@ namespace SEEMS.Data.DTO
 		public int? RootCommentsNum { get; set; }
 		[Required(ErrorMessage = "Participant num is required")]
 		public int ParticipantNum { get; set; }
-		public OrganizationEnum? OrganizationEnum { get; set; }
-		public int? ChainOfEventId { get; set; }
+		public int? RegisteredNum { get; set; }
+		public bool? CanRegister { get; set; }
+		public string Organization { get; set; }
 		[Required]
 		public bool IsPrivate { get; set; }
 		[Required]

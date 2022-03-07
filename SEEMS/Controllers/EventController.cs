@@ -42,6 +42,7 @@ namespace SEEMS.Controller
 				EventDTO dtoEvent = _mapper.Map<EventDTO>(foundEvent);
 				dtoEvent.CommentsNum = _repository.Comment.CountCommentsOfEvent(id);
 				dtoEvent.RootCommentsNum = _context.Comments.Where(c => c.EventId == id && c.ParentCommentId == null).Count();
+				dtoEvent.RegisteredNum = _repository.Reservation.GetRegisteredNum(id);
 				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
 				return Ok(
@@ -178,8 +179,8 @@ namespace SEEMS.Controller
 				result.ToList().ForEach(e =>
 				{
 					var eMapped = _mapper.Map<EventDTO>(e);
-					eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-					//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
+					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
 					dtoResult.Add(eMapped);
 				});
 				return Ok(new Response(
@@ -258,8 +259,8 @@ namespace SEEMS.Controller
 				returnResult.ForEach(e =>
 				{
 					var eMapped = _mapper.Map<EventDTO>(e);
-					eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-					//eMapped.O = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
+					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
 					dtoResult.Add(eMapped);
 				});
 
