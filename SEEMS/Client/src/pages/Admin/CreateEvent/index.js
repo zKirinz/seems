@@ -4,7 +4,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
-import { useEventAction } from '../../recoil/event'
+import { useEventAction } from '../../../recoil/event'
 import CreateEventForm from './CreateEventForm'
 
 const CreateEvent = () => {

@@ -3,8 +3,8 @@ import React, { useState } from 'react'
 import { Avatar, Checkbox, TableCell, TableRow } from '@mui/material'
 import { Box } from '@mui/system'
 
-import { useSnackbar } from '../../HOCs/SnackbarContext'
-import { useUsersAction } from '../../recoil/user'
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
+import { useUsersAction } from '../../../recoil/user'
 
 const UserTableRow = ({ userName, imageUrl, email, attend, reservationId, resetHandler }) => {
     const userAction = useUsersAction()

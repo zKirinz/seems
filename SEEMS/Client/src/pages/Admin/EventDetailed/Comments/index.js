@@ -15,10 +15,10 @@ import {
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
-import { useSnackbar } from '../../../HOCs/SnackbarContext'
-import authAtom from '../../../recoil/auth'
-import { useCommentsAction } from '../../../recoil/comment'
-import { useReactComment } from '../../../recoil/reactComment'
+import { useSnackbar } from '../../../../HOCs/SnackbarContext'
+import authAtom from '../../../../recoil/auth'
+import { useCommentsAction } from '../../../../recoil/comment'
+import { useReactComment } from '../../../../recoil/reactComment'
 import CommentSection from './Comment'
 
 const CommentsSection = ({ eventId: EventId, numberComments, numberRootComments }) => {

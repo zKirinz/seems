@@ -24,7 +24,7 @@ const EventDetailed = () => {
     const { id } = useParams()
     const { getDetailedEvent, checkIsMyEvent } = useEventAction()
     const [error, setError] = useState(null)
-    const [isMyEvent, setIsMyEvent] = useState(true)
+    const [isMyEvent, setIsMyEvent] = useState(false)
     const [isRegistered, setIsRegistered] = useState(false)
     const [reset, setReset] = useState(0)
     const showSnackbar = useSnackbar()
@@ -50,7 +50,7 @@ const EventDetailed = () => {
                 setError(errorMessage)
             })
 
-        if (auth.role !== 'User') {
+        if (auth.role === 'Organizer') {
             checkIsMyEvent(id)
                 .then((response) => {
                     const isMine = response.data.data.isMine

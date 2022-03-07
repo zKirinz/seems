@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material'
 
-import { useSnackbar } from '../../../HOCs/SnackbarContext'
-import useEventAction from '../../../recoil/event/action'
+import { useSnackbar } from '../../../../HOCs/SnackbarContext'
+import useEventAction from '../../../../recoil/event/action'
 
 const UnRegisterButton = ({ eventId, resetHandler }) => {
     const eventAction = useEventAction()
