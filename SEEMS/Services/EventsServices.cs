@@ -21,7 +21,7 @@ namespace SEEMS.Services
 			{
 				failedCheck = true;
 			}
-			if(eventDTO.StartDate.Subtract(DateTime.Now).TotalDays <= EventValidationInfo.MinDayBeforeStarted)
+			if(eventDTO.StartDate.Subtract(DateTime.Now).Add(TimeSpan.FromHours(7)).TotalDays <= EventValidationInfo.MinDayBeforeStarted)
 			{
 				failedCheck = true;
 				validationInfo.StartDate = $"Start date must after current time at least {EventValidationInfo.MinDayBeforeStarted} days";
@@ -32,7 +32,7 @@ namespace SEEMS.Services
 				validationInfo.EndDate = $"End time must after start time at least {EventValidationInfo.MinMinutesOfEvent} minutes";
 
 			}
-			if(eventDTO.RegistrationDeadline != null && (eventDTO.StartDate.Subtract((DateTime) eventDTO.RegistrationDeadline).TotalHours < EventValidationInfo.MinHoursRegistrationFromStart || ((DateTime) eventDTO.RegistrationDeadline).Subtract(DateTime.Now.AddHours(7)).TotalHours < EventValidationInfo.MinHoursRegistrationFromNow))
+			if(eventDTO.RegistrationDeadline != null && (eventDTO.StartDate.Subtract((DateTime) eventDTO.RegistrationDeadline).TotalHours < EventValidationInfo.MinHoursRegistrationFromStart || ((DateTime) eventDTO.RegistrationDeadline).Subtract(DateTime.Now).Add(TimeSpan.FromHours(7)).TotalHours < EventValidationInfo.MinHoursRegistrationFromNow))
 			{
 				failedCheck = true;
 				validationInfo.RegistrationDeadline = $"Registration deadline must before start date at least {EventValidationInfo.MinHoursRegistrationFromStart} hours and after now at least {EventValidationInfo.MinHoursRegistrationFromNow} hours";
