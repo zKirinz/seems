@@ -91,7 +91,35 @@ namespace SEEMS.Controllers
             return Ok(new Response(ResponseStatusEnum.Success, feedBack));
         }
 
-        
+        //Update a feedback
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] FeedBackForUpdateDTO feedBackForUpdate)
+        {
+            var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+            if (currentUser == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
+            }
+
+            var userId = currentUser.Id;
+            var feedBack = _context.FeedBacks.SingleOrDefault(x => x.Id == feedBackForUpdate.FeedBackId);
+            if (feedBack == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid FeedBackId."));
+            }
+
+            var reservation = _context.Reservations.SingleOrDefault(x => x.Id == feedBack.ReservationId);
+            if (reservation.UserId != userId)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
+            }
+
+            feedBack = _mapper.Map<FeedBack>(feedBackForUpdate);
+            _context.FeedBacks.Update(feedBack);
+            _context.SaveChanges();
+            return Ok(new Response(ResponseStatusEnum.Success, feedBack));
+        }
+
 
         private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
     }
