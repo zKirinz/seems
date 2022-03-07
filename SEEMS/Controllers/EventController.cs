@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
+using SEEMS.Data.DTOs.Event;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
@@ -284,14 +285,10 @@ namespace SEEMS.Controller
 		}
 
 		[HttpPut("{id}")]
-		public async Task<ActionResult<bool>> Update(int id, [FromBody] EventDTO eventDTO)
+		public async Task<ActionResult<bool>> Update(int id, [FromBody] EventForUpdateDTO eventDTO)
 		{
 			try
 			{
-				eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
-				eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
-				var user = await GetCurrentUser(Request);
-				var userMeta = _context.UserMetas.FirstOrDefault(x => x.UserId == user.Id);
 				var myEvent = _context.Events.AsNoTracking().FirstOrDefault(e => e.Id == id);
 				if(myEvent == null)
 				{
@@ -302,38 +299,24 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					if(userMeta.MetaValue.Equals("Organizer", StringComparison.CurrentCultureIgnoreCase)
-						&& user.Organization.Equals(myEvent.Organization))
-					{
-						EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
-						if(eventValidationInfo != null)
-							return BadRequest(
-									new Response(ResponseStatusEnum.Fail,
-									eventValidationInfo,
-									"Some fields didn't match requirements"));
-						var newEvent = _mapper.Map<Event>(eventDTO);
-						newEvent.Id = myEvent.Id;
-						newEvent.Organization = myEvent.Organization;
-						_context.Update(newEvent);
-						await _context.SaveChangesAsync();
-						return Ok(
-						new Response(
-							ResponseStatusEnum.Success,
-							newEvent,
-							msg: "Succefully Update"
-							)
-						);
-					}
-					else
-					{
+					EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
+					if(eventValidationInfo != null)
 						return BadRequest(
-							new Response(
-								ResponseStatusEnum.Fail,
-								code: 400,
-								msg: "Just Organizer who created event can update this event"
-							)
-						);
-					}
+								new Response(ResponseStatusEnum.Fail,
+								eventValidationInfo,
+								"Some fields didn't match requirements"));
+					myEvent.EventTitle = eventDTO.EventTitle;
+					myEvent.EventDescription = eventDTO.EventDescription;
+					myEvent.Location = eventDTO.Location;
+					_context.Update(myEvent);
+					await _context.SaveChangesAsync();
+					return Ok(
+					new Response(
+						ResponseStatusEnum.Success,
+						myEvent,
+						msg: "Succefully Update"
+						)
+					);
 				}
 			}
 			catch(Exception ex)
