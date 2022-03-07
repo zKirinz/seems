@@ -11,7 +11,6 @@ namespace SEEMS.Infrastructures.Commons
 		FPTer = 3,
 	}
 
-
 	public class OrganizationEnumHelper
 	{
 		public static string ToString(OrganizationEnum o)

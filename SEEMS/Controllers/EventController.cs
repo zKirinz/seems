@@ -45,7 +45,7 @@ namespace SEEMS.Controller
 				dtoEvent.CommentsNum = _repository.Comment.CountCommentsOfEvent(id);
 				dtoEvent.RootCommentsNum = _context.Comments.Where(c => c.EventId == id && c.ParentCommentId == null).Count();
 				dtoEvent.RegisteredNum = _repository.Reservation.GetRegisteredNum(id);
-				dtoEvent.OrganizationName = OrganizationEnumHelper.ToString(foundEvent.OrganizationName);
+				//dtoEvent.OrganizationName = OrganizationEnumHelper.ToString(foundEvent.OrganizationName);
 				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
 				return Ok(
@@ -142,7 +142,7 @@ namespace SEEMS.Controller
 					{
 						var eMapped = _mapper.Map<EventDTO>(e);
 						eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-						eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
+						//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 						//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
 						dtoResult.Add(eMapped);
 					});
@@ -192,7 +192,7 @@ namespace SEEMS.Controller
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
 					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
-					eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
+					//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 					dtoResult.Add(eMapped);
 				});
 				return Ok(new Response(
@@ -279,7 +279,7 @@ namespace SEEMS.Controller
 				{
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
-					eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
+					//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
 					dtoResult.Add(eMapped);
 				});
@@ -394,7 +394,7 @@ namespace SEEMS.Controller
 		{
 			//eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
 			//eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
-			eventDTO.RegistrationDeadline ??= ((DateTime) eventDTO.RegistrationDeadline).ToLocalTime();
+			//eventDTO.RegistrationDeadline ??= ((DateTime) eventDTO.RegistrationDeadline).ToLocalTime();
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
 			try
 			{
@@ -414,7 +414,7 @@ namespace SEEMS.Controller
 					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null
 						? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6))
 						: eventDTO.RegistrationDeadline;
-					eventDTO.OrganizationName = OrganizationEnumHelper.ToString(newEvent.OrganizationName);
+					//eventDTO.OrganizationName = OrganizationEnumHelper.ToString(newEvent.OrganizationName);
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
