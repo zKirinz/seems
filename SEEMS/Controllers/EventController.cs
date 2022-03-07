@@ -391,6 +391,7 @@ namespace SEEMS.Controller
 		{
 			eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
 			eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
+			eventDTO.RegistrationDeadline ??= ((DateTime) eventDTO.RegistrationDeadline).ToLocalTime();
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
 			try
 			{
@@ -407,6 +408,7 @@ namespace SEEMS.Controller
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
 					newEvent.Organization = user.Organization;
+					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null ? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6)) : eventDTO.RegistrationDeadline;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
 					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));

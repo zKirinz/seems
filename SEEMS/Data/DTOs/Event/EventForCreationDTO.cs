@@ -1,21 +1,17 @@
 ﻿using SEEMS.Infrastructures.Commons;
 
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
-namespace SEEMS.Data.DTO
+namespace SEEMS.Data.DTOs.Event
 {
-	public class EventDTO
+	public class EventForCreationDTO
 	{
-		public int? Id { get; set; }
 		[Required]
 		public string EventTitle { get; set; }
 		[Required]
 		public string EventDescription { get; set; }
-		public int? CommentsNum { get; set; }
-		public int? RootCommentsNum { get; set; }
-		public OrganizationEnum? OrganizationEnum { get; set; }
-		public int? ChainOfEventId { get; set; }
+		public int ParticipantNum { get; set; }
+		public string Organization { get; set; }
 		[Required]
 		public bool IsPrivate { get; set; }
 		[Required]
@@ -28,5 +24,6 @@ namespace SEEMS.Data.DTO
 		public DateTime StartDate { get; set; }
 		[Required]
 		public DateTime EndDate { get; set; }
+		public DateTime? RegisterDeadline { get; set; }
 	}
 }

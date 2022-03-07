@@ -48,6 +48,8 @@ namespace SEEMS.Database.Configurations
 				item.StartDate = new DateTime(2022, new Random().Next(2, 8), new Random().Next(1, 28));
 				item.EndDate = item.StartDate.AddDays(new Random().Next(2, 31));
 				item.Id = idSeed--;
+				item.RegistrationDeadline = item.StartDate.Subtract(TimeSpan.FromHours(6));
+				item.ParticipantNum = new Random().Next(0, 5) * 100;
 			}
 			builder.HasData(events);
 		}

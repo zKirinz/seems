@@ -11,26 +11,31 @@ namespace SEEMS.Models
 	public class Event : AbstractEntity<int>
 	{
 		[StringLength(100)]
-		public String EventTitle { get; set; }
+		public string EventTitle { get; set; }
 
 		[StringLength(2000)]
-		public String EventDescription { get; set; }
+		public string EventDescription { get; set; }
 
 		[Required]
 		public OrganizationEnum Organization { get; set; }
 
+		[Required(ErrorMessage = "Participant num is required")]
+		public int ParticipantNum { get; set; }
+
 		public bool IsPrivate { get; set; }
 
 		[StringLength(255)]
-		public String ImageUrl { get; set; }
+		public string ImageUrl { get; set; }
 
 		public bool Active { get; set; }
 
-		public String Location { get; set; }
+		public string Location { get; set; }
 
 		public DateTime StartDate { get; set; }
 
 		public DateTime EndDate { get; set; }
+
+		public DateTime RegistrationDeadline { get; set; }
 
 		[JsonIgnore]
 		public List<Reservation>? Reservations { get; set; }
