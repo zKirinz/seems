@@ -114,7 +114,15 @@ namespace SEEMS.Controllers
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
             }
 
-            feedBack = _mapper.Map<FeedBack>(feedBackForUpdate);
+            var feedBackValidate = FeedBacksServices.CheckValidatedFeedBack(feedBackForUpdate.Rating, feedBackForUpdate.Content);
+            if (feedBackValidate != null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, feedBackValidate));
+            }
+
+            //feedBack = _mapper.Map<FeedBack>(feedBackForUpdate);
+            feedBack.Content = feedBackForUpdate.Content;
+            feedBack.Rating = feedBackForUpdate.Rating;
             _context.FeedBacks.Update(feedBack);
             _context.SaveChanges();
             return Ok(new Response(ResponseStatusEnum.Success, feedBack));

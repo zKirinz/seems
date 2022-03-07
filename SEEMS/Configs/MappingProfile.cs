@@ -34,6 +34,6 @@ public class MappingProfile : Profile
 		CreateMap<Event, Event>();
 		CreateMap<Event, RegisteredEventsDTO>();
 		CreateMap<FeedBackDTO, FeedBack>();
-		CreateMap<FeedBackForUpdateDTO, FeedBack>();
+		//CreateMap<FeedBackForUpdateDTO, FeedBack>();
 	}
 }
