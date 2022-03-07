@@ -17,7 +17,7 @@ namespace SEEMS.Data.DTO
 		public int ParticipantNum { get; set; }
 		public int? RegisteredNum { get; set; }
 		public bool? CanRegister { get; set; }
-		public string OrganizationName { get; set; }
+		public string? OrganizationName { get; set; }
 		[Required]
 		public bool IsPrivate { get; set; }
 		[Required]
