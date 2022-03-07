@@ -20,38 +20,51 @@ import {
     TextField,
     Paper,
     Typography,
+    Checkbox,
 } from '@mui/material'
 
 import usePrompt from '../../../hooks/use-prompt'
 import authAtom from '../../../recoil/auth/atom'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
-
 const defaultTextFieldValue = { value: '', isTouched: false }
 const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
+const dayCalculation = (numDay = 1) => numDay * 24 * 60 * 60 * 1000
 
 const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const auth = useRecoilValue(authAtom)
     const startDateDefault = useMemo(() => {
-        return new Date(new Date().getTime() + 24 * 3600 * 1000)
+        return new Date(new Date().getTime() + dayCalculation())
     }, [])
     const endDateDefault = useMemo(() => {
-        return new Date(new Date().getTime() + 24 * 3600 * 1000 + 5 * 60 * 1000)
+        return new Date(new Date().getTime() + dayCalculation() + 5 * 60 * 1000)
+    }, [])
+    const closeRegistrationDateDefault = useMemo(() => {
+        return new Date(startDateDefault.getTime() - dayCalculation(0.5))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     const { routerPrompt, setFormIsTouched } = usePrompt('Changes you made may not be saved.')
     const [startDate, setStartDate] = useState(startDateDefault)
     const [endDate, setEndDate] = useState(endDateDefault)
+    const [registrationTime, setRegistrationTime] = useState(closeRegistrationDateDefault)
     const [eventName, setEventName] = useState(defaultTextFieldValue)
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
     const [posterUrl, setPosterUrl] = useState({ src })
+    const [isLimitParticipants, setIsLimitParticipants] = useState(false)
+    const [participantsLimited, setParticipantsLimited] = useState(0)
 
     useEffect(() => {
         return () => {
             posterUrl.src && URL.revokeObjectURL(posterUrl.src)
         }
     }, [posterUrl])
+
+    useEffect(() => {
+        if (isLimitParticipants) setParticipantsLimited(1)
+        else setParticipantsLimited(0)
+    }, [isLimitParticipants])
 
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
@@ -77,7 +90,12 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         error?.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
         setEndDate(newDate)
     }
-
+    const limitationChangeHandler = (event) => {
+        setParticipantsLimited(event.target.value)
+    }
+    const registrationTimeChangeHandler = (newDate) => {
+        setRegistrationTime(newDate)
+    }
     const uploadImageHandler = (event) => {
         const imageUrl = URL.createObjectURL(event.target.files[0])
         setPosterUrl({ src: imageUrl })
@@ -102,6 +120,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const finishFormEntering = () => {
         setFormIsTouched(false)
     }
+
     const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
     const locationIsInValid = isEmpty(location.value) && location.isTouched
     const descriptionIsInValid = isEmpty(description.value) && description.isTouched
@@ -121,7 +140,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         }
         onCreateEvent(eventDetailed)
     }
-
     return (
         <React.Fragment>
             {routerPrompt}
@@ -233,52 +251,108 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     />
                                 </RadioGroup>
                             </FormControl>
-                        </Box>
-                        <Box
-                            sx={{
-                                m: 1.5,
-                                display: 'flex',
-                                alignItems: { sm: 'center', xs: 'flex-start' },
-                                flexDirection: { sm: 'row', xs: 'column' },
-                            }}
-                        >
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <FormControl>
-                                    <MobileDateTimePicker
-                                        value={startDate}
-                                        onChange={(newValue) => {
-                                            startDateChangeHandler(newValue)
+                            <FormControl sx={{ ml: 1.5 }}>
+                                <FormControlLabel
+                                    control={<Checkbox />}
+                                    label="Participant limitation"
+                                    onChange={() =>
+                                        setIsLimitParticipants((previousValue) => !previousValue)
+                                    }
+                                    checked={isLimitParticipants}
+                                />
+                            </FormControl>
+                            {isLimitParticipants && (
+                                <FormControl fullWidth required sx={{ m: 1.5 }}>
+                                    <InputLabel htmlFor="limit" shrink>
+                                        Participants limitation
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        id="limit"
+                                        label="Participants limitation"
+                                        inputProps={{
+                                            type: 'number',
+                                            min: 1,
+                                            inputMode: 'numeric',
+                                            pattern: '[0-9]*',
                                         }}
-                                        label="Start Date"
-                                        minDateTime={startDateDefault}
-                                        inputFormat="yyyy/MM/dd hh:mm a"
-                                        mask="___/__/__ __:__ _M"
-                                        renderInput={(params) => <TextField {...params} />}
+                                        value={participantsLimited}
+                                        onChange={limitationChangeHandler}
+                                        sx={{
+                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
+                                                { display: 'none' },
+                                        }}
                                     />
-                                    {error?.startDate && (
-                                        <FormHelperText error={!!error?.startDate}>
-                                            {error?.startDate && `${error.startDate}`}
-                                        </FormHelperText>
-                                    )}
                                 </FormControl>
-                                <Box sx={{ mx: { sm: 2 }, my: { xs: 2, sm: 0 } }}>To</Box>
-                                <FormControl>
+                            )}
+                        </Box>
+                        <Box sx={{ m: 1.5 }}>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <Box
+                                    sx={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: { sm: 'center', xs: 'flex-start' },
+                                        flexDirection: { sm: 'row', xs: 'column' },
+                                        mb: 2,
+                                    }}
+                                >
+                                    <FormControl>
+                                        <MobileDateTimePicker
+                                            value={startDate}
+                                            onChange={(newValue) => {
+                                                startDateChangeHandler(newValue)
+                                            }}
+                                            label="Start date"
+                                            minDate={
+                                                new Date(new Date().getTime() + dayCalculation(1))
+                                            }
+                                            inputFormat="yyyy/MM/dd hh:mm a"
+                                            mask="___/__/__ __:__ _M"
+                                            renderInput={(params) => <TextField {...params} />}
+                                        />
+                                        {error?.startDate && (
+                                            <FormHelperText error={!!error?.startDate}>
+                                                {error?.startDate && `${error.startDate}`}
+                                            </FormHelperText>
+                                        )}
+                                    </FormControl>
+                                    <Box sx={{ mx: { sm: 2 }, my: { xs: 2, sm: 0 } }}>To</Box>
+                                    <FormControl>
+                                        <MobileDateTimePicker
+                                            value={endDate}
+                                            onChange={(newValue) => {
+                                                endDateChangeHandler(newValue)
+                                            }}
+                                            label="End date"
+                                            minDate={new Date(startDate.getTime() + 5 * 60 * 1000)}
+                                            inputFormat="yyyy/MM/dd hh:mm a"
+                                            mask="___/__/__ __:__ _M"
+                                            renderInput={(params) => <TextField {...params} />}
+                                        />
+                                        {error?.endDate && (
+                                            <FormHelperText error={!!error?.endDate}>
+                                                {error?.endDate && `${error.endDate}`}
+                                            </FormHelperText>
+                                        )}
+                                    </FormControl>
+                                </Box>
+                                <FormControl fullWidth sx={{ my: 1.5 }}>
                                     <MobileDateTimePicker
-                                        value={endDate}
+                                        value={registrationTime}
                                         onChange={(newValue) => {
-                                            endDateChangeHandler(newValue)
+                                            registrationTimeChangeHandler(newValue)
                                         }}
-                                        label="End Date"
-                                        minDateTime={endDateDefault}
+                                        label="Close registration date"
+                                        minDate={
+                                            new Date(new Date().getTime() + dayCalculation(0.5))
+                                        }
+                                        maxDateTime={
+                                            new Date(startDate.getTime() - dayCalculation(0.25))
+                                        }
                                         inputFormat="yyyy/MM/dd hh:mm a"
                                         mask="___/__/__ __:__ _M"
                                         renderInput={(params) => <TextField {...params} />}
                                     />
-                                    {error?.endDate && (
-                                        <FormHelperText error={!!error?.endDate}>
-                                            {error?.endDate && `${error.endDate}`}
-                                        </FormHelperText>
-                                    )}
                                 </FormControl>
                             </LocalizationProvider>
                         </Box>

@@ -1,4 +1,4 @@
-import { get, post, remove } from '../../utils/ApiCaller'
+import { get, post, remove, put } from '../../utils/ApiCaller'
 
 const useEventAction = () => {
     const getUpcomingEvents = () => get({ endpoint: '/api/events/upcoming' })
@@ -22,7 +22,11 @@ const useEventAction = () => {
                 eventId,
             },
         })
+    const updateEvent = (eventId, eventData) => {
+        return put({ endpoint: `/api/events/${eventId}`, body: eventData })
+    }
 
+    const checkIsMyEvent = (id) => get({ endpoint: `/api/events/is-mine/${id}` })
     const unregisterEvent = (eventId) =>
         remove({
             endpoint: `/api/reservations`,
@@ -39,6 +43,8 @@ const useEventAction = () => {
         getDetailedEvent,
         registerEvent,
         unregisterEvent,
+        updateEvent,
+        checkIsMyEvent,
     }
 }
 

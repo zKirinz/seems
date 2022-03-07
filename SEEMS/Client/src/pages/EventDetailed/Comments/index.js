@@ -39,6 +39,7 @@ const CommentsSection = ({ eventId: EventId, numberComments, numberRootComments 
         numberComments: 4,
         lastCommentId: null,
     })
+
     const loadCommentsHandler = () => {
         setIsLoading(true)
         if (initialLoadingComments.current) {
