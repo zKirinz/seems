@@ -160,29 +160,23 @@ const EventDetailed = () => {
                             />
                         </React.Fragment>
                     )}
-                    {!isMyEvent && (
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                bottom: 30,
-                                left: 40,
-                                display: 'flex',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Note color="primary" />
-                            <Typography sx={{ mx: 0.5 }}>Registrations close on</Typography>
-                            <Typography
-                                sx={{ color: blueGrey[900] }}
-                                variant="body1"
-                                fontWeight={500}
-                            >
-                                {moment(new Date(detailedEvent.event.registrationDeadline)).format(
-                                    'MMM Do YYYY, HH:mm A'
-                                )}
-                            </Typography>
-                        </Box>
-                    )}
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            bottom: 30,
+                            left: 40,
+                            display: 'flex',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Note color="primary" />
+                        <Typography sx={{ mx: 0.5 }}>Registrations close on</Typography>
+                        <Typography sx={{ color: blueGrey[900] }} variant="body1" fontWeight={500}>
+                            {moment(new Date(detailedEvent.event.registrationDeadline)).format(
+                                'MMM Do YYYY, HH:mm A'
+                            )}
+                        </Typography>
+                    </Box>
                 </Grid>
             </Grid>
             <CommentsSection

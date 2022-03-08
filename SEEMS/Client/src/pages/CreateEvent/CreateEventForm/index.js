@@ -21,6 +21,7 @@ import {
     Paper,
     Typography,
 } from '@mui/material'
+import { grey } from '@mui/material/colors'
 
 import usePrompt from '../../../hooks/use-prompt'
 import authAtom from '../../../recoil/auth/atom'
@@ -199,7 +200,15 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
-                            <Box sx={{ my: 2, ml: 1.5, width: '100%' }}>
+                            <Box
+                                sx={{
+                                    my: 2,
+                                    ml: 1.5,
+                                    width: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
                                 <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
                                     <input
                                         style={{ display: 'none' }}
@@ -216,6 +225,9 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         Upload Poster
                                     </Button>
                                 </InputLabel>
+                                <Typography sx={{ ml: 1.5, color: grey[800] }}>
+                                    Recommend using image with ratio 1:1
+                                </Typography>
                             </Box>
                             <FormControl fullWidth sx={{ m: 1.5 }} required>
                                 <TextField
