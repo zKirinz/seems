@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 
+import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
 import EventPoster from '../../components/EventPoster'
-import { Festival } from '@mui/icons-material'
-import { Avatar, Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { Festival, Note, SupervisedUserCircle } from '@mui/icons-material'
+import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
 import { useSnackbar } from '../../HOCs/SnackbarContext'
@@ -74,18 +75,18 @@ const EventDetailed = () => {
                 </Grid>
                 <Grid item xs={12} sm={8} component={Card} sx={{ position: 'relative' }}>
                     <CardContent sx={{ p: 5 }}>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Typography variant="h4" color="primary" fontWeight={700}>
-                                {detailedEvent.event.eventTitle}
-                            </Typography>
-                            <Typography color="secondary" fontWeight={700} variant="h5">
-                                Organizer - {detailedEvent.event.organizationName}
+                        <Typography variant="h4" color="primary" fontWeight={700}>
+                            {detailedEvent.event.eventTitle}
+                        </Typography>
+                        <Box display="flex" alignItems="center" sx={{ my: 1 }}>
+                            <SupervisedUserCircle color="primary" />
+                            <Typography
+                                color="secondary"
+                                fontWeight={700}
+                                variant="h6"
+                                sx={{ ml: 1 }}
+                            >
+                                {detailedEvent.event.organizationName}
                             </Typography>
                         </Box>
                         <Box display="flex" alignItems="center" sx={{ my: 1 }}>
@@ -93,7 +94,7 @@ const EventDetailed = () => {
                             <Typography
                                 fontWeight={500}
                                 variant="h6"
-                                sx={{ ml: 1.5, color: blueGrey[900] }}
+                                sx={{ ml: 1, color: blueGrey[900] }}
                             >
                                 {detailedEvent.event.location}
                             </Typography>
@@ -114,13 +115,21 @@ const EventDetailed = () => {
                         <UnRegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
                     )}
                     {auth.role === 'User' && !isRegistered && (
-                        <RegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
+                        <RegisterButton
+                            eventId={id}
+                            resetHandler={() => setReset(reset + 1)}
+                            canRegister={detailedEvent.event.canRegister}
+                        />
                     )}
                     {auth.role === 'Organizer' && !isMyEvent && isRegistered && (
                         <UnRegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
                     )}
                     {auth.role === 'Organizer' && !isMyEvent && !isRegistered && (
-                        <RegisterButton eventId={id} resetHandler={() => setReset(reset + 1)} />
+                        <RegisterButton
+                            eventId={id}
+                            resetHandler={() => setReset(reset + 1)}
+                            canRegister={detailedEvent.event.canRegister}
+                        />
                     )}
                     {auth.role === 'Organizer' && isMyEvent && (
                         <React.Fragment>
@@ -130,12 +139,22 @@ const EventDetailed = () => {
                             />
                         </React.Fragment>
                     )}
-                    <Box sx={{ position: 'absolute', bottom: 30, left: 30 }}>
-                        <Avatar
-                            src="http://cdn.onlinewebfonts.com/svg/img_454445.png"
-                            sx={{ width: 30, height: 30 }}
-                            variant="square"
-                        />
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            bottom: 30,
+                            left: 40,
+                            display: 'flex',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Note color="primary" />{' '}
+                        <Typography sx={{ mx: 0.5 }}>Note: Register before</Typography>
+                        <Typography sx={{ color: blueGrey[900] }} variant="body1" fontWeight={500}>
+                            {moment(new Date(detailedEvent.event.registrationDeadline)).format(
+                                'MMM Do YYYY, HH:mm A'
+                            )}
+                        </Typography>
                     </Box>
                 </Grid>
             </Grid>
