@@ -16,10 +16,15 @@ const CreateEvent = () => {
         eventActions
             .createEvent(eventData)
             .then((response) => {
-                console.log(response)
+                showSnackbar({
+                    severity: 'success',
+                    children: 'Create event successfully.',
+                })
+                const { id } = response.data.data
+                const newUrl = pathname.slice(0, pathname.indexOf('create'))
+                history.push(`${newUrl}${id}`)
             })
             .catch((errorResponse) => {
-                console.log(errorResponse.response)
                 if (errorResponse.response.status === 400) {
                     const errorData = errorResponse.response.data.data
                     setError({

@@ -80,6 +80,8 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
             isPrivate: eventFields.isPrivate,
             startDate: eventFields.startDate,
             endDate: eventFields.endDate,
+            participantNum: eventFields.participantNum,
+            registrationDeadline: eventFields.registrationDeadline,
         }
         updateEventHandler(eventDetailed)
     }
@@ -92,7 +94,6 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
-                console.log(response)
                 const { event: responseEvent } = response.data.data
                 setEventFields(responseEvent)
 
@@ -267,14 +268,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                 </FormControl>
                             )}
                         </Box>
-                        <Box
-                            sx={{
-                                m: 1.5,
-                                display: 'flex',
-                                alignItems: { sm: 'center', xs: 'flex-start' },
-                                flexDirection: { sm: 'row', xs: 'column' },
-                            }}
-                        >
+                        <Box sx={{ m: 1.5 }}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <Box
                                     sx={{
@@ -326,6 +320,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     id="upload-photo"
                                     type="file"
                                     accept="image/*"
+                                    disabled
                                 />
                                 <Button
                                     variant="outlined"

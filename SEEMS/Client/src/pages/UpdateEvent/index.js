@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 
 import { useHistory, useLocation, useParams } from 'react-router-dom'
 
@@ -17,7 +17,7 @@ const UpdateEvent = () => {
     const history = useHistory()
     const { pathname } = useLocation()
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         checkIsMyEvent(id)
             .then((response) => {
                 const isMine = response.data.data.isMine
