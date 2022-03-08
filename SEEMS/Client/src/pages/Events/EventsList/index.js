@@ -16,7 +16,7 @@ import useEventAction from '../../../recoil/event/action'
 const EventsList = () => {
     const auth = useRecoilValue(authAtom)
     const { search: queries } = useLocation()
-    const { search, upcoming } = queryString.parse(queries)
+    const { search, upcoming, active } = queryString.parse(queries)
     const eventAction = useEventAction()
     const [events, setEvents] = useState([])
     const [eventsNumber, setEventsNumber] = useState(0)
@@ -24,7 +24,7 @@ const EventsList = () => {
     const [hasMore, setHasMore] = useState(true)
     const showSnackbar = useSnackbar()
     let lastEventId
-    const isFilter = !!search
+    const isFilter = !!search || !!upcoming || !!active
 
     const Loading = () => (
         <Box display="flex" justifyContent="center" my={20}>
@@ -67,6 +67,14 @@ const EventsList = () => {
             }
         }
 
+        if (active !== undefined) {
+            if (active === 'true') {
+                filterString += '&active=true'
+            } else if (active === 'false') {
+                filterString += '&active=false'
+            }
+        }
+
         eventAction
             .getEvents(filterString)
             .then((res) => {
@@ -83,7 +91,7 @@ const EventsList = () => {
                 setIsLoading(false)
             })
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search, upcoming])
+    }, [search, upcoming, active])
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" width="100%">
@@ -117,7 +125,6 @@ const EventsList = () => {
                                     startDate,
                                     imageUrl,
                                     organizationName,
-                                    commentsNum,
                                 },
                                 i,
                                 { length }
@@ -135,7 +142,6 @@ const EventsList = () => {
                                             startDate={startDate}
                                             imageUrl={imageUrl}
                                             organizer={organizationName}
-                                            commentsNum={commentsNum}
                                         />
                                     </Grid>
                                 )

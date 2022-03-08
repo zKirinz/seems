@@ -26,7 +26,7 @@ const UserTableRow = ({
 
     const onChangeEditRole = (roleTarget) => {
         if (roleTarget === 'Organizer') {
-            setEditedOrganization('F-Code')
+            setEditedOrganization('FCode')
         } else if (roleTarget === 'User') {
             setEditedOrganization('None')
         }
@@ -39,8 +39,6 @@ const UserTableRow = ({
             .updateUserRole({
                 id,
                 role: editedRole,
-                organization: editedOrganization !== 'None' ? editedOrganization : 'FPT-er',
-                active: editedActive === 'Active' ? true : false,
             })
             .catch(() => {
                 showSnackbar({
@@ -54,7 +52,7 @@ const UserTableRow = ({
         await userAction
             .updateUserOrganizationActive({
                 id,
-                organization: editedOrganization !== 'None' ? editedOrganization : 'FPT-er',
+                Organization: editedOrganization !== 'None' ? editedOrganization : 'FPTer',
                 active: editedActive === 'Active' ? true : false,
             })
             .catch(() => {
@@ -105,14 +103,12 @@ const UserTableRow = ({
                             onChange={(e) => setEditedOrganization(e.target.value)}
                         >
                             {editedRole === 'Organizer' && <MenuItem value="DSC">DSC</MenuItem>}
-                            {editedRole === 'Organizer' && (
-                                <MenuItem value="F-Code">F-Code</MenuItem>
-                            )}
+                            {editedRole === 'Organizer' && <MenuItem value="FCode">FCode</MenuItem>}
                             {editedRole === 'User' && <MenuItem value="None">None</MenuItem>}
                         </Select>
                     </FormControl>
                 ) : (
-                    organization !== 'FPT-er' && organization
+                    organization !== 'FPTer' && organization
                 )}
             </TableCell>
             <TableCell align="center">

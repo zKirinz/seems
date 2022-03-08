@@ -7,16 +7,7 @@ import authAtom from '../../recoil/auth'
 import EventPoster from '../EventPoster'
 import EventSummaryInfo from './EventSummaryInfo'
 
-const EventCard = ({
-    id,
-    imageUrl,
-    title,
-    description,
-    startDate,
-    organizer,
-    isAdmin,
-    commentsNum,
-}) => {
+const EventCard = ({ id, imageUrl, title, description, startDate, organizer, isAdmin }) => {
     const auth = useRecoilValue(authAtom)
     const history = useHistory()
 
@@ -30,7 +21,7 @@ const EventCard = ({
     }
 
     return (
-        <Card elevation={3} sx={{ position: 'relative', maxWidth: 1000, width: '100%' }}>
+        <Card elevation={2} sx={{ position: 'relative', maxWidth: 1000, width: '100%' }}>
             <Box px={4}>
                 <Grid container>
                     <Grid item xs={3}>
@@ -43,7 +34,9 @@ const EventCard = ({
             </Box>
             {auth.email && (
                 <Box position="absolute" bottom={180} right={50}>
-                    <Typography color="secondary">{commentsNum} comments</Typography>
+                    <Typography color="secondary" fontWeight={700}>
+                        Organizer - {organizer}
+                    </Typography>
                 </Box>
             )}
             <Box
@@ -55,10 +48,7 @@ const EventCard = ({
                 alignItems="center"
             >
                 <Typography color="secondary" variant="subtitle1" my={1}>
-                    <Box component="strong" sx={{ color: 'primary.main' }}>
-                        Organizer - {organizer}
-                    </Box>{' '}
-                    / {eventStartTime(startDate)}
+                    {eventStartTime(startDate)}
                 </Typography>
                 {auth.email && (
                     <Button
