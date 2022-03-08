@@ -5,15 +5,16 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
-import EventCard from '../../../../components/EventCard'
+import EventCard from '../../../components/EventCard'
 import { EventBusy as EventBusyIcon, EventRepeat as EventRepeatIcon } from '@mui/icons-material'
-import { Grid, Box, Alert, Link, CircularProgress, Typography, Divider } from '@mui/material'
+import { Grid, Box, Alert, Link, CircularProgress, Divider, Typography } from '@mui/material'
 
-import { useSnackbar } from '../../../../HOCs/SnackbarContext'
-import authAtom from '../../../../recoil/auth'
-import useEventAction from '../../../../recoil/event/action'
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
+import authAtom from '../../../recoil/auth'
+import useEventAction from '../../../recoil/event/action'
+import pageEnum from '../pageEnum'
 
-const EventsList = () => {
+const EventsList = ({ page }) => {
     const auth = useRecoilValue(authAtom)
     const { search: queries } = useLocation()
     const { search, upcoming, active } = queryString.parse(queries)
@@ -25,6 +26,7 @@ const EventsList = () => {
     const showSnackbar = useSnackbar()
     let lastEventId
     const isFilter = !!search || !!upcoming || !!active
+    const isAdmin = page === pageEnum.AdminAllEvents || page === pageEnum.AdminMyEvents
 
     const Loading = () => (
         <Box display="flex" justifyContent="center" my={20}>
@@ -36,20 +38,37 @@ const EventsList = () => {
         let params = '?resultCount=6&'
         params += 'lastEventID=' + lastEventId
 
-        eventAction
-            .getMyEvents(params)
-            .then((res) => {
-                setTimeout(() => {
-                    setEvents(events.concat(res.data.data.listEvents))
-                    setHasMore(res.data.data.canLoadMore)
-                }, 1600)
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+        if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
+            eventAction
+                .getMyEvents(params)
+                .then((res) => {
+                    setTimeout(() => {
+                        setEvents(events.concat(res.data.data.listEvents))
+                        setHasMore(res.data.data.canLoadMore)
+                    }, 1600)
                 })
-            })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                })
+        } else {
+            eventAction
+                .getEvents(params)
+                .then((res) => {
+                    setTimeout(() => {
+                        setEvents(events.concat(res.data.data.listEvents))
+                        setHasMore(res.data.data.canLoadMore)
+                    }, 1600)
+                })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                })
+        }
     }
 
     useEffect(() => {
@@ -75,21 +94,39 @@ const EventsList = () => {
             }
         }
 
-        eventAction
-            .getMyEvents(filterString)
-            .then((res) => {
-                setEvents(res.data.data.listEvents)
-                setEventsNumber(res.data.data.count)
-                setHasMore(res.data.data.canLoadMore)
-                setIsLoading(false)
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+        if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
+            eventAction
+                .getMyEvents(filterString)
+                .then((res) => {
+                    setEvents(res.data.data.listEvents)
+                    setEventsNumber(res.data.data.count)
+                    setHasMore(res.data.data.canLoadMore)
+                    setIsLoading(false)
                 })
-                setIsLoading(false)
-            })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                    setIsLoading(false)
+                })
+        } else {
+            eventAction
+                .getEvents(filterString)
+                .then((res) => {
+                    setEvents(res.data.data.listEvents)
+                    setEventsNumber(res.data.data.count)
+                    setHasMore(res.data.data.canLoadMore)
+                    setIsLoading(false)
+                })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                    setIsLoading(false)
+                })
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [search, upcoming, active])
 
@@ -142,7 +179,7 @@ const EventsList = () => {
                                             startDate={startDate}
                                             imageUrl={imageUrl}
                                             organizer={organizationName}
-                                            isAdmin
+                                            isAdmin={isAdmin}
                                         />
                                     </Grid>
                                 )
@@ -162,7 +199,9 @@ const EventsList = () => {
                         {auth.role === 'Organizer' ? (
                             <React.Fragment>
                                 There is not any events here, let&apos;s{' '}
-                                <RouterLink to="/events/create">
+                                <RouterLink
+                                    to={isAdmin ? '/admin/events/create' : '/events/create'}
+                                >
                                     <Link component="span">create one!</Link>
                                 </RouterLink>{' '}
                             </React.Fragment>

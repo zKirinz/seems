@@ -9,7 +9,7 @@ import { Box, Divider } from '@mui/material'
 import EventActiveFilter from './EventActiveFilter'
 import EventPeriodFilter from './EventPeriodFilter'
 
-const Filters = () => {
+const Filters = ({ page }) => {
     const history = useHistory()
     const { search: queries } = useLocation()
     const { search, upcoming, active } = queryString.parse(queries)
@@ -33,19 +33,19 @@ const Filters = () => {
     }
 
     const searchHandler = () => {
-        let filterString = '?'
+        let route = page + '?'
 
         if (nameFilter) {
-            filterString += '&search=' + nameFilter
+            route += '&search=' + nameFilter
         }
         if (periodFilter) {
-            filterString += '&upcoming=' + periodFilter
+            route += '&upcoming=' + periodFilter
         }
         if (activeFilter) {
-            filterString += '&active=' + activeFilter
+            route += '&active=' + activeFilter
         }
 
-        history.push('/events/me' + filterString)
+        history.push(route)
     }
 
     useEffect(() => {
