@@ -48,6 +48,8 @@ namespace SEEMS.Controller
 				//dtoEvent.OrganizationName = OrganizationEnumHelper.ToString(foundEvent.OrganizationName);
 				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
+				var registeredNum = _repository.Reservation.GetRegisteredNum(foundEvent.Id);
+				dtoEvent.CanRegister = (registeredNum == 0) || (dtoEvent.ParticipantNum - registeredNum > 0);
 				return Ok(
 					new Response(
 						ResponseStatusEnum.Success,
