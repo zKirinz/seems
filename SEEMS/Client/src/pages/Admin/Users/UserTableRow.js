@@ -37,40 +37,32 @@ const UserTableRow = ({
 
     const saveEditHandler = async () => {
         setIsLoading(true)
-        await userAction
-            .updateUserRole({
+        try {
+            await userAction.updateUserRole({
                 id,
                 role: editedRole,
             })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
-                })
-                return
-            })
 
-        await userAction
-            .updateUserOrganizationActive({
+            await userAction.updateUserOrganizationActive({
                 id,
                 Organization: editedOrganization !== 'None' ? editedOrganization : 'FPTer',
                 active: editedActive === 'Active' ? true : false,
             })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
-                })
-                return
+
+            showSnackbar({
+                severity: 'success',
+                children: `Update user ${email} attendance successfully.`,
             })
+            resetHandler()
+        } catch {
+            showSnackbar({
+                severity: 'error',
+                children: 'Something went wrong, please try again later.',
+            })
+        }
 
         setIsLoading(false)
         setIsEdit(false)
-        showSnackbar({
-            severity: 'success',
-            children: `Update user ${email} attendance successfully.`,
-        })
-        resetHandler()
     }
 
     return (
