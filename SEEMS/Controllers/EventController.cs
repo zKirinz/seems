@@ -407,7 +407,7 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					eventDTO.Active = true;
+					eventDTO.Active = false;
 					var newEvent = _mapper.Map<Event>(eventDTO);
 					var user = await GetCurrentUser(Request);
 					newEvent.OrganizationName = user.OrganizationName;

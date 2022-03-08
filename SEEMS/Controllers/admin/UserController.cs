@@ -83,7 +83,6 @@ public class UserController : ControllerBase
 		{
 			var entity = await _repoManager.User.GetUserAsync(id, true);
 			
-			dto.Organization ??= entity.OrganizationName.GetDisplayName();
 			dto.Active ??= entity.Active;
 			if(entity == null)
 				throw new ArgumentNullException();
