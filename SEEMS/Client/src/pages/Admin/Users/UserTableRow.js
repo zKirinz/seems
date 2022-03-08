@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
-import { Edit as EditIcon, TurnedIn as TurnedInIcon } from '@mui/icons-material'
+import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
 import { Select, Avatar, Button, FormControl, MenuItem, TableCell, TableRow } from '@mui/material'
 import { Box } from '@mui/system'
 
@@ -19,6 +20,7 @@ const UserTableRow = ({
 }) => {
     const userAction = useUsersAction()
     const [isEdit, setIsEdit] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     const [editedRole, setEditedRole] = useState(role)
     const [editedOrganization, setEditedOrganization] = useState(organization)
     const [editedActive, setEditedActive] = useState(active ? 'Active' : 'Inactive')
@@ -34,7 +36,7 @@ const UserTableRow = ({
     }
 
     const saveEditHandler = async () => {
-        setIsEdit(false)
+        setIsLoading(true)
         await userAction
             .updateUserRole({
                 id,
@@ -45,7 +47,6 @@ const UserTableRow = ({
                     severity: 'error',
                     children: 'Something went wrong, please try again later.',
                 })
-                setIsLoading(false)
                 return
             })
 
@@ -60,10 +61,11 @@ const UserTableRow = ({
                     severity: 'error',
                     children: 'Something went wrong, please try again later.',
                 })
-                setIsLoading(false)
                 return
             })
 
+        setIsLoading(false)
+        setIsEdit(false)
         showSnackbar({
             severity: 'success',
             children: `Update user ${email} attendance successfully.`,
@@ -132,14 +134,16 @@ const UserTableRow = ({
                 {role !== 'Admin' && (
                     <React.Fragment>
                         {isEdit ? (
-                            <Button
+                            <LoadingButton
+                                loading={isLoading}
+                                loadingPosition="start"
+                                startIcon={<SaveIcon />}
                                 variant="outlined"
                                 color="secondary"
-                                startIcon={<TurnedInIcon />}
                                 onClick={saveEditHandler}
                             >
                                 Save
-                            </Button>
+                            </LoadingButton>
                         ) : (
                             <Button
                                 variant="outlined"
