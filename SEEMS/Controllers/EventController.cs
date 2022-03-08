@@ -215,7 +215,7 @@ namespace SEEMS.Controller
 
 		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
-			int? lastEventID, bool? active, int resultCount = 10)
+			int? lastEventID, bool? active, string? organizationName, int resultCount = 10)
 		{
 			try
 			{
@@ -238,6 +238,11 @@ namespace SEEMS.Controller
 					foundResult = (bool) active
 						? foundResult.Where(e => e.Active)
 						: foundResult.Where(e => !e.Active);
+				}
+
+				if(organizationName != null)
+				{
+					foundResult = foundResult.Where(e => e.OrganizationName.ToString().Equals(organizationName));
 				}
 
 				List<Event> returnResult = null;
