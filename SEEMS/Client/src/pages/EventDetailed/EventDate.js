@@ -13,7 +13,7 @@ const EventDate = ({ startDate, endDate }) => {
                 variant="h6"
                 fontWeight={500}
                 color="primary"
-                sx={{ ml: 1.5, color: blueGrey[900] }}
+                sx={{ ml: 1, color: blueGrey[900] }}
             >
                 {moment(startDate).format('MMM Do YYYY, HH:mm A')} -{' '}
                 {moment(endDate).format('MMM Do YYYY, HH:mm A')}

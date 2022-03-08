@@ -140,7 +140,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     return (
         <React.Fragment>
             {routerPrompt}
-            <Grid container component={Paper} elevation={3}>
+            <Grid container component={Paper} elevation={3} sx={{ mb: 5 }}>
                 <Grid item xs={12} sm={5}>
                     <Box display="flex" alignItems="center" height="100%">
                         <Box
@@ -162,8 +162,26 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                         onSubmit={submitHandler}
                         onChange={formIsEntering}
                     >
+                        <Box sx={{ my: 2, ml: 1.5 }}>
+                            <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
+                                <input
+                                    style={{ display: 'none' }}
+                                    id="upload-photo"
+                                    type="file"
+                                    onChange={uploadImageHandler}
+                                    accept="image/*"
+                                />
+                                <Button
+                                    variant="outlined"
+                                    component="span"
+                                    startIcon={<CameraAlt />}
+                                >
+                                    Upload
+                                </Button>
+                            </InputLabel>
+                        </Box>
                         <Box display="flex" flexWrap="wrap" justifyContent="space-between">
-                            <FormControl sx={{ m: 1.5, width: { md: '45%', xs: '100%' } }} required>
+                            <FormControl sx={{ m: 1.5 }} required>
                                 <InputLabel htmlFor="event-name">Event name</InputLabel>
                                 <OutlinedInput
                                     id="event-name"
@@ -181,7 +199,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
-                            <FormControl sx={{ m: 1.5, width: { md: '45%', xs: '100%' } }} required>
+                            <FormControl sx={{ m: 1.5 }} required>
                                 <InputLabel htmlFor="location">Location</InputLabel>
                                 <OutlinedInput
                                     id="location"
@@ -198,6 +216,27 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                             : 'Location must not be empty'}
                                     </FormHelperText>
                                 )}
+                            </FormControl>
+                            <FormControl required sx={{ m: 1.5 }}>
+                                <InputLabel htmlFor="limit" shrink>
+                                    Participants limitation
+                                </InputLabel>
+                                <OutlinedInput
+                                    id="limit"
+                                    label="Participants limitation"
+                                    inputProps={{
+                                        type: 'number',
+                                        min: 1,
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    value={participantsLimited}
+                                    onChange={limitationChangeHandler}
+                                    sx={{
+                                        'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
+                                            { display: 'none' },
+                                    }}
+                                />
                             </FormControl>
                             <FormControl fullWidth sx={{ m: 1.5 }} required>
                                 <TextField
@@ -248,27 +287,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <FormControl fullWidth required sx={{ m: 1.5 }}>
-                                <InputLabel htmlFor="limit" shrink>
-                                    Participants limitation
-                                </InputLabel>
-                                <OutlinedInput
-                                    id="limit"
-                                    label="Participants limitation"
-                                    inputProps={{
-                                        type: 'number',
-                                        min: 1,
-                                        inputMode: 'numeric',
-                                        pattern: '[0-9]*',
-                                    }}
-                                    value={participantsLimited}
-                                    onChange={limitationChangeHandler}
-                                    sx={{
-                                        'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
-                                            { display: 'none' },
-                                    }}
-                                />
-                            </FormControl>
                         </Box>
                         <Box sx={{ m: 1.5 }}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -278,6 +296,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         display: 'flex',
                                         alignItems: { sm: 'center', xs: 'flex-start' },
                                         flexDirection: { sm: 'row', xs: 'column' },
+                                        justifyContent: 'space-between',
                                         mb: 2,
                                     }}
                                 >
@@ -301,7 +320,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                             </FormHelperText>
                                         )}
                                     </FormControl>
-                                    <Box sx={{ mx: { sm: 2 }, my: { xs: 2, sm: 0 } }}>To</Box>
                                     <FormControl>
                                         <MobileDateTimePicker
                                             value={endDate}
@@ -320,50 +338,32 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                             </FormHelperText>
                                         )}
                                     </FormControl>
+                                    <FormControl sx={{ mx: 2 }}>
+                                        <MobileDateTimePicker
+                                            value={registrationTime}
+                                            onChange={(newValue) => {
+                                                registrationTimeChangeHandler(newValue)
+                                            }}
+                                            label="Close registration date"
+                                            minDate={
+                                                new Date(new Date().getTime() + dayCalculation(0.5))
+                                            }
+                                            maxDateTime={
+                                                new Date(startDate.getTime() - dayCalculation(0.25))
+                                            }
+                                            inputFormat="yyyy/MM/dd hh:mm a"
+                                            mask="___/__/__ __:__ _M"
+                                            renderInput={(params) => <TextField {...params} />}
+                                        />
+                                        {error?.registrationDeadline && (
+                                            <FormHelperText error={!!error?.registrationDeadline}>
+                                                {error?.registrationDeadline &&
+                                                    `${error.registrationDeadline}`}
+                                            </FormHelperText>
+                                        )}
+                                    </FormControl>
                                 </Box>
-                                <FormControl fullWidth sx={{ my: 1.5 }}>
-                                    <MobileDateTimePicker
-                                        value={registrationTime}
-                                        onChange={(newValue) => {
-                                            registrationTimeChangeHandler(newValue)
-                                        }}
-                                        label="Close registration date"
-                                        minDate={
-                                            new Date(new Date().getTime() + dayCalculation(0.5))
-                                        }
-                                        maxDateTime={
-                                            new Date(startDate.getTime() - dayCalculation(0.25))
-                                        }
-                                        inputFormat="yyyy/MM/dd hh:mm a"
-                                        mask="___/__/__ __:__ _M"
-                                        renderInput={(params) => <TextField {...params} />}
-                                    />
-                                    {error?.registrationDeadline && (
-                                        <FormHelperText error={!!error?.registrationDeadline}>
-                                            {error?.registrationDeadline &&
-                                                `${error.registrationDeadline}`}
-                                        </FormHelperText>
-                                    )}
-                                </FormControl>
                             </LocalizationProvider>
-                        </Box>
-                        <Box sx={{ mx: 1.5, my: 3 }}>
-                            <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
-                                <input
-                                    style={{ display: 'none' }}
-                                    id="upload-photo"
-                                    type="file"
-                                    onChange={uploadImageHandler}
-                                    accept="image/*"
-                                />
-                                <Button
-                                    variant="outlined"
-                                    component="span"
-                                    startIcon={<CameraAlt />}
-                                >
-                                    Upload
-                                </Button>
-                            </InputLabel>
                         </Box>
                         <Box
                             sx={{ m: 1.5, mt: { sm: 9, xs: 3 } }}
