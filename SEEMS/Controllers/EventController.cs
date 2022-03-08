@@ -408,16 +408,15 @@ namespace SEEMS.Controller
 				else
 				{
 					eventDTO.Active = true;
-					var newEvent = _mapper.Map<Event>(eventDTO);
-					var user = await GetCurrentUser(Request);
-					newEvent.OrganizationName = user.OrganizationName;
 					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null
 						? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6))
 						: eventDTO.RegistrationDeadline;
-					//eventDTO.OrganizationName = OrganizationEnumHelper.ToString(newEvent.OrganizationName);
+					var newEvent = _mapper.Map<Event>(eventDTO);
+					var user = await GetCurrentUser(Request);
+					newEvent.OrganizationName = user.OrganizationName;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
+					return Ok(new Response(ResponseStatusEnum.Success, newEvent));
 				}
 			}
 			catch(Exception ex)
