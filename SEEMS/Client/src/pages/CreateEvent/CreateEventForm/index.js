@@ -344,7 +344,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                             onChange={(newValue) => {
                                                 registrationTimeChangeHandler(newValue)
                                             }}
-                                            label="Close registration date"
+                                            label="Register closing date"
                                             minDate={
                                                 new Date(new Date().getTime() + dayCalculation(0.5))
                                             }
