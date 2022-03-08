@@ -36,7 +36,6 @@ const EventDetailed = () => {
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
-                console.log(response)
                 const { event: responseEvent, registered } = response.data.data
                 setDetailedEvent({
                     numberComments: responseEvent.commentsNum,

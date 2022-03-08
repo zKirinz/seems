@@ -10,7 +10,6 @@ const useEventAction = () => {
     const getDetailedEvent = (eventId) => get({ endpoint: `/api/events/${eventId}` })
 
     const createEvent = (eventData) => {
-        console.log(eventData)
         return post({
             endpoint: '/api/events',
             body: eventData,
