@@ -14,11 +14,11 @@ const useUsersAction = () => {
             },
         })
 
-    const updateUserOrganizationActive = ({ id, organization, active }) =>
+    const updateUserOrganizationActive = ({ id, Organization, active }) =>
         put({
             endpoint: `/api/admin/users/edit/${id}`,
             body: {
-                organization,
+                Organization,
                 active,
             },
         })

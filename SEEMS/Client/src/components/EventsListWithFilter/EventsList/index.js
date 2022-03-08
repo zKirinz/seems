@@ -12,11 +12,12 @@ import { Grid, Box, Alert, Link, CircularProgress, Divider, Typography } from '@
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import authAtom from '../../../recoil/auth'
 import useEventAction from '../../../recoil/event/action'
+import pageEnum from '../pageEnum'
 
-const EventsList = () => {
+const EventsList = ({ page }) => {
     const auth = useRecoilValue(authAtom)
     const { search: queries } = useLocation()
-    const { search, upcoming } = queryString.parse(queries)
+    const { search, upcoming, active } = queryString.parse(queries)
     const eventAction = useEventAction()
     const [events, setEvents] = useState([])
     const [eventsNumber, setEventsNumber] = useState(0)
@@ -24,7 +25,8 @@ const EventsList = () => {
     const [hasMore, setHasMore] = useState(true)
     const showSnackbar = useSnackbar()
     let lastEventId
-    const isFilter = !!search
+    const isFilter = !!search || !!upcoming || !!active
+    const isAdmin = page === pageEnum.AdminAllEvents || page === pageEnum.AdminMyEvents
 
     const Loading = () => (
         <Box display="flex" justifyContent="center" my={20}>
@@ -36,20 +38,37 @@ const EventsList = () => {
         let params = '?resultCount=6&'
         params += 'lastEventID=' + lastEventId
 
-        eventAction
-            .getEvents(params)
-            .then((res) => {
-                setTimeout(() => {
-                    setEvents(events.concat(res.data.data.listEvents))
-                    setHasMore(res.data.data.canLoadMore)
-                }, 1600)
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+        if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
+            eventAction
+                .getMyEvents(params)
+                .then((res) => {
+                    setTimeout(() => {
+                        setEvents(events.concat(res.data.data.listEvents))
+                        setHasMore(res.data.data.canLoadMore)
+                    }, 1600)
                 })
-            })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                })
+        } else {
+            eventAction
+                .getEvents(params)
+                .then((res) => {
+                    setTimeout(() => {
+                        setEvents(events.concat(res.data.data.listEvents))
+                        setHasMore(res.data.data.canLoadMore)
+                    }, 1600)
+                })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                })
+        }
     }
 
     useEffect(() => {
@@ -67,23 +86,49 @@ const EventsList = () => {
             }
         }
 
-        eventAction
-            .getEvents(filterString)
-            .then((res) => {
-                setEvents(res.data.data.listEvents)
-                setEventsNumber(res.data.data.count)
-                setHasMore(res.data.data.canLoadMore)
-                setIsLoading(false)
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+        if (active !== undefined) {
+            if (active === 'true') {
+                filterString += '&active=true'
+            } else if (active === 'false') {
+                filterString += '&active=false'
+            }
+        }
+
+        if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
+            eventAction
+                .getMyEvents(filterString)
+                .then((res) => {
+                    setEvents(res.data.data.listEvents)
+                    setEventsNumber(res.data.data.count)
+                    setHasMore(res.data.data.canLoadMore)
+                    setIsLoading(false)
                 })
-                setIsLoading(false)
-            })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                    setIsLoading(false)
+                })
+        } else {
+            eventAction
+                .getEvents(filterString)
+                .then((res) => {
+                    setEvents(res.data.data.listEvents)
+                    setEventsNumber(res.data.data.count)
+                    setHasMore(res.data.data.canLoadMore)
+                    setIsLoading(false)
+                })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                    setIsLoading(false)
+                })
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search, upcoming])
+    }, [search, upcoming, active])
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" width="100%">
@@ -117,7 +162,6 @@ const EventsList = () => {
                                     startDate,
                                     imageUrl,
                                     organizationName,
-                                    commentsNum,
                                 },
                                 i,
                                 { length }
@@ -135,7 +179,7 @@ const EventsList = () => {
                                             startDate={startDate}
                                             imageUrl={imageUrl}
                                             organizer={organizationName}
-                                            commentsNum={commentsNum}
+                                            isAdmin={isAdmin}
                                         />
                                     </Grid>
                                 )
@@ -155,7 +199,9 @@ const EventsList = () => {
                         {auth.role === 'Organizer' ? (
                             <React.Fragment>
                                 There is not any events here, let&apos;s{' '}
-                                <RouterLink to="/events/create">
+                                <RouterLink
+                                    to={isAdmin ? '/admin/events/create' : '/events/create'}
+                                >
                                     <Link component="span">create one!</Link>
                                 </RouterLink>{' '}
                             </React.Fragment>

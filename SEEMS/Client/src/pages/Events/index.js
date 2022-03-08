@@ -1,7 +1,6 @@
+import EventsListWithFilter from '../../components/EventsListWithFilter'
+import pageEnum from '../../components/EventsListWithFilter/pageEnum'
 import { Box, Typography } from '@mui/material'
-
-import EventsList from './EventsList'
-import Filters from './Filters'
 
 const Events = () => {
     return (
@@ -9,10 +8,7 @@ const Events = () => {
             <Typography variant="h3" color="primary" align="center" mt={1} fontWeight={700}>
                 All Events
             </Typography>
-            <Box display="flex" mt={5} mb={10}>
-                <Filters />
-                <EventsList />
-            </Box>
+            <EventsListWithFilter page={pageEnum.AllEvents} />
         </Box>
     )
 }
