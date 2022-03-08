@@ -51,7 +51,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
     const [posterUrl, setPosterUrl] = useState({ src })
-    const [participantsLimited, setParticipantsLimited] = useState(1)
+    const [participantsLimited, setParticipantsLimited] = useState(10)
 
     useEffect(() => {
         return () => {
@@ -140,7 +140,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     return (
         <React.Fragment>
             {routerPrompt}
-            <Grid container component={Paper} elevation={3}>
+            <Grid container component={Paper} elevation={3} sx={{ mb: 5 }}>
                 <Grid item xs={12} sm={5}>
                     <Box display="flex" alignItems="center" height="100%">
                         <Box
@@ -199,6 +199,24 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
+                            <Box sx={{ my: 2, ml: 1.5, width: '100%' }}>
+                                <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
+                                    <input
+                                        style={{ display: 'none' }}
+                                        id="upload-photo"
+                                        type="file"
+                                        onChange={uploadImageHandler}
+                                        accept="image/*"
+                                    />
+                                    <Button
+                                        variant="outlined"
+                                        component="span"
+                                        startIcon={<CameraAlt />}
+                                    >
+                                        Upload Poster
+                                    </Button>
+                                </InputLabel>
+                            </Box>
                             <FormControl fullWidth sx={{ m: 1.5 }} required>
                                 <TextField
                                     label="Description"
@@ -231,7 +249,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     sx={{ mr: 1.5 }}
                                 >
                                     You want this event to be public or private only for FPT
-                                    education.
+                                    education?
                                 </Typography>
                                 <RadioGroup row name="row-radio-buttons-group" value={isPrivate}>
                                     <FormControlLabel
@@ -248,29 +266,8 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <FormControl fullWidth required sx={{ m: 1.5 }}>
-                                <InputLabel htmlFor="limit" shrink>
-                                    Participants limitation
-                                </InputLabel>
-                                <OutlinedInput
-                                    id="limit"
-                                    label="Participants limitation"
-                                    inputProps={{
-                                        type: 'number',
-                                        min: 1,
-                                        inputMode: 'numeric',
-                                        pattern: '[0-9]*',
-                                    }}
-                                    value={participantsLimited}
-                                    onChange={limitationChangeHandler}
-                                    sx={{
-                                        'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
-                                            { display: 'none' },
-                                    }}
-                                />
-                            </FormControl>
                         </Box>
-                        <Box sx={{ m: 1.5 }}>
+                        <Box sx={{ mx: 1.5, mb: 4, mt: 1 }}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <Box
                                     sx={{
@@ -321,13 +318,38 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         )}
                                     </FormControl>
                                 </Box>
-                                <FormControl fullWidth sx={{ my: 1.5 }}>
+                            </LocalizationProvider>
+                        </Box>
+                        <Box sx={{ mx: 1.5, display: 'flex' }}>
+                            <FormControl required sx={{ mr: 4 }}>
+                                <InputLabel htmlFor="limit" shrink>
+                                    Participants limitation
+                                </InputLabel>
+                                <OutlinedInput
+                                    id="limit"
+                                    label="Participants limitation"
+                                    inputProps={{
+                                        type: 'number',
+                                        min: 10,
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    value={participantsLimited}
+                                    onChange={limitationChangeHandler}
+                                    sx={{
+                                        'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
+                                            { display: 'none' },
+                                    }}
+                                />
+                            </FormControl>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <FormControl sx={{ mx: 2 }}>
                                     <MobileDateTimePicker
                                         value={registrationTime}
                                         onChange={(newValue) => {
                                             registrationTimeChangeHandler(newValue)
                                         }}
-                                        label="Close registration date"
+                                        label="Register closing date"
                                         minDate={
                                             new Date(new Date().getTime() + dayCalculation(0.5))
                                         }
@@ -346,24 +368,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     )}
                                 </FormControl>
                             </LocalizationProvider>
-                        </Box>
-                        <Box sx={{ mx: 1.5, my: 3 }}>
-                            <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
-                                <input
-                                    style={{ display: 'none' }}
-                                    id="upload-photo"
-                                    type="file"
-                                    onChange={uploadImageHandler}
-                                    accept="image/*"
-                                />
-                                <Button
-                                    variant="outlined"
-                                    component="span"
-                                    startIcon={<CameraAlt />}
-                                >
-                                    Upload
-                                </Button>
-                            </InputLabel>
                         </Box>
                         <Box
                             sx={{ m: 1.5, mt: { sm: 9, xs: 3 } }}
