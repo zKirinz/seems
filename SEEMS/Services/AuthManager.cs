@@ -59,7 +59,7 @@ namespace SEEMS.Services
             {
                new Claim("email", user.Email),
                new Claim("name", user.UserName),
-               new Claim("organization", OrganizationEnumHelper.ToString(user.OrganizationName)),
+               new Claim("organization", user.OrganizationName.ToString()),
                new Claim("role", roleMeta.MetaValue),
                new Claim("image", user.ImageUrl)
             };
