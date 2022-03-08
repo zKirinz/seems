@@ -7,7 +7,6 @@ import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
 import {
     Box,
     Button,
-    Checkbox,
     FormControl,
     FormControlLabel,
     FormHelperText,
@@ -236,37 +235,27 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <FormControl sx={{ ml: 1.5 }}>
-                                <FormControlLabel
+                            <FormControl fullWidth required sx={{ m: 1.5 }}>
+                                <InputLabel htmlFor="limit" shrink>
+                                    Participants limitation
+                                </InputLabel>
+                                <OutlinedInput
                                     disabled
-                                    control={<Checkbox />}
-                                    label="Participant limitation"
-                                    checked={eventFields.participantNum > 0 ? true : false}
+                                    id="limit"
+                                    label="Participants limitation"
+                                    inputProps={{
+                                        type: 'number',
+                                        min: 1,
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    value={eventFields.participantNum}
+                                    sx={{
+                                        'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
+                                            { display: 'none' },
+                                    }}
                                 />
                             </FormControl>
-                            {eventFields.participantNum > 0 && (
-                                <FormControl fullWidth required sx={{ m: 1.5 }}>
-                                    <InputLabel htmlFor="limit" shrink>
-                                        Participants limitation
-                                    </InputLabel>
-                                    <OutlinedInput
-                                        disabled
-                                        id="limit"
-                                        label="Participants limitation"
-                                        inputProps={{
-                                            type: 'number',
-                                            min: 1,
-                                            inputMode: 'numeric',
-                                            pattern: '[0-9]*',
-                                        }}
-                                        defaultValue={eventFields.participantNum}
-                                        sx={{
-                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
-                                                { display: 'none' },
-                                        }}
-                                    />
-                                </FormControl>
-                            )}
                         </Box>
                         <Box sx={{ m: 1.5 }}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>

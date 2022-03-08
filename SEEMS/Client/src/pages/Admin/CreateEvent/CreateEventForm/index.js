@@ -20,7 +20,6 @@ import {
     TextField,
     Paper,
     Typography,
-    Checkbox,
 } from '@mui/material'
 
 import usePrompt from '../../../../hooks/use-prompt'
@@ -52,19 +51,13 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
     const [posterUrl, setPosterUrl] = useState({ src })
-    const [isLimitParticipants, setIsLimitParticipants] = useState(false)
-    const [participantsLimited, setParticipantsLimited] = useState(0)
+    const [participantsLimited, setParticipantsLimited] = useState(1)
 
     useEffect(() => {
         return () => {
             posterUrl.src && URL.revokeObjectURL(posterUrl.src)
         }
     }, [posterUrl])
-
-    useEffect(() => {
-        if (isLimitParticipants) setParticipantsLimited(1)
-        else setParticipantsLimited(0)
-    }, [isLimitParticipants])
 
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
@@ -255,39 +248,27 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <FormControl sx={{ ml: 1.5 }}>
-                                <FormControlLabel
-                                    control={<Checkbox />}
-                                    label="Participant limitation"
-                                    onChange={() =>
-                                        setIsLimitParticipants((previousValue) => !previousValue)
-                                    }
-                                    checked={isLimitParticipants}
+                            <FormControl fullWidth required sx={{ m: 1.5 }}>
+                                <InputLabel htmlFor="limit" shrink>
+                                    Participants limitation
+                                </InputLabel>
+                                <OutlinedInput
+                                    id="limit"
+                                    label="Participants limitation"
+                                    inputProps={{
+                                        type: 'number',
+                                        min: 1,
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    value={participantsLimited}
+                                    onChange={limitationChangeHandler}
+                                    sx={{
+                                        'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
+                                            { display: 'none' },
+                                    }}
                                 />
                             </FormControl>
-                            {isLimitParticipants && (
-                                <FormControl fullWidth required sx={{ m: 1.5 }}>
-                                    <InputLabel htmlFor="limit" shrink>
-                                        Participants limitation
-                                    </InputLabel>
-                                    <OutlinedInput
-                                        id="limit"
-                                        label="Participants limitation"
-                                        inputProps={{
-                                            type: 'number',
-                                            min: 1,
-                                            inputMode: 'numeric',
-                                            pattern: '[0-9]*',
-                                        }}
-                                        value={participantsLimited}
-                                        onChange={limitationChangeHandler}
-                                        sx={{
-                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
-                                                { display: 'none' },
-                                        }}
-                                    />
-                                </FormControl>
-                            )}
                         </Box>
                         <Box sx={{ m: 1.5 }}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
