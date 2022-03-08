@@ -48,6 +48,8 @@ namespace SEEMS.Controller
 				//dtoEvent.OrganizationName = OrganizationEnumHelper.ToString(foundEvent.OrganizationName);
 				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
+				var registeredNum = _repository.Reservation.GetRegisteredNum(foundEvent.Id);
+				dtoEvent.CanRegister = (registeredNum == 0) || (dtoEvent.ParticipantNum - registeredNum > 0);
 				return Ok(
 					new Response(
 						ResponseStatusEnum.Success,
@@ -408,16 +410,15 @@ namespace SEEMS.Controller
 				else
 				{
 					eventDTO.Active = true;
-					var newEvent = _mapper.Map<Event>(eventDTO);
-					var user = await GetCurrentUser(Request);
-					newEvent.OrganizationName = user.OrganizationName;
 					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null
 						? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6))
 						: eventDTO.RegistrationDeadline;
-					//eventDTO.OrganizationName = OrganizationEnumHelper.ToString(newEvent.OrganizationName);
+					var newEvent = _mapper.Map<Event>(eventDTO);
+					var user = await GetCurrentUser(Request);
+					newEvent.OrganizationName = user.OrganizationName;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
+					return Ok(new Response(ResponseStatusEnum.Success, newEvent));
 				}
 			}
 			catch(Exception ex)

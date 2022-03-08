@@ -8,7 +8,7 @@ namespace SEEMS.Infrastructures.Commons
 		FPTU = 0,
 		FCode = 1,
 		DSC = 2,
-		FPTer = 3,
+		FPTer = 3
 	}
 
 	public class OrganizationEnumHelper

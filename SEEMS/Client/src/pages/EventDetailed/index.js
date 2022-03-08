@@ -23,7 +23,6 @@ const EventDetailed = () => {
     const history = useHistory()
     const { id } = useParams()
     const { getDetailedEvent, checkIsMyEvent } = useEventAction()
-    const [error, setError] = useState(null)
     const [isMyEvent, setIsMyEvent] = useState(false)
     const [isRegistered, setIsRegistered] = useState(false)
     const [reset, setReset] = useState(0)
@@ -45,9 +44,11 @@ const EventDetailed = () => {
                 })
                 setIsRegistered(registered)
             })
-            .catch((errorResponse) => {
-                const errorMessage = errorResponse.response.data.data
-                setError(errorMessage)
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
             })
 
         if (auth.role === 'Organizer') {
@@ -65,20 +66,6 @@ const EventDetailed = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [reset])
-
-    if (error)
-        return (
-            <Box
-                sx={{
-                    height: '85vh',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}
-            >
-                <Typography variant="h4">{error}</Typography>
-            </Box>
-        )
 
     return (
         <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>

@@ -138,7 +138,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             isPrivate,
             startDate: startDate,
             endDate: endDate,
-            organization: auth.organization,
+            organizationName: auth.organization,
             participantNum: +participantsLimited,
             registrationDeadline: registrationTime,
         }
