@@ -41,10 +41,10 @@ namespace SEEMS.Contexts
 			modelBuilder.AddRemovePluralizeConvention();
 			modelBuilder.AddRemoveOneToManyCascadeConvention();
 			modelBuilder.Entity<User>()
-						.Property(u => u.Organization)
+						.Property(u => u.OrganizationName)
 						.HasConversion(new EnumToStringConverter<OrganizationEnum>());
 			modelBuilder.Entity<Event>()
-						.Property(u => u.Organization)
+						.Property(u => u.OrganizationName)
 						.HasConversion(new EnumToStringConverter<OrganizationEnum>());
 
 			modelBuilder.ApplyConfiguration(new UserConfiguration());

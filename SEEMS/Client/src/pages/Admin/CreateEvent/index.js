@@ -4,7 +4,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
-import { useEventAction } from '../../recoil/event'
+import { useEventAction } from '../../../recoil/event'
 import CreateEventForm from './CreateEventForm'
 
 const CreateEvent = () => {
@@ -19,7 +19,6 @@ const CreateEvent = () => {
                 console.log(response)
             })
             .catch((errorResponse) => {
-                console.log(errorResponse.response)
                 if (errorResponse.response.status === 400) {
                     const errorData = errorResponse.response.data.data
                     setError({
@@ -28,7 +27,6 @@ const CreateEvent = () => {
                         description: errorData.description,
                         startDate: errorData.startDate,
                         endDate: errorData.endDate,
-                        registrationDeadline: errorData.registrationDeadline,
                     })
                 }
             })

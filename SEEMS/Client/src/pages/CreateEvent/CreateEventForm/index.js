@@ -94,6 +94,8 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         setParticipantsLimited(event.target.value)
     }
     const registrationTimeChangeHandler = (newDate) => {
+        error?.registrationDeadline &&
+            setError((previousError) => ({ ...previousError, registrationDeadline: null }))
         setRegistrationTime(newDate)
     }
     const uploadImageHandler = (event) => {
@@ -136,7 +138,9 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             isPrivate,
             startDate: startDate,
             endDate: endDate,
-            organizationName: auth.organization,
+            organization: auth.organization,
+            participantNum: +participantsLimited,
+            registrationDeadline: registrationTime,
         }
         onCreateEvent(eventDetailed)
     }
@@ -353,6 +357,12 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         mask="___/__/__ __:__ _M"
                                         renderInput={(params) => <TextField {...params} />}
                                     />
+                                    {error?.registrationDeadline && (
+                                        <FormHelperText error={!!error?.registrationDeadline}>
+                                            {error?.registrationDeadline &&
+                                                `${error.registrationDeadline}`}
+                                        </FormHelperText>
+                                    )}
                                 </FormControl>
                             </LocalizationProvider>
                         </Box>

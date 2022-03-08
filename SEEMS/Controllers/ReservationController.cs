@@ -4,6 +4,7 @@ using SEEMS.Contexts;
 using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
@@ -113,7 +114,7 @@ namespace SEEMS.Controllers
                             var events = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId); 
                             var registeredEvents = _mapper.Map<RegisteredEventsDTO>(events);
                             registeredEvents.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
-                            //registeredEvents.OrganizationName = _context.Organizations.FirstOrDefault(x => x.Id == events.OrganizationId).Name;
+                            registeredEvents.OrganizationName = Enum.GetName(typeof(OrganizationEnum), events.OrganizationName);
                             registeredEvents.ReservationId = reservation.Id;
                             registeredEvents.FeedBack = reservation.Attend;
                             listRegisteredEvents.Add(registeredEvents);

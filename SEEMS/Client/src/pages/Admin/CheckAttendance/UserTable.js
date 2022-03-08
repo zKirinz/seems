@@ -15,15 +15,15 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableContainer,
+    TableContainer, // TableFooter,
     TableHead,
-    TablePagination,
+    TablePagination, // TablePagination,
     TableRow,
     Typography,
     useTheme,
 } from '@mui/material'
 
-import { useUsersAction } from '../../recoil/user'
+import { useUsersAction } from '../../../recoil/user'
 import UserTableRow from './UserTableRow'
 
 function TablePaginationActions(props) {

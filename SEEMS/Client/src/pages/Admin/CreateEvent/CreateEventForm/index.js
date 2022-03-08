@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+
+import { useRecoilValue } from 'recoil'
 
 import { CameraAlt } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
@@ -13,27 +15,56 @@ import {
     Grid,
     InputLabel,
     OutlinedInput,
-    Paper,
     Radio,
     RadioGroup,
     TextField,
+    Paper,
     Typography,
+    Checkbox,
 } from '@mui/material'
 
-import usePrompt from '../../hooks/use-prompt'
-import { useEventAction } from '../../recoil/event'
+import usePrompt from '../../../../hooks/use-prompt'
+import authAtom from '../../../../recoil/auth/atom'
 
+const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 const defaultTextFieldValue = { value: '', isTouched: false }
+const src = 'https://res.cloudinary.com/dq7l8216n/image/upload/v1642158763/FPTU.png'
+const dayCalculation = (numDay = 1) => numDay * 24 * 60 * 60 * 1000
 
-const isEmpty = (incomeValue) => incomeValue?.trim().length === 0
-
-const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
-    const { getDetailedEvent } = useEventAction()
+const CreateEventForm = ({ onCreateEvent, error, setError }) => {
+    const auth = useRecoilValue(authAtom)
+    const startDateDefault = useMemo(() => {
+        return new Date(new Date().getTime() + dayCalculation())
+    }, [])
+    const endDateDefault = useMemo(() => {
+        return new Date(new Date().getTime() + dayCalculation() + 5 * 60 * 1000)
+    }, [])
+    const closeRegistrationDateDefault = useMemo(() => {
+        return new Date(startDateDefault.getTime() - dayCalculation(0.5))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     const { routerPrompt, setFormIsTouched } = usePrompt('Changes you made may not be saved.')
+    const [startDate, setStartDate] = useState(startDateDefault)
+    const [endDate, setEndDate] = useState(endDateDefault)
+    const [registrationTime, setRegistrationTime] = useState(closeRegistrationDateDefault)
     const [eventName, setEventName] = useState(defaultTextFieldValue)
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
-    const [eventFields, setEventFields] = useState({})
+    const [isPrivate, setIsPrivate] = useState(false)
+    const [posterUrl, setPosterUrl] = useState({ src })
+    const [isLimitParticipants, setIsLimitParticipants] = useState(false)
+    const [participantsLimited, setParticipantsLimited] = useState(0)
+
+    useEffect(() => {
+        return () => {
+            posterUrl.src && URL.revokeObjectURL(posterUrl.src)
+        }
+    }, [posterUrl])
+
+    useEffect(() => {
+        if (isLimitParticipants) setParticipantsLimited(1)
+        else setParticipantsLimited(0)
+    }, [isLimitParticipants])
 
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
@@ -48,6 +79,26 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     const descriptionChangeHandler = (event) => {
         error?.description && setError((previousError) => ({ ...previousError, description: null }))
         setDescription((previousValue) => ({ ...previousValue, value: event.target.value }))
+    }
+
+    const startDateChangeHandler = (newDate) => {
+        error?.startDate && setError((previousError) => ({ ...previousError, startDate: null }))
+        setStartDate(newDate)
+    }
+
+    const endDateChangeHandler = (newDate) => {
+        error?.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
+        setEndDate(newDate)
+    }
+    const limitationChangeHandler = (event) => {
+        setParticipantsLimited(event.target.value)
+    }
+    const registrationTimeChangeHandler = (newDate) => {
+        setRegistrationTime(newDate)
+    }
+    const uploadImageHandler = (event) => {
+        const imageUrl = URL.createObjectURL(event.target.files[0])
+        setPosterUrl({ src: imageUrl })
     }
 
     const eventNameTouchedHandler = () => {
@@ -69,56 +120,26 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     const finishFormEntering = () => {
         setFormIsTouched(false)
     }
+
+    const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
+    const locationIsInValid = isEmpty(location.value) && location.isTouched
+    const descriptionIsInValid = isEmpty(description.value) && description.isTouched
+    const overallTextFieldIsValid =
+        !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
     const submitHandler = (event) => {
         event.preventDefault()
         const eventDetailed = {
             eventTitle: eventName.value,
             location: location.value,
             eventDescription: description.value,
-            imageUrl: eventFields.imageUrl,
-            isPrivate: eventFields.isPrivate,
-            startDate: eventFields.startDate,
-            endDate: eventFields.endDate,
+            imageUrl: src,
+            isPrivate,
+            startDate: startDate,
+            endDate: endDate,
+            organizationName: auth.organization,
         }
-        updateEventHandler(eventDetailed)
+        onCreateEvent(eventDetailed)
     }
-    const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
-    const locationIsInValid = isEmpty(location.value) && location.isTouched
-    const descriptionIsInValid = isEmpty(description.value) && description.isTouched
-    const overallTextFieldIsValid =
-        !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
-
-    useEffect(() => {
-        getDetailedEvent(id)
-            .then((response) => {
-                console.log(response)
-                const { event: responseEvent } = response.data.data
-                setEventFields(responseEvent)
-
-                setEventName((previousValue) => ({
-                    ...previousValue,
-                    value: responseEvent.eventTitle,
-                }))
-
-                setLocation((previousValue) => ({
-                    ...previousValue,
-                    value: responseEvent.location,
-                }))
-
-                setDescription((previousValue) => ({
-                    ...previousValue,
-                    value: responseEvent.eventDescription,
-                }))
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
-                })
-            })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
     return (
         <React.Fragment>
             {routerPrompt}
@@ -128,7 +149,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                         <Box
                             component="img"
                             alt="school-image"
-                            src={eventFields.imageUrl}
+                            src={posterUrl.src}
                             sx={{
                                 width: '100%',
                                 aspectRatio: '1 / 1',
@@ -215,51 +236,119 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     You want this event to be public or private only for FPT
                                     education.
                                 </Typography>
-                                <RadioGroup
-                                    row
-                                    name="row-radio-buttons-group"
-                                    value={eventFields.isPrivate ? true : false}
-                                >
+                                <RadioGroup row name="row-radio-buttons-group" value={isPrivate}>
                                     <FormControlLabel
                                         value={false}
                                         control={<Radio />}
-                                        disabled
                                         label="Public"
+                                        onChange={() => setIsPrivate(false)}
                                     />
                                     <FormControlLabel
                                         value={true}
                                         control={<Radio />}
-                                        disabled
                                         label="Private"
+                                        onChange={() => setIsPrivate(true)}
                                     />
                                 </RadioGroup>
                             </FormControl>
-                        </Box>
-                        <Box
-                            sx={{
-                                m: 1.5,
-                                display: 'flex',
-                                alignItems: { sm: 'center', xs: 'flex-start' },
-                                flexDirection: { sm: 'row', xs: 'column' },
-                            }}
-                        >
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <FormControl disabled>
-                                    <MobileDateTimePicker
-                                        disabled
-                                        value={eventFields.startDate}
-                                        label="Start Date"
-                                        inputFormat="yyyy/MM/dd hh:mm a"
-                                        mask="___/__/__ __:__ _M"
-                                        renderInput={(params) => <TextField {...params} />}
+                            <FormControl sx={{ ml: 1.5 }}>
+                                <FormControlLabel
+                                    control={<Checkbox />}
+                                    label="Participant limitation"
+                                    onChange={() =>
+                                        setIsLimitParticipants((previousValue) => !previousValue)
+                                    }
+                                    checked={isLimitParticipants}
+                                />
+                            </FormControl>
+                            {isLimitParticipants && (
+                                <FormControl fullWidth required sx={{ m: 1.5 }}>
+                                    <InputLabel htmlFor="limit" shrink>
+                                        Participants limitation
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        id="limit"
+                                        label="Participants limitation"
+                                        inputProps={{
+                                            type: 'number',
+                                            min: 1,
+                                            inputMode: 'numeric',
+                                            pattern: '[0-9]*',
+                                        }}
+                                        value={participantsLimited}
+                                        onChange={limitationChangeHandler}
+                                        sx={{
+                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
+                                                { display: 'none' },
+                                        }}
                                     />
                                 </FormControl>
-                                <Box sx={{ mx: { sm: 2 }, my: { xs: 2, sm: 0 } }}>To</Box>
-                                <FormControl>
+                            )}
+                        </Box>
+                        <Box sx={{ m: 1.5 }}>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <Box
+                                    sx={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: { sm: 'center', xs: 'flex-start' },
+                                        flexDirection: { sm: 'row', xs: 'column' },
+                                        mb: 2,
+                                    }}
+                                >
+                                    <FormControl>
+                                        <MobileDateTimePicker
+                                            value={startDate}
+                                            onChange={(newValue) => {
+                                                startDateChangeHandler(newValue)
+                                            }}
+                                            label="Start date"
+                                            minDate={
+                                                new Date(new Date().getTime() + dayCalculation(1))
+                                            }
+                                            inputFormat="yyyy/MM/dd hh:mm a"
+                                            mask="___/__/__ __:__ _M"
+                                            renderInput={(params) => <TextField {...params} />}
+                                        />
+                                        {error?.startDate && (
+                                            <FormHelperText error={!!error?.startDate}>
+                                                {error?.startDate && `${error.startDate}`}
+                                            </FormHelperText>
+                                        )}
+                                    </FormControl>
+                                    <Box sx={{ mx: { sm: 2 }, my: { xs: 2, sm: 0 } }}>To</Box>
+                                    <FormControl>
+                                        <MobileDateTimePicker
+                                            value={endDate}
+                                            onChange={(newValue) => {
+                                                endDateChangeHandler(newValue)
+                                            }}
+                                            label="End date"
+                                            minDate={new Date(startDate.getTime() + 5 * 60 * 1000)}
+                                            inputFormat="yyyy/MM/dd hh:mm a"
+                                            mask="___/__/__ __:__ _M"
+                                            renderInput={(params) => <TextField {...params} />}
+                                        />
+                                        {error?.endDate && (
+                                            <FormHelperText error={!!error?.endDate}>
+                                                {error?.endDate && `${error.endDate}`}
+                                            </FormHelperText>
+                                        )}
+                                    </FormControl>
+                                </Box>
+                                <FormControl fullWidth sx={{ my: 1.5 }}>
                                     <MobileDateTimePicker
-                                        disabled
-                                        value={eventFields.endDate}
-                                        label="End Date"
+                                        value={registrationTime}
+                                        onChange={(newValue) => {
+                                            registrationTimeChangeHandler(newValue)
+                                        }}
+                                        label="Close registration date"
+                                        minDate={
+                                            new Date(new Date().getTime() + dayCalculation(0.5))
+                                        }
+                                        maxDateTime={
+                                            new Date(startDate.getTime() - dayCalculation(0.25))
+                                        }
                                         inputFormat="yyyy/MM/dd hh:mm a"
                                         mask="___/__/__ __:__ _M"
                                         renderInput={(params) => <TextField {...params} />}
@@ -273,13 +362,13 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     style={{ display: 'none' }}
                                     id="upload-photo"
                                     type="file"
+                                    onChange={uploadImageHandler}
                                     accept="image/*"
                                 />
                                 <Button
                                     variant="outlined"
                                     component="span"
                                     startIcon={<CameraAlt />}
-                                    disabled
                                 >
                                     Upload
                                 </Button>
@@ -306,4 +395,4 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     )
 }
 
-export default UpdateEventForm
+export default CreateEventForm

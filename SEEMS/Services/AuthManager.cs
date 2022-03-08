@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Extensions;
 using SEEMS.Data.Entities;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 
 namespace SEEMS.Services
@@ -58,7 +59,7 @@ namespace SEEMS.Services
             {
                new Claim("email", user.Email),
                new Claim("name", user.UserName),
-               new Claim("organization", user.Organization.GetDisplayName()),
+               new Claim("organization", OrganizationEnumHelper.ToString(user.OrganizationName)),
                new Claim("role", roleMeta.MetaValue),
                new Claim("image", user.ImageUrl)
             };

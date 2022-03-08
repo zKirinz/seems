@@ -70,7 +70,7 @@ public class AuthenticationController : ControllerBase
                 return Redirect($"{MapLoginUiDomain()}?error=inactive-user");
             }
 
-            //currentUser.OrganizationId = user.OrganizationId;
+            currentUser.OrganizationName = user.OrganizationName;
             _mapper.Map(currentUser, user);
             await _repoService.SaveAsync();
         } 
@@ -82,7 +82,7 @@ public class AuthenticationController : ControllerBase
         {
             HttpOnly = true
         });
-
+        
         return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
     }
         
@@ -132,7 +132,7 @@ public class AuthenticationController : ControllerBase
 
     private async void CreateNewUser(User currentUser)
     {
-        currentUser.Organization = OrganizationEnum.FPTer;
+        currentUser.OrganizationName = OrganizationEnum.FPTer;
         currentUser.Active = true;
         _repoService.User.CreateUser(currentUser);
     }
