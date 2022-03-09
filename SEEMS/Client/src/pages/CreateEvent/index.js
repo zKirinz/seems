@@ -23,19 +23,20 @@ const CreateEvent = () => {
                 const { id } = response.data.data
 
                 if (poster.file) {
-                    const storageRef = ref(storage, `event-poster/${poster.file.name}`)
+                    let fileType = 'png'
+                    if (poster.file.type.endsWith('jpg')) fileType = 'jpg'
+                    else if (poster.file.type.endsWith('jpeg')) fileType = 'jpeg'
+                    const storageRef = ref(storage, `event-poster/${id}.${fileType}`)
                     const uploadTask = uploadBytesResumable(storageRef, poster.file)
 
                     uploadTask.on(
                         'state_changed',
                         () => {},
-                        (error) => {
-                            console.log(error)
+                        () => {
                             showSnackbar({
                                 severity: 'error',
                                 children: 'Something went wrong, cannot upload event poster.',
                             })
-                            return
                         },
                         () => {
                             getDownloadURL(uploadTask.snapshot.ref)
@@ -58,18 +59,9 @@ const CreateEvent = () => {
                                         children: 'Something went wrong, please try again later.',
                                     })
                                 )
-
-                            return
                         }
                     )
                 }
-
-                showSnackbar({
-                    severity: 'success',
-                    children: 'Create event successfully.',
-                })
-                const newUrl = pathname.slice(0, pathname.indexOf('create'))
-                history.push(`${newUrl}${id}`)
             })
             .catch((error) => {
                 if (error.response.status === 400) {

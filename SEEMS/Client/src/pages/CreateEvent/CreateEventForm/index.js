@@ -170,6 +170,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                             sx={{
                                 width: '100%',
                                 aspectRatio: '1 / 1',
+                                objectFit: 'contain',
                             }}
                         />
                     </Box>
