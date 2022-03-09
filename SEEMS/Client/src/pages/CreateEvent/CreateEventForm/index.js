@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 
 import { useRecoilValue } from 'recoil'
 
-import { CameraAlt } from '@mui/icons-material'
+import { CameraAlt, InfoRounded } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -21,7 +21,9 @@ import {
     Paper,
     Typography,
 } from '@mui/material'
+import { grey } from '@mui/material/colors'
 
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import usePrompt from '../../../hooks/use-prompt'
 import authAtom from '../../../recoil/auth/atom'
 
@@ -50,14 +52,16 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
-    const [posterUrl, setPosterUrl] = useState({ src })
+    const [poster, setPoster] = useState({ src, file: null })
     const [participantsLimited, setParticipantsLimited] = useState(10)
+    const [isLoading, setIsLoading] = useState(false)
+    const showSnackbar = useSnackbar()
 
     useEffect(() => {
         return () => {
-            posterUrl.src && URL.revokeObjectURL(posterUrl.src)
+            poster.src && URL.revokeObjectURL(poster.src)
         }
-    }, [posterUrl])
+    }, [poster])
 
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
@@ -92,8 +96,20 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         setRegistrationTime(newDate)
     }
     const uploadImageHandler = (event) => {
+        const file = event.target.files[0]
+        if (!file) return
+
+        const { type } = file
+        if (!(type.endsWith('jpeg') || type.endsWith('png') || type.endsWith('jpg'))) {
+            showSnackbar({
+                severity: 'error',
+                children: 'Event poster can only be jpeg, png and jpg file.',
+            })
+            return
+        }
+
         const imageUrl = URL.createObjectURL(event.target.files[0])
-        setPosterUrl({ src: imageUrl })
+        setPoster({ src: imageUrl, file })
     }
 
     const eventNameTouchedHandler = () => {
@@ -121,8 +137,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const descriptionIsInValid = isEmpty(description.value) && description.isTouched
     const overallTextFieldIsValid =
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
-    const submitHandler = (event) => {
+    const submitHandler = async (event) => {
         event.preventDefault()
+        setIsLoading(true)
+
         const eventDetailed = {
             eventTitle: eventName.value,
             location: location.value,
@@ -135,21 +153,24 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             participantNum: +participantsLimited,
             registrationDeadline: registrationTime,
         }
-        onCreateEvent(eventDetailed)
+        await onCreateEvent({ eventData: eventDetailed, poster })
+
+        setIsLoading(false)
     }
     return (
         <React.Fragment>
             {routerPrompt}
-            <Grid container component={Paper} elevation={3} sx={{ mb: 5 }}>
+            <Grid container component={Paper} elevation={3}>
                 <Grid item xs={12} sm={5}>
                     <Box display="flex" alignItems="center" height="100%">
                         <Box
                             component="img"
                             alt="school-image"
-                            src={posterUrl.src}
+                            src={poster.src}
                             sx={{
                                 width: '100%',
                                 aspectRatio: '1 / 1',
+                                objectFit: 'contain',
                             }}
                         />
                     </Box>
@@ -199,7 +220,15 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
-                            <Box sx={{ my: 2, ml: 1.5, width: '100%' }}>
+                            <Box
+                                sx={{
+                                    my: 2,
+                                    ml: 1.5,
+                                    width: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
                                 <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
                                     <input
                                         style={{ display: 'none' }}
@@ -216,6 +245,12 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         Upload Poster
                                     </Button>
                                 </InputLabel>
+                                <Box display="flex" alignItems="center" sx={{ ml: 3 }}>
+                                    <InfoRounded color="primary" fontSize="small" />
+                                    <Typography sx={{ color: grey[800], ml: 0.5 }}>
+                                        Recommend using image with ratio 1:1
+                                    </Typography>
+                                </Box>
                             </Box>
                             <FormControl fullWidth sx={{ m: 1.5 }} required>
                                 <TextField
@@ -331,6 +366,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     inputProps={{
                                         type: 'number',
                                         min: 10,
+                                        max: 1500,
                                         inputMode: 'numeric',
                                         pattern: '[0-9]*',
                                     }}
