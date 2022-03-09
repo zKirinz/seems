@@ -215,7 +215,7 @@ namespace SEEMS.Controller
 
 		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
-			int? lastEventID, bool? active, int resultCount = 10)
+			int? lastEventID, bool? active, string? organizationName, int resultCount = 10)
 		{
 			try
 			{
@@ -238,6 +238,11 @@ namespace SEEMS.Controller
 					foundResult = (bool) active
 						? foundResult.Where(e => e.Active)
 						: foundResult.Where(e => !e.Active);
+				}
+
+				if(organizationName != null)
+				{
+					foundResult = foundResult.Where(e => e.OrganizationName.ToString().Equals(organizationName));
 				}
 
 				List<Event> returnResult = null;
@@ -326,9 +331,14 @@ namespace SEEMS.Controller
 								new Response(ResponseStatusEnum.Fail,
 								eventValidationInfo,
 								"Some fields didn't match requirements"));
-					myEvent.EventTitle = eventDTO.EventTitle;
-					myEvent.EventDescription = eventDTO.EventDescription;
-					myEvent.Location = eventDTO.Location;
+					if(eventDTO.EventTitle != null)
+						myEvent.EventTitle = eventDTO.EventTitle;
+					if(eventDTO.EventDescription != null)
+						myEvent.EventDescription = eventDTO.EventDescription;
+					if(eventDTO.Location != null)
+						myEvent.Location = eventDTO.Location;
+					if(eventDTO.ImageUrl != null)
+						myEvent.ImageUrl = eventDTO.ImageUrl;
 					_context.Update(myEvent);
 					await _context.SaveChangesAsync();
 					return Ok(
