@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 
 import { useRecoilValue } from 'recoil'
 
-import { CameraAlt } from '@mui/icons-material'
+import { CameraAlt, InfoRounded } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -225,9 +225,12 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         Upload Poster
                                     </Button>
                                 </InputLabel>
-                                <Typography sx={{ ml: 1.5, color: grey[800] }}>
-                                    Recommend using image with ratio 1:1
-                                </Typography>
+                                <Box display="flex" alignItems="center" sx={{ ml: 3 }}>
+                                    <InfoRounded color="primary" fontSize="small" />
+                                    <Typography sx={{ color: grey[800], ml: 0.5 }}>
+                                        Recommend using image with ratio 1:1
+                                    </Typography>
+                                </Box>
                             </Box>
                             <FormControl fullWidth sx={{ m: 1.5 }} required>
                                 <TextField
