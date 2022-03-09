@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import { useHistory, useLocation } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../HOCs/SnackbarContext'
 import { useEventAction } from '../../recoil/event'
+import { storage } from '../../utils/Firebase'
 import CreateEventForm from './CreateEventForm'
 
 const CreateEvent = () => {
@@ -14,15 +16,58 @@ const CreateEvent = () => {
     const history = useHistory()
     const { pathname } = useLocation()
     const showSnackbar = useSnackbar()
-    const createEventHandler = (eventData) => {
-        eventActions
+    const createEventHandler = ({ eventData, poster }) => {
+        return eventActions
             .createEvent(eventData)
             .then((response) => {
+                const { id } = response.data.data
+
+                if (poster.file) {
+                    const storageRef = ref(storage, `event-poster/${poster.file.name}`)
+                    const uploadTask = uploadBytesResumable(storageRef, poster.file)
+
+                    uploadTask.on(
+                        'state_changed',
+                        () => {},
+                        (error) => {
+                            console.log(error)
+                            showSnackbar({
+                                severity: 'error',
+                                children: 'Something went wrong, cannot upload event poster.',
+                            })
+                            return
+                        },
+                        () => {
+                            getDownloadURL(uploadTask.snapshot.ref)
+                                .then((downloadURL) =>
+                                    eventActions.updateEvent(id, {
+                                        imageUrl: downloadURL,
+                                    })
+                                )
+                                .then(() => {
+                                    showSnackbar({
+                                        severity: 'success',
+                                        children: 'Create event successfully.',
+                                    })
+                                    const newUrl = pathname.slice(0, pathname.indexOf('create'))
+                                    history.push(`${newUrl}${id}`)
+                                })
+                                .catch(() =>
+                                    showSnackbar({
+                                        severity: 'error',
+                                        children: 'Something went wrong, please try again later.',
+                                    })
+                                )
+
+                            return
+                        }
+                    )
+                }
+
                 showSnackbar({
                     severity: 'success',
                     children: 'Create event successfully.',
                 })
-                const { id } = response.data.data
                 const newUrl = pathname.slice(0, pathname.indexOf('create'))
                 history.push(`${newUrl}${id}`)
             })
