@@ -316,7 +316,8 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     label="Participants limitation"
                                     inputProps={{
                                         type: 'number',
-                                        min: 1,
+                                        min: 10,
+                                        max: 1500,
                                         inputMode: 'numeric',
                                         pattern: '[0-9]*',
                                     }}

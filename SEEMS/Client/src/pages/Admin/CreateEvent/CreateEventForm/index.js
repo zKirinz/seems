@@ -346,6 +346,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     inputProps={{
                                         type: 'number',
                                         min: 10,
+                                        max: 1500,
                                         inputMode: 'numeric',
                                         pattern: '[0-9]*',
                                     }}
