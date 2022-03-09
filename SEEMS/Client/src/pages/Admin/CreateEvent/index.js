@@ -4,6 +4,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import { useEventAction } from '../../../recoil/event'
 import CreateEventForm from './CreateEventForm'
 
@@ -12,6 +13,7 @@ const CreateEvent = () => {
     const [error, setError] = useState(null)
     const history = useHistory()
     const { pathname } = useLocation()
+    const showSnackbar = useSnackbar()
     const createEventHandler = (eventData) => {
         eventActions
             .createEvent(eventData)
@@ -24,9 +26,9 @@ const CreateEvent = () => {
                 const newUrl = pathname.slice(0, pathname.indexOf('create'))
                 history.push(`${newUrl}${id}`)
             })
-            .catch((errorResponse) => {
-                if (errorResponse.response.status === 400) {
-                    const errorData = errorResponse.response.data.data
+            .catch((error) => {
+                if (error.response.status === 400) {
+                    const errorData = error.response.data.data
                     setError({
                         title: errorData.title,
                         location: errorData.location,

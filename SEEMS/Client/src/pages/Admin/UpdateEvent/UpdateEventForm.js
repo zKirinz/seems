@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-import { CameraAlt } from '@mui/icons-material'
+import { CameraAlt, InfoRounded } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -19,6 +19,7 @@ import {
     TextField,
     Typography,
 } from '@mui/material'
+import { grey } from '@mui/material/colors'
 
 import usePrompt from '../../../hooks/use-prompt'
 import { useEventAction } from '../../../recoil/event'
@@ -182,6 +183,39 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
+                            <Box
+                                sx={{
+                                    my: 2,
+                                    ml: 1.5,
+                                    width: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
+                                    <input
+                                        style={{ display: 'none' }}
+                                        id="upload-photo"
+                                        type="file"
+                                        accept="image/*"
+                                        disabled
+                                    />
+                                    <Button
+                                        variant="outlined"
+                                        component="span"
+                                        startIcon={<CameraAlt />}
+                                        disabled
+                                    >
+                                        Upload
+                                    </Button>
+                                </InputLabel>
+                                <Box display="flex" alignItems="center" sx={{ ml: 3 }}>
+                                    <InfoRounded color="primary" fontSize="small" />
+                                    <Typography sx={{ color: grey[800], ml: 0.5 }}>
+                                        Recommend using image with ratio 1:1
+                                    </Typography>
+                                </Box>
+                            </Box>
                             <FormControl fullWidth sx={{ m: 1.5 }} required>
                                 <TextField
                                     label="Description"
@@ -235,29 +269,8 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <FormControl fullWidth required sx={{ m: 1.5 }}>
-                                <InputLabel htmlFor="limit" shrink>
-                                    Participants limitation
-                                </InputLabel>
-                                <OutlinedInput
-                                    disabled
-                                    id="limit"
-                                    label="Participants limitation"
-                                    inputProps={{
-                                        type: 'number',
-                                        min: 1,
-                                        inputMode: 'numeric',
-                                        pattern: '[0-9]*',
-                                    }}
-                                    value={eventFields.participantNum}
-                                    sx={{
-                                        'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
-                                            { display: 'none' },
-                                    }}
-                                />
-                            </FormControl>
                         </Box>
-                        <Box sx={{ m: 1.5 }}>
+                        <Box sx={{ mx: 1.5, mb: 4, mt: 1 }}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <Box
                                     sx={{
@@ -290,7 +303,32 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                         />
                                     </FormControl>
                                 </Box>
-                                <FormControl fullWidth sx={{ my: 1.5 }}>
+                            </LocalizationProvider>
+                        </Box>
+                        <Box sx={{ mx: 1.5, display: 'flex' }}>
+                            <FormControl sx={{ mr: 4 }}>
+                                <InputLabel htmlFor="limit" shrink>
+                                    Participants limitation
+                                </InputLabel>
+                                <OutlinedInput
+                                    disabled
+                                    id="limit"
+                                    label="Participants limitation"
+                                    inputProps={{
+                                        type: 'number',
+                                        min: 1,
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    value={eventFields.participantNum}
+                                    sx={{
+                                        'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
+                                            { display: 'none' },
+                                    }}
+                                />
+                            </FormControl>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <FormControl sx={{ mx: 2 }}>
                                     <MobileDateTimePicker
                                         disabled
                                         value={eventFields.registrationDeadline}
@@ -301,25 +339,6 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     />
                                 </FormControl>
                             </LocalizationProvider>
-                        </Box>
-                        <Box sx={{ mx: 1.5, my: 3 }}>
-                            <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
-                                <input
-                                    style={{ display: 'none' }}
-                                    id="upload-photo"
-                                    type="file"
-                                    accept="image/*"
-                                    disabled
-                                />
-                                <Button
-                                    variant="outlined"
-                                    component="span"
-                                    startIcon={<CameraAlt />}
-                                    disabled
-                                >
-                                    Upload
-                                </Button>
-                            </InputLabel>
                         </Box>
                         <Box
                             sx={{ m: 1.5, mt: { sm: 9, xs: 3 } }}

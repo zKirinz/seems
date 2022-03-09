@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 
 import { useRecoilValue } from 'recoil'
 
-import { CameraAlt } from '@mui/icons-material'
+import { CameraAlt, InfoRounded } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -21,6 +21,7 @@ import {
     Paper,
     Typography,
 } from '@mui/material'
+import { grey } from '@mui/material/colors'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import usePrompt from '../../../hooks/use-prompt'
@@ -218,7 +219,15 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
-                            <Box sx={{ my: 2, ml: 1.5, width: '100%' }}>
+                            <Box
+                                sx={{
+                                    my: 2,
+                                    ml: 1.5,
+                                    width: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
                                 <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
                                     <input
                                         style={{ display: 'none' }}
@@ -235,6 +244,12 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         Upload Poster
                                     </Button>
                                 </InputLabel>
+                                <Box display="flex" alignItems="center" sx={{ ml: 3 }}>
+                                    <InfoRounded color="primary" fontSize="small" />
+                                    <Typography sx={{ color: grey[800], ml: 0.5 }}>
+                                        Recommend using image with ratio 1:1
+                                    </Typography>
+                                </Box>
                             </Box>
                             <FormControl fullWidth sx={{ m: 1.5 }} required>
                                 <TextField
