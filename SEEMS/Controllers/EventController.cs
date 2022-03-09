@@ -49,7 +49,7 @@ namespace SEEMS.Controller
 				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
 				var registeredNum = _repository.Reservation.GetRegisteredNum(foundEvent.Id);
-				dtoEvent.CanRegister = (registeredNum == 0) || (dtoEvent.ParticipantNum - registeredNum > 0);
+				dtoEvent.CanRegister = _repository.Event.CanRegister(id);
 				return Ok(
 					new Response(
 						ResponseStatusEnum.Success,
@@ -193,7 +193,7 @@ namespace SEEMS.Controller
 				{
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
-					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
+					eMapped.CanRegister = _repository.Event.CanRegister(e.Id);
 					//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 					dtoResult.Add(eMapped);
 				});
@@ -287,7 +287,7 @@ namespace SEEMS.Controller
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
 					//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
-					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
+					eMapped.CanRegister = _repository.Event.CanRegister(e.Id);
 					dtoResult.Add(eMapped);
 				});
 

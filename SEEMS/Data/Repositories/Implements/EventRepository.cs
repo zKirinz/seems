@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using SEEMS.Contexts;
 using SEEMS.Models;
 
@@ -6,16 +7,16 @@ namespace SEEMS.Data.Repositories.Implements
 {
 	public class EventRepository : RepositoryBase<Event>, IEventRepository
 	{
-		public EventRepository( ApplicationDbContext context ) : base(context)
+		public EventRepository(ApplicationDbContext context) : base(context)
 		{
 		}
 
-		public IEnumerable<Event> GetAllEvents( bool trackChanges )
+		public IEnumerable<Event> GetAllEvents(bool trackChanges)
 			=> FindAll(trackChanges)
 			.OrderBy(c => c.StartDate)
 			.ToList();
 
-		public Event GetEvent( int id, bool trackChanges = false )
+		public Event GetEvent(int id, bool trackChanges = false)
 			=> FindByCondition(c => c.Id.Equals(id), trackChanges)
 			.SingleOrDefault();
 
@@ -29,5 +30,12 @@ namespace SEEMS.Data.Repositories.Implements
 
 		public async Task<Event> GetEventAsync(int id, bool trackChanges) =>
 			await FindByCondition(e => e.Id == id, trackChanges).SingleOrDefaultAsync();
+
+		public bool CanRegister(int id)
+		{
+			var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+			var registeredNum = _context.Reservations.Count(r => r.EventId == id);
+			return registeredNum < myEvent.ParticipantNum && myEvent.RegistrationDeadline.CompareTo(DateTime.Now) > 0;
+		}
 	}
 }
