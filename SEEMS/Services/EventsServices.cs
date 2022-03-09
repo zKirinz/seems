@@ -44,11 +44,13 @@ namespace SEEMS.Services
 		{
 			EventValidationInfo validationInfo = new EventValidationInfo();
 			bool failedCheck = false;
-
-			validationInfo.Title = ValidationMessageGenerator.GetIntRangeValidateMsg("Event title", eventDTO.EventTitle.Length, EventValidationInfo.MinTitleLength, EventValidationInfo.MaxTitleLength);
-			validationInfo.Description = ValidationMessageGenerator.GetIntRangeValidateMsg("Event description", eventDTO.EventDescription.Length,
+			if(eventDTO.EventTitle != null)
+				validationInfo.Title = ValidationMessageGenerator.GetIntRangeValidateMsg("Event title", eventDTO.EventTitle.Length, EventValidationInfo.MinTitleLength, EventValidationInfo.MaxTitleLength);
+			if(eventDTO.EventDescription != null)
+				validationInfo.Description = ValidationMessageGenerator.GetIntRangeValidateMsg("Event description", eventDTO.EventDescription.Length,
 				EventValidationInfo.MinDescriptionLength, EventValidationInfo.MaxDescriptionLength);
-			validationInfo.Location = ValidationMessageGenerator.GetIntRangeValidateMsg("Event location", eventDTO.Location.Length,
+			if(eventDTO.Location != null)
+				validationInfo.Location = ValidationMessageGenerator.GetIntRangeValidateMsg("Event location", eventDTO.Location.Length,
 				EventValidationInfo.MinLocationLength, EventValidationInfo.MaxLocationLength);
 			if(validationInfo.Title != null || validationInfo.Location != null || validationInfo.Description != null)
 			{
