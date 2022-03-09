@@ -81,7 +81,6 @@ namespace SEEMS.Controller
 			{
 				if(user != null)
 				{
-					//var findingOrgId = user.OrganizationId;
 					var allEvents = _context.Events.Where(a => a.OrganizationName == user.OrganizationName).ToList();
 					IEnumerable<Event> foundResult;
 					if(upcoming == null)
