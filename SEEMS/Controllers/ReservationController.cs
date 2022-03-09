@@ -99,8 +99,7 @@ namespace SEEMS.Controllers
 		// GET api/Reservations
 		// Get all registered events
 		[HttpGet]
-		public async Task<IActionResult> Get(string? search, bool? upcoming,
-			int? lastEventID, bool? active, string? organizationName)
+		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName)
 		{
 			try
 			{
