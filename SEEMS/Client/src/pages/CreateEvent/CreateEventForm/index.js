@@ -23,6 +23,7 @@ import {
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import usePrompt from '../../../hooks/use-prompt'
 import authAtom from '../../../recoil/auth/atom'
 
@@ -51,14 +52,16 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
-    const [posterUrl, setPosterUrl] = useState({ src })
+    const [poster, setPoster] = useState({ src, file: null })
     const [participantsLimited, setParticipantsLimited] = useState(10)
+    const [isLoading, setIsLoading] = useState(false)
+    const showSnackbar = useSnackbar()
 
     useEffect(() => {
         return () => {
-            posterUrl.src && URL.revokeObjectURL(posterUrl.src)
+            poster.src && URL.revokeObjectURL(poster.src)
         }
-    }, [posterUrl])
+    }, [poster])
 
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
@@ -93,8 +96,20 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         setRegistrationTime(newDate)
     }
     const uploadImageHandler = (event) => {
+        const file = event.target.files[0]
+        if (!file) return
+
+        const { type } = file
+        if (!(type.endsWith('jpeg') || type.endsWith('png') || type.endsWith('jpg'))) {
+            showSnackbar({
+                severity: 'error',
+                children: 'Event poster can only be jpeg, png and jpg file.',
+            })
+            return
+        }
+
         const imageUrl = URL.createObjectURL(event.target.files[0])
-        setPosterUrl({ src: imageUrl })
+        setPoster({ src: imageUrl, file })
     }
 
     const eventNameTouchedHandler = () => {
@@ -122,8 +137,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const descriptionIsInValid = isEmpty(description.value) && description.isTouched
     const overallTextFieldIsValid =
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
-    const submitHandler = (event) => {
+    const submitHandler = async (event) => {
         event.preventDefault()
+        setIsLoading(true)
+
         const eventDetailed = {
             eventTitle: eventName.value,
             location: location.value,
@@ -136,21 +153,24 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             participantNum: +participantsLimited,
             registrationDeadline: registrationTime,
         }
-        onCreateEvent(eventDetailed)
+        await onCreateEvent({ eventData: eventDetailed, poster })
+
+        setIsLoading(false)
     }
     return (
         <React.Fragment>
             {routerPrompt}
-            <Grid container component={Paper} elevation={3} sx={{ mb: 5 }}>
+            <Grid container component={Paper} elevation={3}>
                 <Grid item xs={12} sm={5}>
                     <Box display="flex" alignItems="center" height="100%">
                         <Box
                             component="img"
                             alt="school-image"
-                            src={posterUrl.src}
+                            src={poster.src}
                             sx={{
                                 width: '100%',
                                 aspectRatio: '1 / 1',
+                                objectFit: 'contain',
                             }}
                         />
                     </Box>
