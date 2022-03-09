@@ -331,9 +331,14 @@ namespace SEEMS.Controller
 								new Response(ResponseStatusEnum.Fail,
 								eventValidationInfo,
 								"Some fields didn't match requirements"));
-					myEvent.EventTitle = eventDTO.EventTitle;
-					myEvent.EventDescription = eventDTO.EventDescription;
-					myEvent.Location = eventDTO.Location;
+					if(eventDTO.EventTitle != null)
+						myEvent.EventTitle = eventDTO.EventTitle;
+					if(eventDTO.EventDescription != null)
+						myEvent.EventDescription = eventDTO.EventDescription;
+					if(eventDTO.Location != null)
+						myEvent.Location = eventDTO.Location;
+					if(eventDTO.ImageUrl != null)
+						myEvent.ImageUrl = eventDTO.ImageUrl;
 					_context.Update(myEvent);
 					await _context.SaveChangesAsync();
 					return Ok(
