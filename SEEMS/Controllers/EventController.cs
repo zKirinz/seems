@@ -187,7 +187,7 @@ namespace SEEMS.Controller
 					result = result.Where(e => !e.IsPrivate);
 				}
 				//resultCount = Math.Min(10, result.Count());
-				result = result.OrderByDescending(e => e.StartDate);
+				result = result.OrderBy(e => e.StartDate);
 				var dtoResult = new List<EventDTO>();
 				result.ToList().ForEach(e =>
 				{
