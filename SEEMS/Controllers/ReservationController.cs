@@ -119,6 +119,7 @@ namespace SEEMS.Controllers
 							registeredEvents.OrganizationName = myEvent.OrganizationName.ToString();
 							registeredEvents.ReservationId = reservation.Id;
 							registeredEvents.FeedBack = reservation.Attend;
+							registeredEvents.Attend = reservation.Attend;
 							listRegisteredEvents.Add(registeredEvents);
 						}
 
@@ -181,6 +182,9 @@ namespace SEEMS.Controllers
 						{
 							loadMore = true;
 						}
+						if(!failed)
+							returnResult.ForEach(e => e.CanRegister = _repoManager.Event.CanRegister(e.Id));
+
 						return failed
 							? BadRequest(
 								new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
