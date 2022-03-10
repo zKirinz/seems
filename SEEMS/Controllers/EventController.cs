@@ -74,7 +74,7 @@ namespace SEEMS.Controller
 
 		[HttpGet("my-events")]
 		public async Task<ActionResult<List<Event>>> GetMyEvents(string? search, bool? upcoming,
-			int? lastEventID, bool? active, int resultCount = 1000)
+			int? lastEventID, bool? active, int resultCount = 10)
 		{
 			User user = await GetCurrentUser(Request);
 			try
@@ -134,19 +134,20 @@ namespace SEEMS.Controller
 					{
 						returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
 					}
-					if(foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
+					if(!failed && foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
 					{
 						loadMore = true;
 					}
 					var dtoResult = new List<EventDTO>();
-					returnResult.ForEach(e =>
-					{
-						var eMapped = _mapper.Map<EventDTO>(e);
-						eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
+					if(!failed)
+						returnResult.ForEach(e =>
+						{
+							var eMapped = _mapper.Map<EventDTO>(e);
+							eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
 						//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 						//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
 						dtoResult.Add(eMapped);
-					});
+						});
 					return failed
 						? BadRequest(
 							new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))

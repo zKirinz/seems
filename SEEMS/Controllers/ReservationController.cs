@@ -99,8 +99,7 @@ namespace SEEMS.Controllers
 		// GET api/Reservations
 		// Get all registered events
 		[HttpGet]
-		public async Task<IActionResult> Get(string? search, bool? upcoming,
-			int? lastEventID, bool? active, string? organizationName)
+		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName, int? lastReservationId, int resultCount = 10)
 		{
 			try
 			{
@@ -154,13 +153,45 @@ namespace SEEMS.Controllers
 							foundResult = foundResult.Where(e => e.OrganizationName.Equals(organizationName));
 						}
 						foundResult = foundResult.OrderByDescending(e => e.StartDate).ToList();
-						return Ok(new Response(
-							ResponseStatusEnum.Success,
-							new
+
+						//Implement load more
+						List<RegisteredEventsDTO> returnResult = null;
+						bool failed = false;
+						bool loadMore = false;
+						int lastReservationIndex = 0;
+						if(lastReservationId != null)
+						{
+							lastReservationIndex = foundResult.ToList().FindIndex(e => e.ReservationId == lastReservationId);
+							if(lastReservationIndex > 0)
 							{
-								Count = foundResult.Count(),
-								Events = foundResult
+								returnResult = foundResult.ToList().GetRange(
+									lastReservationIndex + 1,
+									Math.Min(resultCount, foundResult.Count() - lastReservationIndex - 1));
 							}
+							else
+							{
+								failed = true;
+							}
+						}
+						else
+						{
+							returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
+						}
+						if(!failed && foundResult.Count() - lastReservationIndex - 1 > returnResult.Count())
+						{
+							loadMore = true;
+						}
+						return failed
+							? BadRequest(
+								new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
+							: Ok(new Response(
+								ResponseStatusEnum.Success,
+								new
+								{
+									Count = foundResult.Count(),
+									CanLoadMore = loadMore,
+									Events = returnResult
+								}
 							));
 					}
 					else
