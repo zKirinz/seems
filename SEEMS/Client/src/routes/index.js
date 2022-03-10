@@ -66,6 +66,13 @@ const privateRoutes = [
         role: ['organizer'],
     },
     {
+        path: '/events/my-registrations',
+        name: 'my registrations',
+        component: lazy(() => import('../pages/MyRegistrations')),
+        layout: 'common',
+        role: ['user', 'organizer'],
+    },
+    {
         path: '/events/create',
         name: 'create event',
         component: lazy(() => import('../pages/CreateEvent')),

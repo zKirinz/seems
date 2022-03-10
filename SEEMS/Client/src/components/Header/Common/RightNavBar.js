@@ -8,6 +8,7 @@ import {
     Logout as LogoutIcon,
     Add as AddIcon,
     Event as EventIcon,
+    EventAvailable as EventAvailableIcon,
 } from '@mui/icons-material'
 import {
     Box,
@@ -68,7 +69,7 @@ const RightNavBar = () => {
                                     overflow: 'visible',
                                     filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
                                     mt: 1,
-                                    px: 5,
+                                    px: 3,
                                     pt: 3,
                                     pb: 1,
                                     '&:before': {
@@ -118,26 +119,37 @@ const RightNavBar = () => {
                             </Box>
 
                             {auth.role === 'Organizer' && (
-                                <Box>
-                                    <MenuItem
-                                        sx={{ display: 'flex', px: 5 }}
-                                        onClick={() => history.push('/events/me')}
-                                    >
-                                        <ListItemIcon>
-                                            <EventIcon fontSize="large" />
-                                        </ListItemIcon>
-                                        <Typography ml={1}>My events</Typography>
-                                    </MenuItem>
-                                    <MenuItem
-                                        sx={{ display: 'flex', px: 5 }}
-                                        onClick={() => history.push('/events/create')}
-                                    >
-                                        <ListItemIcon>
-                                            <AddIcon fontSize="large" />
-                                        </ListItemIcon>
-                                        <Typography ml={1}>Create event</Typography>
-                                    </MenuItem>
-                                </Box>
+                                <MenuItem
+                                    sx={{ display: 'flex', px: 5 }}
+                                    onClick={() => history.push('/events/me')}
+                                >
+                                    <ListItemIcon>
+                                        <EventIcon fontSize="large" />
+                                    </ListItemIcon>
+                                    <Typography ml={1}>My events</Typography>
+                                </MenuItem>
+                            )}
+
+                            <MenuItem
+                                sx={{ display: 'flex', px: 5 }}
+                                onClick={() => history.push('/events/my-registrations')}
+                            >
+                                <ListItemIcon>
+                                    <EventAvailableIcon fontSize="large" />
+                                </ListItemIcon>
+                                <Typography ml={1}>Registered events</Typography>
+                            </MenuItem>
+
+                            {auth.role === 'Organizer' && (
+                                <MenuItem
+                                    sx={{ display: 'flex', px: 5 }}
+                                    onClick={() => history.push('/events/create')}
+                                >
+                                    <ListItemIcon>
+                                        <AddIcon fontSize="large" />
+                                    </ListItemIcon>
+                                    <Typography ml={1}>Create event</Typography>
+                                </MenuItem>
                             )}
 
                             <MenuItem sx={{ display: 'flex', px: 5 }} onClick={handleClickLogout}>
