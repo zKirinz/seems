@@ -144,9 +144,10 @@ namespace SEEMS.Controller
 						{
 							var eMapped = _mapper.Map<EventDTO>(e);
 							eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-						//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
-						//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
-						dtoResult.Add(eMapped);
+							eMapped.CanRegister = _repository.Event.CanRegister(e.Id);
+							//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
+							//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+							dtoResult.Add(eMapped);
 						});
 					return failed
 						? BadRequest(
