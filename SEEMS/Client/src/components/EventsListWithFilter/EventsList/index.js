@@ -36,9 +36,9 @@ const EventsList = ({ page }) => {
 
     const loadMoreHandler = () => {
         let params = '?resultCount=6&'
-        params += 'lastEventID=' + lastEventId
 
         if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
+            params += 'lastEventID=' + lastEventId
             eventAction
                 .getMyEvents(params)
                 .then((res) => {
@@ -53,12 +53,29 @@ const EventsList = ({ page }) => {
                         children: 'Something went wrong, please try again later.',
                     })
                 })
-        } else {
+        } else if (page === pageEnum.AdminAllEvents || page === pageEnum.AllEvents) {
+            params += 'lastEventID=' + lastEventId
             eventAction
                 .getEvents(params)
                 .then((res) => {
                     setTimeout(() => {
                         setEvents(events.concat(res.data.data.listEvents))
+                        setHasMore(res.data.data.canLoadMore)
+                    }, 1600)
+                })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                })
+        } else if (page === pageEnum.MyRegistrations) {
+            params += 'lastReservationId=' + lastEventId
+            eventAction
+                .getMyRegistrations(params)
+                .then((res) => {
+                    setTimeout(() => {
+                        setEvents(events.concat(res.data.data.events))
                         setHasMore(res.data.data.canLoadMore)
                     }, 1600)
                 })
@@ -110,11 +127,27 @@ const EventsList = ({ page }) => {
                     })
                     setIsLoading(false)
                 })
-        } else {
+        } else if (page === pageEnum.AdminAllEvents || page === pageEnum.AllEvents) {
             eventAction
                 .getEvents(filterString)
                 .then((res) => {
                     setEvents(res.data.data.listEvents)
+                    setEventsNumber(res.data.data.count)
+                    setHasMore(res.data.data.canLoadMore)
+                    setIsLoading(false)
+                })
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                    setIsLoading(false)
+                })
+        } else if (page === pageEnum.MyRegistrations) {
+            eventAction
+                .getMyRegistrations(filterString)
+                .then((res) => {
+                    setEvents(res.data.data.events)
                     setEventsNumber(res.data.data.count)
                     setHasMore(res.data.data.canLoadMore)
                     setIsLoading(false)
@@ -157,6 +190,7 @@ const EventsList = ({ page }) => {
                             (
                                 {
                                     id,
+                                    reservationId,
                                     eventTitle,
                                     eventDescription,
                                     startDate,
@@ -167,7 +201,7 @@ const EventsList = ({ page }) => {
                                 { length }
                             ) => {
                                 if (i + 1 === length) {
-                                    lastEventId = id
+                                    lastEventId = reservationId || id
                                 }
 
                                 return (
