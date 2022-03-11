@@ -68,10 +68,16 @@ namespace SEEMS.Controllers
             }
 
             var userId = currentUser.Id;
-            var reservation = _context.Reservations.SingleOrDefault(x => x.Id == feedBackDTO.ReservationId);
+            var myEvent = _context.Events.FirstOrDefault(x => x.Id == feedBackDTO.EventId);
+            if (myEvent == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid eventId."));
+            }
+
+            var reservation = _context.Reservations.SingleOrDefault(x => x.EventId == myEvent.Id);
             if (reservation == null)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid reservationId."));
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You are not participating in this event."));
             }
 
             if (reservation.UserId != userId)

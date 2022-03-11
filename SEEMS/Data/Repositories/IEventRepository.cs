@@ -12,5 +12,7 @@ namespace SEEMS.Data.Repositories
 		Task<IEnumerable<Event>> GetAllEventsAboutToStartIn30Min(DateTime from, bool trackChanges);
 
 		Task<Event> GetEventAsync(int id, bool trackChanges);
+
+		bool CanUnregister(int id, int minHourToUnregister);
 	}
 }

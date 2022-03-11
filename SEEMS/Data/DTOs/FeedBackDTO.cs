@@ -6,7 +6,7 @@ namespace SEEMS.Data.DTOs
     {
         [StringLength(100)]
         public String Content { get; set; }
-        public int ReservationId { get; set; }
+        public int EventId { get; set; }
         public int Rating { get; set; }
     }
 }
