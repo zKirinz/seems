@@ -116,33 +116,29 @@ namespace SEEMS.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName, int? lastReservationId, int resultCount = 10)
 		{
+			string userRole = null;
 			try
 			{
 				var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
 				if (currentUser == null)
 				{
-					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue"));
-				}
-
-				var userId = currentUser.Id;
-				var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
-				if (!listReservation.Any())
-				{
-					return Ok(new Response(ResponseStatusEnum.Success, "", "You have not registered to participate in any event yet"));
-				}
-
-				List<RegisteredEventsDTO> listRegisteredEvents = new List<RegisteredEventsDTO>();
-				foreach (var reservation in listReservation)
-				{
-					var myEvent = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId);
-					var registeredEvents = _mapper.Map<RegisteredEventsDTO>(myEvent);
-					registeredEvents.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
-					registeredEvents.OrganizationName = myEvent.OrganizationName.ToString();
-					registeredEvents.ReservationId = reservation.Id;
-					registeredEvents.FeedBack = reservation.Attend;
-					registeredEvents.Attend = reservation.Attend;
-					listRegisteredEvents.Add(registeredEvents);
-				}
+					var userId = currentUser.Id;
+					var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
+					userRole = (await _repoManager.UserMeta.GetRoleByUserIdAsync(userId, false)).MetaValue;
+					if(listReservation.Any())
+					{
+						List<RegisteredEventsDTO> listRegisteredEvents = new List<RegisteredEventsDTO>();
+						foreach(var reservation in listReservation)
+						{
+							var myEvent = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId);
+							var registeredEvents = _mapper.Map<RegisteredEventsDTO>(myEvent);
+							registeredEvents.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
+							registeredEvents.OrganizationName = myEvent.OrganizationName.ToString();
+							registeredEvents.ReservationId = reservation.Id;
+							registeredEvents.FeedBack = reservation.Attend;
+							registeredEvents.Attend = reservation.Attend;
+							listRegisteredEvents.Add(registeredEvents);
+						}
 
 				IEnumerable<RegisteredEventsDTO> foundResult;
 				if (upcoming == null)
@@ -176,35 +172,44 @@ namespace SEEMS.Controllers
 				}
 				foundResult = foundResult.OrderByDescending(e => e.StartDate).ToList();
 
-				//Implement load more
-				List<RegisteredEventsDTO> returnResult = null;
-				bool failed = false;
-				bool loadMore = false;
-				int lastReservationIndex = 0;
-				if (lastReservationId != null)
-				{
-					lastReservationIndex = foundResult.ToList().FindIndex(e => e.ReservationId == lastReservationId);
-					if (lastReservationIndex > 0)
-					{
-						returnResult = foundResult.ToList().GetRange(
-							lastReservationIndex + 1,
-							Math.Min(resultCount, foundResult.Count() - lastReservationIndex - 1));
-					}
-					else
-					{
-						failed = true;
-					}
-				}
-				else
-				{
-					returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
-				}
-				if (!failed && foundResult.Count() - lastReservationIndex - 1 > returnResult.Count())
-				{
-					loadMore = true;
-				}
-				if (!failed)
-					returnResult.ForEach(e => e.CanRegister = _repoManager.Event.CanRegister(e.Id));
+						//Implement load more
+						List<RegisteredEventsDTO> returnResult = null;
+						bool failed = false;
+						bool loadMore = false;
+						int lastReservationIndex = 0;
+						if(lastReservationId != null)
+						{
+							lastReservationIndex = foundResult.ToList().FindIndex(e => e.ReservationId == lastReservationId);
+							if(lastReservationIndex > 0)
+							{
+								returnResult = foundResult.ToList().GetRange(
+									lastReservationIndex + 1,
+									Math.Min(resultCount, foundResult.Count() - lastReservationIndex - 1));
+							}
+							else
+							{
+								failed = true;
+							}
+						}
+						else
+						{
+							returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
+						}
+						if(!failed && foundResult.Count() - lastReservationIndex - 1 > returnResult.Count())
+						{
+							loadMore = true;
+						}
+						if(!failed)
+						{
+							if(userRole.Equals("Admin"))
+							{
+								returnResult.ForEach(e => e.CanRegister = false);
+							}
+							else
+							{
+								returnResult.ForEach(e => e.CanRegister = _repoManager.Event.CanRegister(e.Id));
+							}
+						}
 
 				return failed
 					? BadRequest(
