@@ -51,12 +51,18 @@ namespace SEEMS.Controllers
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId"));
 				}
 
+				var reservation = _context.Reservations.FirstOrDefault(x => x.UserId == userId && x.EventId == reservationDTO.EventId);
+				if (reservation != null)
+                {
+					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You already registered this event "));
+				}
+
 				if (!_repoManager.Event.CanRegister(reservationDTO.EventId))
                 {
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You can not register this event"));
                 }
 
-				var reservation = _mapper.Map<Reservation>(reservationDTO);
+				reservation = _mapper.Map<Reservation>(reservationDTO);
 				reservation.UserId = userId;
 				_context.Add(reservation);
 				_context.SaveChanges();

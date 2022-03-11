@@ -74,7 +74,7 @@ namespace SEEMS.Controllers
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid eventId."));
             }
 
-            var reservation = _context.Reservations.SingleOrDefault(x => x.EventId == myEvent.Id);
+            var reservation = _context.Reservations.FirstOrDefault(x => x.EventId == myEvent.Id);
             if (reservation == null)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You are not participating in this event."));
@@ -85,54 +85,61 @@ namespace SEEMS.Controllers
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
             }
 
+            var feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
+            if (feedBack != null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You are already feedback"));
+            }
+
             var feedBackValidate = FeedBacksServices.CheckValidatedFeedBack(feedBackDTO.Rating, feedBackDTO.Content);
             if (feedBackValidate != null)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, feedBackValidate));
             }
 
-            var feedBack = _mapper.Map<FeedBack>(feedBackDTO);
+            feedBack = _mapper.Map<FeedBack>(feedBackDTO);
+            feedBack.ReservationId = reservation.Id;
             _context.FeedBacks.Add(feedBack);
             _context.SaveChanges();
             return Ok(new Response(ResponseStatusEnum.Success, feedBack));
         }
 
-        //Update a feedback
-        [HttpPut]
-        public async Task<IActionResult> Put([FromBody] FeedBackForUpdateDTO feedBackForUpdate)
-        {
-            var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-            if (currentUser == null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
-            }
+        ////Update a feedback
+        //[HttpPut]
+        //public async Task<IActionResult> Put([FromBody] FeedBackForUpdateDTO feedBackForUpdate)
+        //{
+        //    var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+        //    if (currentUser == null)
+        //    {
+        //        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
+        //    }
 
-            var userId = currentUser.Id;
-            var feedBack = _context.FeedBacks.SingleOrDefault(x => x.Id == feedBackForUpdate.FeedBackId);
-            if (feedBack == null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid FeedBackId."));
-            }
+        //    var userId = currentUser.Id;
+        //    var feedBack = _context.FeedBacks.FirstOrDefault(x => x.Id == feedBackForUpdate.FeedBackId);
+        //    if (feedBack == null)
+        //    {
+        //        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid FeedBackId."));
+        //    }
 
-            var reservation = _context.Reservations.SingleOrDefault(x => x.Id == feedBack.ReservationId);
-            if (reservation.UserId != userId)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
-            }
+        //    var reservation = _context.Reservations.FirstOrDefault(x => x.Id == feedBack.ReservationId);
+        //    if (reservation.UserId != userId)
+        //    {
+        //        return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
+        //    }
 
-            var feedBackValidate = FeedBacksServices.CheckValidatedFeedBack(feedBackForUpdate.Rating, feedBackForUpdate.Content);
-            if (feedBackValidate != null)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, feedBackValidate));
-            }
+        //    var feedBackValidate = FeedBacksServices.CheckValidatedFeedBack(feedBackForUpdate.Rating, feedBackForUpdate.Content);
+        //    if (feedBackValidate != null)
+        //    {
+        //        return BadRequest(new Response(ResponseStatusEnum.Fail, feedBackValidate));
+        //    }
 
-            //feedBack = _mapper.Map<FeedBack>(feedBackForUpdate);
-            feedBack.Content = feedBackForUpdate.Content;
-            feedBack.Rating = feedBackForUpdate.Rating;
-            _context.FeedBacks.Update(feedBack);
-            _context.SaveChanges();
-            return Ok(new Response(ResponseStatusEnum.Success, feedBack));
-        }
+        //    //feedBack = _mapper.Map<FeedBack>(feedBackForUpdate);
+        //    feedBack.Content = feedBackForUpdate.Content;
+        //    feedBack.Rating = feedBackForUpdate.Rating;
+        //    _context.FeedBacks.Update(feedBack);
+        //    _context.SaveChanges();
+        //    return Ok(new Response(ResponseStatusEnum.Success, feedBack));
+        //}
 
         //Get all feedback of an event
         [HttpPost("{id}")]
@@ -144,13 +151,13 @@ namespace SEEMS.Controllers
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
             }
 
-            var role = _context.UserMetas.SingleOrDefault(x => x.UserId == currentUser.Id).MetaValue;
+            var role = _context.UserMetas.FirstOrDefault(x => x.UserId == currentUser.Id).MetaValue;
             if (!role.Contains(RoleTypes.ADM) || !role.Contains(RoleTypes.ORG))
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
             }
 
-            var anEvent = _context.Events.SingleOrDefault(x => x.Id == id);
+            var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
             if (anEvent == null)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid eventId."));
@@ -162,7 +169,7 @@ namespace SEEMS.Controllers
             int averageRating = 0;
             foreach (var reservation in listReservation)
             {
-                feedBack = _context.FeedBacks.SingleOrDefault(x => x.ReservationId == reservation.Id);
+                feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
                 if (feedBack != null)
                 {
                     listFeedBacks.Add(feedBack);
