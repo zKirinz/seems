@@ -120,15 +120,15 @@ namespace SEEMS.Controllers
 			try
 			{
 				var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-				if (currentUser == null)
+				if (currentUser != null)
 				{
 					var userId = currentUser.Id;
 					var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
 					userRole = (await _repoManager.UserMeta.GetRoleByUserIdAsync(userId, false)).MetaValue;
-					if(listReservation.Any())
+					if (listReservation.Any())
 					{
 						List<RegisteredEventsDTO> listRegisteredEvents = new List<RegisteredEventsDTO>();
-						foreach(var reservation in listReservation)
+						foreach (var reservation in listReservation)
 						{
 							var myEvent = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId);
 							var registeredEvents = _mapper.Map<RegisteredEventsDTO>(myEvent);
@@ -140,47 +140,47 @@ namespace SEEMS.Controllers
 							listRegisteredEvents.Add(registeredEvents);
 						}
 
-				IEnumerable<RegisteredEventsDTO> foundResult;
-				if (upcoming == null)
-				{
-					foundResult = listRegisteredEvents;
-				}
-				else
-				{
-					foundResult = ((bool)upcoming ? listRegisteredEvents.Where(
-						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
-						listRegisteredEvents.Where(
-						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0));
-				}
+						IEnumerable<RegisteredEventsDTO> foundResult;
+						if (upcoming == null)
+						{
+							foundResult = listRegisteredEvents;
+						}
+						else
+						{
+							foundResult = ((bool)upcoming ? listRegisteredEvents.Where(
+							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
+							listRegisteredEvents.Where(
+							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0));
+						}
 
-				if (active != null)
-				{
-					foundResult = ((bool)active
-						? foundResult.Where(e => e.Active)
+						if (active != null)
+						{
+							foundResult = ((bool)active
+								? foundResult.Where(e => e.Active)
 						: foundResult.Where(e => !e.Active));
-				}
+						}
 
-				//Filter by title
-				if (!string.IsNullOrEmpty(search))
-				{
-					foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
-				}
+						//Filter by title
+						if (!string.IsNullOrEmpty(search))
+						{
+							foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
+						}
 
-				if (organizationName != null)
-				{
-					foundResult = foundResult.Where(e => e.OrganizationName.Equals(organizationName));
-				}
-				foundResult = foundResult.OrderByDescending(e => e.StartDate).ToList();
+						if (organizationName != null)
+						{
+							foundResult = foundResult.Where(e => e.OrganizationName.Equals(organizationName));
+						}
+						foundResult = foundResult.OrderByDescending(e => e.StartDate).ToList();
 
 						//Implement load more
 						List<RegisteredEventsDTO> returnResult = null;
 						bool failed = false;
 						bool loadMore = false;
 						int lastReservationIndex = 0;
-						if(lastReservationId != null)
+						if (lastReservationId != null)
 						{
 							lastReservationIndex = foundResult.ToList().FindIndex(e => e.ReservationId == lastReservationId);
-							if(lastReservationIndex > 0)
+							if (lastReservationIndex > 0)
 							{
 								returnResult = foundResult.ToList().GetRange(
 									lastReservationIndex + 1,
@@ -195,13 +195,13 @@ namespace SEEMS.Controllers
 						{
 							returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
 						}
-						if(!failed && foundResult.Count() - lastReservationIndex - 1 > returnResult.Count())
+						if (!failed && foundResult.Count() - lastReservationIndex - 1 > returnResult.Count())
 						{
 							loadMore = true;
 						}
-						if(!failed)
+						if (!failed)
 						{
-							if(userRole.Equals("Admin"))
+							if (userRole.Equals("Admin"))
 							{
 								returnResult.ForEach(e => e.CanRegister = false);
 							}
@@ -211,20 +211,30 @@ namespace SEEMS.Controllers
 							}
 						}
 
-				return failed
-					? BadRequest(
-						new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
-					: Ok(new Response(
-						ResponseStatusEnum.Success,
-						new
-						{
-							Count = foundResult.Count(),
-							CanLoadMore = loadMore,
-							Events = returnResult
-						}
-					));
+						return failed
+							? BadRequest(
+								new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
+							: Ok(new Response(
+								ResponseStatusEnum.Success,
+								new
+								{
+									Count = foundResult.Count(),
+									CanLoadMore = loadMore,
+									Events = returnResult
+								}
+							));
+					}
+                    else
+                    {
+						return BadRequest(new Response(ResponseStatusEnum.Fail, "", "No one register this event yet."));
+					}
+				}
+				else
+                {
+					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
+                }
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
 			}
