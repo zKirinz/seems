@@ -4,8 +4,14 @@ import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
 
 import EventPoster from '../../../components/EventPoster'
-import { GroupsOutlined, Home, NoteAlt, SupervisedUserCircle } from '@mui/icons-material'
-import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import {
+    GroupsOutlined,
+    Home,
+    NoteAlt,
+    RateReview,
+    SupervisedUserCircle,
+} from '@mui/icons-material'
+import { Box, Card, CardContent, Container, Fab, Grid, Tooltip, Typography } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
@@ -166,6 +172,11 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
+            <Fab color="primary" sx={{ position: 'absolute', bottom: 100, right: 50 }}>
+                <Tooltip title="Feedback">
+                    <RateReview />
+                </Tooltip>
+            </Fab>
         </Container>
     )
 }

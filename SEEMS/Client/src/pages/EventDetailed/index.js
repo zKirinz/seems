@@ -16,6 +16,7 @@ import CheckAttendanceButton from './CheckAttendanceButton'
 import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
+import FeedBack from './FeedBack'
 import RegisterButton from './RegisterButton'
 import UnRegisterButton from './UnRegisterButton'
 
@@ -189,6 +190,7 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
+            <FeedBack />
         </Container>
     )
 }

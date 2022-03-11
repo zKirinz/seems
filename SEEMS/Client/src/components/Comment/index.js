@@ -172,6 +172,7 @@ const Comment = ({
                         open={confirmDialog}
                         onConfirm={onConfirmDelete}
                         onClose={closeDialog}
+                        btnConfirmText="Delete"
                     >
                         Are you sure you want to delete this comment?
                     </AlertConfirm>
