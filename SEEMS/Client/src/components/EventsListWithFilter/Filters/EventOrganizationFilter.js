@@ -12,14 +12,14 @@ import {
     Typography,
 } from '@mui/material'
 
-const EventActiveFilter = ({ submitHandler, defaultPeriod = '' }) => {
+const EventOrganizationFilter = ({ submitHandler, defaultPeriod = '' }) => {
     const [isOpen, setIsOpen] = useState(false)
 
     return (
         <Accordion expanded={isOpen}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} onClick={() => setIsOpen(!isOpen)}>
                 <Typography variant="h6" color="primary">
-                    Status
+                    Organization
                 </Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -30,9 +30,9 @@ const EventActiveFilter = ({ submitHandler, defaultPeriod = '' }) => {
                         value={defaultPeriod}
                         onChange={(e) => submitHandler(e.target.value)}
                     >
-                        <FormControlLabel value="true" control={<Radio />} label="Occurring" />
-                        <FormControlLabel value="false" control={<Radio />} label="Not occuring" />
-                        <FormControlLabel value="" control={<Radio />} label="All" />
+                        <FormControlLabel value="FPTU" control={<Radio />} label="FPTU" />
+                        <FormControlLabel value="FCode" control={<Radio />} label="FCode" />
+                        <FormControlLabel value="DSC" control={<Radio />} label="DSC" />
                     </RadioGroup>
                 </FormControl>
             </AccordionDetails>
@@ -40,4 +40,4 @@ const EventActiveFilter = ({ submitHandler, defaultPeriod = '' }) => {
     )
 }
 
-export default EventActiveFilter
+export default EventOrganizationFilter
