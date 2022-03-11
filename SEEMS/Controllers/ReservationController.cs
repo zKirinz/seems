@@ -101,6 +101,7 @@ namespace SEEMS.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName, int? lastReservationId, int resultCount = 10)
 		{
+			string userRole = null;
 			try
 			{
 				var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
@@ -108,6 +109,7 @@ namespace SEEMS.Controllers
 				{
 					var userId = currentUser.Id;
 					var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
+					userRole = (await _repoManager.UserMeta.GetRoleByUserIdAsync(userId, false)).MetaValue;
 					if(listReservation.Any())
 					{
 						List<RegisteredEventsDTO> listRegisteredEvents = new List<RegisteredEventsDTO>();
@@ -183,7 +185,16 @@ namespace SEEMS.Controllers
 							loadMore = true;
 						}
 						if(!failed)
-							returnResult.ForEach(e => e.CanRegister = _repoManager.Event.CanRegister(e.Id));
+						{
+							if(userRole.Equals("Admin"))
+							{
+								returnResult.ForEach(e => e.CanRegister = false);
+							}
+							else
+							{
+								returnResult.ForEach(e => e.CanRegister = _repoManager.Event.CanRegister(e.Id));
+							}
+						}
 
 						return failed
 							? BadRequest(
