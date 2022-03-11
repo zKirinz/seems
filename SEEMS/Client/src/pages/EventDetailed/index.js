@@ -5,7 +5,7 @@ import { useHistory, useParams } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
 import EventPoster from '../../components/EventPoster'
-import { GroupsOutlined, Home, Note, SupervisedUserCircle } from '@mui/icons-material'
+import { GroupsOutlined, Home, NoteAlt, SupervisedUserCircle } from '@mui/icons-material'
 import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
@@ -174,7 +174,7 @@ const EventDetailed = () => {
                             alignItems: 'center',
                         }}
                     >
-                        <Note color="primary" />
+                        <NoteAlt color="primary" />
                         <Typography sx={{ mx: 0.5 }}>Registrations close on</Typography>
                         <Typography sx={{ color: blueGrey[900] }} variant="body1" fontWeight={500}>
                             {moment(new Date(detailedEvent.event.registrationDeadline)).format(
