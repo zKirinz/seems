@@ -22,7 +22,7 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                 })
                 resetHandler()
             })
-            .catch(() => {
+            .catch((error) => {
                 showSnackbar({
                     severity: 'error',
                     children: 'Something went wrong, please try again later.',
