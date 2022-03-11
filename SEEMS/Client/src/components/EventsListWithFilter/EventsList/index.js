@@ -59,7 +59,7 @@ const EventsList = ({ page }) => {
     const [hasMore, setHasMore] = useState(true)
     const showSnackbar = useSnackbar()
     let lastEventId
-    const isFilter = !!search || !!upcoming || !!active || !organizationName
+    const isFilter = !!search || !!upcoming || !!active || !!organizationName
     const isAdmin = page === pageEnum.AdminAllEvents || page === pageEnum.AdminMyEvents
 
     const Loading = () => (

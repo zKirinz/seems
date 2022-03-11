@@ -33,6 +33,7 @@ const EventOrganizationFilter = ({ submitHandler, defaultPeriod = '' }) => {
                         <FormControlLabel value="FPTU" control={<Radio />} label="FPTU" />
                         <FormControlLabel value="FCode" control={<Radio />} label="FCode" />
                         <FormControlLabel value="DSC" control={<Radio />} label="DSC" />
+                        <FormControlLabel value="" control={<Radio />} label="All" />
                     </RadioGroup>
                 </FormControl>
             </AccordionDetails>
