@@ -162,11 +162,9 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
 
     return (
         <React.Fragment>
-            {isLoading && (
-                <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
-                    <CircularProgress color="primary" />
-                </Backdrop>
-            )}
+            <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+                <CircularProgress color="primary" />
+            </Backdrop>
             {routerPrompt}
             <Grid container component={Paper} elevation={3}>
                 <Grid item xs={12} sm={5}>
