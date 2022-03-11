@@ -14,10 +14,44 @@ import authAtom from '../../../recoil/auth'
 import useEventAction from '../../../recoil/event/action'
 import pageEnum from '../pageEnum'
 
+const filterStringGenerator = ({ search, upcoming, active, organizationName }) => {
+    let filterString = '?resultCount=6'
+    if (search && search.trim() !== '') {
+        filterString += '&search=' + search
+    }
+    if (upcoming !== undefined) {
+        if (upcoming === 'true') {
+            filterString += '&upcoming=true'
+        } else if (upcoming === 'false') {
+            filterString += '&upcoming=false'
+        }
+    }
+
+    if (active !== undefined) {
+        if (active === 'true') {
+            filterString += '&active=true'
+        } else if (active === 'false') {
+            filterString += '&active=false'
+        }
+    }
+
+    if (organizationName !== undefined) {
+        if (organizationName === 'FPTU') {
+            filterString += '&organizationName=FPTU'
+        } else if (organizationName === 'FCode') {
+            filterString += '&organizationName=FCode'
+        } else if (organizationName === 'DSC') {
+            filterString += '&organizationName=DSC'
+        }
+    }
+
+    return filterString
+}
+
 const EventsList = ({ page }) => {
     const auth = useRecoilValue(authAtom)
     const { search: queries } = useLocation()
-    const { search, upcoming, active } = queryString.parse(queries)
+    const { search, upcoming, active, organizationName } = queryString.parse(queries)
     const eventAction = useEventAction()
     const [events, setEvents] = useState([])
     const [eventsNumber, setEventsNumber] = useState(0)
@@ -25,7 +59,7 @@ const EventsList = ({ page }) => {
     const [hasMore, setHasMore] = useState(true)
     const showSnackbar = useSnackbar()
     let lastEventId
-    const isFilter = !!search || !!upcoming || !!active
+    const isFilter = !!search || !!upcoming || !!active || !!organizationName
     const isAdmin = page === pageEnum.AdminAllEvents || page === pageEnum.AdminMyEvents
 
     const Loading = () => (
@@ -35,17 +69,17 @@ const EventsList = ({ page }) => {
     )
 
     const loadMoreHandler = () => {
-        let params = '?resultCount=6&'
+        let params = filterStringGenerator({ search, upcoming, active, organizationName })
 
         if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
-            params += 'lastEventID=' + lastEventId
+            params += '&lastEventID=' + lastEventId
             eventAction
                 .getMyEvents(params)
                 .then((res) => {
                     setTimeout(() => {
                         setEvents(events.concat(res.data.data.listEvents))
                         setHasMore(res.data.data.canLoadMore)
-                    }, 1600)
+                    }, 1200)
                 })
                 .catch(() => {
                     showSnackbar({
@@ -54,14 +88,14 @@ const EventsList = ({ page }) => {
                     })
                 })
         } else if (page === pageEnum.AdminAllEvents || page === pageEnum.AllEvents) {
-            params += 'lastEventID=' + lastEventId
+            params += '&lastEventID=' + lastEventId
             eventAction
                 .getEvents(params)
                 .then((res) => {
                     setTimeout(() => {
                         setEvents(events.concat(res.data.data.listEvents))
                         setHasMore(res.data.data.canLoadMore)
-                    }, 1600)
+                    }, 1200)
                 })
                 .catch(() => {
                     showSnackbar({
@@ -70,14 +104,14 @@ const EventsList = ({ page }) => {
                     })
                 })
         } else if (page === pageEnum.MyRegistrations) {
-            params += 'lastReservationId=' + lastEventId
+            filterString += '&lastReservationId=' + lastEventId
             eventAction
-                .getMyRegistrations(params)
+                .getMyRegistrations(filterString)
                 .then((res) => {
                     setTimeout(() => {
                         setEvents(events.concat(res.data.data.events))
                         setHasMore(res.data.data.canLoadMore)
-                    }, 1600)
+                    }, 1200)
                 })
                 .catch(() => {
                     showSnackbar({
@@ -91,29 +125,11 @@ const EventsList = ({ page }) => {
     useEffect(() => {
         setIsLoading(true)
 
-        let filterString = '?resultCount=6'
-        if (search && search.trim() !== '') {
-            filterString += '&search=' + search
-        }
-        if (upcoming !== undefined) {
-            if (upcoming === 'true') {
-                filterString += '&upcoming=true'
-            } else if (upcoming === 'false') {
-                filterString += '&upcoming=false'
-            }
-        }
-
-        if (active !== undefined) {
-            if (active === 'true') {
-                filterString += '&active=true'
-            } else if (active === 'false') {
-                filterString += '&active=false'
-            }
-        }
+        let params = filterStringGenerator({ search, upcoming, active, organizationName })
 
         if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
             eventAction
-                .getMyEvents(filterString)
+                .getMyEvents(params)
                 .then((res) => {
                     setEvents(res.data.data.listEvents)
                     setEventsNumber(res.data.data.count)
@@ -129,7 +145,7 @@ const EventsList = ({ page }) => {
                 })
         } else if (page === pageEnum.AdminAllEvents || page === pageEnum.AllEvents) {
             eventAction
-                .getEvents(filterString)
+                .getEvents(params)
                 .then((res) => {
                     setEvents(res.data.data.listEvents)
                     setEventsNumber(res.data.data.count)
@@ -145,7 +161,7 @@ const EventsList = ({ page }) => {
                 })
         } else if (page === pageEnum.MyRegistrations) {
             eventAction
-                .getMyRegistrations(filterString)
+                .getMyRegistrations(params)
                 .then((res) => {
                     setEvents(res.data.data.events)
                     setEventsNumber(res.data.data.count)
@@ -161,7 +177,7 @@ const EventsList = ({ page }) => {
                 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search, upcoming, active])
+    }, [search, upcoming, active, organizationName])
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" width="100%">
@@ -191,6 +207,7 @@ const EventsList = ({ page }) => {
                                 {
                                     id,
                                     reservationId,
+                                    canRegister,
                                     eventTitle,
                                     eventDescription,
                                     startDate,
@@ -208,6 +225,7 @@ const EventsList = ({ page }) => {
                                     <Grid item xs={12} key={id}>
                                         <EventCard
                                             id={id}
+                                            canRegister={canRegister}
                                             title={eventTitle}
                                             description={eventDescription}
                                             startDate={startDate}
