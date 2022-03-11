@@ -47,6 +47,7 @@ const UpcomingEvents = () => {
                     {upcomingEvents.map(
                         ({
                             id,
+                            canRegister,
                             eventTitle,
                             eventDescription,
                             startDate,
@@ -56,6 +57,7 @@ const UpcomingEvents = () => {
                             <EventCard
                                 key={id}
                                 id={id}
+                                canRegister={canRegister}
                                 title={eventTitle}
                                 description={eventDescription}
                                 startDate={startDate}

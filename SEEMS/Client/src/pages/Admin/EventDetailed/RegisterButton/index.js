@@ -13,14 +13,14 @@ const RegisterButton = ({ eventId, resetHandler }) => {
             .then(() => {
                 showSnackbar({
                     severity: 'success',
-                    children: 'Something went wrong, please try again later.',
+                    children: 'Register successfully.',
                 })
                 resetHandler()
             })
-            .catch(() => {
+            .catch((error) => {
                 showSnackbar({
                     severity: 'error',
-                    children: 'Register successfully.',
+                    children: 'Something went wrong, please try again later.',
                 })
             })
     }
