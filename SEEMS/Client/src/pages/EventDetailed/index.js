@@ -190,7 +190,7 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
-            <FeedBack />
+            <FeedBack eventId={id} />
         </Container>
     )
 }

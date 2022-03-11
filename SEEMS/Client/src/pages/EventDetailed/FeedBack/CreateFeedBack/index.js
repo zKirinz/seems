@@ -1,16 +1,47 @@
 import React, { useState } from 'react'
 
+import AlertConfirm from '../../../../components/ConfirmDialog'
 import { Send } from '@mui/icons-material'
-import { Box, Button, FormControl, Modal, Rating, TextField, Typography } from '@mui/material'
+import {
+    Box,
+    Button,
+    FormControl,
+    FormHelperText,
+    Modal,
+    Rating,
+    TextField,
+    Typography,
+} from '@mui/material'
 import { blueGrey, grey } from '@mui/material/colors'
 
-const CreateFeedBack = ({ open, onClose }) => {
-    const [ratingValue, setRatingValue] = useState(0)
-    const [feedbackContent, setFeedBackContent] = useState()
+const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
-    const feedbackHandler = (event) => {
-        setFeedBackContent(event.target.value)
+const CreateFeedBack = ({ open, onClose, onCreateFeedback }) => {
+    const [ratingValue, setRatingValue] = useState(0)
+    const [confirmDialog, setConfirmDialog] = useState(false)
+    const [feedbackContent, setFeedBackContent] = useState({ value: '', isTouched: false })
+
+    const feedbackChangeHandler = (event) => {
+        setFeedBackContent((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
+    const feedbackTouchedHandler = () => {
+        setFeedBackContent((previousValue) => ({ ...previousValue, isTouched: true }))
+    }
+    const openDialog = () => {
+        setConfirmDialog(true)
+    }
+    const closeDialog = () => {
+        setConfirmDialog(false)
+    }
+    const submitHandler = (event) => {
+        event.preventDefault()
+        console.log('Second')
+    }
+    const onConfirmDialog = () => {
+        console.log('First')
+    }
+
+    const feedbackContentIsInValid = isEmpty(feedbackContent.value) && feedbackContent.isTouched
 
     return (
         <Modal open={open}>
@@ -29,7 +60,7 @@ const CreateFeedBack = ({ open, onClose }) => {
                 <Box sx={{ py: 5, px: 3, bgcolor: 'primary.main', color: grey[100] }}>
                     <Typography variant="h4">Your experience with the event</Typography>
                 </Box>
-                <Box component="form" sx={{ py: 4, px: 3 }}>
+                <Box component="form" sx={{ py: 4, px: 3 }} onSubmit={submitHandler}>
                     <Box>
                         <Typography
                             fontWeight={700}
@@ -48,24 +79,44 @@ const CreateFeedBack = ({ open, onClose }) => {
                         </Typography>
                         <FormControl fullWidth>
                             <TextField
-                                value={feedbackContent}
+                                value={feedbackContent.value}
                                 multiline
                                 minRows={3}
                                 maxRows={10}
                                 placeholder="Feedback here"
-                                onChange={feedbackHandler}
+                                onChange={feedbackChangeHandler}
+                                onBlur={feedbackTouchedHandler}
                             />
+                            {feedbackContentIsInValid && (
+                                <FormHelperText error={feedbackContentIsInValid}>
+                                    Feedback must be not empty
+                                </FormHelperText>
+                            )}
                         </FormControl>
                     </Box>
                     <Box display="flex" justifyContent="flex-end" sx={{ mt: 2 }}>
                         <Button variant="contained" color="error" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button variant="contained" endIcon={<Send />} sx={{ ml: 2 }}>
+                        <Button
+                            variant="contained"
+                            endIcon={<Send />}
+                            sx={{ ml: 2 }}
+                            onClick={onConfirmDialog}
+                            type="submit"
+                        >
                             Send feedback
                         </Button>
                     </Box>
                 </Box>
+                <AlertConfirm
+                    open={confirmDialog}
+                    onClose={closeDialog}
+                    btnConfirmText="Save"
+                    title="You can not change feedback after sending"
+                >
+                    Are you sure you want to send this feedback?
+                </AlertConfirm>
             </Box>
         </Modal>
     )
