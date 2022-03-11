@@ -62,6 +62,7 @@ const UpComingEvents = () => {
                         {upcomingEvents.map(
                             ({
                                 id,
+                                canRegister,
                                 eventTitle,
                                 eventDescription,
                                 startDate,
@@ -71,6 +72,7 @@ const UpComingEvents = () => {
                                 <Grid item xs={12} key={id}>
                                     <EventCard
                                         id={id}
+                                        canRegister={canRegister}
                                         title={eventTitle}
                                         description={eventDescription}
                                         startDate={startDate}

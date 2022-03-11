@@ -131,6 +131,7 @@ const EventsList = ({ page }) => {
             eventAction
                 .getEvents(filterString)
                 .then((res) => {
+                    console.log(res)
                     setEvents(res.data.data.listEvents)
                     setEventsNumber(res.data.data.count)
                     setHasMore(res.data.data.canLoadMore)
@@ -191,6 +192,7 @@ const EventsList = ({ page }) => {
                                 {
                                     id,
                                     reservationId,
+                                    canRegister,
                                     eventTitle,
                                     eventDescription,
                                     startDate,
@@ -208,6 +210,7 @@ const EventsList = ({ page }) => {
                                     <Grid item xs={12} key={id}>
                                         <EventCard
                                             id={id}
+                                            canRegister={canRegister}
                                             title={eventTitle}
                                             description={eventDescription}
                                             startDate={startDate}

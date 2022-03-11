@@ -39,6 +39,17 @@ const MiddleNavBar = () => {
             </Button>
             <Button
                 component={NavLink}
+                to="/admin/events"
+                sx={{ px: 2, py: 1.25, position: 'relative' }}
+            >
+                <Tooltip title="Events">
+                    <IconButton size="medium">
+                        <EventIcon fontSize="large" sx={{ color: grey[100] }} />
+                    </IconButton>
+                </Tooltip>
+            </Button>
+            <Button
+                component={NavLink}
                 to="/admin/users"
                 sx={{ px: 2, py: 1.25, position: 'relative' }}
                 exact={true}
@@ -46,17 +57,6 @@ const MiddleNavBar = () => {
                 <Tooltip title="Users">
                     <IconButton size="medium">
                         <PersonIcon fontSize="large" sx={{ color: grey[100] }} />
-                    </IconButton>
-                </Tooltip>
-            </Button>
-            <Button
-                component={NavLink}
-                to="/admin/events"
-                sx={{ px: 2, py: 1.25, position: 'relative' }}
-            >
-                <Tooltip title="Events">
-                    <IconButton size="medium">
-                        <EventIcon fontSize="large" sx={{ color: grey[100] }} />
                     </IconButton>
                 </Tooltip>
             </Button>
