@@ -20,6 +20,8 @@ import {
     TextField,
     Paper,
     Typography,
+    Backdrop,
+    CircularProgress,
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
@@ -157,8 +159,14 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
 
         setIsLoading(false)
     }
+
     return (
         <React.Fragment>
+            {isLoading && (
+                <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
+                    <CircularProgress color="primary" />
+                </Backdrop>
+            )}
             {routerPrompt}
             <Grid container component={Paper} elevation={3}>
                 <Grid item xs={12} sm={5}>
@@ -231,7 +239,8 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                             >
                                 <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
                                     <input
-                                        style={{ display: 'none' }}
+                                        required
+                                        style={{ opacity: 0, maxWidth: 0.5 }}
                                         id="upload-photo"
                                         type="file"
                                         onChange={uploadImageHandler}

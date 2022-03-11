@@ -74,7 +74,12 @@ const EventDetailed = () => {
                 </Grid>
                 <Grid item xs={12} sm={8} component={Card} sx={{ position: 'relative' }}>
                     <CardContent sx={{ p: 5 }}>
-                        <Box display="flex" alignItems="center" justifyContent="space-between">
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            sx={{ mb: 1.5 }}
+                        >
                             <Typography variant="h4" color="primary" fontWeight={700}>
                                 {detailedEvent.event.eventTitle}
                             </Typography>
