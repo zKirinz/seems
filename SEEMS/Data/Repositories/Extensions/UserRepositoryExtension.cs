@@ -22,5 +22,5 @@ public static class UserRepositoryExtension
             user => user.Id, meta => meta.UserId, 
             (user, meta) => new { User = user, UserMeta = meta })
             .Where(userAndRole => userAndRole.UserMeta.MetaValue.Equals(role)).Select(u =>  u.User);
-    
+
 }
