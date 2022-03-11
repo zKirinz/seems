@@ -35,12 +35,6 @@ const hybridRoutes = [
         publicComponent: lazy(() => import('../pages/About')),
         layout: 'common',
     },
-    {
-        path: '/events/:id',
-        name: 'event detailed',
-        component: lazy(() => import('../pages/EventDetailed')),
-        layout: 'common',
-    },
 ]
 
 const privateRoutes = [
@@ -66,6 +60,13 @@ const privateRoutes = [
         role: ['organizer'],
     },
     {
+        path: '/events/my-registrations',
+        name: 'my registrations',
+        component: lazy(() => import('../pages/MyRegistrations')),
+        layout: 'common',
+        role: ['user', 'organizer'],
+    },
+    {
         path: '/events/create',
         name: 'create event',
         component: lazy(() => import('../pages/CreateEvent')),
@@ -78,6 +79,13 @@ const privateRoutes = [
         component: lazy(() => import('../pages/UpdateEvent')),
         layout: 'common',
         role: ['organizer'],
+    },
+    {
+        path: '/events/:id',
+        name: 'event detailed',
+        component: lazy(() => import('../pages/EventDetailed')),
+        layout: 'common',
+        role: ['user', 'organizer'],
     },
     {
         path: '/admin',
@@ -111,6 +119,13 @@ const privateRoutes = [
         path: '/admin/events/create',
         name: 'admin create event',
         component: lazy(() => import('../pages/Admin/CreateEvent')),
+        layout: 'admin',
+        role: ['admin'],
+    },
+    {
+        path: '/admin/events/:id/update',
+        name: 'admin create event',
+        component: lazy(() => import('../pages/Admin/UpdateEvent')),
         layout: 'admin',
         role: ['admin'],
     },

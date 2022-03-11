@@ -67,7 +67,6 @@ const UpComingEvents = () => {
                                 startDate,
                                 imageUrl,
                                 organizationName,
-                                commentsNum,
                             }) => (
                                 <Grid item xs={12} key={id}>
                                     <EventCard
@@ -77,7 +76,6 @@ const UpComingEvents = () => {
                                         startDate={startDate}
                                         imageUrl={imageUrl}
                                         organizer={organizationName}
-                                        commentsNum={commentsNum}
                                         isAdmin
                                     />
                                 </Grid>

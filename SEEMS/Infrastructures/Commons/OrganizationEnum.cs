@@ -13,23 +13,6 @@ namespace SEEMS.Infrastructures.Commons
 
 	public class OrganizationEnumHelper
 	{
-		public static string ToString(OrganizationEnum o)
-		{
-			switch(o)
-			{
-				case OrganizationEnum.FPTU:
-					return "FPTU";
-				case OrganizationEnum.FCode:
-					return "F-Code";
-				case OrganizationEnum.DSC:
-					return "DSC";
-				case OrganizationEnum.FPTer:
-					return "FPT-er";
-				default:
-					return "Invalid";
-			}
-		}
-
 		public static OrganizationEnum ToEnum(string s)
 		{
 			switch(s)

@@ -1,11 +1,17 @@
-import { Box, Button } from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import useEventAction from '../../../recoil/event/action'
 
-const UnRegisterButton = ({ eventId, resetHandler }) => {
+const UnRegisterButton = ({ eventId, resetHandler, registrationDeadline }) => {
     const eventAction = useEventAction()
     const showSnackbar = useSnackbar()
+    let isOutOfRegistrationDate = false
+
+    if (registrationDeadline) {
+        isOutOfRegistrationDate =
+            new Date().getTime() - new Date(registrationDeadline).getTime() > 0
+    }
 
     const unregisterHandler = () => {
         eventAction
@@ -26,8 +32,23 @@ const UnRegisterButton = ({ eventId, resetHandler }) => {
     }
 
     return (
-        <Box sx={{ position: 'absolute', bottom: 30, right: 30 }} onClick={unregisterHandler}>
-            <Button variant="contained" color="secondary">
+        <Box
+            sx={{
+                position: 'absolute',
+                bottom: 30,
+                right: 30,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}
+            onClick={unregisterHandler}
+        >
+            {isOutOfRegistrationDate && (
+                <Typography sx={{ mb: 1 }} color="error">
+                    Out of register time
+                </Typography>
+            )}
+            <Button variant="contained" color="secondary" disabled={isOutOfRegistrationDate}>
                 Unregister
             </Button>
         </Box>

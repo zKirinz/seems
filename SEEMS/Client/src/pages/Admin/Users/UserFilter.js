@@ -53,7 +53,7 @@ const UserFilter = ({
                 >
                     <MenuItem value="All">All</MenuItem>
                     <MenuItem value="FPTU">FPTU</MenuItem>
-                    <MenuItem value="F-Code">F-Code</MenuItem>
+                    <MenuItem value="FCode">FCode</MenuItem>
                     <MenuItem value="DSC">DSC</MenuItem>
                 </Select>
             </FormControl>

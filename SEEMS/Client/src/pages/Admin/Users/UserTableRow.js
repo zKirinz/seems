@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
-import { Edit as EditIcon, TurnedIn as TurnedInIcon } from '@mui/icons-material'
+import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
 import { Select, Avatar, Button, FormControl, MenuItem, TableCell, TableRow } from '@mui/material'
 import { Box } from '@mui/system'
 
@@ -19,6 +20,7 @@ const UserTableRow = ({
 }) => {
     const userAction = useUsersAction()
     const [isEdit, setIsEdit] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     const [editedRole, setEditedRole] = useState(role)
     const [editedOrganization, setEditedOrganization] = useState(organization)
     const [editedActive, setEditedActive] = useState(active ? 'Active' : 'Inactive')
@@ -26,7 +28,7 @@ const UserTableRow = ({
 
     const onChangeEditRole = (roleTarget) => {
         if (roleTarget === 'Organizer') {
-            setEditedOrganization('F-Code')
+            setEditedOrganization('FCode')
         } else if (roleTarget === 'User') {
             setEditedOrganization('None')
         }
@@ -34,43 +36,33 @@ const UserTableRow = ({
     }
 
     const saveEditHandler = async () => {
-        setIsEdit(false)
-        await userAction
-            .updateUserRole({
+        setIsLoading(true)
+        try {
+            await userAction.updateUserRole({
                 id,
                 role: editedRole,
-                organization: editedOrganization !== 'None' ? editedOrganization : 'FPT-er',
-                active: editedActive === 'Active' ? true : false,
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
-                })
-                setIsLoading(false)
-                return
             })
 
-        await userAction
-            .updateUserOrganizationActive({
+            await userAction.updateUserOrganizationActive({
                 id,
-                organization: editedOrganization !== 'None' ? editedOrganization : 'FPT-er',
+                Organization: editedOrganization !== 'None' ? editedOrganization : 'FPTer',
                 active: editedActive === 'Active' ? true : false,
             })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
-                })
-                setIsLoading(false)
-                return
-            })
 
-        showSnackbar({
-            severity: 'success',
-            children: `Update user ${email} attendance successfully.`,
-        })
-        resetHandler()
+            showSnackbar({
+                severity: 'success',
+                children: `Update user ${email} attendance successfully.`,
+            })
+            resetHandler()
+        } catch {
+            showSnackbar({
+                severity: 'error',
+                children: 'Something went wrong, please try again later.',
+            })
+        }
+
+        setIsLoading(false)
+        setIsEdit(false)
     }
 
     return (
@@ -105,14 +97,12 @@ const UserTableRow = ({
                             onChange={(e) => setEditedOrganization(e.target.value)}
                         >
                             {editedRole === 'Organizer' && <MenuItem value="DSC">DSC</MenuItem>}
-                            {editedRole === 'Organizer' && (
-                                <MenuItem value="F-Code">F-Code</MenuItem>
-                            )}
+                            {editedRole === 'Organizer' && <MenuItem value="FCode">FCode</MenuItem>}
                             {editedRole === 'User' && <MenuItem value="None">None</MenuItem>}
                         </Select>
                     </FormControl>
                 ) : (
-                    organization !== 'FPT-er' && organization
+                    organization !== 'FPTer' && organization
                 )}
             </TableCell>
             <TableCell align="center">
@@ -136,14 +126,16 @@ const UserTableRow = ({
                 {role !== 'Admin' && (
                     <React.Fragment>
                         {isEdit ? (
-                            <Button
+                            <LoadingButton
+                                loading={isLoading}
+                                loadingPosition="start"
+                                startIcon={<SaveIcon />}
                                 variant="outlined"
                                 color="secondary"
-                                startIcon={<TurnedInIcon />}
                                 onClick={saveEditHandler}
                             >
                                 Save
-                            </Button>
+                            </LoadingButton>
                         ) : (
                             <Button
                                 variant="outlined"

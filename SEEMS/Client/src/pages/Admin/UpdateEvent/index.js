@@ -4,8 +4,8 @@ import { useHistory, useLocation, useParams } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
-import { useSnackbar } from '../../HOCs/SnackbarContext'
-import { useEventAction } from '../../recoil/event'
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
+import { useEventAction } from '../../../recoil/event'
 import UpdateEventForm from './UpdateEventForm'
 
 const UpdateEvent = () => {

@@ -1,7 +1,12 @@
 import { useHistory } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
-import { Box, Button, Card, Grid, Typography } from '@mui/material'
+import {
+    Check as CheckIcon,
+    Close as CloseIcon,
+    OpenInNew as OpenInNewIcon,
+} from '@mui/icons-material'
+import { Box, Card, Chip, Grid } from '@mui/material'
 
 import authAtom from '../../recoil/auth'
 import EventPoster from '../EventPoster'
@@ -9,13 +14,13 @@ import EventSummaryInfo from './EventSummaryInfo'
 
 const EventCard = ({
     id,
+    canRegister,
     imageUrl,
     title,
     description,
     startDate,
     organizer,
     isAdmin,
-    commentsNum,
 }) => {
     const auth = useRecoilValue(authAtom)
     const history = useHistory()
@@ -30,7 +35,14 @@ const EventCard = ({
     }
 
     return (
-        <Card elevation={3} sx={{ position: 'relative', maxWidth: 1000, width: '100%' }}>
+        <Card
+            elevation={2}
+            sx={{
+                position: 'relative',
+                maxWidth: 1000,
+                width: '100%',
+            }}
+        >
             <Box px={4}>
                 <Grid container>
                     <Grid item xs={3}>
@@ -41,9 +53,18 @@ const EventCard = ({
                     </Grid>
                 </Grid>
             </Box>
-            {auth.email && (
-                <Box position="absolute" bottom={180} right={50}>
-                    <Typography color="secondary">{commentsNum} comments</Typography>
+            {auth.email && auth.role !== 'Admin' && (
+                <Box position="absolute" bottom={175} right={50}>
+                    <Chip
+                        label={
+                            canRegister
+                                ? 'Available for registration'
+                                : 'Not available for registration'
+                        }
+                        icon={canRegister ? <CheckIcon /> : <CloseIcon />}
+                        color={canRegister ? 'success' : 'warning'}
+                        variant="outlined"
+                    />
                 </Box>
             )}
             <Box
@@ -51,26 +72,28 @@ const EventCard = ({
                 bottom={30}
                 right={50}
                 display="flex"
-                flexDirection="column"
+                flexDirection="row"
                 alignItems="center"
             >
-                <Typography color="secondary" variant="subtitle1" my={1}>
-                    <Box component="strong" sx={{ color: 'primary.main' }}>
-                        Organizer - {organizer}
-                    </Box>{' '}
-                    / {eventStartTime(startDate)}
-                </Typography>
+                <Chip label={organizer} color="primary" variant="outlined" />
+                <Chip
+                    label={eventStartTime(startDate)}
+                    color="primary"
+                    variant="outlined"
+                    sx={{ mx: 1 }}
+                />
                 {auth.email && (
-                    <Button
-                        variant="contained"
+                    <Chip
+                        label={canRegister ? 'Register' : 'Read More'}
                         color="secondary"
                         onClick={() =>
                             history.push(isAdmin ? `/admin/events/${id}` : `/events/${id}`)
                         }
-                        sx={{ mx: 1 }}
-                    >
-                        Read More
-                    </Button>
+                        onDelete={() =>
+                            history.push(isAdmin ? `/admin/events/${id}` : `/events/${id}`)
+                        }
+                        deleteIcon={<OpenInNewIcon />}
+                    />
                 )}
             </Box>
         </Card>

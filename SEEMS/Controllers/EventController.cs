@@ -48,6 +48,8 @@ namespace SEEMS.Controller
 				//dtoEvent.OrganizationName = OrganizationEnumHelper.ToString(foundEvent.OrganizationName);
 				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
+				var registeredNum = _repository.Reservation.GetRegisteredNum(foundEvent.Id);
+				dtoEvent.CanRegister = _repository.Event.CanRegister(id);
 				return Ok(
 					new Response(
 						ResponseStatusEnum.Success,
@@ -72,14 +74,13 @@ namespace SEEMS.Controller
 
 		[HttpGet("my-events")]
 		public async Task<ActionResult<List<Event>>> GetMyEvents(string? search, bool? upcoming,
-			int? lastEventID, bool? active, int resultCount = 1000)
+			int? lastEventID, bool? active, int resultCount = 10)
 		{
 			User user = await GetCurrentUser(Request);
 			try
 			{
 				if(user != null)
 				{
-					//var findingOrgId = user.OrganizationId;
 					var allEvents = _context.Events.Where(a => a.OrganizationName == user.OrganizationName).ToList();
 					IEnumerable<Event> foundResult;
 					if(upcoming == null)
@@ -133,19 +134,21 @@ namespace SEEMS.Controller
 					{
 						returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
 					}
-					if(foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
+					if(!failed && foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
 					{
 						loadMore = true;
 					}
 					var dtoResult = new List<EventDTO>();
-					returnResult.ForEach(e =>
-					{
-						var eMapped = _mapper.Map<EventDTO>(e);
-						eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-						//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
-						//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
-						dtoResult.Add(eMapped);
-					});
+					if(!failed)
+						returnResult.ForEach(e =>
+						{
+							var eMapped = _mapper.Map<EventDTO>(e);
+							eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
+							eMapped.CanRegister = _repository.Event.CanRegister(e.Id);
+							//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
+							//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+							dtoResult.Add(eMapped);
+						});
 					return failed
 						? BadRequest(
 							new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
@@ -185,13 +188,13 @@ namespace SEEMS.Controller
 					result = result.Where(e => !e.IsPrivate);
 				}
 				//resultCount = Math.Min(10, result.Count());
-				result = result.OrderByDescending(e => e.StartDate);
+				result = result.OrderBy(e => e.StartDate);
 				var dtoResult = new List<EventDTO>();
 				result.ToList().ForEach(e =>
 				{
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
-					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
+					eMapped.CanRegister = _repository.Event.CanRegister(e.Id);
 					//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 					dtoResult.Add(eMapped);
 				});
@@ -213,7 +216,7 @@ namespace SEEMS.Controller
 
 		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
-			int? lastEventID, bool? active, int resultCount = 10)
+			int? lastEventID, bool? active, string? organizationName, int resultCount = 10)
 		{
 			try
 			{
@@ -236,6 +239,11 @@ namespace SEEMS.Controller
 					foundResult = (bool) active
 						? foundResult.Where(e => e.Active)
 						: foundResult.Where(e => !e.Active);
+				}
+
+				if(organizationName != null)
+				{
+					foundResult = foundResult.Where(e => e.OrganizationName.ToString().Equals(organizationName));
 				}
 
 				List<Event> returnResult = null;
@@ -280,7 +288,7 @@ namespace SEEMS.Controller
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
 					//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
-					eMapped.CanRegister = (registeredNum == 0) || (eMapped.ParticipantNum - registeredNum > 0);
+					eMapped.CanRegister = _repository.Event.CanRegister(e.Id);
 					dtoResult.Add(eMapped);
 				});
 
@@ -324,9 +332,14 @@ namespace SEEMS.Controller
 								new Response(ResponseStatusEnum.Fail,
 								eventValidationInfo,
 								"Some fields didn't match requirements"));
-					myEvent.EventTitle = eventDTO.EventTitle;
-					myEvent.EventDescription = eventDTO.EventDescription;
-					myEvent.Location = eventDTO.Location;
+					if(eventDTO.EventTitle != null)
+						myEvent.EventTitle = eventDTO.EventTitle;
+					if(eventDTO.EventDescription != null)
+						myEvent.EventDescription = eventDTO.EventDescription;
+					if(eventDTO.Location != null)
+						myEvent.Location = eventDTO.Location;
+					if(eventDTO.ImageUrl != null)
+						myEvent.ImageUrl = eventDTO.ImageUrl;
 					_context.Update(myEvent);
 					await _context.SaveChangesAsync();
 					return Ok(
@@ -407,17 +420,16 @@ namespace SEEMS.Controller
 				}
 				else
 				{
-					eventDTO.Active = false;
-					var newEvent = _mapper.Map<Event>(eventDTO);
-					var user = await GetCurrentUser(Request);
-					newEvent.OrganizationName = user.OrganizationName;
+					eventDTO.Active = true;
 					eventDTO.RegistrationDeadline = eventDTO.RegistrationDeadline == null
 						? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6))
 						: eventDTO.RegistrationDeadline;
-					//eventDTO.OrganizationName = OrganizationEnumHelper.ToString(newEvent.OrganizationName);
+					var newEvent = _mapper.Map<Event>(eventDTO);
+					var user = await GetCurrentUser(Request);
+					newEvent.OrganizationName = user.OrganizationName;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
-					return Ok(new Response(ResponseStatusEnum.Success, eventDTO));
+					return Ok(new Response(ResponseStatusEnum.Success, newEvent));
 				}
 			}
 			catch(Exception ex)

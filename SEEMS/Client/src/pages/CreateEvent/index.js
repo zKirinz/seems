@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
 
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import { useHistory, useLocation } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
+import { useSnackbar } from '../../HOCs/SnackbarContext'
 import { useEventAction } from '../../recoil/event'
+import { storage } from '../../utils/Firebase'
 import CreateEventForm from './CreateEventForm'
 
 const CreateEvent = () => {
@@ -12,16 +15,57 @@ const CreateEvent = () => {
     const [error, setError] = useState(null)
     const history = useHistory()
     const { pathname } = useLocation()
-    const createEventHandler = (eventData) => {
-        eventActions
+    const showSnackbar = useSnackbar()
+    const createEventHandler = ({ eventData, poster }) => {
+        return eventActions
             .createEvent(eventData)
             .then((response) => {
-                console.log(response)
+                const { id } = response.data.data
+
+                if (poster.file) {
+                    let fileType = 'png'
+                    if (poster.file.type.endsWith('jpg')) fileType = 'jpg'
+                    else if (poster.file.type.endsWith('jpeg')) fileType = 'jpeg'
+                    const storageRef = ref(storage, `event-poster/${id}.${fileType}`)
+                    const uploadTask = uploadBytesResumable(storageRef, poster.file)
+
+                    uploadTask.on(
+                        'state_changed',
+                        () => {},
+                        () => {
+                            showSnackbar({
+                                severity: 'error',
+                                children: 'Something went wrong, cannot upload event poster.',
+                            })
+                        },
+                        () => {
+                            getDownloadURL(uploadTask.snapshot.ref)
+                                .then((downloadURL) =>
+                                    eventActions.updateEvent(id, {
+                                        imageUrl: downloadURL,
+                                    })
+                                )
+                                .then(() => {
+                                    showSnackbar({
+                                        severity: 'success',
+                                        children: 'Create event successfully.',
+                                    })
+                                    const newUrl = pathname.slice(0, pathname.indexOf('create'))
+                                    history.push(`${newUrl}${id}`)
+                                })
+                                .catch(() =>
+                                    showSnackbar({
+                                        severity: 'error',
+                                        children: 'Something went wrong, please try again later.',
+                                    })
+                                )
+                        }
+                    )
+                }
             })
-            .catch((errorResponse) => {
-                console.log(errorResponse.response)
-                if (errorResponse.response.status === 400) {
-                    const errorData = errorResponse.response.data.data
+            .catch((error) => {
+                if (error.response.status === 400) {
+                    const errorData = error.response.data.data
                     setError({
                         title: errorData.title,
                         location: errorData.location,

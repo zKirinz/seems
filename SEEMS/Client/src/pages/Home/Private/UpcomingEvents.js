@@ -62,22 +62,22 @@ const UpComingEvents = () => {
                         {upcomingEvents.map(
                             ({
                                 id,
+                                canRegister,
                                 eventTitle,
                                 eventDescription,
                                 startDate,
                                 imageUrl,
                                 organizationName,
-                                commentsNum,
                             }) => (
                                 <Grid item xs={12} key={id}>
                                     <EventCard
                                         id={id}
+                                        canRegister={canRegister}
                                         title={eventTitle}
                                         description={eventDescription}
                                         startDate={startDate}
                                         imageUrl={imageUrl}
                                         organizer={organizationName}
-                                        commentsNum={commentsNum}
                                     />
                                 </Grid>
                             )

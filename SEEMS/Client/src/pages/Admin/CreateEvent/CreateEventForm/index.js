@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 
 import { useRecoilValue } from 'recoil'
 
-import { CameraAlt } from '@mui/icons-material'
+import { CameraAlt, InfoRounded } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
@@ -20,9 +20,12 @@ import {
     TextField,
     Paper,
     Typography,
-    Checkbox,
+    Backdrop,
+    CircularProgress,
 } from '@mui/material'
+import { grey } from '@mui/material/colors'
 
+import { useSnackbar } from '../../../../HOCs/SnackbarContext'
 import usePrompt from '../../../../hooks/use-prompt'
 import authAtom from '../../../../recoil/auth/atom'
 
@@ -51,20 +54,16 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
-    const [posterUrl, setPosterUrl] = useState({ src })
-    const [isLimitParticipants, setIsLimitParticipants] = useState(false)
-    const [participantsLimited, setParticipantsLimited] = useState(0)
+    const [poster, setPoster] = useState({ src, file: null })
+    const [participantsLimited, setParticipantsLimited] = useState(10)
+    const [isLoading, setIsLoading] = useState(false)
+    const showSnackbar = useSnackbar()
 
     useEffect(() => {
         return () => {
-            posterUrl.src && URL.revokeObjectURL(posterUrl.src)
+            poster.src && URL.revokeObjectURL(poster.src)
         }
-    }, [posterUrl])
-
-    useEffect(() => {
-        if (isLimitParticipants) setParticipantsLimited(1)
-        else setParticipantsLimited(0)
-    }, [isLimitParticipants])
+    }, [poster])
 
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
@@ -94,11 +93,25 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         setParticipantsLimited(event.target.value)
     }
     const registrationTimeChangeHandler = (newDate) => {
+        error?.registrationDeadline &&
+            setError((previousError) => ({ ...previousError, registrationDeadline: null }))
         setRegistrationTime(newDate)
     }
     const uploadImageHandler = (event) => {
+        const file = event.target.files[0]
+        if (!file) return
+
+        const { type } = file
+        if (!(type.endsWith('jpeg') || type.endsWith('png') || type.endsWith('jpg'))) {
+            showSnackbar({
+                severity: 'error',
+                children: 'Event poster can only be jpeg, png and jpg file.',
+            })
+            return
+        }
+
         const imageUrl = URL.createObjectURL(event.target.files[0])
-        setPosterUrl({ src: imageUrl })
+        setPoster({ src: imageUrl, file })
     }
 
     const eventNameTouchedHandler = () => {
@@ -126,8 +139,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const descriptionIsInValid = isEmpty(description.value) && description.isTouched
     const overallTextFieldIsValid =
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
-    const submitHandler = (event) => {
+    const submitHandler = async (event) => {
         event.preventDefault()
+        setIsLoading(true)
+
         const eventDetailed = {
             eventTitle: eventName.value,
             location: location.value,
@@ -137,11 +152,19 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             startDate: startDate,
             endDate: endDate,
             organizationName: auth.organization,
+            participantNum: +participantsLimited,
+            registrationDeadline: registrationTime,
         }
-        onCreateEvent(eventDetailed)
+        await onCreateEvent({ eventData: eventDetailed, poster })
+
+        setIsLoading(false)
     }
+
     return (
         <React.Fragment>
+            <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+                <CircularProgress color="primary" />
+            </Backdrop>
             {routerPrompt}
             <Grid container component={Paper} elevation={3}>
                 <Grid item xs={12} sm={5}>
@@ -149,10 +172,11 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                         <Box
                             component="img"
                             alt="school-image"
-                            src={posterUrl.src}
+                            src={poster.src}
                             sx={{
                                 width: '100%',
                                 aspectRatio: '1 / 1',
+                                objectFit: 'contain',
                             }}
                         />
                     </Box>
@@ -202,6 +226,39 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     </FormHelperText>
                                 )}
                             </FormControl>
+                            <Box
+                                sx={{
+                                    my: 2,
+                                    ml: 1.5,
+                                    width: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
+                                    <input
+                                        required
+                                        style={{ opacity: 0, maxWidth: 0.5 }}
+                                        id="upload-photo"
+                                        type="file"
+                                        onChange={uploadImageHandler}
+                                        accept="image/*"
+                                    />
+                                    <Button
+                                        variant="outlined"
+                                        component="span"
+                                        startIcon={<CameraAlt />}
+                                    >
+                                        Upload Poster
+                                    </Button>
+                                </InputLabel>
+                                <Box display="flex" alignItems="center" sx={{ ml: 3 }}>
+                                    <InfoRounded color="primary" fontSize="small" />
+                                    <Typography sx={{ color: grey[800], ml: 0.5 }}>
+                                        Recommend using image with ratio 1:1
+                                    </Typography>
+                                </Box>
+                            </Box>
                             <FormControl fullWidth sx={{ m: 1.5 }} required>
                                 <TextField
                                     label="Description"
@@ -234,7 +291,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     sx={{ mr: 1.5 }}
                                 >
                                     You want this event to be public or private only for FPT
-                                    education.
+                                    education?
                                 </Typography>
                                 <RadioGroup row name="row-radio-buttons-group" value={isPrivate}>
                                     <FormControlLabel
@@ -251,41 +308,8 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     />
                                 </RadioGroup>
                             </FormControl>
-                            <FormControl sx={{ ml: 1.5 }}>
-                                <FormControlLabel
-                                    control={<Checkbox />}
-                                    label="Participant limitation"
-                                    onChange={() =>
-                                        setIsLimitParticipants((previousValue) => !previousValue)
-                                    }
-                                    checked={isLimitParticipants}
-                                />
-                            </FormControl>
-                            {isLimitParticipants && (
-                                <FormControl fullWidth required sx={{ m: 1.5 }}>
-                                    <InputLabel htmlFor="limit" shrink>
-                                        Participants limitation
-                                    </InputLabel>
-                                    <OutlinedInput
-                                        id="limit"
-                                        label="Participants limitation"
-                                        inputProps={{
-                                            type: 'number',
-                                            min: 1,
-                                            inputMode: 'numeric',
-                                            pattern: '[0-9]*',
-                                        }}
-                                        value={participantsLimited}
-                                        onChange={limitationChangeHandler}
-                                        sx={{
-                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
-                                                { display: 'none' },
-                                        }}
-                                    />
-                                </FormControl>
-                            )}
                         </Box>
-                        <Box sx={{ m: 1.5 }}>
+                        <Box sx={{ mx: 1.5, mb: 4, mt: 1 }}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <Box
                                     sx={{
@@ -336,13 +360,39 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         )}
                                     </FormControl>
                                 </Box>
-                                <FormControl fullWidth sx={{ my: 1.5 }}>
+                            </LocalizationProvider>
+                        </Box>
+                        <Box sx={{ mx: 1.5, display: 'flex' }}>
+                            <FormControl required sx={{ mr: 4 }}>
+                                <InputLabel htmlFor="limit" shrink>
+                                    Participants limitation
+                                </InputLabel>
+                                <OutlinedInput
+                                    id="limit"
+                                    label="Participants limitation"
+                                    inputProps={{
+                                        type: 'number',
+                                        min: 10,
+                                        max: 1500,
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    value={participantsLimited}
+                                    onChange={limitationChangeHandler}
+                                    sx={{
+                                        'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
+                                            { display: 'none' },
+                                    }}
+                                />
+                            </FormControl>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <FormControl sx={{ mx: 2 }}>
                                     <MobileDateTimePicker
                                         value={registrationTime}
                                         onChange={(newValue) => {
                                             registrationTimeChangeHandler(newValue)
                                         }}
-                                        label="Close registration date"
+                                        label="Register closing date"
                                         minDate={
                                             new Date(new Date().getTime() + dayCalculation(0.5))
                                         }
@@ -353,26 +403,14 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                         mask="___/__/__ __:__ _M"
                                         renderInput={(params) => <TextField {...params} />}
                                     />
+                                    {error?.registrationDeadline && (
+                                        <FormHelperText error={!!error?.registrationDeadline}>
+                                            {error?.registrationDeadline &&
+                                                `${error.registrationDeadline}`}
+                                        </FormHelperText>
+                                    )}
                                 </FormControl>
                             </LocalizationProvider>
-                        </Box>
-                        <Box sx={{ mx: 1.5, my: 3 }}>
-                            <InputLabel htmlFor="upload-photo" sx={{ display: 'inline-block' }}>
-                                <input
-                                    style={{ display: 'none' }}
-                                    id="upload-photo"
-                                    type="file"
-                                    onChange={uploadImageHandler}
-                                    accept="image/*"
-                                />
-                                <Button
-                                    variant="outlined"
-                                    component="span"
-                                    startIcon={<CameraAlt />}
-                                >
-                                    Upload
-                                </Button>
-                            </InputLabel>
                         </Box>
                         <Box
                             sx={{ m: 1.5, mt: { sm: 9, xs: 3 } }}
