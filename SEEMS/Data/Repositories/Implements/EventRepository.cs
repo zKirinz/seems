@@ -37,5 +37,11 @@ namespace SEEMS.Data.Repositories.Implements
 			var registeredNum = _context.Reservations.Count(r => r.EventId == id);
 			return registeredNum < myEvent.ParticipantNum && myEvent.RegistrationDeadline.CompareTo(DateTime.Now) > 0;
 		}
+
+		public bool CanUnregister(int id, int minHourToUnregister)
+        {
+			var myEvent = _context.Events.SingleOrDefault(e => e.Id == id);
+			return myEvent.StartDate.Subtract(DateTime.Now).TotalHours > minHourToUnregister;
+        }
 	}
 }
