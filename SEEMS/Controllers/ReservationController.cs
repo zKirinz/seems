@@ -97,7 +97,7 @@ namespace SEEMS.Controllers
 		// GET api/Reservations
 		// Get all registered events
 		[HttpGet]
-		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName, int? lastReservationId, int resultCount = 10)
+		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName, int? lastReservationId, bool? attend, int resultCount = 10)
 		{
 			string userRole = null;
 			try
@@ -153,7 +153,17 @@ namespace SEEMS.Controllers
 						{
 							foundResult = foundResult.Where(e => e.OrganizationName.Equals(organizationName));
 						}
+
+						if(attend != null)
+						{
+							foundResult = foundResult.Where(e => e.Attend == attend);
+						}
+
 						foundResult = foundResult.OrderByDescending(e => e.StartDate).ToList();
+
+						foundResult.ToList().ForEach(e =>
+							e.ReservationStatus = _repoManager.Reservation.GetEventStatus(e.ReservationId)
+						);
 
 						//Implement load more
 						List<RegisteredEventsDTO> returnResult = null;
