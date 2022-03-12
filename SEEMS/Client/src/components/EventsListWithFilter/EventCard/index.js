@@ -94,7 +94,11 @@ const EventCard = ({
                 />
                 {auth.email && (
                     <Chip
-                        label={canRegister ? 'Register' : 'Read More'}
+                        label={
+                            auth.organization !== organizer && canRegister
+                                ? 'Register'
+                                : 'Read More'
+                        }
                         color="secondary"
                         onClick={() =>
                             history.push(isAdmin ? `/admin/events/${id}` : `/events/${id}`)
