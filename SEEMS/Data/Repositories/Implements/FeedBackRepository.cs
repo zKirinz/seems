@@ -18,7 +18,7 @@ namespace SEEMS.Data.Repositories.Implements
                 var feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
                 if (feedBack == null)
                 {
-                    canFeedback = true;
+                    return canFeedback = true;
                 }
             }  
             
