@@ -258,17 +258,6 @@ namespace SEEMS.Controller
                     foreach (var comment in listComment)
                     {
                         CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                        //commentDTO.NumberReplyComment = _context.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
-                        //commentDTO.NumberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
-                        //var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
-                        //if (likeComment == null)
-                        //{
-                        //    commentDTO.IsLike = false;
-                        //}
-                        //else
-                        //{
-                        //    commentDTO.IsLike = true;
-                        //}
                         commentDTO.IsLike = CommentsServices.CheckCurrentUserHasLikeComment(userId, comment.Id, _context);
                         listResponseComments.Add(commentDTO);
                     }
@@ -315,17 +304,6 @@ namespace SEEMS.Controller
                     foreach (var comment in listReplyComment)
                     {
                         CommentDTO commentDTO = CommentsServices.AddMoreInformationsToComment(comment, _context, _mapper);
-                        //commentDTO.NumberLikeComment = _context.LikeComments.Where(c => c.CommentId == comment.Id).Count();
-                        //commentDTO.NumberReplyComment = 0;
-                        //var likeComment = _context.LikeComments.Where(c => c.UserId == userId).Where(c => c.CommentId == comment.Id).FirstOrDefault();
-                        //if (likeComment == null)
-                        //{
-                        //    commentDTO.IsLike = false;
-                        //}
-                        //else
-                        //{
-                        //    commentDTO.IsLike = true;
-                        //}
                         commentDTO.IsLike = CommentsServices.CheckCurrentUserHasLikeComment(userId, comment.Id, _context);
                         listResponseReplyComments.Add(commentDTO);
                     }

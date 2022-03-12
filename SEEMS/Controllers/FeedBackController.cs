@@ -202,8 +202,21 @@ namespace SEEMS.Controllers
             }
 
             var userId = currentUser.Id;
-            bool canFeedBack = _repoManager.FeedBack.CanFeedBack(id, userId);
-            return Ok(new Response(ResponseStatusEnum.Success, canFeedBack));
+            bool attend = false;
+            bool canFeedBack = false;
+            var reservation = _context.Reservations.FirstOrDefault(x => x.EventId == id && x.UserId == userId);        
+            if (reservation != null)
+            {
+                attend = reservation.Attend;
+                canFeedBack = _repoManager.FeedBack.CanFeedBack(id, userId);
+            }
+                       
+            return Ok(new Response(ResponseStatusEnum.Success,
+                                   new
+                                   {
+                                       attend,
+                                       canFeedBack,
+                                   }));
         }
 
         private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
