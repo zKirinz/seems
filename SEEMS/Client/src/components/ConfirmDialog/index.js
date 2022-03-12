@@ -2,6 +2,11 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/
 import { blueGrey } from '@mui/material/colors'
 
 const AlertConfirm = ({ title, children, open, onConfirm, onClose, btnConfirmText }) => {
+    const confirmDialogHandler = (event) => {
+        onConfirm(event)
+        onClose()
+    }
+
     return (
         <Dialog open={open} onClose={onClose} onBackdropClick={onClose}>
             <DialogTitle sx={{ color: blueGrey[900] }}>{title}</DialogTitle>
@@ -10,7 +15,7 @@ const AlertConfirm = ({ title, children, open, onConfirm, onClose, btnConfirmTex
                 <Button onClick={onClose} variant="contained" color="error">
                     Cancel
                 </Button>
-                <Button onClick={onConfirm} variant="contained" color="primary">
+                <Button onClick={confirmDialogHandler} variant="contained" color="primary">
                     {btnConfirmText}
                 </Button>
             </DialogActions>

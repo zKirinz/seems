@@ -16,6 +16,7 @@ const FeedBack = ({ eventId, isMyEvent }) => {
         content: null,
         rating: null,
     })
+    const [canFeedback, setCanFeedback] = useState(true)
 
     const openHandler = () => {
         setOpen(true)
@@ -27,19 +28,28 @@ const FeedBack = ({ eventId, isMyEvent }) => {
         const feedbackWithEventId = { ...feedbackData, eventId: +eventId }
         createFeedback(feedbackWithEventId)
             .then((response) => {
-                console.log(response)
+                const canUserFeedback = response.data.data.canFeedBack
+                setCanFeedback(canUserFeedback)
+                closeHandler()
                 showSnackBar({
                     severity: 'success',
                     children: 'Sending feedback successfully, thank you for you feedback',
                 })
             })
             .catch((error) => {
-                if (error.response.status === 400) {
-                    const errorResponse = error.response.data.data
-                    setError({
-                        content: errorResponse.content,
-                        rating: errorResponse.rating,
-                    })
+                if (error.response.data.code === 422) {
+                    if (error.response.data.message) {
+                        showSnackBar({
+                            severity: 'error',
+                            children: `Sending feedback failed, ${error.response.data.message}`,
+                        })
+                    } else {
+                        const errorResponse = error.response.data.data
+                        setError({
+                            content: errorResponse.content,
+                            rating: errorResponse.rating,
+                        })
+                    }
                 } else {
                     showSnackBar({
                         severity: 'error',
@@ -51,15 +61,19 @@ const FeedBack = ({ eventId, isMyEvent }) => {
 
     return (
         <React.Fragment>
-            <Fab
-                color="primary"
-                sx={{ position: 'fixed', bottom: 150, right: 50 }}
-                onClick={openHandler}
-            >
-                <Tooltip title="Feedback">
-                    <RateReview />
-                </Tooltip>
-            </Fab>
+            {canFeedback && !isMyEvent && (
+                <Fab
+                    color="primary"
+                    sx={{ position: 'fixed', bottom: 100, right: 40 }}
+                    onClick={openHandler}
+                    variant="extended"
+                >
+                    <Tooltip title="Feedback" sx={{ mr: 1 }}>
+                        <RateReview />
+                    </Tooltip>
+                    Feedback
+                </Fab>
+            )}
             {!isMyEvent && (
                 <CreateFeedBack
                     open={open}

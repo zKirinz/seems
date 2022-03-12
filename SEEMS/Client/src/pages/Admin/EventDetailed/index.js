@@ -178,10 +178,15 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
-            <Fab color="primary" sx={{ position: 'fixed', bottom: 150, right: 50 }}>
-                <Tooltip title="Feedback">
+            <Fab
+                color="primary"
+                sx={{ position: 'fixed', bottom: 100, right: 40 }}
+                variant="extended"
+            >
+                <Tooltip title="Feedback" sx={{ mr: 1 }}>
                     <RateReview />
                 </Tooltip>
+                Feedback
             </Fab>
         </Container>
     )

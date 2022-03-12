@@ -80,7 +80,7 @@ const CreateFeedBack = ({ open, onClose, onCreateFeedback, error, setError }) =>
                 }}
             >
                 <Box sx={{ py: 5, px: 3, bgcolor: 'primary.main', color: grey[100] }}>
-                    <Typography variant="h4">Your experience with the event</Typography>
+                    <Typography variant="h4">How do you feel about the event?</Typography>
                 </Box>
                 <Box sx={{ py: 4, px: 3 }}>
                     <Box>
