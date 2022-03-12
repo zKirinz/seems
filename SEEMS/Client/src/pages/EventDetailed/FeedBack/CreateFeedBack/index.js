@@ -16,35 +16,57 @@ import { blueGrey, grey } from '@mui/material/colors'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
-const CreateFeedBack = ({ open, onClose, onCreateFeedback }) => {
-    const [ratingValue, setRatingValue] = useState(0)
+const CreateFeedBack = ({ open, onClose, onCreateFeedback, error, setError }) => {
+    const [ratingValue, setRatingValue] = useState({ value: 0, isTouched: false })
     const [confirmDialog, setConfirmDialog] = useState(false)
     const [feedbackContent, setFeedBackContent] = useState({ value: '', isTouched: false })
 
+    const ratingChangeHandler = (newValue) => {
+        error?.rating && setError((previousError) => ({ ...previousError, rating: null }))
+        setRatingValue((previousValue) => ({ ...previousValue, value: +newValue }))
+    }
+    const ratingTouchedHandler = () => {
+        setRatingValue((previousValue) => ({ ...previousValue, isTouched: true }))
+    }
     const feedbackChangeHandler = (event) => {
+        error?.content && setError((previousError) => ({ ...previousError, content: null }))
         setFeedBackContent((previousValue) => ({ ...previousValue, value: event.target.value }))
     }
     const feedbackTouchedHandler = () => {
         setFeedBackContent((previousValue) => ({ ...previousValue, isTouched: true }))
     }
     const openDialog = () => {
-        setConfirmDialog(true)
+        if (overallIsInValid) {
+            if (isEmpty(feedbackContent.value))
+                setError((previous) => ({ ...previous, content: 'Feedback must be not empty' }))
+            if (+ratingValue.value === 0)
+                setError((previous) => ({
+                    ...previous,
+                    rating: 'You have to rate quality before sending feedback',
+                }))
+        } else setConfirmDialog(true)
     }
     const closeDialog = () => {
         setConfirmDialog(false)
     }
     const submitHandler = (event) => {
         event.preventDefault()
-        console.log('Second')
+        const feedbackData = {
+            content: feedbackContent.value,
+            rating: ratingValue.value,
+        }
+        onCreateFeedback(feedbackData)
     }
-    const onConfirmDialog = () => {
-        console.log('First')
+    const onConfirmDialog = (event) => {
+        submitHandler(event)
     }
 
     const feedbackContentIsInValid = isEmpty(feedbackContent.value) && feedbackContent.isTouched
+    const ratingIsInvalid = ratingValue.value === 0 && ratingValue.isTouched
+    const overallIsInValid = isEmpty(feedbackContent.value) || +ratingValue.value === 0
 
     return (
-        <Modal open={open}>
+        <Modal open={open} onBackdropClick={onClose}>
             <Box
                 sx={{
                     position: 'absolute',
@@ -60,7 +82,7 @@ const CreateFeedBack = ({ open, onClose, onCreateFeedback }) => {
                 <Box sx={{ py: 5, px: 3, bgcolor: 'primary.main', color: grey[100] }}>
                     <Typography variant="h4">Your experience with the event</Typography>
                 </Box>
-                <Box component="form" sx={{ py: 4, px: 3 }} onSubmit={submitHandler}>
+                <Box sx={{ py: 4, px: 3 }}>
                     <Box>
                         <Typography
                             fontWeight={700}
@@ -68,10 +90,21 @@ const CreateFeedBack = ({ open, onClose, onCreateFeedback }) => {
                         >
                             Rate this event
                         </Typography>
-                        <Rating
-                            value={ratingValue}
-                            onChange={(_, newValue) => setRatingValue(newValue)}
-                        />
+                        <Box display="flex" alignItems="center">
+                            <Rating
+                                value={ratingValue.value}
+                                onChange={(_, newValue) => ratingChangeHandler(newValue)}
+                                sx={{ mr: 1 }}
+                                onBlur={ratingTouchedHandler}
+                            />
+                            {(!!error?.rating || ratingIsInvalid) && (
+                                <Typography color="error" component="span" variant="body2">
+                                    {error?.rating
+                                        ? `${error.rating}`
+                                        : 'You have to rate quality before sending feedback'}
+                                </Typography>
+                            )}
+                        </Box>
                     </Box>
                     <Box sx={{ mt: 3, ml: 0.5 }}>
                         <Typography fontWeight={700} sx={{ color: blueGrey[900], mb: 1.5 }}>
@@ -87,9 +120,13 @@ const CreateFeedBack = ({ open, onClose, onCreateFeedback }) => {
                                 onChange={feedbackChangeHandler}
                                 onBlur={feedbackTouchedHandler}
                             />
-                            {feedbackContentIsInValid && (
-                                <FormHelperText error={feedbackContentIsInValid}>
-                                    Feedback must be not empty
+                            {(!!error?.content || feedbackContentIsInValid) && (
+                                <FormHelperText
+                                    error={!!error?.content || feedbackContentIsInValid}
+                                >
+                                    {error?.content
+                                        ? `${error.content}`
+                                        : 'Feedback must be not empty'}
                                 </FormHelperText>
                             )}
                         </FormControl>
@@ -102,7 +139,7 @@ const CreateFeedBack = ({ open, onClose, onCreateFeedback }) => {
                             variant="contained"
                             endIcon={<Send />}
                             sx={{ ml: 2 }}
-                            onClick={onConfirmDialog}
+                            onClick={openDialog}
                             type="submit"
                         >
                             Send feedback
@@ -114,6 +151,7 @@ const CreateFeedBack = ({ open, onClose, onCreateFeedback }) => {
                     onClose={closeDialog}
                     btnConfirmText="Save"
                     title="You can not change feedback after sending"
+                    onConfirm={onConfirmDialog}
                 >
                     Are you sure you want to send this feedback?
                 </AlertConfirm>

@@ -41,14 +41,18 @@ const UnRegisterButton = ({ eventId, resetHandler, registrationDeadline }) => {
                 flexDirection: 'column',
                 alignItems: 'center',
             }}
-            onClick={unregisterHandler}
         >
             {isOutOfRegistrationDate && (
                 <Typography sx={{ mb: 1 }} color="error">
                     Out of register time
                 </Typography>
             )}
-            <Button variant="contained" color="secondary" disabled={isOutOfRegistrationDate}>
+            <Button
+                variant="contained"
+                color="secondary"
+                disabled={isOutOfRegistrationDate}
+                onClick={unregisterHandler}
+            >
                 Unregister
             </Button>
         </Box>

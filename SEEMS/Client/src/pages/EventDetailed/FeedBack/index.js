@@ -3,12 +3,18 @@ import React, { useState } from 'react'
 import { RateReview } from '@mui/icons-material'
 import { Fab, Tooltip } from '@mui/material'
 
+import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import { useFeedbackAction } from '../../../recoil/feedback'
 import CreateFeedBack from './CreateFeedBack'
 
 const FeedBack = ({ eventId }) => {
-    const [open, setOpen] = useState(false)
     const { createFeedback } = useFeedbackAction()
+    const showSnackBar = useSnackbar()
+    const [open, setOpen] = useState(false)
+    const [error, setError] = useState({
+        content: null,
+        rating: null,
+    })
 
     const openHandler = () => {
         setOpen(true)
@@ -17,13 +23,28 @@ const FeedBack = ({ eventId }) => {
         setOpen(false)
     }
     const createFeedBackHandler = (feedbackData) => {
-        const feedbackWithEventId = { ...feedbackData, eventId: eventId }
-        createFeedback(feedbackData)
+        const feedbackWithEventId = { ...feedbackData, eventId: +eventId }
+        createFeedback(feedbackWithEventId)
             .then((response) => {
                 console.log(response)
+                showSnackBar({
+                    severity: 'success',
+                    children: 'Sending feedback successfully, thank you for you feedback',
+                })
             })
             .catch((error) => {
-                console.log(error.response)
+                if (error.response.status === 400) {
+                    const errorResponse = error.response.data.data
+                    setError({
+                        content: errorResponse.content,
+                        rating: errorResponse.rating,
+                    })
+                } else {
+                    showSnackBar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                }
             })
     }
 
@@ -42,6 +63,8 @@ const FeedBack = ({ eventId }) => {
                 open={open}
                 onClose={closeHandler}
                 onCreateFeedback={createFeedBackHandler}
+                error={error}
+                setError={setError}
             />
         </React.Fragment>
     )

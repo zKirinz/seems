@@ -26,8 +26,8 @@ const UnRegisterButton = ({ eventId, resetHandler }) => {
     }
 
     return (
-        <Box sx={{ position: 'absolute', bottom: 30, right: 30 }} onClick={unregisterHandler}>
-            <Button variant="contained" color="secondary">
+        <Box sx={{ position: 'absolute', bottom: 30, right: 30 }}>
+            <Button variant="contained" color="secondary" onClick={unregisterHandler}>
                 Unregister
             </Button>
         </Box>

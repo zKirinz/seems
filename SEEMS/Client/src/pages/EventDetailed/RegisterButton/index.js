@@ -23,10 +23,18 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                 resetHandler()
             })
             .catch((error) => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
-                })
+                if (error.response.status === 400) {
+                    const errorMessage = error.response.data.message
+                    showSnackbar({
+                        severity: 'error',
+                        children: errorMessage,
+                    })
+                } else {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                }
             })
     }
 
@@ -40,7 +48,6 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                 flexDirection: 'column',
                 alignItems: 'center',
             }}
-            onClick={registerHandler}
         >
             {!isOutOfRegistrationDate && !canRegister && (
                 <Typography sx={{ mb: 1 }} color="error">
@@ -52,7 +59,11 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                     Out of register time
                 </Typography>
             )}
-            <Button variant="contained" disabled={isOutOfRegistrationDate || !canRegister}>
+            <Button
+                variant="contained"
+                disabled={isOutOfRegistrationDate || !canRegister}
+                onClick={registerHandler}
+            >
                 Register
             </Button>
         </Box>

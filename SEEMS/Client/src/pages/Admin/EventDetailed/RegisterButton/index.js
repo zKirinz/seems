@@ -17,7 +17,7 @@ const RegisterButton = ({ eventId, resetHandler }) => {
                 })
                 resetHandler()
             })
-            .catch((error) => {
+            .catch(() => {
                 showSnackbar({
                     severity: 'error',
                     children: 'Something went wrong, please try again later.',
@@ -26,8 +26,10 @@ const RegisterButton = ({ eventId, resetHandler }) => {
     }
 
     return (
-        <Box sx={{ position: 'absolute', bottom: 30, right: 30 }} onClick={registerHandler}>
-            <Button variant="contained">Register</Button>
+        <Box sx={{ position: 'absolute', bottom: 30, right: 30 }}>
+            <Button variant="contained" onClick={registerHandler}>
+                Register
+            </Button>
         </Box>
     )
 }
