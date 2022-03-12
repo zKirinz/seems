@@ -6,8 +6,9 @@ import { Fab, Tooltip } from '@mui/material'
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import { useFeedbackAction } from '../../../recoil/feedback'
 import CreateFeedBack from './CreateFeedBack'
+import ViewListFeedBack from './ViewListFeedBack'
 
-const FeedBack = ({ eventId }) => {
+const FeedBack = ({ eventId, isMyEvent }) => {
     const { createFeedback } = useFeedbackAction()
     const showSnackBar = useSnackbar()
     const [open, setOpen] = useState(false)
@@ -52,20 +53,23 @@ const FeedBack = ({ eventId }) => {
         <React.Fragment>
             <Fab
                 color="primary"
-                sx={{ position: 'absolute', bottom: 100, right: 50 }}
+                sx={{ position: 'fixed', bottom: 150, right: 50 }}
                 onClick={openHandler}
             >
                 <Tooltip title="Feedback">
                     <RateReview />
                 </Tooltip>
             </Fab>
-            <CreateFeedBack
-                open={open}
-                onClose={closeHandler}
-                onCreateFeedback={createFeedBackHandler}
-                error={error}
-                setError={setError}
-            />
+            {!isMyEvent && (
+                <CreateFeedBack
+                    open={open}
+                    onClose={closeHandler}
+                    onCreateFeedback={createFeedBackHandler}
+                    error={error}
+                    setError={setError}
+                />
+            )}
+            {isMyEvent && <ViewListFeedBack open={open} onClose={closeHandler} />}
         </React.Fragment>
     )
 }

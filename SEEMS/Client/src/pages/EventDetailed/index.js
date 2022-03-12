@@ -128,60 +128,68 @@ const EventDetailed = () => {
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {auth.role === 'User' && isRegistered && (
-                        <UnRegisterButton
-                            eventId={id}
-                            resetHandler={() => setReset(reset + 1)}
-                            registrationDeadline={detailedEvent.event.registrationDeadline}
-                        />
-                    )}
-                    {auth.role === 'User' && !isRegistered && (
-                        <RegisterButton
-                            eventId={id}
-                            resetHandler={() => setReset(reset + 1)}
-                            canRegister={detailedEvent.event.canRegister}
-                            registrationDeadline={detailedEvent.event.registrationDeadline}
-                        />
-                    )}
-                    {auth.role === 'Organizer' && !isMyEvent && isRegistered && (
-                        <UnRegisterButton
-                            eventId={id}
-                            resetHandler={() => setReset(reset + 1)}
-                            registrationDeadline={detailedEvent.event.registrationDeadline}
-                        />
-                    )}
-                    {auth.role === 'Organizer' && !isMyEvent && !isRegistered && (
-                        <RegisterButton
-                            eventId={id}
-                            resetHandler={() => setReset(reset + 1)}
-                            canRegister={detailedEvent.event.canRegister}
-                            registrationDeadline={detailedEvent.event.registrationDeadline}
-                        />
-                    )}
-                    {auth.role === 'Organizer' && isMyEvent && (
-                        <React.Fragment>
-                            <EditEventButton />
-                            <CheckAttendanceButton
-                                onClickHandler={() => history.push(`/events/me/${id}/attendance`)}
+                    <Box sx={{ mt: 4 }}>
+                        {auth.role === 'User' && isRegistered && (
+                            <UnRegisterButton
+                                eventId={id}
+                                resetHandler={() => setReset(reset + 1)}
+                                registrationDeadline={detailedEvent.event.registrationDeadline}
                             />
-                        </React.Fragment>
-                    )}
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            bottom: 30,
-                            left: 40,
-                            display: 'flex',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <NoteAlt color="primary" />
-                        <Typography sx={{ mx: 0.5 }}>Registrations close on</Typography>
-                        <Typography sx={{ color: blueGrey[900] }} variant="body1" fontWeight={500}>
-                            {moment(new Date(detailedEvent.event.registrationDeadline)).format(
-                                'MMM Do YYYY, HH:mm A'
-                            )}
-                        </Typography>
+                        )}
+                        {auth.role === 'User' && !isRegistered && (
+                            <RegisterButton
+                                eventId={id}
+                                resetHandler={() => setReset(reset + 1)}
+                                canRegister={detailedEvent.event.canRegister}
+                                registrationDeadline={detailedEvent.event.registrationDeadline}
+                            />
+                        )}
+                        {auth.role === 'Organizer' && !isMyEvent && isRegistered && (
+                            <UnRegisterButton
+                                eventId={id}
+                                resetHandler={() => setReset(reset + 1)}
+                                registrationDeadline={detailedEvent.event.registrationDeadline}
+                            />
+                        )}
+                        {auth.role === 'Organizer' && !isMyEvent && !isRegistered && (
+                            <RegisterButton
+                                eventId={id}
+                                resetHandler={() => setReset(reset + 1)}
+                                canRegister={detailedEvent.event.canRegister}
+                                registrationDeadline={detailedEvent.event.registrationDeadline}
+                            />
+                        )}
+                        {auth.role === 'Organizer' && isMyEvent && (
+                            <React.Fragment>
+                                <EditEventButton />
+                                <CheckAttendanceButton
+                                    onClickHandler={() =>
+                                        history.push(`/events/me/${id}/attendance`)
+                                    }
+                                />
+                            </React.Fragment>
+                        )}
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                bottom: 30,
+                                left: 40,
+                                display: 'flex',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <NoteAlt color="primary" />
+                            <Typography sx={{ mx: 0.5 }}>Registrations close on</Typography>
+                            <Typography
+                                sx={{ color: blueGrey[900] }}
+                                variant="body1"
+                                fontWeight={500}
+                            >
+                                {moment(new Date(detailedEvent.event.registrationDeadline)).format(
+                                    'MMM Do YYYY, HH:mm A'
+                                )}
+                            </Typography>
+                        </Box>
                     </Box>
                 </Grid>
             </Grid>
@@ -190,7 +198,7 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
-            <FeedBack eventId={id} />
+            <FeedBack eventId={id} isMyEvent={isMyEvent} />
         </Container>
     )
 }

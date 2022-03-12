@@ -138,32 +138,38 @@ const EventDetailed = () => {
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {isMyEvent && (
-                        <React.Fragment>
-                            <EditEventButton />
-                            <CheckAttendanceButton
-                                onClickHandler={() =>
-                                    history.push(`/admin/events/me/${id}/attendance`)
-                                }
-                            />
-                        </React.Fragment>
-                    )}
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            bottom: 30,
-                            left: 40,
-                            display: 'flex',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <NoteAlt color="primary" />
-                        <Typography sx={{ mx: 0.5 }}>Registrations close on</Typography>
-                        <Typography sx={{ color: blueGrey[900] }} variant="body1" fontWeight={500}>
-                            {moment(new Date(detailedEvent.event.registrationDeadline)).format(
-                                'MMM Do YYYY, HH:mm A'
-                            )}
-                        </Typography>
+                    <Box sx={{ mt: 4 }}>
+                        {isMyEvent && (
+                            <React.Fragment>
+                                <EditEventButton />
+                                <CheckAttendanceButton
+                                    onClickHandler={() =>
+                                        history.push(`/admin/events/me/${id}/attendance`)
+                                    }
+                                />
+                            </React.Fragment>
+                        )}
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                bottom: 30,
+                                left: 40,
+                                display: 'flex',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <NoteAlt color="primary" />
+                            <Typography sx={{ mx: 0.5 }}>Registrations close on</Typography>
+                            <Typography
+                                sx={{ color: blueGrey[900] }}
+                                variant="body1"
+                                fontWeight={500}
+                            >
+                                {moment(new Date(detailedEvent.event.registrationDeadline)).format(
+                                    'MMM Do YYYY, HH:mm A'
+                                )}
+                            </Typography>
+                        </Box>
                     </Box>
                 </Grid>
             </Grid>
@@ -172,7 +178,7 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
-            <Fab color="primary" sx={{ position: 'absolute', bottom: 100, right: 50 }}>
+            <Fab color="primary" sx={{ position: 'fixed', bottom: 150, right: 50 }}>
                 <Tooltip title="Feedback">
                     <RateReview />
                 </Tooltip>
