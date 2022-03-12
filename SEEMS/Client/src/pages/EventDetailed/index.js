@@ -204,7 +204,7 @@ const EventDetailed = () => {
                 numberRootComments={detailedEvent.numberRootComments}
             />
             {/* Add attendance check here */}
-            {isEventEnd && <FeedBack eventId={id} isMyEvent={isMyEvent} />}
+            <FeedBack eventId={id} isMyEvent={isMyEvent} />
         </Container>
     )
 }

@@ -11,18 +11,26 @@ import ViewListFeedBack from './ViewListFeedBack'
 const FeedBack = ({ eventId, isMyEvent }) => {
     const { createFeedback, checkCanFeedback } = useFeedbackAction()
     const showSnackBar = useSnackbar()
-    const [open, setOpen] = useState(false)
+    const [openCreateFeedback, setOpenCreateFeedback] = useState(false)
+    const [openViewFeedbacks, setOpenViewFeedbacks] = useState(false)
+    const [attendance, setAttendance] = useState(false)
+    const [canFeedback, setCanFeedback] = useState(false)
     const [error, setError] = useState({
         content: null,
         rating: null,
     })
-    const [canFeedback, setCanFeedback] = useState(true)
 
-    const openHandler = () => {
-        setOpen(true)
+    const openCreateFeedbackHandler = () => {
+        setOpenCreateFeedback(true)
     }
-    const closeHandler = () => {
-        setOpen(false)
+    const closeCreateFeedbackHandler = () => {
+        setOpenCreateFeedback(false)
+    }
+    const openViewFeedbacksHandler = () => {
+        setOpenViewFeedbacks(true)
+    }
+    const closeViewFeedbacksHandler = () => {
+        setOpenViewFeedbacks(false)
     }
     const createFeedBackHandler = (feedbackData) => {
         const feedbackWithEventId = { ...feedbackData, eventId: +eventId }
@@ -62,6 +70,7 @@ const FeedBack = ({ eventId, isMyEvent }) => {
     useEffect(() => {
         checkCanFeedback(eventId)
             .then((response) => {
+                console.log(response)
                 const canFeedbackOrNot = response.data.data
                 setCanFeedback(canFeedbackOrNot)
             })
@@ -77,11 +86,11 @@ const FeedBack = ({ eventId, isMyEvent }) => {
     return (
         <React.Fragment>
             {/* Add attendance check */}
-            {canFeedback && !isMyEvent && (
+            {attendance && canFeedback && !isMyEvent && (
                 <Fab
                     color="primary"
                     sx={{ position: 'fixed', bottom: 100, right: 40 }}
-                    onClick={openHandler}
+                    onClick={openCreateFeedbackHandler}
                     variant="extended"
                 >
                     <Tooltip title="Feedback" sx={{ mr: 1 }}>
@@ -90,7 +99,20 @@ const FeedBack = ({ eventId, isMyEvent }) => {
                     Feedback
                 </Fab>
             )}
-            {!canFeedback && !isMyEvent && (
+            {isMyEvent && (
+                <Fab
+                    color="primary"
+                    sx={{ position: 'fixed', bottom: 100, right: 40 }}
+                    onClick={openViewFeedbacksHandler}
+                    variant="extended"
+                >
+                    <Tooltip title="Feedback" sx={{ mr: 1 }}>
+                        <RateReview />
+                    </Tooltip>
+                    Feedback
+                </Fab>
+            )}
+            {attendance && !canFeedback && !isMyEvent && (
                 <Fab sx={{ position: 'fixed', bottom: 100, right: 40 }} variant="extended" disabled>
                     <CheckCircle sx={{ mr: 0.5 }} color="success" />
                     Feedback
@@ -98,14 +120,16 @@ const FeedBack = ({ eventId, isMyEvent }) => {
             )}
             {!isMyEvent && (
                 <CreateFeedBack
-                    open={open}
-                    onClose={closeHandler}
+                    open={openCreateFeedback}
+                    onClose={closeCreateFeedbackHandler}
                     onCreateFeedback={createFeedBackHandler}
                     error={error}
                     setError={setError}
                 />
             )}
-            {isMyEvent && <ViewListFeedBack open={open} onClose={closeHandler} />}
+            {isMyEvent && (
+                <ViewListFeedBack open={openViewFeedbacks} onClose={closeViewFeedbacksHandler} />
+            )}
         </React.Fragment>
     )
 }
