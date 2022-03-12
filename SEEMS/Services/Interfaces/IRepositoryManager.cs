@@ -18,6 +18,8 @@ namespace SEEMS.Services.Interfaces
 
 		IReservationRepository Reservation { get; }
 
+		IFeedBackRepository FeedBack { get; }
+
 		Task SaveAsync();
 	}
 }

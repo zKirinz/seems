@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+
 using Microsoft.AspNetCore.Mvc;
+
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
@@ -119,7 +121,7 @@ namespace SEEMS.Controllers
 		// GET api/Reservations
 		// Get all registered events
 		[HttpGet]
-		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName, int? lastReservationId, int resultCount = 10)
+		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName, int? lastReservationId, string? reservationStatus, int resultCount = 10)
 		{
 			string userRole = null;
 			try
@@ -175,7 +177,19 @@ namespace SEEMS.Controllers
 						{
 							foundResult = foundResult.Where(e => e.OrganizationName.Equals(organizationName));
 						}
+
+
+						foundResult.ToList().ForEach(e =>
+							e.ReservationStatus = _repoManager.Reservation.GetEventStatus(e.ReservationId)
+						);
+
+						if(reservationStatus != null)
+						{
+							foundResult = foundResult.Where(e => e.ReservationStatus.Equals(reservationStatus));
+						}
+
 						foundResult = foundResult.OrderByDescending(e => e.StartDate).ToList();
+
 
 						//Implement load more
 						List<RegisteredEventsDTO> returnResult = null;
@@ -281,7 +295,7 @@ namespace SEEMS.Controllers
 		{
 			try
 			{
-				var id = (int)reservationDTO.EventId;
+				var id = (int) reservationDTO.EventId;
 				var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
 				if (currentUser == null)
 				{
@@ -309,7 +323,7 @@ namespace SEEMS.Controllers
 				_context.SaveChanges();
 				return Ok(new Response(ResponseStatusEnum.Success, "", "Unregister successfully"));
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
 			}
