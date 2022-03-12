@@ -138,7 +138,7 @@ namespace SEEMS.Controllers
 
 						if(active != null)
 						{
-							foundResult = ((bool)active
+							foundResult = ((bool) active
 								? foundResult.Where(e => e.Active)
 								: foundResult.Where(e => !e.Active));
 						}
@@ -163,7 +163,7 @@ namespace SEEMS.Controllers
 						if(lastReservationId != null)
 						{
 							lastReservationIndex = foundResult.ToList().FindIndex(e => e.ReservationId == lastReservationId);
-							if (lastReservationIndex > 0)
+							if(lastReservationIndex > 0)
 							{
 								returnResult = foundResult.ToList().GetRange(
 									lastReservationIndex + 1,
