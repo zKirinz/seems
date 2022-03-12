@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
 
-import EventCard from '../../../components/EventCard'
+import EventCard from '../../../components/EventsListWithFilter/EventCard'
 import { EventBusy as EventBusyIcon } from '@mui/icons-material'
 import { Grid, Typography, Box, Button, Alert, CircularProgress } from '@mui/material'
 

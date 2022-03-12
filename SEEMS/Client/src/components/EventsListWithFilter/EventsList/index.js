@@ -5,13 +5,13 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
-import EventCard from '../../../components/EventCard'
 import { EventBusy as EventBusyIcon, EventRepeat as EventRepeatIcon } from '@mui/icons-material'
 import { Grid, Box, Alert, Link, CircularProgress, Divider, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import authAtom from '../../../recoil/auth'
 import useEventAction from '../../../recoil/event/action'
+import EventCard from '../EventCard'
 import pageEnum from '../pageEnum'
 
 const filterStringGenerator = ({ search, upcoming, active, organizationName }) => {
@@ -70,9 +70,9 @@ const EventsList = ({ page }) => {
 
     const loadMoreHandler = () => {
         let params = filterStringGenerator({ search, upcoming, active, organizationName })
+        params += '&lastEventID=' + lastEventId
 
         if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
-            params += '&lastEventID=' + lastEventId
             eventAction
                 .getMyEvents(params)
                 .then((res) => {
@@ -88,28 +88,11 @@ const EventsList = ({ page }) => {
                     })
                 })
         } else if (page === pageEnum.AdminAllEvents || page === pageEnum.AllEvents) {
-            params += '&lastEventID=' + lastEventId
             eventAction
                 .getEvents(params)
                 .then((res) => {
                     setTimeout(() => {
                         setEvents(events.concat(res.data.data.listEvents))
-                        setHasMore(res.data.data.canLoadMore)
-                    }, 1200)
-                })
-                .catch(() => {
-                    showSnackbar({
-                        severity: 'error',
-                        children: 'Something went wrong, please try again later.',
-                    })
-                })
-        } else if (page === pageEnum.MyRegistrations) {
-            filterString += '&lastReservationId=' + lastEventId
-            eventAction
-                .getMyRegistrations(filterString)
-                .then((res) => {
-                    setTimeout(() => {
-                        setEvents(events.concat(res.data.data.events))
                         setHasMore(res.data.data.canLoadMore)
                     }, 1200)
                 })
@@ -159,22 +142,6 @@ const EventsList = ({ page }) => {
                     })
                     setIsLoading(false)
                 })
-        } else if (page === pageEnum.MyRegistrations) {
-            eventAction
-                .getMyRegistrations(params)
-                .then((res) => {
-                    setEvents(res.data.data.events)
-                    setEventsNumber(res.data.data.count)
-                    setHasMore(res.data.data.canLoadMore)
-                    setIsLoading(false)
-                })
-                .catch(() => {
-                    showSnackbar({
-                        severity: 'error',
-                        children: 'Something went wrong, please try again later.',
-                    })
-                    setIsLoading(false)
-                })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [search, upcoming, active, organizationName])
@@ -188,57 +155,63 @@ const EventsList = ({ page }) => {
             {isLoading ? (
                 <Loading />
             ) : events.length ? (
-                <InfiniteScroll
-                    dataLength={events.length}
-                    loader={<Loading />}
-                    next={loadMoreHandler}
-                    hasMore={hasMore}
-                    endMessage={
-                        <Box display="flex" justifyContent="center" mt={4}>
-                            <Alert icon={<EventRepeatIcon />} variant="outlined" severity="warning">
-                                There are no more events to load
-                            </Alert>
-                        </Box>
-                    }
-                >
-                    <Grid container rowGap={4}>
-                        {events.map(
-                            (
-                                {
-                                    id,
-                                    reservationId,
-                                    canRegister,
-                                    eventTitle,
-                                    eventDescription,
-                                    startDate,
-                                    imageUrl,
-                                    organizationName,
-                                },
-                                i,
-                                { length }
-                            ) => {
-                                if (i + 1 === length) {
-                                    lastEventId = reservationId || id
-                                }
+                <Box width="100%">
+                    <InfiniteScroll
+                        dataLength={events.length}
+                        loader={<Loading />}
+                        next={loadMoreHandler}
+                        hasMore={hasMore}
+                        endMessage={
+                            <Box display="flex" justifyContent="center" mt={4}>
+                                <Alert
+                                    icon={<EventRepeatIcon />}
+                                    variant="outlined"
+                                    severity="warning"
+                                >
+                                    There are no more events to load
+                                </Alert>
+                            </Box>
+                        }
+                    >
+                        <Grid container rowGap={4}>
+                            {events.map(
+                                (
+                                    {
+                                        id,
+                                        canRegister,
+                                        eventTitle,
+                                        eventDescription,
+                                        startDate,
+                                        imageUrl,
+                                        organizationName,
+                                    },
+                                    i,
+                                    { length }
+                                ) => {
+                                    if (i + 1 === length) {
+                                        lastEventId = id
+                                    }
 
-                                return (
-                                    <Grid item xs={12} key={id}>
-                                        <EventCard
-                                            id={id}
-                                            canRegister={canRegister}
-                                            title={eventTitle}
-                                            description={eventDescription}
-                                            startDate={startDate}
-                                            imageUrl={imageUrl}
-                                            organizer={organizationName}
-                                            isAdmin={isAdmin}
-                                        />
-                                    </Grid>
-                                )
-                            }
-                        )}
-                    </Grid>
-                </InfiniteScroll>
+                                    return (
+                                        <Grid item xs={12} key={id}>
+                                            <EventCard
+                                                id={id}
+                                                canRegister={canRegister}
+                                                title={eventTitle}
+                                                description={eventDescription}
+                                                startDate={startDate}
+                                                imageUrl={imageUrl}
+                                                organizer={organizationName}
+                                                isAdmin={isAdmin}
+                                                page={page}
+                                            />
+                                        </Grid>
+                                    )
+                                }
+                            )}
+                        </Grid>
+                    </InfiniteScroll>
+                </Box>
             ) : isFilter ? (
                 <Box display="flex" justifyContent="center">
                     <Alert icon={<EventBusyIcon />} variant="outlined" severity="warning">
