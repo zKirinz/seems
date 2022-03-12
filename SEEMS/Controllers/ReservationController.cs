@@ -130,7 +130,7 @@ namespace SEEMS.Controllers
 						}
 						else
 						{
-							foundResult = ((bool)upcoming ? listRegisteredEvents.Where(
+							foundResult = ((bool) upcoming ? listRegisteredEvents.Where(
 								e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
 								listRegisteredEvents.Where(
 								e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0));
