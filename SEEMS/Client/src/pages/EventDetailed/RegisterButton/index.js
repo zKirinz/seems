@@ -50,7 +50,6 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                 flexDirection: 'column',
                 alignItems: 'center',
             }}
-            onClick={registerHandler}
         >
             {!isOutOfRegistrationDate && !canRegister && (
                 <Typography sx={{ mb: 1 }} color="error">
@@ -68,6 +67,7 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                 loadingPosition="start"
                 startIcon={<AppRegistrationIcon />}
                 variant="contained"
+                onClick={registerHandler}
             >
                 Register
             </LoadingButton>

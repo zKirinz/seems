@@ -4,8 +4,14 @@ import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
 
 import EventPoster from '../../../components/EventPoster'
-import { GroupsOutlined, Home, NoteAlt, SupervisedUserCircle } from '@mui/icons-material'
-import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import {
+    GroupsOutlined,
+    Home,
+    NoteAlt,
+    RateReview,
+    SupervisedUserCircle,
+} from '@mui/icons-material'
+import { Box, Card, CardContent, Container, Fab, Grid, Tooltip, Typography } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
@@ -22,7 +28,7 @@ const EventDetailed = () => {
     const [error, setError] = useState(null)
     const [isMyEvent, setIsMyEvent] = useState(false)
     const showSnackbar = useSnackbar()
-
+    const [isEventEnd, setIsEventEnd] = useState(false)
     const [detailedEvent, setDetailedEvent] = useState({
         numberComments: 0,
         event: {},
@@ -32,6 +38,10 @@ const EventDetailed = () => {
         getDetailedEvent(id)
             .then((response) => {
                 const { event: responseEvent } = response.data.data
+                const isEventOver =
+                    new Date().getTime() - new Date(responseEvent.endDate).getTime() > 0
+
+                setIsEventEnd(isEventOver)
                 setDetailedEvent({
                     numberComments: responseEvent.commentsNum,
                     event: responseEvent,
@@ -132,32 +142,38 @@ const EventDetailed = () => {
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    {isMyEvent && (
-                        <React.Fragment>
-                            <EditEventButton />
-                            <CheckAttendanceButton
-                                onClickHandler={() =>
-                                    history.push(`/admin/events/me/${id}/attendance`)
-                                }
-                            />
-                        </React.Fragment>
-                    )}
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            bottom: 30,
-                            left: 40,
-                            display: 'flex',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <NoteAlt color="primary" />
-                        <Typography sx={{ mx: 0.5 }}>Registrations close on</Typography>
-                        <Typography sx={{ color: blueGrey[900] }} variant="body1" fontWeight={500}>
-                            {moment(new Date(detailedEvent.event.registrationDeadline)).format(
-                                'MMM Do YYYY, HH:mm A'
-                            )}
-                        </Typography>
+                    <Box sx={{ mt: 4 }}>
+                        {isMyEvent && (
+                            <React.Fragment>
+                                <EditEventButton />
+                                <CheckAttendanceButton
+                                    onClickHandler={() =>
+                                        history.push(`/admin/events/me/${id}/attendance`)
+                                    }
+                                />
+                            </React.Fragment>
+                        )}
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                bottom: 30,
+                                left: 40,
+                                display: 'flex',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <NoteAlt color="primary" />
+                            <Typography sx={{ mx: 0.5 }}>Registrations close on</Typography>
+                            <Typography
+                                sx={{ color: blueGrey[900] }}
+                                variant="body1"
+                                fontWeight={500}
+                            >
+                                {moment(new Date(detailedEvent.event.registrationDeadline)).format(
+                                    'MMM Do YYYY, HH:mm A'
+                                )}
+                            </Typography>
+                        </Box>
                     </Box>
                 </Grid>
             </Grid>
@@ -166,6 +182,18 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
+            {isEventEnd && isMyEvent && (
+                <Fab
+                    color="primary"
+                    sx={{ position: 'fixed', bottom: 100, right: 40 }}
+                    variant="extended"
+                >
+                    <Tooltip title="Feedback" sx={{ mr: 1 }}>
+                        <RateReview />
+                    </Tooltip>
+                    Feedback
+                </Fab>
+            )}
         </Container>
     )
 }
