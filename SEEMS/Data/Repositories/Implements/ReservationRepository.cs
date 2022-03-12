@@ -17,22 +17,27 @@ namespace SEEMS.Data.Repositories.Implements
 		public string GetEventStatus(int reservationId)
 		{
 			var feedback = _context.FeedBacks.Any(f => f.ReservationId == reservationId);
-			var attended = _context.Reservations.FirstOrDefault(r => r.Id == reservationId).Attend;
+			var reservation = _context.Reservations.FirstOrDefault(r => r.Id == reservationId);
+			var attended = reservation.Attend;
+			var registeredEvent = _context.Events.FirstOrDefault(e => e.Id == reservation.EventId);
 			string result = null;
+			if(DateTime.Now.CompareTo(registeredEvent.EndDate) < 0)
+			{
+				result = "Pending";
+			}
+			else
 			if(!attended)
 			{
 				result = "Absent";
 			}
 			else
+			if(feedback)
 			{
-				if(feedback)
-				{
-					result = "Feedbacked";
-				}
-				else
-				{
-					result = "Attend";
-				}
+				result = "Feedbacked";
+			}
+			else
+			{
+				result = "Attend";
 			}
 			return result;
 		}
