@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-
 using Microsoft.AspNetCore.Mvc;
-
 using SEEMS.Contexts;
 using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
@@ -105,15 +103,15 @@ namespace SEEMS.Controllers
 			try
 			{
 				var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-				if (currentUser != null)
+				if(currentUser != null)
 				{
 					var userId = currentUser.Id;
 					var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
 					userRole = (await _repoManager.UserMeta.GetRoleByUserIdAsync(userId, false)).MetaValue;
-					if (listReservation.Any())
+					if(listReservation.Any())
 					{
 						List<RegisteredEventsDTO> listRegisteredEvents = new List<RegisteredEventsDTO>();
-						foreach (var reservation in listReservation)
+						foreach(var reservation in listReservation)
 						{
 							var myEvent = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId);
 							var registeredEvents = _mapper.Map<RegisteredEventsDTO>(myEvent);
@@ -126,7 +124,7 @@ namespace SEEMS.Controllers
 						}
 
 						IEnumerable<RegisteredEventsDTO> foundResult;
-						if (upcoming == null)
+						if(upcoming == null)
 						{
 							foundResult = listRegisteredEvents;
 						}
@@ -138,7 +136,7 @@ namespace SEEMS.Controllers
 								e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0));
 						}
 
-						if (active != null)
+						if(active != null)
 						{
 							foundResult = ((bool)active
 								? foundResult.Where(e => e.Active)
@@ -146,12 +144,12 @@ namespace SEEMS.Controllers
 						}
 
 						//Filter by title
-						if (!string.IsNullOrEmpty(search))
+						if(!string.IsNullOrEmpty(search))
 						{
 							foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 						}
 
-						if (organizationName != null)
+						if(organizationName != null)
 						{
 							foundResult = foundResult.Where(e => e.OrganizationName.Equals(organizationName));
 						}
@@ -162,7 +160,7 @@ namespace SEEMS.Controllers
 						bool failed = false;
 						bool loadMore = false;
 						int lastReservationIndex = 0;
-						if (lastReservationId != null)
+						if(lastReservationId != null)
 						{
 							lastReservationIndex = foundResult.ToList().FindIndex(e => e.ReservationId == lastReservationId);
 							if (lastReservationIndex > 0)
@@ -180,7 +178,7 @@ namespace SEEMS.Controllers
 						{
 							returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
 						}
-						if (!failed && foundResult.Count() - lastReservationIndex - 1 > returnResult.Count())
+						if(!failed && foundResult.Count() - lastReservationIndex - 1 > returnResult.Count())
 						{
 							loadMore = true;
 						}
@@ -208,7 +206,7 @@ namespace SEEMS.Controllers
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue"));
 				}
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
 			}
