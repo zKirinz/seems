@@ -11,14 +11,14 @@ namespace SEEMS.Data.Repositories.Implements
 
         public bool CanFeedBack(int eventId, int userId)
         {
-            var reservation = _context.Reservations.FirstOrDefault(x => x.Id == eventId && x.UserId == userId);
+            var reservation = _context.Reservations.FirstOrDefault(x => x.EventId == eventId && x.UserId == userId);
             bool canFeedback = false;
             if (reservation != null && reservation.Attend == true)
             {
                 var feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
                 if (feedBack == null)
                 {
-                    return canFeedback = true;
+                    canFeedback = true;
                 }
             }  
             
