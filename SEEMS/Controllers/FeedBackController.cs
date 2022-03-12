@@ -96,7 +96,13 @@ namespace SEEMS.Controllers
             feedBack.ReservationId = reservation.Id;
             _context.FeedBacks.Add(feedBack);
             _context.SaveChanges();
-            return Ok(new Response(ResponseStatusEnum.Success, feedBack));
+            bool canFeedBack = false;
+            return Ok(new Response(ResponseStatusEnum.Success,
+                                   new
+                                   {
+                                       feedBack,
+                                       canFeedBack
+                                   }));
         }
 
         ////Update a feedback
