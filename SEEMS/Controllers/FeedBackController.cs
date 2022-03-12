@@ -83,13 +83,13 @@ namespace SEEMS.Controllers
             var feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
             if (feedBack != null)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You are already feedback"));
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You are already feedback", 422));
             }
 
             var feedBackValidate = FeedBacksServices.CheckValidatedFeedBack(feedBackDTO.Rating, feedBackDTO.Content);
             if (feedBackValidate != null)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, feedBackValidate));
+                return BadRequest(new Response(ResponseStatusEnum.Fail, feedBackValidate, null, 422));
             }
 
             feedBack = _mapper.Map<FeedBack>(feedBackDTO);
@@ -191,6 +191,21 @@ namespace SEEMS.Controllers
                                        listFeedBacks
                                    }));
         }
+
+        [HttpGet("canFeedBack/{id}")]
+        public async Task<IActionResult> CanFeedBack(int id)
+        {
+            var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+            if (currentUser == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
+            }
+
+            var userId = currentUser.Id;
+            bool canFeedBack = _repoManager.FeedBack.CanFeedBack(id, userId);
+            return Ok(new Response(ResponseStatusEnum.Success, canFeedBack));
+        }
+
         private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
     }
 }
