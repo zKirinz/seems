@@ -66,6 +66,7 @@ const EventDetailed = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [reset])
+
     return (
         <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>
             <Grid container>
