@@ -1,4 +1,8 @@
-import { Box, Button, Typography } from '@mui/material'
+import { useState } from 'react'
+
+import { Cancel as CancelIcon } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
+import { Box, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import useEventAction from '../../../recoil/event/action'
@@ -6,6 +10,7 @@ import useEventAction from '../../../recoil/event/action'
 const UnRegisterButton = ({ eventId, resetHandler, registrationDeadline }) => {
     const eventAction = useEventAction()
     const showSnackbar = useSnackbar()
+    const [isLoading, setIsLoading] = useState(false)
     let isOutOfRegistrationDate = false
 
     if (registrationDeadline) {
@@ -14,21 +19,26 @@ const UnRegisterButton = ({ eventId, resetHandler, registrationDeadline }) => {
     }
 
     const unregisterHandler = () => {
-        eventAction
-            .unregisterEvent(eventId)
-            .then(() => {
-                showSnackbar({
-                    severity: 'success',
-                    children: 'Unregister successfully.',
+        setIsLoading(true)
+        setTimeout(() => {
+            eventAction
+                .unregisterEvent(eventId)
+                .then(() => {
+                    showSnackbar({
+                        severity: 'success',
+                        children: 'Unregister successfully.',
+                    })
+                    resetHandler()
+                    setIsLoading(false)
                 })
-                resetHandler()
-            })
-            .catch(() => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                    setIsLoading(false)
                 })
-            })
+        }, 2000)
     }
 
     return (
@@ -47,14 +57,16 @@ const UnRegisterButton = ({ eventId, resetHandler, registrationDeadline }) => {
                     Out of register time
                 </Typography>
             )}
-            <Button
+            <LoadingButton
+                loading={isLoading}
+                disabled={isOutOfRegistrationDate}
+                loadingPosition="start"
+                startIcon={<CancelIcon />}
                 variant="contained"
                 color="secondary"
-                disabled={isOutOfRegistrationDate}
-                onClick={unregisterHandler}
             >
                 Unregister
-            </Button>
+            </LoadingButton>
         </Box>
     )
 }
