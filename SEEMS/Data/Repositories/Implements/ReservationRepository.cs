@@ -37,7 +37,7 @@ namespace SEEMS.Data.Repositories.Implements
 			}
 			else
 			{
-				result = "Attend";
+				result = "Attended";
 			}
 			return result;
 		}

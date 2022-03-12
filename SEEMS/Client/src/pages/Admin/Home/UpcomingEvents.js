@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Link as RouterLink, useHistory } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
-import EventCard from '../../../components/EventCard'
+import EventCard from '../../../components/EventsListWithFilter/EventCard'
 import SearchField from '../../../components/SearchField'
 import { EventBusy as EventBusyIcon } from '@mui/icons-material'
 import { Grid, Typography, Box, Button, Alert, Link, CircularProgress } from '@mui/material'
