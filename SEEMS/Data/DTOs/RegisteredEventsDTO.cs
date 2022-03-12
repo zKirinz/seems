@@ -10,6 +10,7 @@
 		public int CommentsNum { get; set; }
 		public bool? CanRegister { get; set; }
 		public bool? Attend { get; set; }
+		public string? ReservationStatus { get; set; }
 		public string OrganizationName { get; set; }
 		public bool IsPrivate { get; set; }
 		public string ImageUrl { get; set; }
