@@ -29,6 +29,7 @@ const EventDetailed = () => {
     const [isRegistered, setIsRegistered] = useState(false)
     const [reset, setReset] = useState(0)
     const showSnackbar = useSnackbar()
+    const [isEventEnd, setIsEventEnd] = useState(false)
     const [detailedEvent, setDetailedEvent] = useState({
         numberComments: 0,
         event: {},
@@ -38,6 +39,10 @@ const EventDetailed = () => {
         getDetailedEvent(id)
             .then((response) => {
                 const { event: responseEvent, registered } = response.data.data
+                const isEventOver =
+                    new Date().getTime() - new Date(responseEvent.endDate).getTime() > 0
+
+                setIsEventEnd(isEventOver)
                 setDetailedEvent({
                     numberComments: responseEvent.commentsNum,
                     event: responseEvent,
@@ -198,7 +203,8 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
-            <FeedBack eventId={id} isMyEvent={isMyEvent} />
+            {/* Add attendance check here */}
+            {isEventEnd && <FeedBack eventId={id} isMyEvent={isMyEvent} />}
         </Container>
     )
 }

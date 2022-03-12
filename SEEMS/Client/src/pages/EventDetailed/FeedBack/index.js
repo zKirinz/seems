@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { CheckCircle, RateReview } from '@mui/icons-material'
 import { Fab, Tooltip } from '@mui/material'
@@ -9,7 +9,7 @@ import CreateFeedBack from './CreateFeedBack'
 import ViewListFeedBack from './ViewListFeedBack'
 
 const FeedBack = ({ eventId, isMyEvent }) => {
-    const { createFeedback } = useFeedbackAction()
+    const { createFeedback, checkCanFeedback } = useFeedbackAction()
     const showSnackBar = useSnackbar()
     const [open, setOpen] = useState(false)
     const [error, setError] = useState({
@@ -59,8 +59,24 @@ const FeedBack = ({ eventId, isMyEvent }) => {
             })
     }
 
+    useEffect(() => {
+        checkCanFeedback(eventId)
+            .then((response) => {
+                const canFeedbackOrNot = response.data.data
+                setCanFeedback(canFeedbackOrNot)
+            })
+            .catch(() => {
+                showSnackBar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
+            })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     return (
         <React.Fragment>
+            {/* Add attendance check */}
             {canFeedback && !isMyEvent && (
                 <Fab
                     color="primary"

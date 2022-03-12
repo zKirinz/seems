@@ -28,7 +28,7 @@ const EventDetailed = () => {
     const [error, setError] = useState(null)
     const [isMyEvent, setIsMyEvent] = useState(false)
     const showSnackbar = useSnackbar()
-
+    const [isEventEnd, setIsEventEnd] = useState(false)
     const [detailedEvent, setDetailedEvent] = useState({
         numberComments: 0,
         event: {},
@@ -38,6 +38,10 @@ const EventDetailed = () => {
         getDetailedEvent(id)
             .then((response) => {
                 const { event: responseEvent } = response.data.data
+                const isEventOver =
+                    new Date().getTime() - new Date(responseEvent.endDate).getTime() > 0
+
+                setIsEventEnd(isEventOver)
                 setDetailedEvent({
                     numberComments: responseEvent.commentsNum,
                     event: responseEvent,
@@ -178,16 +182,18 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
-            <Fab
-                color="primary"
-                sx={{ position: 'fixed', bottom: 100, right: 40 }}
-                variant="extended"
-            >
-                <Tooltip title="Feedback" sx={{ mr: 1 }}>
-                    <RateReview />
-                </Tooltip>
-                Feedback
-            </Fab>
+            {isEventEnd && isMyEvent && (
+                <Fab
+                    color="primary"
+                    sx={{ position: 'fixed', bottom: 100, right: 40 }}
+                    variant="extended"
+                >
+                    <Tooltip title="Feedback" sx={{ mr: 1 }}>
+                        <RateReview />
+                    </Tooltip>
+                    Feedback
+                </Fab>
+            )}
         </Container>
     )
 }
