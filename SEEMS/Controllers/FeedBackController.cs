@@ -74,15 +74,10 @@ namespace SEEMS.Controllers
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid eventId."));
             }
 
-            var reservation = _context.Reservations.FirstOrDefault(x => x.EventId == myEvent.Id);
+            var reservation = _context.Reservations.FirstOrDefault(x => x.EventId == myEvent.Id && x.UserId == userId);
             if (reservation == null)
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You are not participating in this event."));
-            }
-
-            if (reservation.UserId != userId)
-            {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
             }
 
             var feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
