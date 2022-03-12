@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { RateReview } from '@mui/icons-material'
+import { CheckCircle, RateReview } from '@mui/icons-material'
 import { Fab, Tooltip } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
@@ -71,6 +71,12 @@ const FeedBack = ({ eventId, isMyEvent }) => {
                     <Tooltip title="Feedback" sx={{ mr: 1 }}>
                         <RateReview />
                     </Tooltip>
+                    Feedback
+                </Fab>
+            )}
+            {!canFeedback && !isMyEvent && (
+                <Fab sx={{ position: 'fixed', bottom: 100, right: 40 }} variant="extended" disabled>
+                    <CheckCircle sx={{ mr: 0.5 }} color="success" />
                     Feedback
                 </Fab>
             )}
