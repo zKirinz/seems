@@ -1,4 +1,8 @@
-import { Box, Button, Typography } from '@mui/material'
+import { useState } from 'react'
+
+import { AppRegistration as AppRegistrationIcon } from '@mui/icons-material'
+import { LoadingButton } from '@mui/lab'
+import { Box, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import useEventAction from '../../../recoil/event/action'
@@ -6,6 +10,7 @@ import useEventAction from '../../../recoil/event/action'
 const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadline }) => {
     const eventAction = useEventAction()
     const showSnackbar = useSnackbar()
+    const [isLoading, setIsLoading] = useState(false)
     let isOutOfRegistrationDate = false
 
     if (registrationDeadline) {
@@ -13,21 +18,26 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
             new Date().getTime() - new Date(registrationDeadline).getTime() > 0
     }
     const registerHandler = () => {
-        eventAction
-            .registerEvent(eventId)
-            .then(() => {
-                showSnackbar({
-                    severity: 'success',
-                    children: 'Register successfully.',
+        setIsLoading(true)
+        setTimeout(() => {
+            eventAction
+                .registerEvent(eventId)
+                .then(() => {
+                    showSnackbar({
+                        severity: 'success',
+                        children: 'Register successfully.',
+                    })
+                    resetHandler()
+                    setIsLoading(false)
                 })
-                resetHandler()
-            })
-            .catch((error) => {
-                showSnackbar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+                .catch(() => {
+                    showSnackbar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
+                    setIsLoading(false)
                 })
-            })
+        }, 2000)
     }
 
     return (
@@ -52,9 +62,15 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                     Out of register time
                 </Typography>
             )}
-            <Button variant="contained" disabled={isOutOfRegistrationDate || !canRegister}>
+            <LoadingButton
+                loading={isLoading}
+                disabled={isOutOfRegistrationDate || !canRegister}
+                loadingPosition="start"
+                startIcon={<AppRegistrationIcon />}
+                variant="contained"
+            >
                 Register
-            </Button>
+            </LoadingButton>
         </Box>
     )
 }
