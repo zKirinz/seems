@@ -14,6 +14,7 @@ namespace SEEMS.Services
 		private IEventRepository _eventRepository;
 		private ICommentRepository _commentRepository;
 		private IReservationRepository _reservationRepository;
+		private IFeedBackRepository _feedBackRepository;
 
 		public RepositoryManager(ApplicationDbContext context)
 		{
@@ -78,6 +79,17 @@ namespace SEEMS.Services
 					_reservationRepository = new ReservationRepository(_context);
 				}
 				return _reservationRepository;
+			}
+		}
+		public IFeedBackRepository FeedBack
+		{
+			get
+			{
+				if (_feedBackRepository == null)
+				{
+					_feedBackRepository = new FeedbackRepository(_context);
+				}
+				return _feedBackRepository;
 			}
 		}
 
