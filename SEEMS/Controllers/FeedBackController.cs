@@ -205,7 +205,7 @@ namespace SEEMS.Controllers
             bool attend = false;
             bool canFeedBack = false;
             var reservation = _context.Reservations.FirstOrDefault(x => x.EventId == id && x.UserId == userId);        
-            if (reservation == null)
+            if (reservation != null)
             {
                 attend = reservation.Attend;
                 canFeedBack = _repoManager.FeedBack.CanFeedBack(id, userId);
