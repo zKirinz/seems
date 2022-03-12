@@ -13,8 +13,10 @@ const FeedBack = ({ eventId, isMyEvent }) => {
     const showSnackBar = useSnackbar()
     const [openCreateFeedback, setOpenCreateFeedback] = useState(false)
     const [openViewFeedbacks, setOpenViewFeedbacks] = useState(false)
-    const [attendance, setAttendance] = useState(false)
-    const [canFeedback, setCanFeedback] = useState(false)
+    const [canFeedback, setCanFeedback] = useState({
+        attendance: false,
+        ableToFeedback: false,
+    })
     const [error, setError] = useState({
         content: null,
         rating: null,
@@ -37,8 +39,12 @@ const FeedBack = ({ eventId, isMyEvent }) => {
         createFeedback(feedbackWithEventId)
             .then((response) => {
                 const canUserFeedback = response.data.data.canFeedBack
-                setCanFeedback(canUserFeedback)
-                closeHandler()
+
+                setCanFeedback((previousValue) => ({
+                    ...previousValue,
+                    ableToFeedback: canUserFeedback,
+                }))
+                closeCreateFeedbackHandler()
                 showSnackBar({
                     severity: 'success',
                     children: 'Sending feedback successfully, thank you for you feedback',
@@ -70,9 +76,11 @@ const FeedBack = ({ eventId, isMyEvent }) => {
     useEffect(() => {
         checkCanFeedback(eventId)
             .then((response) => {
-                console.log(response)
                 const canFeedbackOrNot = response.data.data
-                setCanFeedback(canFeedbackOrNot)
+                setCanFeedback({
+                    attendance: canFeedbackOrNot.attend,
+                    ableToFeedback: canFeedbackOrNot.canFeedBack,
+                })
             })
             .catch(() => {
                 showSnackBar({
@@ -86,7 +94,7 @@ const FeedBack = ({ eventId, isMyEvent }) => {
     return (
         <React.Fragment>
             {/* Add attendance check */}
-            {attendance && canFeedback && !isMyEvent && (
+            {canFeedback.attendance && canFeedback.ableToFeedback && !isMyEvent && (
                 <Fab
                     color="primary"
                     sx={{ position: 'fixed', bottom: 100, right: 40 }}
@@ -112,7 +120,7 @@ const FeedBack = ({ eventId, isMyEvent }) => {
                     Feedback
                 </Fab>
             )}
-            {attendance && !canFeedback && !isMyEvent && (
+            {canFeedback.attendance && !canFeedback.ableToFeedback && !isMyEvent && (
                 <Fab sx={{ position: 'fixed', bottom: 100, right: 40 }} variant="extended" disabled>
                     <CheckCircle sx={{ mr: 0.5 }} color="success" />
                     Feedback

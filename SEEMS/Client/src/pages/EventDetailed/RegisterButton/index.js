@@ -67,6 +67,7 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                 loadingPosition="start"
                 startIcon={<AppRegistrationIcon />}
                 variant="contained"
+                onClick={registerHandler}
             >
                 Register
             </LoadingButton>

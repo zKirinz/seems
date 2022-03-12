@@ -64,6 +64,7 @@ const UnRegisterButton = ({ eventId, resetHandler, registrationDeadline }) => {
                 startIcon={<CancelIcon />}
                 variant="contained"
                 color="secondary"
+                onClick={unregisterHandler}
             >
                 Unregister
             </LoadingButton>
