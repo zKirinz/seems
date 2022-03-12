@@ -202,14 +202,15 @@ namespace SEEMS.Controllers
             }
 
             var userId = currentUser.Id;
-            var reservation = _context.Reservations.FirstOrDefault(x => x.EventId == id && x.UserId == userId);
+            bool attend = false;
+            bool canFeedBack = false;
+            var reservation = _context.Reservations.FirstOrDefault(x => x.EventId == id && x.UserId == userId);        
             if (reservation == null)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You are not participating in this event."));
+                attend = reservation.Attend;
+                canFeedBack = _repoManager.FeedBack.CanFeedBack(id, userId);
             }
-            
-            bool attend = reservation.Attend;
-            bool canFeedBack = _repoManager.FeedBack.CanFeedBack(id, userId);
+                       
             return Ok(new Response(ResponseStatusEnum.Success,
                                    new
                                    {
