@@ -3,5 +3,6 @@
 	public interface IReservationRepository
 	{
 		int GetRegisteredNum(int eventId);
+		string GetEventStatus(int reservationId);
 	}
 }
