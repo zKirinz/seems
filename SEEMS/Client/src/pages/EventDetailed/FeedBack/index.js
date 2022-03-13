@@ -95,7 +95,6 @@ const FeedBack = ({ eventId, isMyEvent }) => {
 
     return (
         <React.Fragment>
-            {/* Add attendance check */}
             {canFeedback.attendance && canFeedback.ableToFeedback && !isMyEvent && (
                 <Fab
                     color="primary"
