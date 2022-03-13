@@ -39,9 +39,16 @@ namespace SEEMS.Data.Repositories.Implements
 		}
 
 		public bool CanUnregister(int id, int minHourToUnregister)
-        {
+		{
 			var myEvent = _context.Events.SingleOrDefault(e => e.Id == id);
 			return myEvent.StartDate.Subtract(DateTime.Now).TotalHours > minHourToUnregister;
-        }
+		}
+
+		public bool CanTakeAttendance(int id)
+		{
+			var myEvent = _context.Events.SingleOrDefault(e => e.Id == id);
+			var now = DateTime.Now;
+			return now.Subtract(myEvent.StartDate).TotalHours >= 1 && now.CompareTo(myEvent.EndDate) > 0;
+		}
 	}
 }

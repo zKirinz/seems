@@ -143,8 +143,7 @@ namespace SEEMS.Controller
 						{
 							var eMapped = _mapper.Map<EventDTO>(e);
 							eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-							//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
-							//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+							eMapped.CanTakeAttendance = _repository.Event.CanTakeAttendance(e.Id);
 							dtoResult.Add(eMapped);
 						});
 					return failed
@@ -497,6 +496,34 @@ namespace SEEMS.Controller
 
 		}
 
+		[HttpGet("can-take-attendance/{id}")]
+		public async Task<ActionResult> CanTakeAttendance(int id)
+		{
+			var user = await GetCurrentUser(Request);
+			var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+			if(myEvent != null)
+			{
+				var canTakeAttendance = _repository.Event.CanTakeAttendance(id);
+				return Ok(
+					new Response(
+						ResponseStatusEnum.Success,
+						new
+						{
+							CanTakeAttendance = canTakeAttendance
+						}
+					)
+				);
+			}
+			else
+			{
+				return BadRequest(
+					new Response(
+						ResponseStatusEnum.Fail,
+						msg: "Event does not existed!"
+					)
+					);
+			}
+		}
 		private async Task<User> GetCurrentUser(HttpRequest req)
 		{
 			var email = _authManager.GetCurrentEmail(req);
