@@ -5,8 +5,8 @@ import { Fab, Tooltip } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import { useFeedbackAction } from '../../../recoil/feedback'
-import CreateFeedBack from './CreateFeedBack'
-import ViewListFeedBack from './ViewListFeedBack'
+import CreateFeedback from './CreateFeedback'
+import ViewListFeedback from './ViewListFeedback'
 
 const FeedBack = ({ eventId, isMyEvent }) => {
     const { createFeedback, checkCanFeedback } = useFeedbackAction()
@@ -127,7 +127,7 @@ const FeedBack = ({ eventId, isMyEvent }) => {
                 </Fab>
             )}
             {!isMyEvent && (
-                <CreateFeedBack
+                <CreateFeedback
                     open={openCreateFeedback}
                     onClose={closeCreateFeedbackHandler}
                     onCreateFeedback={createFeedBackHandler}
@@ -136,7 +136,7 @@ const FeedBack = ({ eventId, isMyEvent }) => {
                 />
             )}
             {isMyEvent && (
-                <ViewListFeedBack open={openViewFeedbacks} onClose={closeViewFeedbacksHandler} />
+                <ViewListFeedback open={openViewFeedbacks} onClose={closeViewFeedbacksHandler} />
             )}
         </React.Fragment>
     )
