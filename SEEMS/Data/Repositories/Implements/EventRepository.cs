@@ -48,7 +48,7 @@ namespace SEEMS.Data.Repositories.Implements
 		{
 			var myEvent = _context.Events.SingleOrDefault(e => e.Id == id);
 			var now = DateTime.Now;
-			return now.Subtract(myEvent.StartDate).TotalHours >= 1 && now.CompareTo(myEvent.EndDate) > 0;
+			return now.CompareTo(myEvent.StartDate.Subtract(TimeSpan.FromHours(1))) > 0 && now.CompareTo(myEvent.EndDate) < 0;
 		}
 	}
 }
