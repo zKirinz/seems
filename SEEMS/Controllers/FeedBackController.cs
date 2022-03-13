@@ -168,7 +168,7 @@ namespace SEEMS.Controllers
             var listReservation = _context.Reservations.Where(x => x.EventId == id).ToList();
             List<FeedBackForResponse> listFeedBacks = new List<FeedBackForResponse>();
             FeedBack feedBack = new FeedBack();
-            int averageRating = 0;
+            double averageRating = 0;
             foreach (var reservation in listReservation)
             {
                 feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
@@ -182,7 +182,7 @@ namespace SEEMS.Controllers
 
             if (listFeedBacks.Count > 0)
             {
-                averageRating /= listFeedBacks.Count;
+                averageRating = Math.Round(averageRating / listFeedBacks.Count, 1);
             }           
             return Ok(new Response(ResponseStatusEnum.Success,
                                    new
