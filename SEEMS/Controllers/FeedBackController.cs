@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
+using SEEMS.Data.DTOs.FeedBack;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.Infrastructures.Commons;
@@ -153,7 +154,7 @@ namespace SEEMS.Controllers
             }
 
             var role = _context.UserMetas.FirstOrDefault(x => x.UserId == currentUser.Id).MetaValue;
-            if (!role.Contains(RoleTypes.ADM) || !role.Contains(RoleTypes.ORG))
+            if (!role.Contains(RoleTypes.ADM) && !role.Contains(RoleTypes.ORG))
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
             }
@@ -165,7 +166,7 @@ namespace SEEMS.Controllers
             }
 
             var listReservation = _context.Reservations.Where(x => x.EventId == id).ToList();
-            List<FeedBack> listFeedBacks = new List<FeedBack>();
+            List<FeedBackForResponse> listFeedBacks = new List<FeedBackForResponse>();
             FeedBack feedBack = new FeedBack();
             int averageRating = 0;
             foreach (var reservation in listReservation)
@@ -173,17 +174,16 @@ namespace SEEMS.Controllers
                 feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
                 if (feedBack != null)
                 {
-                    listFeedBacks.Add(feedBack);
+                    
+                    listFeedBacks.Add(_mapper.Map<FeedBackForResponse>(feedBack));
                     averageRating += feedBack.Rating;
                 }
             }
 
-            if (listFeedBacks.Count == 0)
+            if (listFeedBacks.Count > 0)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Success, "", "The event has no feedback yet."));
-            }
-
-            averageRating /= listFeedBacks.Count;
+                averageRating /= listFeedBacks.Count;
+            }           
             return Ok(new Response(ResponseStatusEnum.Success,
                                    new
                                    {
