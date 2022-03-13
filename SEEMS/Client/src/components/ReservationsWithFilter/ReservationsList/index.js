@@ -76,9 +76,16 @@ const ReservationsList = () => {
         eventAction
             .getMyRegistrations(filterString)
             .then((res) => {
-                setEvents(res.data.data.events)
-                setEventsNumber(res.data.data.count)
-                setHasMore(res.data.data.canLoadMore)
+                console.log(res)
+                if (res.data.data) {
+                    setEvents(res.data.data.events)
+                    setEventsNumber(res.data.data.count)
+                    setHasMore(res.data.data.canLoadMore)
+                } else {
+                    setEvents([])
+                    setEventsNumber(0)
+                    setHasMore(false)
+                }
                 setIsLoading(false)
             })
             .catch(() => {
