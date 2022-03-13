@@ -1,4 +1,6 @@
-﻿using SEEMS.Contexts;
+﻿using AutoMapper;
+using SEEMS.Contexts;
+using SEEMS.Data.DTOs;
 using SEEMS.Models;
 
 namespace SEEMS.Data.Repositories.Implements
@@ -41,5 +43,36 @@ namespace SEEMS.Data.Repositories.Implements
 			}
 			return result;
 		}
-	}
+
+        public IEnumerable<RegisteredEventsDTO> GetListRegisteredEvents(int userId)
+        {
+            var listReservations = _context.Reservations.Where(x => x.UserId == userId);
+			var listRegisteredEventsDTO = new List<RegisteredEventsDTO>();
+			var registeredEvent = new RegisteredEventsDTO();
+			listReservations.ToList().ForEach(x =>
+			{
+				var anEvent = _context.Events.FirstOrDefault(e => e.Id == x.EventId);
+				if (anEvent != null)
+                {
+					registeredEvent.Id = anEvent.Id;
+					registeredEvent.EventTitle = anEvent.EventTitle;
+					registeredEvent.EventDescription = anEvent.EventDescription;
+					registeredEvent.IsPrivate = anEvent.IsPrivate;
+					registeredEvent.ImageUrl = anEvent.ImageUrl;
+					registeredEvent.Active = anEvent.Active;
+					registeredEvent.Location = anEvent.Location;
+					registeredEvent.StartDate = anEvent.StartDate;
+					registeredEvent.EndDate = anEvent.EndDate;
+					//
+					registeredEvent.CommentsNum = _context.Comments.Where(c => c.EventId == x.EventId).Count();
+					registeredEvent.OrganizationName = anEvent.OrganizationName.ToString();
+					registeredEvent.ReservationId = x.Id;
+					registeredEvent.FeedBack = x.Attend;
+					registeredEvent.Attend = x.Attend;
+					listRegisteredEventsDTO.Add(registeredEvent);
+				}
+			});
+			return listRegisteredEventsDTO;
+        }
+    }
 }
