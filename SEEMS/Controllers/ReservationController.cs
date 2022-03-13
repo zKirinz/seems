@@ -126,27 +126,14 @@ namespace SEEMS.Controllers
 			string userRole = null;
 			try
 			{
-				var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-				if(currentUser != null)
+                var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+                if (currentUser != null)
 				{
 					var userId = currentUser.Id;
-					var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
+					var listRegisteredEvents = _repoManager.Reservation.GetListRegisteredEvents(userId);
 					userRole = (await _repoManager.UserMeta.GetRoleByUserIdAsync(userId, false)).MetaValue;
-					if(listReservation.Any())
-					{
-						List<RegisteredEventsDTO> listRegisteredEvents = new List<RegisteredEventsDTO>();
-						foreach(var reservation in listReservation)
-						{
-							var myEvent = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId);
-							var registeredEvents = _mapper.Map<RegisteredEventsDTO>(myEvent);
-							registeredEvents.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
-							registeredEvents.OrganizationName = myEvent.OrganizationName.ToString();
-							registeredEvents.ReservationId = reservation.Id;
-							registeredEvents.FeedBack = reservation.Attend;
-							registeredEvents.Attend = reservation.Attend;
-							listRegisteredEvents.Add(registeredEvents);
-						}
-
+					if(listRegisteredEvents.Count() > 0)
+					{				
 						IEnumerable<RegisteredEventsDTO> foundResult;
 						if(upcoming == null)
 						{
