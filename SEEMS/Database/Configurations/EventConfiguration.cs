@@ -18,8 +18,6 @@ namespace SEEMS.Database.Configurations
 		public void Configure(EntityTypeBuilder<Event> builder)
 		{
 			List<Event> events = new List<Event>();
-			var chainOfEventTechTalkId = -1;
-			var orgId = -3;
 			//tech talk
 			events.Add(new Event() { EventTitle = "Tech Talk with Indian Web Developers", EventDescription = "India will have about half a billion Indian language users on the world wide web within the next three years. To give them the tools to publish content online in the language they want, Google announced the Webmaster Conference for some universities. This one-day events will have all the information you need for your career path in field of Web Developer", Active = true, OrganizationName = OrganizationEnum.FPTU, EndDate = new DateTime(2022, 5, 12), ImageUrl = "https://www.thebalancecareers.com/thmb/iz-aH3VGU_iXgmeNitwSjvyEnXo=/950x633/filters:fill(auto,1)/web-developer-job-description-salary-and-skills-2061841_final-01-1daf6d8219bd49a089189b4e8c6a7e4d-432214bf6dc64187b1866389f582b79d.jpg", IsPrivate = false, Location = "Hogwarts", StartDate = new DateTime(2022, 1, 1) });
 			events.Add(new Event() { EventTitle = "Tech Talk with a Network Administrator", EventDescription = "2 famous figures in the IT field will have a sharing about career path, characteristics of a Network Administrator", Active = true, OrganizationName = OrganizationEnum.FPTU, EndDate = new DateTime(2022, 5, 12), ImageUrl = "https://brands.vn/wp-content/uploads/2020/12/network-administrator-525818-final1-9f56133a32c945b797185211794afaa1.png", IsPrivate = false, Location = "Room 202 FPT", StartDate = new DateTime(2022, 1, 1) });

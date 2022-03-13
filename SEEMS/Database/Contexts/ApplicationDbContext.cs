@@ -50,7 +50,7 @@ namespace SEEMS.Contexts
 			modelBuilder.ApplyConfiguration(new UserConfiguration());
 			modelBuilder.ApplyConfiguration(new UserMetaConfiguration());
 			modelBuilder.ApplyConfiguration(new EventConfiguration());
-
+			modelBuilder.ApplyConfiguration(new ReservationConfiguration());
 			modelBuilder.ApplyConventions();
 
 			base.OnModelCreating(modelBuilder);

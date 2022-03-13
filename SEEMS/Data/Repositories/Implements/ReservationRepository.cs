@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
 using SEEMS.Models;
+using SEEMS.Services.Interfaces;
 
 namespace SEEMS.Data.Repositories.Implements
 {
@@ -44,16 +46,17 @@ namespace SEEMS.Data.Repositories.Implements
 			return result;
 		}
 
-        public IEnumerable<RegisteredEventsDTO> GetListRegisteredEvents(int userId)
-        {
-            var listReservations = _context.Reservations.Where(x => x.UserId == userId);
+		public IEnumerable<RegisteredEventsDTO> GetListRegisteredEvents(int userId)
+		{
+			var listReservations = _context.Reservations.Where(x => x.UserId == userId);
 			var listRegisteredEventsDTO = new List<RegisteredEventsDTO>();
 			var registeredEvent = new RegisteredEventsDTO();
 			listReservations.ToList().ForEach(x =>
 			{
 				var anEvent = _context.Events.FirstOrDefault(e => e.Id == x.EventId);
-				if (anEvent != null)
-                {
+				registeredEvent = new RegisteredEventsDTO();
+				if(anEvent != null)
+				{
 					registeredEvent.Id = anEvent.Id;
 					registeredEvent.EventTitle = anEvent.EventTitle;
 					registeredEvent.EventDescription = anEvent.EventDescription;
@@ -63,8 +66,9 @@ namespace SEEMS.Data.Repositories.Implements
 					registeredEvent.Location = anEvent.Location;
 					registeredEvent.StartDate = anEvent.StartDate;
 					registeredEvent.EndDate = anEvent.EndDate;
-					//
 					registeredEvent.CommentsNum = _context.Comments.Where(c => c.EventId == x.EventId).Count();
+					var registeredNum = _context.Reservations.Count(r => r.EventId == anEvent.Id);
+					registeredEvent.CanRegister = anEvent.RegistrationDeadline.CompareTo(DateTime.Now) > 0 && (registeredNum == 0 || registeredNum < anEvent.ParticipantNum);
 					registeredEvent.OrganizationName = anEvent.OrganizationName.ToString();
 					registeredEvent.ReservationId = x.Id;
 					registeredEvent.FeedBack = x.Attend;
@@ -73,6 +77,6 @@ namespace SEEMS.Data.Repositories.Implements
 				}
 			});
 			return listRegisteredEventsDTO;
-        }
-    }
+		}
+	}
 }
