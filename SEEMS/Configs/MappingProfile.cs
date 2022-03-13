@@ -2,6 +2,7 @@
 
 using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
+using SEEMS.Data.DTOs.FeedBack;
 using SEEMS.Data.Models;
 using SEEMS.DTOs;
 using SEEMS.Infrastructures.Commons;
@@ -35,6 +36,6 @@ public class MappingProfile : Profile
 		CreateMap<Event, Event>();
 		CreateMap<Event, RegisteredEventsDTO>();
 		CreateMap<FeedBackDTO, FeedBack>();
-		//CreateMap<FeedBackForUpdateDTO, FeedBack>();
+		CreateMap<FeedBack, FeedBackForResponse>();
 	}
 }
