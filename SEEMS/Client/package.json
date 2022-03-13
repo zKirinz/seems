@@ -15,6 +15,7 @@
         "@mui/lab": "^5.0.0-alpha.68",
         "@mui/material": "^5.2.8",
         "axios": "^0.26.0",
+        "chunk": "^0.0.3",
         "date-fns": "^2.28.0",
         "firebase": "^9.6.8",
         "jwt-decode": "^3.1.2",
