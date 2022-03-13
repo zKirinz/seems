@@ -44,23 +44,21 @@ const ListFeedback = ({ feedbacks }) => {
     return (
         <React.Fragment>
             {feedbacks.length ? (
-                <>
-                    <InfiniteScroll
-                        dataLength={cloneFeedbacks.length}
-                        loader={<Loading />}
-                        hasMore={hasMore}
-                        next={fetchMoreData}
-                        scrollableTarget="scrollableDialog"
-                    >
-                        {cloneFeedbacks.map((feedback) => (
-                            <FeedbackItem
-                                key={feedback.id}
-                                content={feedback.content}
-                                rating={feedback.rating}
-                            />
-                        ))}
-                    </InfiniteScroll>
-                </>
+                <InfiniteScroll
+                    dataLength={cloneFeedbacks.length}
+                    loader={<Loading />}
+                    hasMore={hasMore}
+                    next={fetchMoreData}
+                    scrollableTarget="scrollableDialog"
+                >
+                    {cloneFeedbacks.map((feedback) => (
+                        <FeedbackItem
+                            key={feedback.id}
+                            content={feedback.content}
+                            rating={feedback.rating}
+                        />
+                    ))}
+                </InfiniteScroll>
             ) : (
                 <Box display="flex" justifyContent="center">
                     <Alert icon={<InfoRounded />} variant="outlined" severity="warning">

@@ -80,6 +80,7 @@ const ViewListFeedback = ({ open, onClose, getFeedbacksOfEvent, eventId }) => {
     const [feedbacks, setFeedbacks] = useState([])
     const [averageRating, setAverageRating] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
+    const [firstLoading, setFirstLoading] = useState(true)
 
     useEffect(() => {
         setIsLoading(true)
@@ -90,6 +91,7 @@ const ViewListFeedback = ({ open, onClose, getFeedbacksOfEvent, eventId }) => {
 
                 setFeedbacks(feedbacksData)
                 setAverageRating(rating)
+                setFirstLoading(false)
                 setIsLoading(false)
             })
             .catch(() => {
@@ -97,6 +99,7 @@ const ViewListFeedback = ({ open, onClose, getFeedbacksOfEvent, eventId }) => {
                     severity: 'error',
                     children: 'Something went wrong, please try again later.',
                 })
+                setFirstLoading(false)
                 setIsLoading(false)
             })
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,7 +110,9 @@ const ViewListFeedback = ({ open, onClose, getFeedbacksOfEvent, eventId }) => {
             <DialogTitle>View Feedbacks</DialogTitle>
             <DialogContent dividers id="scrollableDialog" sx={{ minWidth: 500 }}>
                 {isLoading && <Loading />}
-                <ListFeedback feedbacks={feedbacks} averageRating={averageRating} />
+                {!firstLoading && (
+                    <ListFeedback feedbacks={feedbacks} averageRating={averageRating} />
+                )}
             </DialogContent>
             <DialogActions sx={{ justifyContent: 'space-between', p: 2 }}>
                 {averageRating !== 0 && (
