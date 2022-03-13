@@ -9,6 +9,8 @@ namespace SEEMS.Data.Repositories
 
 		bool CanRegister(int id);
 
+		bool CanTakeAttendance(int id);
+
 		Task<IEnumerable<Event>> GetAllEventsAboutToStartIn30Min(DateTime from, bool trackChanges);
 
 		Task<Event> GetEventAsync(int id, bool trackChanges);
