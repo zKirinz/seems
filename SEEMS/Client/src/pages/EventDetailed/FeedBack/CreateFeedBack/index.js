@@ -16,7 +16,7 @@ import { blueGrey, grey } from '@mui/material/colors'
 
 const isEmpty = (incomeValue) => incomeValue.trim().length === 0
 
-const CreateFeedBack = ({ open, onClose, onCreateFeedback, error, setError }) => {
+const CreateFeedback = ({ open, onClose, onCreateFeedback, error, setError }) => {
     const [ratingValue, setRatingValue] = useState({ value: 0, isTouched: false })
     const [confirmDialog, setConfirmDialog] = useState(false)
     const [feedbackContent, setFeedBackContent] = useState({ value: '', isTouched: false })
@@ -160,4 +160,4 @@ const CreateFeedBack = ({ open, onClose, onCreateFeedback, error, setError }) =>
     )
 }
 
-export default CreateFeedBack
+export default CreateFeedback

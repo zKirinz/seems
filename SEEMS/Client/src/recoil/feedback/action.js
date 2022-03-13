@@ -6,9 +6,12 @@ const useFeedbackAction = () => {
 
     const checkCanFeedback = (eventId) => get({ endpoint: `/api/feedbacks/canFeedback/${eventId}` })
 
+    const getFeedbacksOfEvent = (eventId) => post({ endpoint: `/api/feedbacks/${eventId}` })
+
     return {
         createFeedback,
         checkCanFeedback,
+        getFeedbacksOfEvent,
     }
 }
 
