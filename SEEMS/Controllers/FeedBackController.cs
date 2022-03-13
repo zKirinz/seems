@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
+using SEEMS.Data.DTOs.FeedBack;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.Infrastructures.Commons;
@@ -83,20 +84,26 @@ namespace SEEMS.Controllers
             var feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
             if (feedBack != null)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You are already feedback"));
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You are already feedback", 422));
             }
 
             var feedBackValidate = FeedBacksServices.CheckValidatedFeedBack(feedBackDTO.Rating, feedBackDTO.Content);
             if (feedBackValidate != null)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Fail, feedBackValidate));
+                return BadRequest(new Response(ResponseStatusEnum.Fail, feedBackValidate, null, 422));
             }
 
             feedBack = _mapper.Map<FeedBack>(feedBackDTO);
             feedBack.ReservationId = reservation.Id;
             _context.FeedBacks.Add(feedBack);
             _context.SaveChanges();
-            return Ok(new Response(ResponseStatusEnum.Success, feedBack));
+            bool canFeedBack = false;
+            return Ok(new Response(ResponseStatusEnum.Success,
+                                   new
+                                   {
+                                       feedBack,
+                                       canFeedBack
+                                   }));
         }
 
         ////Update a feedback
@@ -147,7 +154,7 @@ namespace SEEMS.Controllers
             }
 
             var role = _context.UserMetas.FirstOrDefault(x => x.UserId == currentUser.Id).MetaValue;
-            if (!role.Contains(RoleTypes.ADM) || !role.Contains(RoleTypes.ORG))
+            if (!role.Contains(RoleTypes.ADM) && !role.Contains(RoleTypes.ORG))
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
             }
@@ -159,25 +166,24 @@ namespace SEEMS.Controllers
             }
 
             var listReservation = _context.Reservations.Where(x => x.EventId == id).ToList();
-            List<FeedBack> listFeedBacks = new List<FeedBack>();
+            List<FeedBackForResponse> listFeedBacks = new List<FeedBackForResponse>();
             FeedBack feedBack = new FeedBack();
-            int averageRating = 0;
+            double averageRating = 0;
             foreach (var reservation in listReservation)
             {
                 feedBack = _context.FeedBacks.FirstOrDefault(x => x.ReservationId == reservation.Id);
                 if (feedBack != null)
                 {
-                    listFeedBacks.Add(feedBack);
+                    
+                    listFeedBacks.Add(_mapper.Map<FeedBackForResponse>(feedBack));
                     averageRating += feedBack.Rating;
                 }
             }
 
-            if (listFeedBacks.Count == 0)
+            if (listFeedBacks.Count > 0)
             {
-                return BadRequest(new Response(ResponseStatusEnum.Success, "", "The event has no feedback yet."));
-            }
-
-            averageRating /= listFeedBacks.Count;
+                averageRating = Math.Round(averageRating / listFeedBacks.Count, 1);
+            }           
             return Ok(new Response(ResponseStatusEnum.Success,
                                    new
                                    {
@@ -185,6 +191,34 @@ namespace SEEMS.Controllers
                                        listFeedBacks
                                    }));
         }
+
+        [HttpGet("canFeedBack/{id}")]
+        public async Task<IActionResult> CanFeedBack(int id)
+        {
+            var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
+            if (currentUser == null)
+            {
+                return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
+            }
+
+            var userId = currentUser.Id;
+            bool attend = false;
+            bool canFeedBack = false;
+            var reservation = _context.Reservations.FirstOrDefault(x => x.EventId == id && x.UserId == userId);        
+            if (reservation != null)
+            {
+                attend = reservation.Attend;
+                canFeedBack = _repoManager.FeedBack.CanFeedBack(id, userId);
+            }
+                       
+            return Ok(new Response(ResponseStatusEnum.Success,
+                                   new
+                                   {
+                                       attend,
+                                       canFeedBack,
+                                   }));
+        }
+
         private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
     }
 }

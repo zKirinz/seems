@@ -155,6 +155,7 @@ const CommentsSection = ({ eventId: EventId, numberComments, numberRootComments 
         setQuantityComment(numberComments)
         setQuantityRootComment(numberRootComments)
     }, [numberComments, numberRootComments])
+
     return (
         <React.Fragment>
             <Box sx={{ mt: 2 }}>
