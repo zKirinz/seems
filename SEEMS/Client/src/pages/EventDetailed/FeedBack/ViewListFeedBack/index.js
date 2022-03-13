@@ -115,20 +115,18 @@ const ViewListFeedback = ({ open, onClose, getFeedbacksOfEvent, eventId }) => {
                 )}
             </DialogContent>
             <DialogActions sx={{ justifyContent: 'space-between', p: 2 }}>
-                {averageRating !== 0 && (
-                    <Tooltip title="Average Rating" placement="top">
-                        <Box display="flex" alignItems="center">
-                            <Typography
-                                variant="h6"
-                                fontWeight={700}
-                                sx={{ mr: 0.25, color: yellow[800] }}
-                            >
-                                {averageRating}
-                            </Typography>
-                            <Rating precision={0.1} value={averageRating} readOnly />
-                        </Box>
-                    </Tooltip>
-                )}
+                <Tooltip title="Average Rating" placement="top">
+                    <Box display="flex" alignItems="center">
+                        <Typography
+                            variant="h6"
+                            fontWeight={700}
+                            sx={{ mr: 0.25, color: yellow[800] }}
+                        >
+                            {averageRating}
+                        </Typography>
+                        <Rating precision={0.1} value={averageRating} readOnly />
+                    </Box>
+                </Tooltip>
                 <Button color="error" variant="contained" onClick={onClose}>
                     Cancel
                 </Button>
