@@ -9,7 +9,7 @@ import CreateFeedback from './CreateFeedback'
 import ViewListFeedback from './ViewListFeedback'
 
 const FeedBack = ({ eventId, isMyEvent }) => {
-    const { createFeedback, checkCanFeedback } = useFeedbackAction()
+    const { createFeedback, checkCanFeedback, getFeedbacksOfEvent } = useFeedbackAction()
     const showSnackBar = useSnackbar()
     const [openCreateFeedback, setOpenCreateFeedback] = useState(false)
     const [openViewFeedbacks, setOpenViewFeedbacks] = useState(false)
@@ -74,20 +74,22 @@ const FeedBack = ({ eventId, isMyEvent }) => {
     }
 
     useEffect(() => {
-        checkCanFeedback(eventId)
-            .then((response) => {
-                const canFeedbackOrNot = response.data.data
-                setCanFeedback({
-                    attendance: canFeedbackOrNot.attend,
-                    ableToFeedback: canFeedbackOrNot.canFeedBack,
+        if (!isMyEvent) {
+            checkCanFeedback(eventId)
+                .then((response) => {
+                    const canFeedbackOrNot = response.data.data
+                    setCanFeedback({
+                        attendance: canFeedbackOrNot.attend,
+                        ableToFeedback: canFeedbackOrNot.canFeedBack,
+                    })
                 })
-            })
-            .catch(() => {
-                showSnackBar({
-                    severity: 'error',
-                    children: 'Something went wrong, please try again later.',
+                .catch(() => {
+                    showSnackBar({
+                        severity: 'error',
+                        children: 'Something went wrong, please try again later.',
+                    })
                 })
-            })
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -135,8 +137,13 @@ const FeedBack = ({ eventId, isMyEvent }) => {
                     setError={setError}
                 />
             )}
-            {isMyEvent && (
-                <ViewListFeedback open={openViewFeedbacks} onClose={closeViewFeedbacksHandler} />
+            {isMyEvent && openViewFeedbacks && (
+                <ViewListFeedback
+                    open={openViewFeedbacks}
+                    onClose={closeViewFeedbacksHandler}
+                    eventId={eventId}
+                    getFeedbacksOfEvent={getFeedbacksOfEvent}
+                />
             )}
         </React.Fragment>
     )
