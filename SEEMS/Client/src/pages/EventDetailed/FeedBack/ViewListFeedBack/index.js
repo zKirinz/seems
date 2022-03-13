@@ -8,7 +8,11 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
+    Rating,
+    Tooltip,
+    Typography,
 } from '@mui/material'
+import { yellow } from '@mui/material/colors'
 
 import { useSnackbar } from '../../../../HOCs/SnackbarContext'
 import ListFeedback from './ListFeedback'
@@ -81,7 +85,6 @@ const ViewListFeedback = ({ open, onClose, getFeedbacksOfEvent, eventId }) => {
         setIsLoading(true)
         getFeedbacksOfEvent(eventId)
             .then((response) => {
-                console.log(response)
                 const feedbacksData = response.data.data.listFeedBacks
                 const rating = response.data.data.averageRating
 
@@ -102,11 +105,25 @@ const ViewListFeedback = ({ open, onClose, getFeedbacksOfEvent, eventId }) => {
     return (
         <Dialog scroll={'paper'} open={open} onBackdropClick={onClose}>
             <DialogTitle>View Feedbacks</DialogTitle>
-            <DialogContent dividers id="scrollableTarget" sx={{ minWidth: 500 }}>
+            <DialogContent dividers id="scrollableDialog" sx={{ minWidth: 500 }}>
                 {isLoading && <Loading />}
                 <ListFeedback feedbacks={feedbacks} averageRating={averageRating} />
             </DialogContent>
-            <DialogActions>
+            <DialogActions sx={{ justifyContent: 'space-between', p: 2 }}>
+                {averageRating !== 0 && (
+                    <Tooltip title="Average Rating" placement="top">
+                        <Box display="flex" alignItems="center">
+                            <Typography
+                                variant="h6"
+                                fontWeight={700}
+                                sx={{ mr: 0.25, color: yellow[800] }}
+                            >
+                                {averageRating}
+                            </Typography>
+                            <Rating precision={0.1} value={averageRating} readOnly />
+                        </Box>
+                    </Tooltip>
+                )}
                 <Button color="error" variant="contained" onClick={onClose}>
                     Cancel
                 </Button>

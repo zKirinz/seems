@@ -4,7 +4,7 @@ import chunk from 'chunk'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import { InfoRounded } from '@mui/icons-material'
-import { Alert, Box, CircularProgress, Divider } from '@mui/material'
+import { Alert, Box, CircularProgress } from '@mui/material'
 
 import FeedbackItem from '../FeedbackItem'
 
@@ -14,11 +14,12 @@ const Loading = () => (
     </Box>
 )
 
-const ListFeedback = ({ feedbacks, averageRating }) => {
+const ListFeedback = ({ feedbacks }) => {
     const [cloneFeedbacks, setCloneFeedbacks] = useState([])
     const [hasMore, setHasMore] = useState(true)
     const [chunkArray, setChunkArray] = useState([])
     const index = useRef(1)
+
     const fetchMoreData = () => {
         if (cloneFeedbacks.length >= feedbacks.length) {
             setHasMore(false)
@@ -51,15 +52,14 @@ const ListFeedback = ({ feedbacks, averageRating }) => {
                         next={fetchMoreData}
                         scrollableTarget="scrollableDialog"
                     >
-                        {cloneFeedbacks.map((feedback, index) => (
+                        {cloneFeedbacks.map((feedback) => (
                             <FeedbackItem
-                                key={index}
+                                key={feedback.id}
                                 content={feedback.content}
                                 rating={feedback.rating}
                             />
                         ))}
                     </InfiniteScroll>
-                    <Divider />
                 </>
             ) : (
                 <Box display="flex" justifyContent="center">

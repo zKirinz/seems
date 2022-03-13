@@ -204,7 +204,7 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
-            <FeedBack eventId={id} isMyEvent={isMyEvent} />
+            {isEventEnd && <FeedBack eventId={id} isMyEvent={isMyEvent} />}
         </Container>
     )
 }
