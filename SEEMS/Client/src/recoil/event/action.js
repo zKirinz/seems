@@ -39,6 +39,8 @@ const useEventAction = () => {
     const getMyRegistrations = (filterString) =>
         get({ endpoint: '/api/reservations' + filterString })
 
+    const checkCanAttendance = (id) => get({ endpoint: `/api/events/can-take-attendance/${id}` })
+
     return {
         getUpcomingEvents,
         getEvents,
@@ -50,6 +52,7 @@ const useEventAction = () => {
         getMyRegistrations,
         updateEvent,
         checkIsMyEvent,
+        checkCanAttendance,
     }
 }
 

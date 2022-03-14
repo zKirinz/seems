@@ -76,7 +76,6 @@ const ReservationsList = () => {
         eventAction
             .getMyRegistrations(filterString)
             .then((res) => {
-                console.log(res)
                 if (res.data.data) {
                     setEvents(res.data.data.events)
                     setEventsNumber(res.data.data.count)
