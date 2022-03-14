@@ -6,8 +6,8 @@ import { useRecoilValue } from 'recoil'
 
 import EventPoster from '../../components/EventPoster'
 import { GroupsOutlined, Home, NoteAlt, SupervisedUserCircle } from '@mui/icons-material'
-import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
-import { blueGrey } from '@mui/material/colors'
+import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { blueGrey, grey } from '@mui/material/colors'
 
 import { useSnackbar } from '../../HOCs/SnackbarContext'
 import atom from '../../recoil/auth'
@@ -26,6 +26,7 @@ const EventDetailed = () => {
     const { id } = useParams()
     const { getDetailedEvent, checkIsMyEvent } = useEventAction()
     const [isMyEvent, setIsMyEvent] = useState(false)
+    const [error, setError] = useState(false)
     const [isRegistered, setIsRegistered] = useState(false)
     const [reset, setReset] = useState(0)
     const showSnackbar = useSnackbar()
@@ -55,6 +56,7 @@ const EventDetailed = () => {
                     severity: 'error',
                     children: 'Something went wrong, please try again later.',
                 })
+                setError(true)
             })
 
         if (auth.role === 'Organizer') {
@@ -72,6 +74,26 @@ const EventDetailed = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [reset])
+
+    if (error)
+        return (
+            <Box
+                sx={{
+                    height: '85vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                }}
+            >
+                <Typography variant="h5" fontWeight={700} sx={{ color: grey[800] }}>
+                    Something went wrong, does not find the event.
+                </Typography>
+                <Button variant="contained" sx={{ mt: 1 }} onClick={() => history.goBack()}>
+                    Go back
+                </Button>
+            </Box>
+        )
 
     return (
         <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>

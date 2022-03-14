@@ -6,6 +6,7 @@ import { Box, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import { useEventAction } from '../../../recoil/event'
+import Loading from '../../Loading'
 import UpdateEventForm from './UpdateEventForm'
 
 const UpdateEvent = () => {
@@ -16,6 +17,7 @@ const UpdateEvent = () => {
     const [error, setError] = useState(null)
     const history = useHistory()
     const { pathname } = useLocation()
+    const [updateEventDisable, setUpdateEventDisable] = useState(true)
 
     useLayoutEffect(() => {
         checkIsMyEvent(id)
@@ -24,6 +26,8 @@ const UpdateEvent = () => {
                 if (isMine === false) {
                     const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
                     history.push(newUrl)
+                } else {
+                    setUpdateEventDisable(false)
                 }
             })
             .catch(() => {
@@ -61,7 +65,9 @@ const UpdateEvent = () => {
                 })
             })
     }
-    return (
+    return updateEventDisable ? (
+        <Loading />
+    ) : (
         <Box component="main" sx={{ mt: { sx: 0, sm: 8.5 } }} px={3} pt={10}>
             <Typography color="primary" variant="h3" mb={4} align="center" fontWeight={700}>
                 Update Event

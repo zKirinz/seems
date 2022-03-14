@@ -5,8 +5,8 @@ import { Fab, Tooltip } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import { useFeedbackAction } from '../../../recoil/feedback'
-import CreateFeedback from './CreateFeedBack'
-import ViewListFeedback from './ViewListFeedBack'
+import CreateFeedback from './CreateFeedback'
+import ViewListFeedback from './ViewListFeedback'
 
 const FeedBack = ({ eventId, isMyEvent }) => {
     const { createFeedback, checkCanFeedback, getFeedbacksOfEvent } = useFeedbackAction()
