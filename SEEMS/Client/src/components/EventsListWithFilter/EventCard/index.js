@@ -54,6 +54,16 @@ const EventCard = ({
                     </Grid>
                 </Grid>
             </Box>
+            {auth.role === 'Admin' && auth.organization === organizer && (
+                <Box position="absolute" bottom={175} right={50}>
+                    <Chip
+                        label="This is your event"
+                        icon={<EventAvailableIcon />}
+                        color="info"
+                        variant="outlined"
+                    />
+                </Box>
+            )}
             {auth.email && auth.role !== 'Admin' && (
                 <Box position="absolute" bottom={175} right={50}>
                     {auth.organization === organizer ? (
