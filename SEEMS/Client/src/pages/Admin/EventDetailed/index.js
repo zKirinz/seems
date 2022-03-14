@@ -147,6 +147,7 @@ const EventDetailed = () => {
                             <React.Fragment>
                                 <EditEventButton />
                                 <CheckAttendanceButton
+                                    eventId={id}
                                     onClickHandler={() =>
                                         history.push(`/admin/events/me/${id}/attendance`)
                                     }
