@@ -56,7 +56,6 @@ const ListFeedback = ({ feedbacks }) => {
                             key={feedback.id}
                             content={feedback.content}
                             rating={feedback.rating}
-                            createAt={feedback.createAt}
                         />
                     ))}
                 </InfiniteScroll>

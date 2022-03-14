@@ -1,7 +1,6 @@
 import { Box, Rating, Typography } from '@mui/material'
 
-const FeedbackItem = ({ rating, content, createAt }) => {
-    console.log(createAt)
+const FeedbackItem = ({ rating, content }) => {
     return (
         <Box sx={{ my: 2 }}>
             <Rating value={rating} readOnly />

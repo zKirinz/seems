@@ -86,7 +86,6 @@ const ViewListFeedback = ({ open, onClose, getFeedbacksOfEvent, eventId }) => {
         setIsLoading(true)
         getFeedbacksOfEvent(eventId)
             .then((response) => {
-                console.log(response)
                 const feedbacksData = response.data.data.listFeedBacks
                 const rating = response.data.data.averageRating
 
