@@ -4,15 +4,9 @@ import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
 
 import EventPoster from '../../../components/EventPoster'
-import {
-    GroupsOutlined,
-    Home,
-    NoteAlt,
-    RateReview,
-    SupervisedUserCircle,
-} from '@mui/icons-material'
-import { Box, Card, CardContent, Container, Fab, Grid, Tooltip, Typography } from '@mui/material'
-import { blueGrey } from '@mui/material/colors'
+import { GroupsOutlined, Home, NoteAlt, SupervisedUserCircle } from '@mui/icons-material'
+import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material'
+import { blueGrey, grey } from '@mui/material/colors'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import useEventAction from '../../../recoil/event/action'
@@ -20,12 +14,13 @@ import CheckAttendanceButton from './CheckAttendanceButton'
 import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
+import FeedBack from './FeedBack'
 
 const EventDetailed = () => {
     const history = useHistory()
     const { id } = useParams()
     const { getDetailedEvent, checkIsMyEvent } = useEventAction()
-    const [error, setError] = useState(null)
+    const [error, setError] = useState(false)
     const [isMyEvent, setIsMyEvent] = useState(false)
     const showSnackbar = useSnackbar()
     const [isEventEnd, setIsEventEnd] = useState(false)
@@ -48,9 +43,12 @@ const EventDetailed = () => {
                     numberRootComments: responseEvent.rootCommentsNum,
                 })
             })
-            .catch((errorResponse) => {
-                const errorMessage = errorResponse.response.data.data
-                setError(errorMessage)
+            .catch(() => {
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Something went wrong, please try again later.',
+                })
+                setError(true)
             })
 
         checkIsMyEvent(id)
@@ -75,9 +73,15 @@ const EventDetailed = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
+                    flexDirection: 'column',
                 }}
             >
-                <Typography variant="h4">{error}</Typography>
+                <Typography variant="h5" fontWeight={700} sx={{ color: grey[800] }}>
+                    Something went wrong, does not find the event.
+                </Typography>
+                <Button variant="contained" sx={{ mt: 1 }} onClick={() => history.goBack()}>
+                    Go back
+                </Button>
             </Box>
         )
 
@@ -183,18 +187,7 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
-            {isEventEnd && isMyEvent && (
-                <Fab
-                    color="primary"
-                    sx={{ position: 'fixed', bottom: 100, right: 40 }}
-                    variant="extended"
-                >
-                    <Tooltip title="Feedback" sx={{ mr: 1 }}>
-                        <RateReview />
-                    </Tooltip>
-                    Feedback
-                </Fab>
-            )}
+            {isEventEnd && isMyEvent && <FeedBack eventId={id} />}
         </Container>
     )
 }

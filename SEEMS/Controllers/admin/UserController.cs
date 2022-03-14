@@ -1,8 +1,10 @@
+using System.Drawing;
 using AutoMapper;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Extensions;
+using QRCoder;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Entities.RequestFeatures;
 using SEEMS.Data.Models;

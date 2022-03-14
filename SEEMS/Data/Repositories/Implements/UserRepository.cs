@@ -46,6 +46,5 @@ namespace SEEMS.Data.Repositories.Implements
        public async Task<User> GetUserAsync(int id, bool trackChanges) =>
             await FindByCondition(u => u.Id == id, trackChanges)
                 .SingleOrDefaultAsync();
-        
     }
 }
