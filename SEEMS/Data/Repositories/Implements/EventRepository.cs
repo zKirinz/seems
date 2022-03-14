@@ -28,6 +28,10 @@ namespace SEEMS.Data.Repositories.Implements
 					&& e.StartDate >= from, trackChanges)
 				.ToListAsync();
 
+		public async Task<IEnumerable<Event>> GetAllEventsShouldBeChangedToInactive(DateTime from, bool trackChanges) =>
+			await FindByCondition(e => e.EndDate == from || e.EndDate.AddMinutes(5) == from, trackChanges)
+				.ToListAsync();
+
 		public async Task<Event> GetEventAsync(int id, bool trackChanges) =>
 			await FindByCondition(e => e.Id == id, trackChanges).SingleOrDefaultAsync();
 

@@ -68,8 +68,9 @@ function add_connection_string() {
 function setup_secret_keys() {
   dotnet user-secrets set "Authentication:Google:ClientId" "1009282259598-4iq97kaf9rdv0mri48a756en0ovnvit2.apps.googleusercontent.com" 
   dotnet user-secrets set "Authentication:Google:ClientSecret" "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"
-  
   dotnet user-secrets set "SecretKey" "randOmKey4pi adsfa;djslfk asdjkfk qweuoprqpoeiwrpoq"
+  dotnet user-secrets set "Mailjet:ApiKey" "39617654584a3f94859990d4665274a9"
+  dotnet user-secrets set "Mailjet:SecretKey" "9d7f0034edf41ee61c52cdfc28c3c849"
 }
 
 function setup_env_client() {
