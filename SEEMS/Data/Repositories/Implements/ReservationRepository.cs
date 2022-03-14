@@ -1,9 +1,6 @@
-﻿using AutoMapper;
-
-using SEEMS.Contexts;
+﻿using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
 using SEEMS.Models;
-using SEEMS.Services.Interfaces;
 
 namespace SEEMS.Data.Repositories.Implements
 {

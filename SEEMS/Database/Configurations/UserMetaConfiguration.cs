@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using SEEMS.Data.Models;
 using SEEMS.Models;
 
 namespace SEEMS.Database.Configurations

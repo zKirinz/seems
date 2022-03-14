@@ -16,5 +16,6 @@ namespace SEEMS.Data.Repositories
 		Task<Event> GetEventAsync(int id, bool trackChanges);
 
 		bool CanUnregister(int id, int minHourToUnregister);
+		public string? GetMyEventStatus(int eventId);
 	}
 }
