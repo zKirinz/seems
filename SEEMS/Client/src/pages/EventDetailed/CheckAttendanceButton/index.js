@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import { Box, Button, Tooltip } from '@mui/material'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import useEventAction from '../../../recoil/event/action'
 
-const CheckAttendanceButton = ({ onClickHandler }) => {
+const CheckAttendanceButton = ({ onClickHandler, eventId }) => {
     const { checkCanAttendance } = useEventAction()
     const [attendanceDisable, setAttendanceDisable] = useState(true)
     const showSnackbar = useSnackbar()
