@@ -4,14 +4,8 @@ import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
 
 import EventPoster from '../../../components/EventPoster'
-import {
-    GroupsOutlined,
-    Home,
-    NoteAlt,
-    RateReview,
-    SupervisedUserCircle,
-} from '@mui/icons-material'
-import { Box, Card, CardContent, Container, Fab, Grid, Tooltip, Typography } from '@mui/material'
+import { GroupsOutlined, Home, NoteAlt, SupervisedUserCircle } from '@mui/icons-material'
+import { Box, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
@@ -20,6 +14,7 @@ import CheckAttendanceButton from './CheckAttendanceButton'
 import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
+import FeedBack from './FeedBack'
 
 const EventDetailed = () => {
     const history = useHistory()
@@ -182,18 +177,7 @@ const EventDetailed = () => {
                 numberComments={detailedEvent.numberComments}
                 numberRootComments={detailedEvent.numberRootComments}
             />
-            {isEventEnd && isMyEvent && (
-                <Fab
-                    color="primary"
-                    sx={{ position: 'fixed', bottom: 100, right: 40 }}
-                    variant="extended"
-                >
-                    <Tooltip title="Feedback" sx={{ mr: 1 }}>
-                        <RateReview />
-                    </Tooltip>
-                    Feedback
-                </Fab>
-            )}
+            {isMyEvent && <FeedBack eventId={id} />}
         </Container>
     )
 }
