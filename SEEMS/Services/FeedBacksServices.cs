@@ -10,13 +10,13 @@ namespace SEEMS.Services
             bool failCheck = false;
             if(rating < FeedBackValidationInfo.MinimumContent || rating > FeedBackValidationInfo.MaximumRating)
             {
-                feedBackValidation.Rating = $"Rating from {FeedBackValidationInfo.MinimumRating} to {FeedBackValidationInfo.MaximumRating}";
+                feedBackValidation.Rating = $"You have to rate quality before sending feedback";
                 failCheck = true;
             }
 
             if (content.Length < FeedBackValidationInfo.MinimumContent || content.Length > FeedBackValidationInfo.MaximumContent)
             {
-                feedBackValidation.Content = $"Content from {FeedBackValidationInfo.MinimumContent} to {FeedBackValidationInfo.MaximumContent} characters";
+                feedBackValidation.Content = $"Feedback must be from {FeedBackValidationInfo.MinimumContent} to {FeedBackValidationInfo.MaximumContent} characters";
                 failCheck = true;
             }
 

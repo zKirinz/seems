@@ -5,11 +5,12 @@ import {
     Check as CheckIcon,
     Close as CloseIcon,
     OpenInNew as OpenInNewIcon,
+    EventAvailable as EventAvailableIcon,
 } from '@mui/icons-material'
 import { Box, Card, Chip, Grid } from '@mui/material'
 
-import authAtom from '../../recoil/auth'
-import EventPoster from '../EventPoster'
+import authAtom from '../../../recoil/auth'
+import EventPoster from '../../EventPoster'
 import EventSummaryInfo from './EventSummaryInfo'
 
 const EventCard = ({
@@ -55,16 +56,25 @@ const EventCard = ({
             </Box>
             {auth.email && auth.role !== 'Admin' && (
                 <Box position="absolute" bottom={175} right={50}>
-                    <Chip
-                        label={
-                            canRegister
-                                ? 'Available for registration'
-                                : 'Not available for registration'
-                        }
-                        icon={canRegister ? <CheckIcon /> : <CloseIcon />}
-                        color={canRegister ? 'success' : 'warning'}
-                        variant="outlined"
-                    />
+                    {auth.organization === organizer ? (
+                        <Chip
+                            label="This is your event"
+                            icon={<EventAvailableIcon />}
+                            color="info"
+                            variant="outlined"
+                        />
+                    ) : (
+                        <Chip
+                            label={
+                                canRegister
+                                    ? 'Available for registration'
+                                    : 'Not available for registration'
+                            }
+                            icon={canRegister ? <CheckIcon /> : <CloseIcon />}
+                            color={canRegister ? 'success' : 'warning'}
+                            variant="outlined"
+                        />
+                    )}
                 </Box>
             )}
             <Box
@@ -84,7 +94,11 @@ const EventCard = ({
                 />
                 {auth.email && (
                     <Chip
-                        label={canRegister ? 'Register' : 'Read More'}
+                        label={
+                            auth.organization !== organizer && canRegister
+                                ? 'Register'
+                                : 'Read More'
+                        }
                         color="secondary"
                         onClick={() =>
                             history.push(isAdmin ? `/admin/events/${id}` : `/events/${id}`)

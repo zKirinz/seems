@@ -1,5 +1,4 @@
-import EventsListWithFilter from '../../components/EventsListWithFilter'
-import pageEnum from '../../components/EventsListWithFilter/pageEnum'
+import ReservationsWithFilter from '../../components/ReservationsWithFilter'
 import { Box, Typography } from '@mui/material'
 
 const MyRegistrations = () => {
@@ -8,7 +7,7 @@ const MyRegistrations = () => {
             <Typography variant="h3" color="primary" align="center" mt={1} fontWeight={700}>
                 My Registrations
             </Typography>
-            <EventsListWithFilter page={pageEnum.MyRegistrations} />
+            <ReservationsWithFilter />
         </Box>
     )
 }

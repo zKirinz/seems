@@ -8,7 +8,7 @@ import {
     Logout as LogoutIcon,
     Add as AddIcon,
     Event as EventIcon,
-    EventAvailable as EventAvailableIcon,
+    AppRegistration as AppRegistrationIcon,
 } from '@mui/icons-material'
 import {
     Box,
@@ -126,7 +126,7 @@ const RightNavBar = () => {
                                     <ListItemIcon>
                                         <EventIcon fontSize="large" />
                                     </ListItemIcon>
-                                    <Typography ml={1}>My events</Typography>
+                                    <Typography ml={1}>My Events</Typography>
                                 </MenuItem>
                             )}
 
@@ -135,9 +135,9 @@ const RightNavBar = () => {
                                 onClick={() => history.push('/events/my-registrations')}
                             >
                                 <ListItemIcon>
-                                    <EventAvailableIcon fontSize="large" />
+                                    <AppRegistrationIcon fontSize="large" />
                                 </ListItemIcon>
-                                <Typography ml={1}>Registered events</Typography>
+                                <Typography ml={1}>My Registrations</Typography>
                             </MenuItem>
 
                             {auth.role === 'Organizer' && (
@@ -148,7 +148,7 @@ const RightNavBar = () => {
                                     <ListItemIcon>
                                         <AddIcon fontSize="large" />
                                     </ListItemIcon>
-                                    <Typography ml={1}>Create event</Typography>
+                                    <Typography ml={1}>Create Event</Typography>
                                 </MenuItem>
                             )}
 

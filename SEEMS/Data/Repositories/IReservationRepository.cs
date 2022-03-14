@@ -10,5 +10,6 @@ namespace SEEMS.Data.Repositories
 		public Task<List<Reservation>> GetReservationsByEventId(int eventId, bool trackChanges);
 
 		public Task<List<Reservation>> GetReservationsByEventId(DateTime from, bool trackChanges);
+		string GetEventStatus(int reservationId);
 	}
 }

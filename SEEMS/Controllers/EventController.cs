@@ -8,7 +8,6 @@ using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs.Event;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
-using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
@@ -144,9 +143,7 @@ namespace SEEMS.Controller
 						{
 							var eMapped = _mapper.Map<EventDTO>(e);
 							eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-							eMapped.CanRegister = _repository.Event.CanRegister(e.Id);
-							//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
-							//eMapped.OrganizationName = _context.Organizations.FirstOrDefault(o => o.Id == e.OrganizationId).Name;
+							eMapped.CanTakeAttendance = _repository.Event.CanTakeAttendance(e.Id);
 							dtoResult.Add(eMapped);
 						});
 					return failed
@@ -176,8 +173,8 @@ namespace SEEMS.Controller
 		[HttpGet("upcoming")]
 		public async Task<ActionResult<List<Event>>> GetUpcoming()
 		{
-			//int resultCount;
 			User currentUser = await GetCurrentUser(Request);
+			string userRole = null;
 			try
 			{
 				var result = _context.Events.ToList().Where(
@@ -187,7 +184,10 @@ namespace SEEMS.Controller
 				{
 					result = result.Where(e => !e.IsPrivate);
 				}
-				//resultCount = Math.Min(10, result.Count());
+				else
+				{
+					userRole = (await _repository.UserMeta.GetRoleByUserIdAsync(currentUser.Id, false)).MetaValue;
+				}
 				result = result.OrderBy(e => e.StartDate);
 				var dtoResult = new List<EventDTO>();
 				result.ToList().ForEach(e =>
@@ -195,17 +195,22 @@ namespace SEEMS.Controller
 					var eMapped = _mapper.Map<EventDTO>(e);
 					var registeredNum = _repository.Reservation.GetRegisteredNum(e.Id);
 					eMapped.CanRegister = _repository.Event.CanRegister(e.Id);
-					//eMapped.OrganizationName = OrganizationEnumHelper.ToString(e.OrganizationName);
 					dtoResult.Add(eMapped);
 				});
-				return Ok(new Response(
-					ResponseStatusEnum.Success,
-					new
-					{
-						Count = dtoResult.Count(),
-						Events = dtoResult
-					}
-				));
+				if(userRole != null && userRole.Equals("Admin"))
+				{
+					dtoResult.ForEach(e => e.CanRegister = false);
+				}
+				return Ok(
+					new Response(
+						ResponseStatusEnum.Success,
+						new
+						{
+							Count = dtoResult.Count(),
+							Events = dtoResult
+						}
+					)
+				);
 			}
 			catch(Exception ex)
 			{
@@ -218,8 +223,14 @@ namespace SEEMS.Controller
 		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
 			int? lastEventID, bool? active, string? organizationName, int resultCount = 10)
 		{
+			var currentUser = await GetCurrentUser(Request);
+			string userRole = null;
 			try
 			{
+				if(currentUser != null)
+				{
+					userRole = (await _repository.UserMeta.GetRoleByUserIdAsync(currentUser.Id, false)).MetaValue;
+				}
 				var allEvents = _context.Events.ToList();
 				IEnumerable<Event> foundResult;
 				if(upcoming == null)
@@ -291,6 +302,11 @@ namespace SEEMS.Controller
 					eMapped.CanRegister = _repository.Event.CanRegister(e.Id);
 					dtoResult.Add(eMapped);
 				});
+
+				if(userRole != null && userRole.Equals("Admin"))
+				{
+					dtoResult.ForEach(e => e.CanRegister = false);
+				}
 
 				return failed
 					? BadRequest(
@@ -480,6 +496,34 @@ namespace SEEMS.Controller
 
 		}
 
+		[HttpGet("can-take-attendance/{id}")]
+		public async Task<ActionResult> CanTakeAttendance(int id)
+		{
+			var user = await GetCurrentUser(Request);
+			var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
+			if(myEvent != null)
+			{
+				var canTakeAttendance = _repository.Event.CanTakeAttendance(id);
+				return Ok(
+					new Response(
+						ResponseStatusEnum.Success,
+						new
+						{
+							CanTakeAttendance = canTakeAttendance
+						}
+					)
+				);
+			}
+			else
+			{
+				return BadRequest(
+					new Response(
+						ResponseStatusEnum.Fail,
+						msg: "Event does not existed!"
+					)
+					);
+			}
+		}
 		private async Task<User> GetCurrentUser(HttpRequest req)
 		{
 			var email = _authManager.GetCurrentEmail(req);
