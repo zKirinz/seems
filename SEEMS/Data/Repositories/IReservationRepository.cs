@@ -1,4 +1,5 @@
-﻿using SEEMS.Data.Models;
+﻿using SEEMS.Data.DTOs;
+using SEEMS.Data.Models;
 using SEEMS.Models;
 
 namespace SEEMS.Data.Repositories

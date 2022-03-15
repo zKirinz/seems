@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SEEMS.Contexts;
+using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
 using SEEMS.Models;
 
