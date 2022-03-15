@@ -22,9 +22,14 @@ namespace SEEMS.Data.Repositories.Implements
 			await FindByCondition(r => r.EventId == eventId, trackChanges)	
 				.ToListAsync();
 		
-		public async Task<List<Reservation>> GetReservationsByEventId(DateTime from, bool trackChanges) =>
-			await FindByCondition(r => r.CreatedAt == from, trackChanges)
+		public async Task<IEnumerable<Reservation>> GetReservationsByEventId(DateTime from, bool trackChanges) =>
+			await FindByCondition(r => r.CreatedAt <= from.AddMinutes(30) && r.IsEmailed == false, 
+					trackChanges)
 				.ToListAsync();
+
+		public async Task<Reservation> GetReservationAsync(int id, bool trackChanges) =>
+			await FindByCondition(r => r.Id == id, trackChanges)
+				.SingleOrDefaultAsync();
 
 		public string GetEventStatus(int reservationId)
 		{
