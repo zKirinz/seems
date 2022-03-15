@@ -26,6 +26,7 @@ import {
 } from '@mui/material'
 
 import authAtom, { useAuthAction } from '../../../recoil/auth'
+import UserProfile from '../../UserProfile'
 
 const RightNavBar = () => {
     const auth = useRecoilValue(authAtom)
@@ -33,7 +34,14 @@ const RightNavBar = () => {
     const authAction = useAuthAction()
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
+    const [openDialog, setOpenDialog] = useState(false)
 
+    const handleOpenDialog = () => {
+        setOpenDialog(true)
+    }
+    const handleCloseDialog = () => {
+        setOpenDialog(false)
+    }
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget)
     }
@@ -154,7 +162,10 @@ const RightNavBar = () => {
                             )}
 
                             {auth.role !== 'Admin' && (
-                                <MenuItem sx={{ display: 'flex', px: 5 }}>
+                                <MenuItem
+                                    sx={{ display: 'flex', px: 5 }}
+                                    onClick={handleOpenDialog}
+                                >
                                     <ListItemIcon>
                                         <AccountCircle fontSize="large" />
                                     </ListItemIcon>
@@ -188,6 +199,7 @@ const RightNavBar = () => {
                     </Button>
                 )}
             </Box>
+            <UserProfile open={openDialog} onClose={handleCloseDialog} />
         </React.Fragment>
     )
 }
