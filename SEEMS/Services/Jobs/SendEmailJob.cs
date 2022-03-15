@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Quartz;
 using SEEMS.Data.Entities.RequestFeatures;
+using SEEMS.Models;
 using SEEMS.Services.Interfaces;
 using static System.Drawing.Imaging.ImageFormat;
 using Attachment = System.Net.Mail.Attachment;
@@ -40,11 +41,19 @@ public class SendEmailJob : IJob
         {
             _logger.LogInformation($"Send email: {context.JobDetail.JobType}");
 
-            var list = _repoManager.Reservation.GetReservationsByEventId(DateTime.Today, false).Result;
+            var list = _repoManager.Reservation.GetReservationsByEventId(DateTime.Now, false).Result;
 
             foreach (var @reservation in list)
             {
+                
                 var  mailToUser = new EmailMeta();
+                @reservation.Event = _repoManager.Event.GetEventAsync(@reservation.EventId, false).Result;
+                @reservation.User = _repoManager.User.GetUserAsync((int) @reservation.UserId, false).Result;
+
+                if (@reservation.Event == null || @reservation.User == null || @reservation.IsEmailed == true)
+                {
+                    _logger.LogError("hehe");
+                }
                 mailToUser.ToEmail = @reservation.User.Email;
                 mailToUser.Subject = $"Mã QR cho sự {@reservation.Event.EventTitle} yeah sắp tới";
                            
@@ -60,8 +69,10 @@ public class SendEmailJob : IJob
                 mailToUser.Attachment = new Attachment(new MemoryStream(qr), "image/png");
                 var stream = new MemoryStream(qr);
                            
-                mailToUser.Message = $"<img src='{Image.FromStream(stream)}'>";
+                mailToUser.Message = _emailService.InitEmailContext(reservation);
+                IsEmailedReservation(_repoManager, reservation);
                 _emailService.SendEmail(mailToUser);
+                _logger.LogInformation($"{mailToUser.Message}");
             }
         } 
         catch (Exception e)
@@ -72,11 +83,12 @@ public class SendEmailJob : IJob
         return Task.CompletedTask;
     }
 
-    private void Client_SendCompleted(object sender, AsyncCompletedEventArgs e)
+    private async void IsEmailedReservation(IRepositoryManager repoManager, Reservation reservation)
     {
-        if (e.Error != null)
-        {
-            
-        }
+        reservation.IsEmailed = true;
+        var entity = await repoManager.Reservation.GetReservationAsync(reservation.Id, true);
+        _mapper.Map(reservation, entity);
+        repoManager.SaveAsync();
     }
+    
 }
