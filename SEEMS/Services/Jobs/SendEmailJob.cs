@@ -45,7 +45,6 @@ public class SendEmailJob : IJob
 
             foreach (var @reservation in list)
             {
-                
                 var  mailToUser = new EmailMeta();
                 @reservation.Event = _repoManager.Event.GetEventAsync(@reservation.EventId, false).Result;
                 @reservation.User = _repoManager.User.GetUserAsync((int) @reservation.UserId, false).Result;
@@ -60,19 +59,25 @@ public class SendEmailJob : IJob
                 var payload = new EmailPayload
                 {
                    Email = @reservation.User.Email,
-                   UserName = @reservation.User.UserName,
-                   EventName = @reservation.Event.EventTitle 
+                   EventName = @reservation.Event.EventTitle
                 };
                    
                 var qr = _qrGenerator.GenerateQRCode(JsonConvert.SerializeObject(payload));
-                           
-                mailToUser.Attachment = new Attachment(new MemoryStream(qr), "image/png");
+                          
+                mailToUser.Attachment = new Attachment(CreateTempFile(qr, Png.ToString()), "image/png");
                 var stream = new MemoryStream(qr);
                            
                 mailToUser.Message = _emailService.InitEmailContext(reservation);
-                IsEmailedReservation(_repoManager, reservation);
-                _emailService.SendEmail(mailToUser);
-                _logger.LogInformation($"{mailToUser.Message}");
+                var isEmailed = IsEmailedReservation(_repoManager, reservation).Result;
+                if (isEmailed)
+                {
+                    _emailService.SendEmail(mailToUser);
+                    _logger.LogInformation($"{mailToUser.Message}");
+                }
+                else
+                {
+                    throw new InvalidOperationException("hehe");
+                }
             }
         } 
         catch (Exception e)
@@ -83,12 +88,21 @@ public class SendEmailJob : IJob
         return Task.CompletedTask;
     }
 
-    private async void IsEmailedReservation(IRepositoryManager repoManager, Reservation reservation)
+    private async Task<bool> IsEmailedReservation(IRepositoryManager repoManager, Reservation reservation)
     {
         reservation.IsEmailed = true;
         var entity = await repoManager.Reservation.GetReservationAsync(reservation.Id, true);
         _mapper.Map(reservation, entity);
         repoManager.SaveAsync();
+         
+        return entity.IsEmailed;
+    }
+
+    private string CreateTempFile(byte[] fileData, string extension)
+    {
+        var fileName = System.IO.Path.GetTempFileName() + "." + extension;
+        File.WriteAllBytes(fileName, fileData);
+        return fileName;
     }
     
 }

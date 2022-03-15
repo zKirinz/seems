@@ -55,18 +55,23 @@ public class EmailService : IEmailService
         return _configuration[$"{domain}:{key}"];
     }
 
-    public string InitEmailContext(Reservation reservation)
-    {
-        var message = new StringBuilder();
-        
-        message.Append($"<html>Dear {reservation.User.UserName}, ");
-        message.AppendLine($"Xin gửi tới bạn thông tin về sự kiện sắp tới:<br>");
-        message.AppendLine($"Event: {reservation.Event.EventTitle}<br>");
-        message.AppendLine($"Location: {reservation.Event.Location}<br>");
-        message.AppendLine($"Start at: {reservation.Event.StartDate}<br>");
-        message.AppendLine($"End at: {reservation.Event.EndDate}<br>");
-        message.AppendLine($"Description: {reservation.Event.EventDescription}</html>");
-        
-        return message.ToString();
-    }
+    public string InitEmailContext(Reservation reservation) =>
+        @"<html>"
+           + "<body>"
+                + $"<p>Hi {reservation.User.UserName},</p>"
+                + "<p>"
+                    + $"This is a friendly reminder that you have a reservation to attend an upcoming event at {reservation.Event.Location}."
+                + "</p>"
+                + "<ul>"
+                    + $"<li>WHAT: {reservation.Event.EventTitle}</li>"
+                    + $"<li>WHEN: {reservation.Event.StartDate} - {reservation.Event.EndDate}</li>"
+                    + $"<li>WHERE: {reservation.Event.Location}</li>" 
+                    + $"<li>DESCRIPTION: {reservation.Event.EventDescription}</li>"
+                + "</ul>"
+                + $"<p>Don't forget to get your attached QR code at {reservation.Event.StartDate} for taking attendance!!!</p>"
+                + "<p>Best,</p>"
+                + "<p>SEEM</p>"
+           + "</body>"
+        + "</html>";
+   
 }
