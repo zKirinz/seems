@@ -33,7 +33,7 @@ namespace SEEMS.Data.Repositories.Implements
 			await FindByCondition(r => r.Id == id, trackChanges)
 				.SingleOrDefaultAsync();
 
-		public string GetEventStatus(int reservationId)
+		public string GetRegisterEventStatus(int reservationId)
 		{
 			var feedback = _context.FeedBacks.Any(f => f.ReservationId == reservationId);
 			var reservation = _context.Reservations.FirstOrDefault(r => r.Id == reservationId);
@@ -86,7 +86,7 @@ namespace SEEMS.Data.Repositories.Implements
 					registeredEvent.CanRegister = anEvent.RegistrationDeadline.CompareTo(DateTime.Now) > 0 && (registeredNum == 0 || registeredNum < anEvent.ParticipantNum);
 					registeredEvent.OrganizationName = anEvent.OrganizationName.ToString();
 					registeredEvent.ReservationId = x.Id;
-					registeredEvent.ReservationStatus = GetEventStatus(x.Id);
+					registeredEvent.ReservationStatus = GetRegisterEventStatus(x.Id);
 					registeredEvent.FeedBack = x.Attend;
 					registeredEvent.Attend = x.Attend;
 					listRegisteredEventsDTO.Add(registeredEvent);
@@ -103,7 +103,7 @@ namespace SEEMS.Data.Repositories.Implements
 		public int GetRegisteredEventsNumByStatus(int userId, string status)
 		{
 			var listReservations = _context.Reservations.Where(x => x.UserId == userId).ToList();
-			var result = listReservations.Count(r => GetEventStatus(r.Id).Equals(status));
+			var result = listReservations.Count(r => GetRegisterEventStatus(r.Id).Equals(status));
 			return result;
 		}
 	}

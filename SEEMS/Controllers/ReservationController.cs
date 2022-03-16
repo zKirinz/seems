@@ -166,7 +166,7 @@ namespace SEEMS.Controllers
 
 
 						foundResult.ToList().ForEach(e =>
-							e.ReservationStatus = _repoManager.Reservation.GetEventStatus(e.ReservationId)
+							e.ReservationStatus = _repoManager.Reservation.GetRegisterEventStatus(e.ReservationId)
 						);
 
 						if(reservationStatus != null)
@@ -315,12 +315,12 @@ namespace SEEMS.Controllers
 			}
 		}
 
-		[HttpGet("profile/{userId}")]
-		public async Task<IActionResult> GetProfilePage(int userId)
+		[HttpGet("profile/{email}")]
+		public async Task<IActionResult> GetProfilePage(string email)
 		{
 			try
 			{
-				var user = await _repoManager.User.GetUserAsync(userId, false);
+				var user = await _repoManager.User.GetUserAsync(email, false);
 				if(user == null)
 				{
 					return BadRequest(
@@ -336,10 +336,10 @@ namespace SEEMS.Controllers
 						Username = user.UserName,
 						Role = (await _repoManager.UserMeta.GetRolesAsync(user.Email, false)).MetaValue,
 						OrganizationName = user.OrganizationName.ToString(),
-						RegisteredEventsNum = _repoManager.Reservation.GetRegisteredEventsNumOfUser(userId),
-						FeedbackedEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(userId, "Feedbacked"),
-						NoFeedbackEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(userId, "Attended"),
-						AbsentEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(userId, "Absent"),
+						RegisteredEventsNum = _repoManager.Reservation.GetRegisteredEventsNumOfUser(user.Id),
+						FeedbackedEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Feedbacked"),
+						NoFeedbackEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Attended"),
+						AbsentEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Absent"),
 					};
 					return Ok(
 						new Response(
