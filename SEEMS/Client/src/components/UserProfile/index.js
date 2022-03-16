@@ -1,6 +1,7 @@
 import { useRecoilValue } from 'recoil'
 
-import { Avatar, Dialog, DialogContent, DialogTitle, Box, Typography } from '@mui/material'
+import { Event, Comment, CommentsDisabled, WebAssetOff } from '@mui/icons-material'
+import { Avatar, Dialog, DialogContent, DialogTitle, Box, Typography, Grid } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
 import atom from '../../recoil/auth'
@@ -15,11 +16,7 @@ const data = {
         {
             label: 'Activity',
             data: [12, 19, 3],
-            backgroundColor: [
-                'rgba(96, 255, 86, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 99, 132, 0.2)',
-            ],
+            backgroundColor: ['#2e7d32', '#0288d1', '#d32f2f'],
             borderColor: ['rgba(96, 255, 86, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
             borderWidth: 1,
         },
@@ -30,7 +27,7 @@ const options = {
     plugins: {
         legend: {
             position: 'bottom',
-            align: 'start',
+            align: 'center',
             labels: {
                 padding: 20,
                 usePointStyle: true,
@@ -58,7 +55,7 @@ const UserProfile = ({ onClose, open }) => {
     return (
         <Dialog onBackdropClick={onClose} open={open}>
             <DialogTitle color="primary.dark">My Profile</DialogTitle>
-            <DialogContent sx={{ minWidth: 450, py: 3 }} dividers>
+            <DialogContent sx={{ minWidth: 550, maxWidth: 650, py: 3 }} dividers>
                 <Box display="flex" alignItems="center">
                     <Avatar alt="avatar" src={auth.image} sx={{ height: 100, width: 100 }} />
                     <Box sx={{ ml: 4 }}>
@@ -68,8 +65,81 @@ const UserProfile = ({ onClose, open }) => {
                         <Typography variant="subtitle1">{auth.email}</Typography>
                     </Box>
                 </Box>
-                <Box display="flex"></Box>
-                <Box sx={{ width: 300, height: 300, mx: 'auto', mt: 2 }}>
+                <Grid container spacing={2} sx={{ mt: 3 }}>
+                    <Grid item sm={6} xs={12}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            flexDirection="column"
+                            sx={{ border: '1px solid #ff5722', p: 2 }}
+                        >
+                            <Event fontSize="large" color="primary" />
+                            <Typography
+                                fontWeight={700}
+                                variant="h5"
+                                sx={{ my: 1, color: blueGrey[800] }}
+                            >
+                                15
+                            </Typography>
+                            <Typography variant="body2">Total Registration</Typography>
+                        </Box>
+                    </Grid>
+                    <Grid item sm={6} xs={12}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            flexDirection="column"
+                            sx={{ border: '1px solid #2e7d32', p: 2 }}
+                        >
+                            <Comment fontSize="large" color="success" />
+                            <Typography
+                                fontWeight={700}
+                                variant="h5"
+                                sx={{ my: 1, color: blueGrey[800] }}
+                            >
+                                20
+                            </Typography>
+                            <Typography variant="body2">Participation with feedback</Typography>
+                        </Box>
+                    </Grid>
+                    <Grid item sm={6} xs={12}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            flexDirection="column"
+                            sx={{ border: '1px solid #0288d1', p: 2 }}
+                        >
+                            <CommentsDisabled fontSize="large" color="info" />
+                            <Typography
+                                fontWeight={700}
+                                variant="h5"
+                                sx={{ my: 1, color: blueGrey[800] }}
+                            >
+                                10
+                            </Typography>
+                            <Typography variant="body2">Participation without feedback</Typography>
+                        </Box>
+                    </Grid>
+                    <Grid item sm={6} xs={12}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            flexDirection="column"
+                            sx={{ border: '1px solid #d32f2f', p: 2 }}
+                        >
+                            <WebAssetOff fontSize="large" color="error" />
+                            <Typography
+                                fontWeight={700}
+                                variant="h5"
+                                sx={{ my: 1, color: blueGrey[800] }}
+                            >
+                                5
+                            </Typography>
+                            <Typography variant="body2">Registration without attendance</Typography>
+                        </Box>
+                    </Grid>
+                </Grid>
+                <Box sx={{ width: 400, mx: 'auto', mt: 5 }}>
                     <Pie data={data} options={options} />
                 </Box>
             </DialogContent>
