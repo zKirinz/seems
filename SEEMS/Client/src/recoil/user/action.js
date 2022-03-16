@@ -36,6 +36,8 @@ const useUsersAction = () => {
                 attend,
             },
         })
+    const getUserEventStatistic = (userEmail) =>
+        get({ endpoint: `/api/reservations/profile/${userEmail}` })
 
     return {
         getUsers,
@@ -43,6 +45,7 @@ const useUsersAction = () => {
         updateUserOrganizationActive,
         getRegisteredUserOfEvent,
         takeUserAttendOfEvent,
+        getUserEventStatistic,
     }
 }
 

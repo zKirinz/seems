@@ -199,7 +199,9 @@ const RightNavBar = () => {
                     </Button>
                 )}
             </Box>
-            <UserProfile open={openDialog} onClose={handleCloseDialog} />
+            {openDialog && (
+                <UserProfile open={openDialog} onClose={handleCloseDialog} userEmail={auth.email} />
+            )}
         </React.Fragment>
     )
 }
