@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using SEEMS.Contexts;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 
 namespace SEEMS.Data.Repositories.Implements
@@ -39,9 +40,8 @@ namespace SEEMS.Data.Repositories.Implements
 		{
 			var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
 			var registeredNum = _context.Reservations.Count(r => r.EventId == id);
-			return registeredNum < myEvent.ParticipantNum && myEvent.RegistrationDeadline.CompareTo(DateTime.Now) > 0;
+			return myEvent.RegistrationDeadline.CompareTo(DateTime.Now) > 0 && (registeredNum == 0 || registeredNum < myEvent.ParticipantNum);
 		}
-
 		public bool CanUnregister(int id, int minHourToUnregister)
 		{
 			var myEvent = _context.Events.SingleOrDefault(e => e.Id == id);
@@ -53,6 +53,30 @@ namespace SEEMS.Data.Repositories.Implements
 			var myEvent = _context.Events.SingleOrDefault(e => e.Id == id);
 			var now = DateTime.Now;
 			return now.CompareTo(myEvent.StartDate.Subtract(TimeSpan.FromHours(1))) > 0 && now.CompareTo(myEvent.EndDate) < 0;
+		}
+
+		public string? GetMyEventStatus(int eventId)
+		{
+			var myEvent = _context.Events.FirstOrDefault(e => e.Id == eventId);
+			string? statusResult = null;
+			if(myEvent != null)
+			{
+				var registrationDeadline = myEvent.RegistrationDeadline;
+				var now = DateTime.Now;
+				if(CanTakeAttendance(eventId))
+				{
+					statusResult = "TakingAttendance";
+				}
+				else if(now.CompareTo(myEvent.StartDate.Subtract(TimeSpan.FromHours(1))) < 0)
+				{
+					statusResult = "Pending";
+				}
+				else if(now.CompareTo(myEvent.EndDate) > 0)
+				{
+					statusResult = "Finished";
+				}
+			}
+			return statusResult;
 		}
 	}
 }

@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Mvc;
 
 using SEEMS.Contexts;
-using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
@@ -40,32 +39,32 @@ namespace SEEMS.Controllers
 			try
 			{
 				var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-				if (currentUser == null)
+				if(currentUser == null)
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue"));
 				}
 
 				var userId = currentUser.Id;
 				var myEvent = _context.Events.FirstOrDefault(x => x.Id == reservationDTO.EventId);
-				if (myEvent == null)
+				if(myEvent == null)
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId"));
 				}
 
 				var reservation = _context.Reservations.FirstOrDefault(x => x.UserId == userId && x.EventId == reservationDTO.EventId);
-				if (reservation != null)
-                {
+				if(reservation != null)
+				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You already registered this event "));
 				}
 
-				if (myEvent.RegistrationDeadline.CompareTo(DateTime.Now) < 0)
+				if(myEvent.RegistrationDeadline.CompareTo(DateTime.Now) < 0)
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Registration time has expired."));
 				}
 
 				var registeredNum = _context.Reservations.Count(r => r.EventId == reservationDTO.EventId);
-				if (!(registeredNum < myEvent.ParticipantNum))
-                {
+				if(!(registeredNum < myEvent.ParticipantNum))
+				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "This event has full slot. You can not register the event"));
 				}
 
@@ -76,7 +75,7 @@ namespace SEEMS.Controllers
 
 				return Ok(new Response(ResponseStatusEnum.Success, reservation));
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
 			}
@@ -90,19 +89,19 @@ namespace SEEMS.Controllers
 			try
 			{
 				var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-				if (currentUser == null)
+				if(currentUser == null)
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
 				}
 
 				var role = _context.UserMetas.SingleOrDefault(x => x.UserId == currentUser.Id).MetaValue;
-				if (!role.Contains(RoleTypes.ADM) || !role.Contains(RoleTypes.ORG))
+				if(!role.Contains(RoleTypes.ADM) || !role.Contains(RoleTypes.ORG))
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
 				}
 
 				var reservation = _context.Reservations.FirstOrDefault(x => x.Id == attendance.Id);
-				if (reservation == null)
+				if(reservation == null)
 				{
 					return Ok(new Response(ResponseStatusEnum.Fail, "", "Invalid reservationId"));
 				}
@@ -112,7 +111,7 @@ namespace SEEMS.Controllers
 				_context.SaveChanges();
 				return Ok(new Response(ResponseStatusEnum.Success, ""));
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
 			}
@@ -130,23 +129,10 @@ namespace SEEMS.Controllers
 				if(currentUser != null)
 				{
 					var userId = currentUser.Id;
-					var listReservation = _context.Reservations.Where(x => x.UserId == userId).ToList();
+					var listRegisteredEvents = _repoManager.Reservation.GetListRegisteredEvents(userId);
 					userRole = (await _repoManager.UserMeta.GetRoleByUserIdAsync(userId, false)).MetaValue;
-					if(listReservation.Any())
+					if(listRegisteredEvents.Count() > 0)
 					{
-						List<RegisteredEventsDTO> listRegisteredEvents = new List<RegisteredEventsDTO>();
-						foreach(var reservation in listReservation)
-						{
-							var myEvent = _context.Events.FirstOrDefault(x => x.Id == reservation.EventId);
-							var registeredEvents = _mapper.Map<RegisteredEventsDTO>(myEvent);
-							registeredEvents.CommentsNum = _context.Comments.Where(c => c.EventId == reservation.EventId).Count();
-							registeredEvents.OrganizationName = myEvent.OrganizationName.ToString();
-							registeredEvents.ReservationId = reservation.Id;
-							registeredEvents.FeedBack = reservation.Attend;
-							registeredEvents.Attend = reservation.Attend;
-							listRegisteredEvents.Add(registeredEvents);
-						}
-
 						IEnumerable<RegisteredEventsDTO> foundResult;
 						if(upcoming == null)
 						{
@@ -256,23 +242,23 @@ namespace SEEMS.Controllers
 			try
 			{
 				var anEvent = _context.Events.FirstOrDefault(x => x.Id == id);
-				if (anEvent == null)
+				if(anEvent == null)
 				{
 					return Ok(new Response(ResponseStatusEnum.Success, "", "Invalid eventId"));
 				}
 
 				var listRegisteredUser = _context.Reservations.Where(x => x.EventId == id).ToList();
-				if (!listRegisteredUser.Any())
+				if(!listRegisteredUser.Any())
 				{
 					return Ok(new Response(ResponseStatusEnum.Success, "", "No user have registered yet"));
 				}
 
 				List<ReservationForAttendanceResDTO> listUser = new List<ReservationForAttendanceResDTO>();
 				User user = new User();
-				foreach (var reservation in listRegisteredUser)
+				foreach(var reservation in listRegisteredUser)
 				{
 					user = _context.Users.Where(x => x.Id == reservation.UserId).FirstOrDefault();
-					if (user != null)
+					if(user != null)
 					{
 						var userAttendance = _mapper.Map<ReservationForAttendanceResDTO>(user);
 						userAttendance.ReservationId = reservation.Id;
@@ -282,7 +268,7 @@ namespace SEEMS.Controllers
 				}
 				return Ok(new Response(ResponseStatusEnum.Success, listUser));
 			}
-			catch (Exception ex)
+			catch(Exception ex)
 			{
 				return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
 			}
@@ -297,28 +283,28 @@ namespace SEEMS.Controllers
 			{
 				var id = (int) reservationDTO.EventId;
 				var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
-				if (currentUser == null)
+				if(currentUser == null)
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue"));
 				}
 
 				var userId = currentUser.Id;
 				var events = _context.Events.FirstOrDefault(x => x.Id == id);
-				if (events == null)
+				if(events == null)
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Invalid EventId"));
 				}
 
 				var reservation = _context.Reservations.FirstOrDefault(x => x.UserId == userId && x.EventId == id);
-				if (reservation == null)
+				if(reservation == null)
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You have not registered this event yet"));
 				}
 
-				if (!_repoManager.Event.CanUnregister(id, ReservationValidationInfo.MinHourToUnregister))
+				if(!_repoManager.Event.CanUnregister(id, ReservationValidationInfo.MinHourToUnregister))
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", $"You must unregister for the event {ReservationValidationInfo.MinHourToUnregister} hour before the event starts."));
-				}				
+				}
 				_context.Reservations.Remove(reservation);
 				_context.SaveChanges();
 				return Ok(new Response(ResponseStatusEnum.Success, "", "Unregister successfully"));
@@ -328,6 +314,62 @@ namespace SEEMS.Controllers
 				return BadRequest(new Response(ResponseStatusEnum.Fail, "", ex.Message));
 			}
 		}
+
+		[HttpGet("profile/{userId}")]
+		public async Task<IActionResult> GetProfilePage(int userId)
+		{
+			try
+			{
+				var user = await _repoManager.User.GetUserAsync(userId, false);
+				if(user == null)
+				{
+					return BadRequest(
+						new Response(ResponseStatusEnum.Fail, "null", "Can't find the user")
+					);
+				}
+				else
+				{
+					var profileDTO = new ProfilePageDTO()
+					{
+						Email = user.Email,
+						ImageURL = user.ImageUrl,
+						Username = user.UserName,
+						Role = (await _repoManager.UserMeta.GetRolesAsync(user.Email, false)).MetaValue,
+						OrganizationName = user.OrganizationName.ToString(),
+						RegisteredEventsNum = _repoManager.Reservation.GetRegisteredEventsNumOfUser(userId),
+						FeedbackedEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(userId, "Feedbacked"),
+						NoFeedbackEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(userId, "Attended"),
+						AbsentEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(userId, "Absent"),
+					};
+					return Ok(
+						new Response(
+							ResponseStatusEnum.Success,
+							new
+							{
+								UserInfo = profileDTO,
+								UserEventInfo = new int[] {
+									profileDTO.FeedbackedEventsNum,
+									profileDTO.NoFeedbackEventsNum,
+									profileDTO.AbsentEventsNum
+								}
+							},
+							"Success!"
+						)
+					);
+				}
+			}
+			catch(Exception ex)
+			{
+				return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
+			}
+		}
+
+		//[HttpGet("is-banned/{userId}")]
+		//public async Task<IActionResult> IsBanned(int userId)
+		//{
+		//	List<RegisteredEventsDTO> registeredEventsDTOs = _repoManager.Reservation.GetListRegisteredEvents(userId).ToList();
+
+		//}
 
 		private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
 	}

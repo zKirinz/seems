@@ -24,7 +24,7 @@ namespace SEEMS.Models
 
 		public bool IsPrivate { get; set; }
 
-		[StringLength(255)]
+		[StringLength(2048)]
 		public string ImageUrl { get; set; }
 
 		public bool Active { get; set; }
