@@ -1,7 +1,16 @@
 import { useRecoilValue } from 'recoil'
 
 import { Event, Comment, CommentsDisabled, WebAssetOff } from '@mui/icons-material'
-import { Avatar, Dialog, DialogContent, DialogTitle, Box, Typography, Grid } from '@mui/material'
+import {
+    Avatar,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Box,
+    Typography,
+    Grid,
+    Alert,
+} from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
 import atom from '../../recoil/auth'
@@ -56,6 +65,27 @@ const UserProfile = ({ onClose, open }) => {
         <Dialog onBackdropClick={onClose} open={open}>
             <DialogTitle color="primary.dark">My Profile</DialogTitle>
             <DialogContent sx={{ minWidth: 550, maxWidth: 650, py: 3 }} dividers>
+                <Box sx={{ mb: 4 }}>
+                    {/* <Alert
+                        severity="success"
+                        variant="filled"
+                        sx={{ textAlign: 'center', justifyContent: 'center' }}
+                        icon={<ThumbUp />}
+                    >
+                        You are doing well! Keep it up!
+                    </Alert> */}
+                    <Alert
+                        severity="warning"
+                        variant="filled"
+                        sx={{
+                            textAlign: 'center',
+                            justifyContent: 'center',
+                            bgcolor: (theme) => theme.palette.warning.light,
+                        }}
+                    >
+                        You&apos;ve been absence twice. You will be banned if you reach three times
+                    </Alert>
+                </Box>
                 <Box display="flex" alignItems="center">
                     <Avatar alt="avatar" src={auth.image} sx={{ height: 100, width: 100 }} />
                     <Box sx={{ ml: 4 }}>
