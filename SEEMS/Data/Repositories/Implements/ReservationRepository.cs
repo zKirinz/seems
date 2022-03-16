@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
@@ -20,11 +21,11 @@ namespace SEEMS.Data.Repositories.Implements
 		}
 
 		public async Task<List<Reservation>> GetReservationsByEventId(int eventId, bool trackChanges) =>
-			await FindByCondition(r => r.EventId == eventId, trackChanges)	
+			await FindByCondition(r => r.EventId == eventId, trackChanges)
 				.ToListAsync();
-		
+
 		public async Task<IEnumerable<Reservation>> GetReservationsByEventId(DateTime from, bool trackChanges) =>
-			await FindByCondition(r => r.CreatedAt <= from.AddMinutes(30) && r.IsEmailed == false, 
+			await FindByCondition(r => r.CreatedAt <= from.AddMinutes(30) && r.IsEmailed == false,
 					trackChanges)
 				.ToListAsync();
 
@@ -85,12 +86,25 @@ namespace SEEMS.Data.Repositories.Implements
 					registeredEvent.CanRegister = anEvent.RegistrationDeadline.CompareTo(DateTime.Now) > 0 && (registeredNum == 0 || registeredNum < anEvent.ParticipantNum);
 					registeredEvent.OrganizationName = anEvent.OrganizationName.ToString();
 					registeredEvent.ReservationId = x.Id;
+					registeredEvent.ReservationStatus = GetEventStatus(x.Id);
 					registeredEvent.FeedBack = x.Attend;
 					registeredEvent.Attend = x.Attend;
 					listRegisteredEventsDTO.Add(registeredEvent);
 				}
 			});
 			return listRegisteredEventsDTO;
+		}
+
+		public int GetRegisteredEventsNumOfUser(int userId)
+		{
+			return _context.Reservations.Where(r => r.UserId == userId).Count();
+		}
+
+		public int GetRegisteredEventsNumByStatus(int userId, string status)
+		{
+			var listReservations = _context.Reservations.Where(x => x.UserId == userId).ToList();
+			var result = listReservations.Count(r => GetEventStatus(r.Id).Equals(status));
+			return result;
 		}
 	}
 }

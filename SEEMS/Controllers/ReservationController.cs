@@ -315,11 +315,60 @@ namespace SEEMS.Controllers
 			}
 		}
 
+		[HttpGet("profile/{userId}")]
+		public async Task<IActionResult> GetProfilePage(int userId)
+		{
+			try
+			{
+				var user = await _repoManager.User.GetUserAsync(userId, false);
+				if(user == null)
+				{
+					return BadRequest(
+						new Response(ResponseStatusEnum.Fail, "null", "Can't find the user")
+					);
+				}
+				else
+				{
+					var profileDTO = new ProfilePageDTO()
+					{
+						Email = user.Email,
+						ImageURL = user.ImageUrl,
+						Username = user.UserName,
+						Role = (await _repoManager.UserMeta.GetRolesAsync(user.Email, false)).MetaValue,
+						OrganizationName = user.OrganizationName.ToString(),
+						RegisteredEventsNum = _repoManager.Reservation.GetRegisteredEventsNumOfUser(userId),
+						FeedbackedEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(userId, "Feedbacked"),
+						NoFeedbackEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(userId, "Attended"),
+						AbsentEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(userId, "Absent"),
+					};
+					return Ok(
+						new Response(
+							ResponseStatusEnum.Success,
+							new
+							{
+								UserInfo = profileDTO,
+								UserEventInfo = new int[] {
+									profileDTO.FeedbackedEventsNum,
+									profileDTO.NoFeedbackEventsNum,
+									profileDTO.AbsentEventsNum
+								}
+							},
+							"Success!"
+						)
+					);
+				}
+			}
+			catch(Exception ex)
+			{
+				return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
+			}
+		}
+
 		//[HttpGet("is-banned/{userId}")]
 		//public async Task<IActionResult> IsBanned(int userId)
 		//{
 		//	List<RegisteredEventsDTO> registeredEventsDTOs = _repoManager.Reservation.GetListRegisteredEvents(userId).ToList();
-			 
+
 		//}
 
 		private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
