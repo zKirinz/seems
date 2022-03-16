@@ -44,7 +44,7 @@ namespace SEEMS.Controller
 				dtoEvent.CommentsNum = _repository.Comment.CountCommentsOfEvent(id);
 				dtoEvent.RootCommentsNum = _context.Comments.Where(c => c.EventId == id && c.ParentCommentId == null).Count();
 				dtoEvent.RegisteredNum = _repository.Reservation.GetRegisteredNum(id);
-				//dtoEvent.OrganizationName = OrganizationEnumHelper.ToString(foundEvent.OrganizationName);
+				dtoEvent.MyEventStatus = _repository.Event.GetMyEventStatus(id);
 				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
 				var registeredNum = _repository.Reservation.GetRegisteredNum(foundEvent.Id);
@@ -73,7 +73,7 @@ namespace SEEMS.Controller
 
 		[HttpGet("my-events")]
 		public async Task<ActionResult<List<Event>>> GetMyEvents(string? search, bool? upcoming,
-			int? lastEventID, bool? active, int resultCount = 10)
+			int? lastEventID, bool? active, string? myEventStatus, int resultCount = 10)
 		{
 			User user = await GetCurrentUser(Request);
 			try
@@ -101,7 +101,7 @@ namespace SEEMS.Controller
 							: foundResult.Where(e => !e.Active);
 					}
 
-					List<Event> returnResult = null;
+					List<EventDTO> returnResult = null;
 					bool failed = false;
 					bool loadMore = false;
 					int lastEventIndex = 0;
@@ -112,7 +112,14 @@ namespace SEEMS.Controller
 						foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 					}
 
+
 					foundResult = foundResult.OrderByDescending(e => e.StartDate);
+					returnResult = new List<EventDTO>();
+					foreach(Event fr in foundResult)
+					{
+						returnResult.Add(_mapper.Map<EventDTO>(fr));
+					}
+
 					//Implement load more
 
 					if(lastEventID != null)
@@ -120,7 +127,7 @@ namespace SEEMS.Controller
 						lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
 						if(lastEventIndex > 0)
 						{
-							returnResult = foundResult.ToList().GetRange(
+							returnResult = returnResult.GetRange(
 								lastEventIndex + 1,
 								Math.Min(resultCount, foundResult.Count() - lastEventIndex - 1));
 						}
@@ -131,7 +138,7 @@ namespace SEEMS.Controller
 					}
 					else
 					{
-						returnResult = foundResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
+						returnResult = returnResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
 					}
 					if(!failed && foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
 					{
@@ -143,9 +150,15 @@ namespace SEEMS.Controller
 						{
 							var eMapped = _mapper.Map<EventDTO>(e);
 							eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-							eMapped.CanTakeAttendance = _repository.Event.CanTakeAttendance(e.Id);
+							eMapped.CanTakeAttendance = _repository.Event.CanTakeAttendance((int) e.Id);
+							eMapped.MyEventStatus = _repository.Event.GetMyEventStatus((int) e.Id);
 							dtoResult.Add(eMapped);
 						});
+
+					if(myEventStatus != null)
+					{
+						dtoResult = dtoResult.Where(e => e.MyEventStatus.Equals(myEventStatus)).ToList();
+					}
 					return failed
 						? BadRequest(
 							new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
