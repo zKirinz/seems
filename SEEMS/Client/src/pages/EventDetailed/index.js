@@ -5,7 +5,13 @@ import { useHistory, useParams } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
 import EventPoster from '../../components/EventPoster'
-import { GroupsOutlined, Home, NoteAlt, SupervisedUserCircle } from '@mui/icons-material'
+import {
+    GroupsOutlined,
+    Home,
+    NoteAlt,
+    SupervisedUserCircle,
+    AppRegistration as AppRegistrationIcon,
+} from '@mui/icons-material'
 import { Box, Button, Card, CardContent, Container, Grid, Typography } from '@mui/material'
 import { blueGrey, grey } from '@mui/material/colors'
 
@@ -18,7 +24,6 @@ import EditEventButton from './EditEventButton'
 import EventDate from './EventDate'
 import FeedBack from './FeedBack'
 import RegisterButton from './RegisterButton'
-import UnRegisterButton from './UnRegisterButton'
 
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
@@ -36,6 +41,7 @@ const EventDetailed = () => {
         event: {},
         numberRootComments: 0,
     })
+
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
@@ -158,11 +164,24 @@ const EventDetailed = () => {
                     </CardContent>
                     <Box sx={{ mt: 4 }}>
                         {auth.role === 'User' && isRegistered && (
-                            <UnRegisterButton
-                                eventId={id}
-                                resetHandler={() => setReset(reset + 1)}
-                                registrationDeadline={detailedEvent.event.registrationDeadline}
-                            />
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 30,
+                                    right: 30,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<AppRegistrationIcon />}
+                                    disabled
+                                >
+                                    Registered
+                                </Button>
+                            </Box>
                         )}
                         {auth.role === 'User' && !isRegistered && (
                             <RegisterButton
@@ -173,11 +192,24 @@ const EventDetailed = () => {
                             />
                         )}
                         {auth.role === 'Organizer' && !isMyEvent && isRegistered && (
-                            <UnRegisterButton
-                                eventId={id}
-                                resetHandler={() => setReset(reset + 1)}
-                                registrationDeadline={detailedEvent.event.registrationDeadline}
-                            />
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 30,
+                                    right: 30,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<AppRegistrationIcon />}
+                                    disabled
+                                >
+                                    Registered
+                                </Button>
+                            </Box>
                         )}
                         {auth.role === 'Organizer' && !isMyEvent && !isRegistered && (
                             <RegisterButton
