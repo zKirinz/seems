@@ -4,6 +4,7 @@ using System.Net.Mime;
 using System.Text;
 using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Manage.Internal;
 using SEEMS.Data.Entities.RequestFeatures;
+using SEEMS.Models;
 using SEEMS.Services.Interfaces;
 
 namespace SEEMS.Services;
@@ -53,4 +54,24 @@ public class EmailService : IEmailService
     {
         return _configuration[$"{domain}:{key}"];
     }
+
+    public string InitEmailContext(Reservation reservation) =>
+        @"<html>"
+           + "<body>"
+                + $"<p>Hi {reservation.User.UserName},</p>"
+                + "<p>"
+                    + $"This is a friendly reminder that you have a reservation to attend an upcoming event at {reservation.Event.Location}."
+                + "</p>"
+                + "<ul>"
+                    + $"<li>WHAT: {reservation.Event.EventTitle}</li>"
+                    + $"<li>WHEN: {reservation.Event.StartDate} - {reservation.Event.EndDate}</li>"
+                    + $"<li>WHERE: {reservation.Event.Location}</li>" 
+                    + $"<li>DESCRIPTION: {reservation.Event.EventDescription}</li>"
+                + "</ul>"
+                + $"<p>Don't forget to get your attached QR code at {reservation.Event.StartDate} for taking attendance!!!</p>"
+                + "<p>Best,</p>"
+                + "<p>SEEM</p>"
+           + "</body>"
+        + "</html>";
+   
 }

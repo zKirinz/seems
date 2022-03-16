@@ -17,58 +17,6 @@ import { yellow } from '@mui/material/colors'
 import { useSnackbar } from '../../../../HOCs/SnackbarContext'
 import ListFeedback from './ListFeedback'
 
-// const feedback = [
-//     {
-//         id: 1,
-//         rating: 3,
-//         content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-//         incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-//         exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat`,
-//     },
-//     {
-//         id: 2,
-//         rating: 3,
-//         content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-//         incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-//         exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat`,
-//     },
-//     {
-//         id: 3,
-//         rating: 3,
-//         content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-//         incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-//         exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat`,
-//     },
-//     {
-//         id: 4,
-//         rating: 3,
-//         content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-//         incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-//         exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat`,
-//     },
-//     {
-//         id: 5,
-//         rating: 3,
-//         content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor ddddddddddddds
-//         incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-//         exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat`,
-//     },
-//     {
-//         id: 6,
-//         rating: 3,
-//         content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-//         incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-//         exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat`,
-//     },
-//     {
-//         id: 7,
-//         rating: 3,
-//         content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-//         incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-//         exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat`,
-//     },
-// ]
-
 const Loading = () => (
     <Box display="flex" justifyContent="center" my={3}>
         <CircularProgress thickness={4} color="secondary" />

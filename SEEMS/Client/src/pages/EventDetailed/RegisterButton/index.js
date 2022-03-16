@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import AlertConfirm from '../../../components/ConfirmDialog'
 import { AppRegistration as AppRegistrationIcon } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Box, Typography } from '@mui/material'
@@ -11,6 +12,7 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
     const eventAction = useEventAction()
     const showSnackbar = useSnackbar()
     const [isLoading, setIsLoading] = useState(false)
+    const [isOpenDialog, setOpenDialog] = useState(false)
     let isOutOfRegistrationDate = false
 
     if (registrationDeadline) {
@@ -37,7 +39,7 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                     })
                     setIsLoading(false)
                 })
-        }, 2000)
+        }, 1500)
     }
 
     return (
@@ -67,10 +69,19 @@ const RegisterButton = ({ eventId, resetHandler, canRegister, registrationDeadli
                 loadingPosition="start"
                 startIcon={<AppRegistrationIcon />}
                 variant="contained"
-                onClick={registerHandler}
+                onClick={() => setOpenDialog(true)}
             >
                 Register
             </LoadingButton>
+            <AlertConfirm
+                title="Registration Confirm"
+                open={isOpenDialog}
+                onConfirm={() => registerHandler()}
+                onClose={() => setOpenDialog(false)}
+                btnConfirmText="Confirm"
+            >
+                This action cannot be reversed, please make sure you can join the event.
+            </AlertConfirm>
         </Box>
     )
 }

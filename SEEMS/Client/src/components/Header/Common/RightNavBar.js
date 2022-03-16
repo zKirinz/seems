@@ -9,6 +9,7 @@ import {
     Add as AddIcon,
     Event as EventIcon,
     AppRegistration as AppRegistrationIcon,
+    AccountCircle,
 } from '@mui/icons-material'
 import {
     Box,
@@ -149,6 +150,15 @@ const RightNavBar = () => {
                                         <AddIcon fontSize="large" />
                                     </ListItemIcon>
                                     <Typography ml={1}>Create Event</Typography>
+                                </MenuItem>
+                            )}
+
+                            {auth.role !== 'Admin' && (
+                                <MenuItem sx={{ display: 'flex', px: 5 }}>
+                                    <ListItemIcon>
+                                        <AccountCircle fontSize="large" />
+                                    </ListItemIcon>
+                                    <Typography ml={1}>My Account</Typography>
                                 </MenuItem>
                             )}
 

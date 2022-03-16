@@ -22,5 +22,7 @@ namespace SEEMS.Models
         [JsonIgnore]
         public FeedBack FeedBack { get; set; }
 
+        public bool IsEmailed { get; set; } = false;
+
     }
 }

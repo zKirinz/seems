@@ -11,7 +11,7 @@ const AlertConfirm = ({ title, children, open, onConfirm, onClose, btnConfirmTex
         <Dialog open={open} onClose={onClose} onBackdropClick={onClose}>
             <DialogTitle sx={{ color: blueGrey[900] }}>{title}</DialogTitle>
             <DialogContent>{children}</DialogContent>
-            <DialogActions>
+            <DialogActions sx={{ my: 2, mr: 2 }}>
                 <Button onClick={onClose} variant="contained" color="error">
                     Cancel
                 </Button>
