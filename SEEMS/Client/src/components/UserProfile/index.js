@@ -68,7 +68,7 @@ const UserProfile = ({ onClose, open }) => {
                 <Box sx={{ mb: 4 }}>
                     {/* <Alert
                         severity="success"
-                        variant="filled"
+                        variant="outlined"
                         sx={{ textAlign: 'center', justifyContent: 'center' }}
                         icon={<ThumbUp />}
                     >
@@ -76,14 +76,14 @@ const UserProfile = ({ onClose, open }) => {
                     </Alert> */}
                     <Alert
                         severity="warning"
-                        variant="filled"
+                        variant="outlined"
                         sx={{
                             textAlign: 'center',
                             justifyContent: 'center',
-                            bgcolor: (theme) => theme.palette.warning.light,
                         }}
                     >
-                        You&apos;ve been absence twice. You will be banned if you reach three times
+                        You&apos;ve been absence twice. Your account will be banned if reaching
+                        three times and you have to contact IT department to get unbanned.
                     </Alert>
                 </Box>
                 <Box display="flex" alignItems="center">
