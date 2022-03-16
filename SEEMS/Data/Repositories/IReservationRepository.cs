@@ -15,7 +15,7 @@ namespace SEEMS.Data.Repositories
 		public Task<IEnumerable<Reservation>> GetReservationsByEventId(DateTime from, bool trackChanges);
 
 		public Task<Reservation> GetReservationAsync(int id, bool trackChanges);
-		string GetEventStatus(int reservationId);
+		string GetRegisterEventStatus(int reservationId);
 		IEnumerable<RegisteredEventsDTO> GetListRegisteredEvents(int userId);
 	}
 }
