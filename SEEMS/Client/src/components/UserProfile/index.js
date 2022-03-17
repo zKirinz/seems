@@ -68,6 +68,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
     const [totalFeedbackAnEvent, setTotalFeedbackAnEvent] = useState(0)
     const [totalNoFeedbackAnEvent, setTotalNoFeedbackAnEvent] = useState(0)
     const [totalAbsence, setTotalAbsence] = useState(0)
+    const [consecutiveAbsenceCount, setConsecutiveAbsenceCount] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const showSnackbar = useSnackbar()
 
@@ -106,6 +107,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                 setTotalFeedbackAnEvent(user.feedbackedEventsNum)
                 setTotalNoFeedbackAnEvent(user.noFeedbackEventsNum)
                 setTotalAbsence(user.absentEventsNum)
+                setConsecutiveAbsenceCount(user.consecutiveAbsentEventsNum)
                 setTimeout(() => {
                     setIsLoading(false)
                 }, 1000)
@@ -129,9 +131,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                     <HighlightOff fontSize="large" />
                 </IconButton>
             </Box>
-            <DialogTitle color="primary.dark">
-                <Typography variant="h6">My Profile</Typography>
-            </DialogTitle>
+            <DialogTitle color="primary.dark">My Profile</DialogTitle>
             <DialogContent sx={{ minWidth: 550, maxWidth: 650, py: 3 }} dividers>
                 {isLoading ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
@@ -158,7 +158,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                         </Box>
                         {totalRegisteredEvent !== 0 && (
                             <Box>
-                                {totalAbsence === 0 && (
+                                {consecutiveAbsenceCount === 0 && (
                                     <Alert
                                         severity="success"
                                         variant="outlined"
@@ -168,7 +168,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                         You are doing well! Keep it up!
                                     </Alert>
                                 )}
-                                {totalAbsence !== 0 && (
+                                {consecutiveAbsenceCount !== 0 && (
                                     <Alert
                                         severity="warning"
                                         variant="outlined"
@@ -177,8 +177,10 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                             justifyContent: 'center',
                                         }}
                                     >
-                                        {`You've been absence ${
-                                            totalAbsence === 1 ? 'once' : 'twice'
+                                        {`You've absented ${
+                                            consecutiveAbsenceCount === 1
+                                                ? 'once'
+                                                : 'consecutively twice'
                                         }. Your account will be banned if
                                 reaching three times and you have to contact IT department to get
                                 unbanned.`}
@@ -207,21 +209,28 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                             fontStyle: 'italic',
                                             fontWeight: 700,
                                             mx: 0.6,
+                                            color: blueGrey[600],
                                         }}
-                                        color="primary"
                                         component="span"
                                     >
                                         Registered
                                     </Typography>
-                                    any event. let&apos;s find{' '}
+                                    any event yet. Let&apos;s find{' '}
                                     <Typography
                                         color="primary"
                                         variant="h6"
-                                        onClick={() => history.push('/events')}
-                                        sx={{ textDecoration: 'underline', cursor: 'pointer' }}
+                                        onClick={() => {
+                                            onClose()
+                                            history.push('/events')
+                                        }}
+                                        sx={{
+                                            textDecoration: 'underline',
+                                            cursor: 'pointer',
+                                            fontWeight: 700,
+                                        }}
                                         component="span"
                                     >
-                                        One
+                                        one
                                     </Typography>
                                 </Typography>
                             </Box>
