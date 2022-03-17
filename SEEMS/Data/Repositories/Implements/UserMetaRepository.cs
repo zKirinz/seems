@@ -34,7 +34,7 @@ public class UserMetaRepository : RepositoryBase<UserMeta>, IUserMetaRepository
 		await FindByCondition(m => m.MetaValue.Equals(roleName), trackChanges)
 			.ToListAsync();
 	public async Task<UserMeta> GetRoleByUserIdAsync(int id, bool trackChanges) =>
-		await FindByCondition(m => m.UserId == id, trackChanges)
+		await FindByCondition(m => m.UserId == id && m.MetaKey.Equals("role"), trackChanges)
 			.SingleOrDefaultAsync();
 
 	public void SaveConsecutiveAbsences(int userId, int consecutiveAbsences)
