@@ -251,7 +251,11 @@ const EventsList = ({ page }) => {
                             <React.Fragment>
                                 There is not any events here, let&apos;s{' '}
                                 <RouterLink
-                                    to={isAdmin ? '/admin/events/create' : '/events/create'}
+                                    to={
+                                        auth.role === 'Admin'
+                                            ? '/admin/events/create'
+                                            : '/events/create'
+                                    }
                                 >
                                     <Link component="span">create one!</Link>
                                 </RouterLink>{' '}
