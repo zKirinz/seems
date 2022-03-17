@@ -20,8 +20,6 @@ import {
     TextField,
     Paper,
     Typography,
-    Backdrop,
-    CircularProgress,
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
@@ -56,7 +54,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [isPrivate, setIsPrivate] = useState(false)
     const [poster, setPoster] = useState({ src, file: null })
     const [participantsLimited, setParticipantsLimited] = useState(10)
-    const [isLoading, setIsLoading] = useState(false)
     const showSnackbar = useSnackbar()
 
     useEffect(() => {
@@ -141,7 +138,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
     const submitHandler = async (event) => {
         event.preventDefault()
-        setIsLoading(true)
 
         const eventDetailed = {
             eventTitle: eventName.value,
@@ -156,17 +152,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
             registrationDeadline: registrationTime,
         }
         await onCreateEvent({ eventData: eventDetailed, poster })
-
-        setTimeout(() => {
-            setIsLoading(false)
-        }, 1000)
     }
 
     return (
         <React.Fragment>
-            <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
-                <CircularProgress color="primary" />
-            </Backdrop>
             {routerPrompt}
             <Grid container component={Paper} elevation={3}>
                 <Grid item xs={12} sm={5}>
