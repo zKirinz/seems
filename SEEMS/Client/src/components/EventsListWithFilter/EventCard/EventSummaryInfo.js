@@ -1,10 +1,20 @@
+import { useRecoilValue } from 'recoil'
+
 import { Typography, CardContent } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
+import atom from '../../../recoil/auth'
+
 const EventSummaryInfo = ({ title, content }) => {
+    const auth = useRecoilValue(atom)
     return (
         <CardContent sx={{ px: 8, py: 4 }}>
-            <Typography fontWeight={700} color="primary" variant="h5" sx={{ width: '75%' }}>
+            <Typography
+                fontWeight={700}
+                color="primary"
+                variant="h5"
+                sx={{ width: `${auth.email ? '75%' : '100%'}` }}
+            >
                 {title}
             </Typography>
             <Typography
