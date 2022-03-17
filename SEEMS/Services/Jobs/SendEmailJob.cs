@@ -14,6 +14,7 @@ using Attachment = System.Net.Mail.Attachment;
 
 namespace SEEMS.Services.Jobs;
 
+[DisallowConcurrentExecution]
 public class SendEmailJob : IJob
 {
     
@@ -54,12 +55,12 @@ public class SendEmailJob : IJob
                     _logger.LogError("hehe");
                 }
                 mailToUser.ToEmail = @reservation.User.Email;
-                mailToUser.Subject = $"Mã QR cho sự {@reservation.Event.EventTitle} yeah sắp tới";
+                mailToUser.Subject = $"QR code for upcoming {@reservation.Event.EventTitle} event";
                            
                 var payload = new EmailPayload
                 {
                    Email = @reservation.User.Email,
-                   EventName = @reservation.Event.EventTitle
+                   EventId = @reservation.Event.Id
                 };
                    
                 var qr = _qrGenerator.GenerateQRCode(JsonConvert.SerializeObject(payload));
@@ -76,7 +77,7 @@ public class SendEmailJob : IJob
                 }
                 else
                 {
-                    throw new InvalidOperationException("hehe");
+                    throw new Exception("hehe");
                 }
             }
         } 
