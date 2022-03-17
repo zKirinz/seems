@@ -27,7 +27,7 @@ public class UserMetaRepository : RepositoryBase<UserMeta>, IUserMetaRepository
 	}
 
 	public async Task<UserMeta> GetRolesAsync(string email, bool trackChanges) =>
-		await FindByCondition(m => m.User.Email.Equals(email), trackChanges)
+		await FindByCondition(m => m.User.Email.Equals(email) && m.MetaKey.Equals("role"), trackChanges)
 			.SingleOrDefaultAsync();
 
 	public async Task<List<UserMeta>> GetRolesByNameAsync(string roleName, bool trackChanges) =>
