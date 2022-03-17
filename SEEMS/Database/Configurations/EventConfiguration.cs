@@ -48,8 +48,8 @@ namespace SEEMS.Database.Configurations
 			foreach(var item in events)
 			{
 				item.OrganizationName = (OrganizationEnum) enums.GetValue(new Random().Next(enums.Length - 1));
-				item.StartDate = new DateTime(2022, new Random().Next(2, 8), new Random().Next(1, 28));
-				item.EndDate = item.StartDate.AddHours(new Random().Next(1, 25));
+				item.StartDate = new DateTime(2022, new Random().Next(1,5), new Random().Next(1, 28));
+				item.EndDate = item.StartDate.AddHours(new Random().Next(1, 5));
 				item.Id = idSeed--;
 				item.RegistrationDeadline = item.StartDate.Subtract(TimeSpan.FromHours(6));
 				item.ParticipantNum = new Random().Next(0, 5) * 100;

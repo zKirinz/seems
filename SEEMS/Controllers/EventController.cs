@@ -10,7 +10,9 @@ using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.Models;
 using SEEMS.Services;
+using System.Collections;
 using SEEMS.Services.Interfaces;
+using SEEMS.Services.Utils;
 
 namespace SEEMS.Controller
 {
@@ -72,64 +74,70 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("my-events")]
-		public async Task<ActionResult<List<Event>>> GetMyEvents(string? search, bool? upcoming,
-			int? lastEventID, bool? active, string? myEventStatus, int resultCount = 10)
+		public async Task<ActionResult<List<EventDTO>>> GetMyEvents(string? search, bool? upcoming,
+			int? lastEventID, string? myEventStatus, int resultCount = 10)
 		{
 			User user = await GetCurrentUser(Request);
 			try
 			{
 				if(user != null)
 				{
-					var allEvents = _context.Events.Where(a => a.OrganizationName == user.OrganizationName).ToList();
-					IEnumerable<Event> foundResult;
+					var myEvents = _context.Events.Where(a => a.OrganizationName == user.OrganizationName).ToList();
+					IEnumerable<Event> foundEvents;
+
+					//filter upcoming
 					if(upcoming == null)
 					{
-						foundResult = allEvents;
+						foundEvents = myEvents;
 					}
 					else
 					{
-						foundResult = (bool) upcoming ? allEvents.Where(
+						foundEvents = (bool) upcoming ? myEvents.Where(
 							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
-							allEvents.Where(
+							myEvents.Where(
 							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
 					}
-
-					if(active != null)
-					{
-						foundResult = (bool) active
-							? foundResult.Where(e => e.Active)
-							: foundResult.Where(e => !e.Active);
-					}
-
-					List<EventDTO> returnResult = null;
-					bool failed = false;
-					bool loadMore = false;
-					int lastEventIndex = 0;
 
 					//Filter by title
 					if(!string.IsNullOrEmpty(search))
 					{
-						foundResult = foundResult.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
+						foundEvents = foundEvents.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
 					}
 
+					//sort found Events
+					foundEvents = foundEvents.OrderByDescending(e => e.StartDate);
 
-					foundResult = foundResult.OrderByDescending(e => e.StartDate);
-					returnResult = new List<EventDTO>();
-					foreach(Event fr in foundResult)
+					//map list events to list eventDTOs for using MyEventStatus filter
+					var foundEventDTOs = new List<EventDTO>();
+					foundEvents.ToList().ForEach(e =>
 					{
-						returnResult.Add(_mapper.Map<EventDTO>(fr));
+						var eMapped = _mapper.Map<EventDTO>(e);
+						eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
+						eMapped.CanTakeAttendance = _repository.Event.CanTakeAttendance((int) e.Id);
+						eMapped.MyEventStatus = _repository.Event.GetMyEventStatus((int) e.Id);
+						foundEventDTOs.Add(eMapped);
+					});
+
+					//filter myEventStatus
+					if(myEventStatus != null)
+					{
+						foundEventDTOs = foundEventDTOs.Where(e => e.MyEventStatus.Equals(myEventStatus)).ToList();
 					}
 
 					//Implement load more
+					List<EventDTO> paginatedEventDTOs = new List<EventDTO>();
+					bool failed = false;
+					bool canLoadMore = false;
+					int lastEventIndex = 0;
 
 					if(lastEventID != null)
 					{
-						lastEventIndex = foundResult.ToList().FindIndex(e => e.Id == lastEventID);
+						lastEventIndex = foundEventDTOs.ToList().FindIndex(e => e.Id == lastEventID);
 						if(lastEventIndex > 0)
 						{
-							returnResult = returnResult.GetRange(
+							paginatedEventDTOs = foundEventDTOs.ToList().GetRange(
 								lastEventIndex + 1,
-								Math.Min(resultCount, foundResult.Count() - lastEventIndex - 1));
+								Math.Min(resultCount, foundEventDTOs.Count() - lastEventIndex - 1));
 						}
 						else
 						{
@@ -138,27 +146,13 @@ namespace SEEMS.Controller
 					}
 					else
 					{
-						returnResult = returnResult.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundResult.Count(), resultCount));
+						paginatedEventDTOs = foundEventDTOs.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundEventDTOs.Count(), resultCount));
 					}
-					if(!failed && foundResult.Count() - lastEventIndex - 1 > returnResult.Count())
+					if(!failed && foundEventDTOs.Count() - lastEventIndex - 1 > paginatedEventDTOs.Count())
 					{
-						loadMore = true;
+						canLoadMore = true;
 					}
-					var dtoResult = new List<EventDTO>();
-					if(!failed)
-						returnResult.ForEach(e =>
-						{
-							var eMapped = _mapper.Map<EventDTO>(e);
-							eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-							eMapped.CanTakeAttendance = _repository.Event.CanTakeAttendance((int) e.Id);
-							eMapped.MyEventStatus = _repository.Event.GetMyEventStatus((int) e.Id);
-							dtoResult.Add(eMapped);
-						});
 
-					if(myEventStatus != null)
-					{
-						dtoResult = dtoResult.Where(e => e.MyEventStatus.Equals(myEventStatus)).ToList();
-					}
 					return failed
 						? BadRequest(
 							new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
@@ -166,9 +160,9 @@ namespace SEEMS.Controller
 							new Response(ResponseStatusEnum.Success,
 							new
 							{
-								Count = foundResult.Count(),
-								CanLoadMore = loadMore,
-								listEvents = dtoResult
+								Count = foundEventDTOs.Count(),
+								CanLoadMore = canLoadMore,
+								listEvents = paginatedEventDTOs
 							})
 					);
 				}
