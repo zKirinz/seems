@@ -7,6 +7,7 @@ using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
+using SEEMS.Infrastructures.Attributes;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
@@ -35,6 +36,7 @@ namespace SEEMS.Controllers
 		// POST api/Reservations
 		// Register a event
 		[HttpPost]
+		[CheckUserStatus]
 		public async Task<IActionResult> Post([FromBody] ReservationDTO reservationDTO)
 		{
 			try
@@ -85,6 +87,7 @@ namespace SEEMS.Controllers
 		// PUT api/Reservations/id
 		// Check/Uncheck attendance
 		[HttpPut]
+		[CheckUserStatus]
 		public async Task<IActionResult> Put([FromBody] ReservationForAttendanceReqDTO attendance)
 		{
 			try
@@ -121,6 +124,7 @@ namespace SEEMS.Controllers
 		// GET api/Reservations
 		// Get all registered events
 		[HttpGet]
+		[CheckUserStatus]
 		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName, int? lastReservationId, string? reservationStatus, int resultCount = 10)
 		{
 			string userRole = null;
@@ -238,6 +242,7 @@ namespace SEEMS.Controllers
 		// GET api/Reservations/id
 		// Get all user registered for an event
 		[HttpGet("{id}")]
+		[CheckUserStatus]
 		public async Task<IActionResult> Get(int id)
 		{
 			try
@@ -277,7 +282,9 @@ namespace SEEMS.Controllers
 
 		// DELETE api/Reservations/id
 		// Unregister event
+
 		[HttpDelete]
+		[CheckUserStatus]
 		public async Task<IActionResult> Delete([FromBody] ReservationDTO reservationDTO)
 		{
 			try
@@ -317,6 +324,7 @@ namespace SEEMS.Controllers
 		}
 
 		[HttpGet("profile/{email}")]
+		[CheckUserStatus]
 		public async Task<IActionResult> GetProfilePage(string email)
 		{
 			try
