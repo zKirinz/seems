@@ -157,9 +157,10 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         }
         await onCreateEvent({ eventData: eventDetailed, poster })
 
-        setIsLoading(false)
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 1000)
     }
-
     return (
         <React.Fragment>
             <Backdrop sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>

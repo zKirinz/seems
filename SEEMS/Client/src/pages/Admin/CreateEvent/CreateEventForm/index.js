@@ -157,7 +157,9 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         }
         await onCreateEvent({ eventData: eventDetailed, poster })
 
-        setIsLoading(false)
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 1000)
     }
 
     return (
