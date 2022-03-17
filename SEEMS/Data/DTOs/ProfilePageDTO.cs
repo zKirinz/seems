@@ -10,6 +10,7 @@
 		public int RegisteredEventsNum { get; set; }
 		public int NoFeedbackEventsNum { get; set; }
 		public int AbsentEventsNum { get; set; }
+		public int ConsecutiveAbsentEventsNum { get; set; }
 		public int FeedbackedEventsNum { get; set; }
 	}
 }

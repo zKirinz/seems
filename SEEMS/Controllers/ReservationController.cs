@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using SEEMS.Contexts;
+using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
@@ -337,6 +338,7 @@ namespace SEEMS.Controllers
 						Role = (await _repoManager.UserMeta.GetRolesAsync(user.Email, false)).MetaValue,
 						OrganizationName = user.OrganizationName.ToString(),
 						RegisteredEventsNum = _repoManager.Reservation.GetRegisteredEventsNumOfUser(user.Id),
+						ConsecutiveAbsentEventsNum = _repoManager.Reservation.GetConsecutiveAbsentNum(user.Id),
 						FeedbackedEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Feedbacked"),
 						NoFeedbackEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Attended"),
 						AbsentEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Absent"),
@@ -363,13 +365,6 @@ namespace SEEMS.Controllers
 				return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
 			}
 		}
-
-		//[HttpGet("is-banned/{userId}")]
-		//public async Task<IActionResult> IsBanned(int userId)
-		//{
-		//	List<RegisteredEventsDTO> registeredEventsDTOs = _repoManager.Reservation.GetListRegisteredEvents(userId).ToList();
-
-		//}
 
 		private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
 	}

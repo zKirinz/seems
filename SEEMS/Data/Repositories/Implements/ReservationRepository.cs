@@ -85,6 +85,7 @@ namespace SEEMS.Data.Repositories.Implements
 					var registeredNum = _context.Reservations.Count(r => r.EventId == anEvent.Id);
 					registeredEvent.CanRegister = anEvent.RegistrationDeadline.CompareTo(DateTime.Now) > 0 && (registeredNum == 0 || registeredNum < anEvent.ParticipantNum);
 					registeredEvent.OrganizationName = anEvent.OrganizationName.ToString();
+					registeredEvent.IsAttendanceChecked = x.IsAttendanceChecked;
 					registeredEvent.ReservationId = x.Id;
 					registeredEvent.ReservationStatus = GetRegisterEventStatus(x.Id);
 					registeredEvent.FeedBack = x.Attend;
@@ -105,6 +106,42 @@ namespace SEEMS.Data.Repositories.Implements
 			var listReservations = _context.Reservations.Where(x => x.UserId == userId).ToList();
 			var result = listReservations.Count(r => GetRegisterEventStatus(r.Id).Equals(status));
 			return result;
+		}
+
+		public int GetConsecutiveAbsentNum(int userId)
+		{
+			var listRegistered = GetListRegisteredEvents(userId);
+			var listRegisteredEnded = listRegistered.Where(e => e.EndDate.CompareTo(DateTime.Now) < 0).ToList();
+			listRegisteredEnded.Sort(RegisteredEventsDTO.CompareByEndDate);
+			List<bool> listAttendStatus = listRegisteredEnded.ConvertAll(x => (bool) x.Attend);
+			int consecutiveAbsent = 0;
+			int returnResult = 0;
+
+			if(listAttendStatus.Count >= 3)
+			{
+				for(int i = 0; i <= listAttendStatus.Count - 3; i++)
+				{
+					consecutiveAbsent = 0;
+					if(!listAttendStatus[i])
+					{
+						consecutiveAbsent++;
+						if(!listAttendStatus[i + 1])
+						{
+							consecutiveAbsent++;
+							if(!listAttendStatus[i + 2])
+							{
+								consecutiveAbsent++;
+							}
+						}
+					}
+					returnResult = Math.Max(returnResult, consecutiveAbsent);
+					if(consecutiveAbsent == 3)
+					{
+						break;
+					}
+				}
+			}
+			return returnResult;
 		}
 	}
 }

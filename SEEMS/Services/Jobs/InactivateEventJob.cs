@@ -36,7 +36,6 @@ public class InactivateEventJob : IJob
                 var temp = _repoManager.Event.GetEventAsync(@event.Id, true).Result;
                 _mapper.Map(@event, temp);
                 _repoManager.SaveAsync();
-                
                 _logger.LogInformation($"Update activeness into => {@event}");
             }
         }
