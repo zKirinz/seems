@@ -6,6 +6,8 @@ import {
     Close as CloseIcon,
     OpenInNew as OpenInNewIcon,
     EventAvailable as EventAvailableIcon,
+    Pending as PendingIcon,
+    HowToReg as HowToRegIcon,
 } from '@mui/icons-material'
 import { Box, Card, Chip, Grid } from '@mui/material'
 
@@ -21,7 +23,8 @@ const EventCard = ({
     description,
     startDate,
     organizer,
-    isAdmin,
+    isMyEventPage,
+    eventStatus,
 }) => {
     const auth = useRecoilValue(authAtom)
     const history = useHistory()
@@ -54,7 +57,35 @@ const EventCard = ({
                     </Grid>
                 </Grid>
             </Box>
-            {auth.role === 'Admin' && auth.organization === organizer && (
+            {/* Admin My Events Page */}
+            {isMyEventPage && (
+                <Box position="absolute" bottom={175} right={50}>
+                    {eventStatus === 'Pending' ? (
+                        <Chip
+                            label="Pending"
+                            icon={<PendingIcon />}
+                            color="info"
+                            variant="outlined"
+                        />
+                    ) : eventStatus === 'TakingAttendance' ? (
+                        <Chip
+                            label="Taking Attendance"
+                            icon={<HowToRegIcon />}
+                            color="warning"
+                            variant="outlined"
+                        />
+                    ) : eventStatus === 'Finished' ? (
+                        <Chip
+                            label="Finished"
+                            icon={<CheckIcon />}
+                            color="success"
+                            variant="outlined"
+                        />
+                    ) : null}
+                </Box>
+            )}
+            {/* Admin All Events Page */}
+            {!isMyEventPage && auth.role === 'Admin' && auth.organization === organizer && (
                 <Box position="absolute" bottom={175} right={50}>
                     <Chip
                         label="This is your event"
@@ -64,7 +95,8 @@ const EventCard = ({
                     />
                 </Box>
             )}
-            {auth.email && auth.role !== 'Admin' && (
+            {/* All Events Page */}
+            {!isMyEventPage && auth.email && auth.role !== 'Admin' && (
                 <Box position="absolute" bottom={175} right={50}>
                     {auth.organization === organizer ? (
                         <Chip
@@ -111,10 +143,14 @@ const EventCard = ({
                         }
                         color="secondary"
                         onClick={() =>
-                            history.push(isAdmin ? `/admin/events/${id}` : `/events/${id}`)
+                            history.push(
+                                auth.role === 'Admin' ? `/admin/events/${id}` : `/events/${id}`
+                            )
                         }
                         onDelete={() =>
-                            history.push(isAdmin ? `/admin/events/${id}` : `/events/${id}`)
+                            history.push(
+                                auth.role === 'Admin' ? `/admin/events/${id}` : `/events/${id}`
+                            )
                         }
                         deleteIcon={<OpenInNewIcon />}
                     />
