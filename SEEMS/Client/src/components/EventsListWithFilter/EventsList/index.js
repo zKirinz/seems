@@ -157,7 +157,8 @@ const EventsList = ({ page }) => {
                     setHasMore(res.data.data.canLoadMore)
                     setIsLoading(false)
                 })
-                .catch(() => {
+                .catch((error) => {
+                    console.log(error.response)
                     showSnackbar({
                         severity: 'error',
                         children: 'Something went wrong, please try again later.',
