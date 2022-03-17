@@ -10,12 +10,14 @@ import pageEnum from '../pageEnum'
 import EventActiveFilter from './EventActiveFilter'
 import EventOrganizationFilter from './EventOrganizationFilter'
 import EventPeriodFilter from './EventPeriodFilter'
+import EventStatusFilter from './EventStatusFilter'
 
 const Filters = ({ page }) => {
     const history = useHistory()
     const { search: queries } = useLocation()
-    const { search, upcoming, active, organizationName } = queryString.parse(queries)
+    const { search, upcoming, active, myEventStatus, organizationName } = queryString.parse(queries)
     const [nameFilter, setNameFilter] = useState('')
+    const [eventStatus, setEventStatus] = useState(myEventStatus)
     const [periodFilter, setPeriodFilter] = useState(upcoming)
     const [activeFilter, setActiveFilter] = useState(active)
     const [organizationNameFilter, setOrganizationNameFilter] = useState(organizationName)
@@ -25,6 +27,10 @@ const Filters = ({ page }) => {
         if (searchText !== '') {
             setNameFilter(searchText)
         }
+    }
+
+    const eventStatusHandler = (eventStatusOption) => {
+        setEventStatus(eventStatusOption)
     }
 
     const periodSubmitHandler = (periodOption) => {
@@ -45,6 +51,9 @@ const Filters = ({ page }) => {
         if (nameFilter) {
             route += '&search=' + nameFilter
         }
+        if (eventStatus) {
+            route += '&myEventStatus=' + eventStatus
+        }
         if (periodFilter) {
             route += '&upcoming=' + periodFilter
         }
@@ -61,14 +70,19 @@ const Filters = ({ page }) => {
     useEffect(() => {
         searchHandler()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [nameFilter, periodFilter, activeFilter, organizationNameFilter])
+    }, [nameFilter, eventStatus, periodFilter, activeFilter, organizationNameFilter])
 
     return (
         <Box mr={8} width="500px">
             <SearchField submitHandler={searchSubmitHandler} defaultText={search} />
             <Divider sx={{ width: '100%', backgroundColor: 'secondary.main', my: 3 }} />
+            {(page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) && (
+                <EventStatusFilter submitHandler={eventStatusHandler} defaultPeriod={eventStatus} />
+            )}
             <EventPeriodFilter submitHandler={periodSubmitHandler} defaultPeriod={upcoming} />
-            <EventActiveFilter submitHandler={activeSubmitHandler} defaultPeriod={active} />
+            {(page === pageEnum.AdminAllEvents || page === pageEnum.AllEvents) && (
+                <EventActiveFilter submitHandler={activeSubmitHandler} defaultPeriod={active} />
+            )}
             {(page === pageEnum.AdminAllEvents || page === pageEnum.AllEvents) && (
                 <EventOrganizationFilter
                     submitHandler={organizationNameSubmitHandler}

@@ -14,11 +14,22 @@ import useEventAction from '../../../recoil/event/action'
 import EventCard from '../EventCard'
 import pageEnum from '../pageEnum'
 
-const filterStringGenerator = ({ search, upcoming, active, organizationName }) => {
+const filterStringGenerator = ({ search, upcoming, active, myEventStatus, organizationName }) => {
     let filterString = '?resultCount=6'
     if (search && search.trim() !== '') {
         filterString += '&search=' + search
     }
+
+    if (myEventStatus !== undefined) {
+        if (myEventStatus === 'Pending') {
+            filterString += '&myEventStatus=Pending'
+        } else if (myEventStatus === 'TakingAttendance') {
+            filterString += '&myEventStatus=TakingAttendance'
+        } else if (myEventStatus === 'Finished') {
+            filterString += '&myEventStatus=Finished'
+        }
+    }
+
     if (upcoming !== undefined) {
         if (upcoming === 'true') {
             filterString += '&upcoming=true'
@@ -51,7 +62,7 @@ const filterStringGenerator = ({ search, upcoming, active, organizationName }) =
 const EventsList = ({ page }) => {
     const auth = useRecoilValue(authAtom)
     const { search: queries } = useLocation()
-    const { search, upcoming, active, organizationName } = queryString.parse(queries)
+    const { search, upcoming, active, myEventStatus, organizationName } = queryString.parse(queries)
     const eventAction = useEventAction()
     const [events, setEvents] = useState([])
     const [eventsNumber, setEventsNumber] = useState(0)
@@ -59,8 +70,7 @@ const EventsList = ({ page }) => {
     const [hasMore, setHasMore] = useState(true)
     const showSnackbar = useSnackbar()
     let lastEventId
-    const isFilter = !!search || !!upcoming || !!active || !!organizationName
-    const isAdmin = page === pageEnum.AdminAllEvents || page === pageEnum.AdminMyEvents
+    const isFilter = !!search || !!upcoming || !!active || !!myEventStatus || !!organizationName
 
     const Loading = () => (
         <Box display="flex" justifyContent="center" my={20}>
@@ -69,7 +79,13 @@ const EventsList = ({ page }) => {
     )
 
     const loadMoreHandler = () => {
-        let params = filterStringGenerator({ search, upcoming, active, organizationName })
+        let params = filterStringGenerator({
+            search,
+            upcoming,
+            active,
+            myEventStatus,
+            organizationName,
+        })
         params += '&lastEventID=' + lastEventId
 
         if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
@@ -108,7 +124,13 @@ const EventsList = ({ page }) => {
     useEffect(() => {
         setIsLoading(true)
 
-        let params = filterStringGenerator({ search, upcoming, active, organizationName })
+        let params = filterStringGenerator({
+            search,
+            upcoming,
+            active,
+            myEventStatus,
+            organizationName,
+        })
 
         if (page === pageEnum.AdminMyEvents || page === pageEnum.MyEvents) {
             eventAction
@@ -144,7 +166,7 @@ const EventsList = ({ page }) => {
                 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search, upcoming, active, organizationName])
+    }, [search, upcoming, active, myEventStatus, organizationName])
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" width="100%">
@@ -178,12 +200,13 @@ const EventsList = ({ page }) => {
                                 (
                                     {
                                         id,
-                                        canRegister,
                                         eventTitle,
                                         eventDescription,
                                         startDate,
                                         imageUrl,
                                         organizationName,
+                                        canRegister,
+                                        myEventStatus,
                                     },
                                     i,
                                     { length }
@@ -202,8 +225,11 @@ const EventsList = ({ page }) => {
                                                 startDate={startDate}
                                                 imageUrl={imageUrl}
                                                 organizer={organizationName}
-                                                isAdmin={isAdmin}
-                                                page={page}
+                                                isMyEventPage={
+                                                    page === pageEnum.AdminMyEvents ||
+                                                    page === pageEnum.MyEvents
+                                                }
+                                                eventStatus={myEventStatus}
                                             />
                                         </Grid>
                                     )
