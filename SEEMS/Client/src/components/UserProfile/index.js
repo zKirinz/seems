@@ -1,5 +1,7 @@
 import React, { useLayoutEffect, useState } from 'react'
 
+import { useHistory } from 'react-router-dom'
+
 import {
     Event,
     Comment,
@@ -8,6 +10,7 @@ import {
     SentimentSatisfiedAlt,
     ThumbUp,
     Pending,
+    HighlightOff,
 } from '@mui/icons-material'
 import {
     Avatar,
@@ -19,6 +22,7 @@ import {
     Grid,
     Alert,
     CircularProgress,
+    IconButton,
 } from '@mui/material'
 import { blueGrey } from '@mui/material/colors'
 
@@ -56,6 +60,7 @@ const options = {
 }
 
 const UserProfile = ({ userEmail, onClose, open }) => {
+    const history = useHistory()
     const { getUserEventStatistic } = useUsersAction()
     const [userProfile, setUserProfile] = useState({})
     const [userEventStatistic, setUserEventStatistic] = useState({})
@@ -119,7 +124,14 @@ const UserProfile = ({ userEmail, onClose, open }) => {
 
     return (
         <Dialog onBackdropClick={onClose} open={open}>
-            <DialogTitle color="primary.dark">My Profile</DialogTitle>
+            <Box sx={{ position: 'absolute', right: 10 }}>
+                <IconButton onClick={onClose} size="large">
+                    <HighlightOff fontSize="large" />
+                </IconButton>
+            </Box>
+            <DialogTitle color="primary.dark">
+                <Typography variant="h6">My Profile</Typography>
+            </DialogTitle>
             <DialogContent sx={{ minWidth: 550, maxWidth: 650, py: 3 }} dividers>
                 {isLoading ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
@@ -189,7 +201,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                     sx={{ color: blueGrey[500] }}
                                 />
                                 <Typography sx={{ ml: 0.75 }}>
-                                    You have not
+                                    You haven&apos;t
                                     <Typography
                                         sx={{
                                             fontStyle: 'italic',
@@ -201,7 +213,16 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                     >
                                         Registered
                                     </Typography>
-                                    any event.
+                                    any event. let&apos;s find{' '}
+                                    <Typography
+                                        color="primary"
+                                        variant="h6"
+                                        onClick={() => history.push('/events')}
+                                        sx={{ textDecoration: 'underline', cursor: 'pointer' }}
+                                        component="span"
+                                    >
+                                        One
+                                    </Typography>
                                 </Typography>
                             </Box>
                         )}
