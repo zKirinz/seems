@@ -60,7 +60,8 @@ public class SendEmailJob : IJob
                 var payload = new EmailPayload
                 {
                    Email = @reservation.User.Email,
-                   EventId = @reservation.Event.Id
+                   EventId = @reservation.Event.Id,
+                   ReservationId = @reservation.Id
                 };
                    
                 var qr = _qrGenerator.GenerateQRCode(JsonConvert.SerializeObject(payload));
