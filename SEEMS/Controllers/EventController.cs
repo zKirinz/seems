@@ -489,7 +489,7 @@ namespace SEEMS.Controller
 							ResponseStatusEnum.Fail,
 							msg: "Event does not existed!"
 						)
-						);
+					);
 				}
 			}
 			catch(Exception ex)

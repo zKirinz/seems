@@ -9,6 +9,7 @@ namespace SEEMS.Data.Repositories
 		int GetRegisteredNum(int eventId);
 		int GetRegisteredEventsNumOfUser(int userId);
 		int GetRegisteredEventsNumByStatus(int userId, string status);
+		int GetConsecutiveAbsentNum(int userId);
 
 		public Task<List<Reservation>> GetReservationsByEventId(int eventId, bool trackChanges);
 

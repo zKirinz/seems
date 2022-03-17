@@ -12,15 +12,19 @@ namespace SEEMS.Data.Repositories;
 
 public interface IUserRepository
 {
-    Task<PaginatedList<User>?> GetAllUsersAsync(UserParams userParams, bool trackChanges);
+	User GetUser(string email);
+	List<User> GetAllUsers();
 
-    Task<PaginatedList<User>?> GetAllUsersAsync(UserPagination userParams, bool trackChanges);
+	Task<PaginatedList<User>?> GetAllUsersAsync(UserParams userParams, bool trackChanges);
 
-    Task<User> GetUserAsync(string email, bool trackChanges);
-    
-    Task<User> GetUserAsync(int id, bool trackChanges);
+	Task<PaginatedList<User>?> GetAllUsersAsync(UserPagination userParams, bool trackChanges);
 
-    int GetCount(List<User> except, bool trackChanges);
+	Task<User> GetUserAsync(string email, bool trackChanges);
 
-    void CreateUser(User user);
+	Task<User> GetUserAsync(int id, bool trackChanges);
+
+	int GetCount(List<User> except, bool trackChanges);
+
+	void CreateUser(User user);
+	void UpdateUser(User user);
 }
