@@ -79,7 +79,6 @@ const UserProfile = ({ userEmail, onClose, open }) => {
         setIsLoading(true)
         getUserEventStatistic(userEmail)
             .then((response) => {
-                console.log(response)
                 const user = response.data.data.userInfo
                 const statistic = {
                     labels: [
@@ -210,25 +209,28 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                             fontStyle: 'italic',
                                             fontWeight: 700,
                                             mx: 0.6,
-                                            color: blueGrey[800],
+                                            color: blueGrey[600],
                                         }}
                                         component="span"
                                     >
                                         Registered
                                     </Typography>
-                                    any event. let&apos;s find{' '}
+                                    any event yet. Let&apos;s find{' '}
                                     <Typography
                                         color="primary"
                                         variant="h6"
-                                        onClick={() => history.push('/events')}
+                                        onClick={() => {
+                                            onClose()
+                                            history.push('/events')
+                                        }}
                                         sx={{
                                             textDecoration: 'underline',
                                             cursor: 'pointer',
-                                            fontStyle: 'italic',
+                                            fontWeight: 700,
                                         }}
                                         component="span"
                                     >
-                                        One
+                                        one
                                     </Typography>
                                 </Typography>
                             </Box>
