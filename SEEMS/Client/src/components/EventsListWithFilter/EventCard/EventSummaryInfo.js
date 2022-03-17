@@ -4,7 +4,7 @@ import { grey } from '@mui/material/colors'
 const EventSummaryInfo = ({ title, content }) => {
     return (
         <CardContent sx={{ px: 8, py: 4 }}>
-            <Typography fontWeight={700} color="primary" variant="h5">
+            <Typography fontWeight={700} color="primary" variant="h5" sx={{ width: '75%' }}>
                 {title}
             </Typography>
             <Typography
