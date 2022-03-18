@@ -10,14 +10,15 @@ import {
 } from '@mui/icons-material'
 import {
     Box,
+    CircularProgress,
     IconButton,
     Paper,
     Table,
     TableBody,
     TableCell,
-    TableContainer, // TableFooter,
+    TableContainer,
     TableHead,
-    TablePagination, // TablePagination,
+    TablePagination,
     TableRow,
     Typography,
     useTheme,
@@ -86,14 +87,37 @@ const columns = [
     { id: 'attend', label: 'Attend', align: 'center' },
 ]
 
-const UserTable = ({ emailFilter }) => {
+const UserTable = ({ emailFilter, syncDataCounter }) => {
     const { id } = useParams()
     const usersAction = useUsersAction()
     const [userData, setUserData] = useState([])
     const [rows, setRows] = useState([])
     const [page, setPage] = useState(0)
     const [reset, setReset] = useState(0)
+    const [isLoading, setIsLoading] = useState(false)
     const rowsPerPage = 6
+
+    useEffect(() => {
+        const refetch = async () => {
+            await setIsLoading(true)
+            await usersAction.getRegisteredUserOfEvent(id).then((res) => {
+                if (res.data.data) {
+                    setUserData(res.data.data)
+                    setRows(res.data.data)
+                } else {
+                    setUserData([])
+                    setRows([])
+                }
+            })
+
+            setTimeout(() => {
+                setIsLoading(false)
+            }, 1500)
+        }
+
+        refetch()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [syncDataCounter])
 
     useEffect(() => {
         usersAction.getRegisteredUserOfEvent(id).then((res) => {
@@ -105,6 +129,7 @@ const UserTable = ({ emailFilter }) => {
                 setRows([])
             }
         })
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [reset])
 
@@ -132,57 +157,69 @@ const UserTable = ({ emailFilter }) => {
 
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-            <TableContainer sx={{ maxHeight: 500 }}>
-                <Table stickyHeader sx={{ minWidth: 500 }} aria-label="custom pagination table">
-                    <TableHead>
-                        <TableRow>
-                            {columns.map((column) => (
-                                <TableCell
-                                    key={column.id}
-                                    align={column.align}
-                                    style={{ minWidth: column.minWidth }}
-                                >
-                                    {column.label}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {(rowsPerPage > 0
-                            ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            : rows
-                        ).map(({ email, userName, imageUrl, attend, reservationId }) => {
-                            return (
-                                <UserTableRow
-                                    key={email}
-                                    email={email}
-                                    userName={userName}
-                                    imageUrl={imageUrl}
-                                    attend={attend}
-                                    reservationId={reservationId}
-                                    resetHandler={() => setReset(reset + 1)}
-                                />
-                            )
-                        })}
-
-                        {emptyRows > 0 && (
-                            <TableRow style={{ height: 53 * emptyRows }}>
-                                <TableCell colSpan={6} />
+            {isLoading ? (
+                <Box
+                    width="100%"
+                    height="300px"
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                >
+                    <CircularProgress thickness={4} color="secondary" />
+                </Box>
+            ) : (
+                <TableContainer sx={{ maxHeight: 500 }}>
+                    <Table stickyHeader sx={{ minWidth: 500 }} aria-label="custom pagination table">
+                        <TableHead>
+                            <TableRow>
+                                {columns.map((column) => (
+                                    <TableCell
+                                        key={column.id}
+                                        align={column.align}
+                                        style={{ minWidth: column.minWidth }}
+                                    >
+                                        {column.label}
+                                    </TableCell>
+                                ))}
                             </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-                {rows.length === 0 && emailFilter.trim() === '' && (
-                    <Box display="flex" justifyContent="center" mt={10} mb={6}>
-                        <Typography variant="body1">No user have registered yet</Typography>
-                    </Box>
-                )}
-                {rows.length === 0 && emailFilter.trim() !== '' && (
-                    <Box display="flex" justifyContent="center" mt={10} mb={6}>
-                        <Typography variant="body1">Cannot find any users</Typography>
-                    </Box>
-                )}
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                            {(rowsPerPage > 0
+                                ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                : rows
+                            ).map(({ email, userName, imageUrl, attend, reservationId }) => {
+                                return (
+                                    <UserTableRow
+                                        key={email}
+                                        email={email}
+                                        userName={userName}
+                                        imageUrl={imageUrl}
+                                        attend={attend}
+                                        reservationId={reservationId}
+                                        resetHandler={() => setReset(reset + 1)}
+                                    />
+                                )
+                            })}
+
+                            {emptyRows > 0 && (
+                                <TableRow style={{ height: 53 * emptyRows }}>
+                                    <TableCell colSpan={6} />
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                    {rows.length === 0 && emailFilter.trim() === '' && (
+                        <Box display="flex" justifyContent="center" mt={10} mb={6}>
+                            <Typography variant="body1">No user have registered yet</Typography>
+                        </Box>
+                    )}
+                    {rows.length === 0 && emailFilter.trim() !== '' && (
+                        <Box display="flex" justifyContent="center" mt={10} mb={6}>
+                            <Typography variant="body1">Cannot find any users</Typography>
+                        </Box>
+                    )}
+                </TableContainer>
+            )}
             <TablePagination
                 rowsPerPageOptions={[6]}
                 component="div"
