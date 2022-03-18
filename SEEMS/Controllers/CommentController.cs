@@ -219,8 +219,13 @@ namespace SEEMS.Controller
                     }
                     _context.Comments.Remove(comment);
                     _context.SaveChanges(true);
+                    var numberCommentDeleted = listSubComment.Count() + 1;
 
-                    return Ok(new Response(ResponseStatusEnum.Success, "", "Delete successfully"));
+                    return Ok(new Response(ResponseStatusEnum.Success,
+                                           new
+                                           {
+                                               numberCommentDeleted,
+                                           }, "Delete successfully"));
                 }
                 else
                 {
