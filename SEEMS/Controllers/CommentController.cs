@@ -6,6 +6,7 @@ using SEEMS.Data.Entities;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.DTOs;
+using SEEMS.Infrastructures.Attributes;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
@@ -36,6 +37,7 @@ namespace SEEMS.Controller
         // POST api/Comments/
         // Create a comment
         [HttpPost]
+        [CheckUserStatus]
         public async Task<IActionResult> Post([FromBody] CommentDTO item)
         {
             CommentValidationInfo commentValidationInfo = CommentsServices.GetValidatedToCreateComment(item);
@@ -83,6 +85,7 @@ namespace SEEMS.Controller
         // PUT api/Comments/
         // Edit comment by Id
         [HttpPut("{id}")]
+        [CheckUserStatus]
         public async Task<IActionResult> Put(int id, [FromBody] CommentDTO newComment)
         {
             try
@@ -131,6 +134,7 @@ namespace SEEMS.Controller
         //PUT api/Comments
         //Like and unlike Comment
         [HttpPut]
+        [CheckUserStatus]
         public async Task<IActionResult> ReactComment([FromBody] CommentId comment)
         {
             try
@@ -186,6 +190,7 @@ namespace SEEMS.Controller
         // DELETE api/Comments/
         // Delete comment by Id
         [HttpDelete("{id}")]
+        [CheckUserStatus]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -232,6 +237,7 @@ namespace SEEMS.Controller
         // POST api/Comments/
         // Load comment
         [HttpPost("{id}")]
+        [CheckUserStatus]
         public async Task<IActionResult> LoadComments(int id, [FromBody] CommentsLoadMoreDTO data)
         {
             try

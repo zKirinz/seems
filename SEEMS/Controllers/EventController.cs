@@ -8,11 +8,10 @@ using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs.Event;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
+using SEEMS.Infrastructures.Attributes;
 using SEEMS.Models;
 using SEEMS.Services;
-using System.Collections;
 using SEEMS.Services.Interfaces;
-using SEEMS.Services.Utils;
 
 namespace SEEMS.Controller
 {
@@ -35,10 +34,12 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("{id}")]
+		[CheckUserStatus]
 		public async Task<IActionResult> GetEventDetail(int id)
 		{
 			try
 			{
+				User user = await GetCurrentUser(Request);
 				Event? foundEvent = _repository.Event.GetEvent(id);
 				if(foundEvent == null)
 					throw new Exception("Can't find the event");
@@ -47,7 +48,6 @@ namespace SEEMS.Controller
 				dtoEvent.RootCommentsNum = _context.Comments.Where(c => c.EventId == id && c.ParentCommentId == null).Count();
 				dtoEvent.RegisteredNum = _repository.Reservation.GetRegisteredNum(id);
 				dtoEvent.MyEventStatus = _repository.Event.GetMyEventStatus(id);
-				var user = await GetCurrentUser(Request);
 				var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
 				var registeredNum = _repository.Reservation.GetRegisteredNum(foundEvent.Id);
 				dtoEvent.CanRegister = _repository.Event.CanRegister(id);
@@ -74,102 +74,96 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("my-events")]
+		[CheckUserStatus]
 		public async Task<ActionResult<List<EventDTO>>> GetMyEvents(string? search, bool? upcoming,
 			int? lastEventID, string? myEventStatus, int resultCount = 10)
 		{
-			User user = await GetCurrentUser(Request);
 			try
 			{
-				if(user != null)
+				User user = await GetCurrentUser(Request);
+				var myEvents = _context.Events.Where(a => a.OrganizationName == user.OrganizationName).ToList();
+				IEnumerable<Event> foundEvents;
+
+				//filter upcoming
+				if(upcoming == null)
 				{
-					var myEvents = _context.Events.Where(a => a.OrganizationName == user.OrganizationName).ToList();
-					IEnumerable<Event> foundEvents;
-
-					//filter upcoming
-					if(upcoming == null)
-					{
-						foundEvents = myEvents;
-					}
-					else
-					{
-						foundEvents = (bool) upcoming ? myEvents.Where(
-							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
-							myEvents.Where(
-							e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
-					}
-
-					//Filter by title
-					if(!string.IsNullOrEmpty(search))
-					{
-						foundEvents = foundEvents.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
-					}
-
-					//sort found Events
-					foundEvents = foundEvents.OrderByDescending(e => e.StartDate);
-
-					//map list events to list eventDTOs for using MyEventStatus filter
-					var foundEventDTOs = new List<EventDTO>();
-					foundEvents.ToList().ForEach(e =>
-					{
-						var eMapped = _mapper.Map<EventDTO>(e);
-						eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-						eMapped.CanTakeAttendance = _repository.Event.CanTakeAttendance((int) e.Id);
-						eMapped.MyEventStatus = _repository.Event.GetMyEventStatus((int) e.Id);
-						foundEventDTOs.Add(eMapped);
-					});
-
-					//filter myEventStatus
-					if(myEventStatus != null)
-					{
-						foundEventDTOs = foundEventDTOs.Where(e => e.MyEventStatus.Equals(myEventStatus)).ToList();
-					}
-
-					//Implement load more
-					List<EventDTO> paginatedEventDTOs = new List<EventDTO>();
-					bool failed = false;
-					bool canLoadMore = false;
-					int lastEventIndex = 0;
-
-					if(lastEventID != null)
-					{
-						lastEventIndex = foundEventDTOs.ToList().FindIndex(e => e.Id == lastEventID);
-						if(lastEventIndex > 0)
-						{
-							paginatedEventDTOs = foundEventDTOs.ToList().GetRange(
-								lastEventIndex + 1,
-								Math.Min(resultCount, foundEventDTOs.Count() - lastEventIndex - 1));
-						}
-						else
-						{
-							failed = true;
-						}
-					}
-					else
-					{
-						paginatedEventDTOs = foundEventDTOs.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundEventDTOs.Count(), resultCount));
-					}
-					if(!failed && foundEventDTOs.Count() - lastEventIndex - 1 > paginatedEventDTOs.Count())
-					{
-						canLoadMore = true;
-					}
-
-					return failed
-						? BadRequest(
-							new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
-						: Ok(
-							new Response(ResponseStatusEnum.Success,
-							new
-							{
-								Count = foundEventDTOs.Count(),
-								CanLoadMore = canLoadMore,
-								listEvents = paginatedEventDTOs
-							})
-					);
+					foundEvents = myEvents;
 				}
 				else
 				{
-					throw new Exception("Invalid User profile");
+					foundEvents = (bool) upcoming ? myEvents.Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30) :
+						myEvents.Where(
+						e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
 				}
+
+				//Filter by title
+				if(!string.IsNullOrEmpty(search))
+				{
+					foundEvents = foundEvents.Where(e => e.EventTitle.Contains(search, StringComparison.CurrentCultureIgnoreCase));
+				}
+
+				//sort found Events
+				foundEvents = foundEvents.OrderByDescending(e => e.StartDate);
+
+				//map list events to list eventDTOs for using MyEventStatus filter
+				var foundEventDTOs = new List<EventDTO>();
+				foundEvents.ToList().ForEach(e =>
+				{
+					var eMapped = _mapper.Map<EventDTO>(e);
+					eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
+					eMapped.CanTakeAttendance = _repository.Event.CanTakeAttendance((int) e.Id);
+					eMapped.MyEventStatus = _repository.Event.GetMyEventStatus((int) e.Id);
+					foundEventDTOs.Add(eMapped);
+				});
+
+				//filter myEventStatus
+				if(myEventStatus != null)
+				{
+					foundEventDTOs = foundEventDTOs.Where(e => e.MyEventStatus.Equals(myEventStatus)).ToList();
+				}
+
+				//Implement load more
+				List<EventDTO> paginatedEventDTOs = new List<EventDTO>();
+				bool failed = false;
+				bool canLoadMore = false;
+				int lastEventIndex = 0;
+
+				if(lastEventID != null)
+				{
+					lastEventIndex = foundEventDTOs.ToList().FindIndex(e => e.Id == lastEventID);
+					if(lastEventIndex > 0)
+					{
+						paginatedEventDTOs = foundEventDTOs.ToList().GetRange(
+							lastEventIndex + 1,
+							Math.Min(resultCount, foundEventDTOs.Count() - lastEventIndex - 1));
+					}
+					else
+					{
+						failed = true;
+					}
+				}
+				else
+				{
+					paginatedEventDTOs = foundEventDTOs.OrderByDescending(e => e.StartDate).ToList().GetRange(0, Math.Min(foundEventDTOs.Count(), resultCount));
+				}
+				if(!failed && foundEventDTOs.Count() - lastEventIndex - 1 > paginatedEventDTOs.Count())
+				{
+					canLoadMore = true;
+				}
+
+				return failed
+					? BadRequest(
+						new Response(ResponseStatusEnum.Fail, msg: "Invalid Id"))
+					: Ok(
+						new Response(ResponseStatusEnum.Success,
+						new
+						{
+							Count = foundEventDTOs.Count(),
+							CanLoadMore = canLoadMore,
+							listEvents = paginatedEventDTOs
+						})
+				);
 			}
 			catch(Exception e)
 			{
@@ -177,6 +171,7 @@ namespace SEEMS.Controller
 			}
 		}
 
+		//Everybody can view upcoming so not check banned user here
 		[HttpGet("upcoming")]
 		public async Task<ActionResult<List<Event>>> GetUpcoming()
 		{
@@ -226,6 +221,7 @@ namespace SEEMS.Controller
 			}
 		}
 
+		//Everybody can view all events => not check banned user here
 		[HttpGet()]
 		public async Task<ActionResult<List<Event>>> Get(string? search, bool? upcoming,
 			int? lastEventID, bool? active, string? organizationName, int resultCount = 10)
@@ -343,9 +339,10 @@ namespace SEEMS.Controller
 				if(myEvent == null)
 				{
 					return BadRequest(
-									new Response(ResponseStatusEnum.Fail,
-									false,
-									"ID not found"));
+						new Response(ResponseStatusEnum.Fail,
+						false,
+						"ID not found")
+					);
 				}
 				else
 				{
@@ -390,33 +387,50 @@ namespace SEEMS.Controller
 			try
 			{
 				var user = await GetCurrentUser(Request);
-				var userRole = _context.UserMetas.FirstOrDefault(um => um.UserId == user.Id && um.MetaKey == "role").MetaValue;
-				if(userRole == "Organizer" || userRole == "Admin")
+				if(user != null)
 				{
-					var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
-					if(target is null)
+					if(user.Active)
 					{
-						return BadRequest(
-								new Response(ResponseStatusEnum.Fail,
-								false,
-								"ID not found"));
+
+						var userRole = _context.UserMetas.FirstOrDefault(um => um.UserId == user.Id && um.MetaKey == "role").MetaValue;
+						if(userRole == "Organizer" || userRole == "Admin")
+						{
+							var target = await _context.Events.AsNoTracking().FirstOrDefaultAsync(a => a.Id == id);
+							if(target is null)
+							{
+								return BadRequest(
+										new Response(ResponseStatusEnum.Fail,
+										false,
+										"ID not found"));
+							}
+							_context.Events.Remove(target);
+							await _context.SaveChangesAsync();
+							return Ok(
+										new Response(ResponseStatusEnum.Success,
+										true,
+										"Delete event successfully"));
+						}
+						else
+						{
+							return BadRequest(
+								new Response(
+									ResponseStatusEnum.Fail,
+									"Invalid role"
+								)
+							);
+						}
 					}
-					_context.Events.Remove(target);
-					await _context.SaveChangesAsync();
-					return Ok(
-								new Response(ResponseStatusEnum.Success,
-								true,
-								"Delete event successfully"));
+					else
+						return Ok(
+						 new Response(
+							 ResponseStatusEnum.Success,
+							 new { ErrorCode = "BANNED_USER" },
+							 "User is banned"
+						 )
+					 );
 				}
 				else
-				{
-					return BadRequest(
-						new Response(
-							ResponseStatusEnum.Fail,
-							"Invalid role"
-						)
-					);
-				}
+					throw new Exception("Not authorized user!");
 			}
 			catch(Exception ex)
 			{
@@ -426,14 +440,17 @@ namespace SEEMS.Controller
 		}
 
 		[HttpPost]
+		[CheckUserStatus]
 		public async Task<ActionResult> AddEvent(EventDTO eventDTO)
 		{
 			//eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
 			//eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
 			//eventDTO.RegistrationDeadline ??= ((DateTime) eventDTO.RegistrationDeadline).ToLocalTime();
+
 			EventValidationInfo? eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
 			try
 			{
+				User user = await GetCurrentUser(Request);
 				if(eventValidationInfo != null)
 				{
 					return BadRequest(
@@ -448,7 +465,6 @@ namespace SEEMS.Controller
 						? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6))
 						: eventDTO.RegistrationDeadline;
 					var newEvent = _mapper.Map<Event>(eventDTO);
-					var user = await GetCurrentUser(Request);
 					newEvent.OrganizationName = user.OrganizationName;
 					_context.Events.Add(newEvent);
 					_context.SaveChanges();
@@ -463,6 +479,7 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("is-mine/{id}")]
+		[CheckUserStatus]
 		public async Task<ActionResult> IsMyEvent(int id)
 		{
 			try
@@ -489,7 +506,7 @@ namespace SEEMS.Controller
 							ResponseStatusEnum.Fail,
 							msg: "Event does not existed!"
 						)
-						);
+					);
 				}
 			}
 			catch(Exception ex)
@@ -504,6 +521,7 @@ namespace SEEMS.Controller
 		}
 
 		[HttpGet("can-take-attendance/{id}")]
+		[CheckUserStatus]
 		public async Task<ActionResult> CanTakeAttendance(int id)
 		{
 			var user = await GetCurrentUser(Request);

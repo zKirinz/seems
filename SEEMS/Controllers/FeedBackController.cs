@@ -5,6 +5,7 @@ using SEEMS.Data.DTOs;
 using SEEMS.Data.DTOs.FeedBack;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
+using SEEMS.Infrastructures.Attributes;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
@@ -33,6 +34,7 @@ namespace SEEMS.Controllers
 
         //Get a feedback
         [HttpGet("{id}")]
+        [CheckUserStatus]
         public async Task<IActionResult> Get(int id)
         {
             var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
@@ -60,6 +62,7 @@ namespace SEEMS.Controllers
 
         //Create a feedback
         [HttpPost]
+        [CheckUserStatus]
         public async Task<IActionResult> Post([FromBody] FeedBackDTO feedBackDTO)
         {
             var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
@@ -145,6 +148,7 @@ namespace SEEMS.Controllers
 
         //Get all feedback of an event
         [HttpPost("{id}")]
+        [CheckUserStatus]
         public async Task<IActionResult> Post(int id)
         {
             var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));
@@ -193,6 +197,7 @@ namespace SEEMS.Controllers
         }
 
         [HttpGet("canFeedBack/{id}")]
+        [CheckUserStatus]
         public async Task<IActionResult> CanFeedBack(int id)
         {
             var currentUser = await GetCurrentUser(_authManager.GetCurrentEmail(Request));

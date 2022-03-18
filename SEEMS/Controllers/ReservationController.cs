@@ -3,9 +3,11 @@
 using Microsoft.AspNetCore.Mvc;
 
 using SEEMS.Contexts;
+using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
+using SEEMS.Infrastructures.Attributes;
 using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
@@ -34,6 +36,7 @@ namespace SEEMS.Controllers
 		// POST api/Reservations
 		// Register a event
 		[HttpPost]
+		[CheckUserStatus]
 		public async Task<IActionResult> Post([FromBody] ReservationDTO reservationDTO)
 		{
 			try
@@ -84,6 +87,7 @@ namespace SEEMS.Controllers
 		// PUT api/Reservations/id
 		// Check/Uncheck attendance
 		[HttpPut]
+		[CheckUserStatus]
 		public async Task<IActionResult> Put([FromBody] ReservationForAttendanceReqDTO attendance)
 		{
 			try
@@ -120,6 +124,7 @@ namespace SEEMS.Controllers
 		// GET api/Reservations
 		// Get all registered events
 		[HttpGet]
+		[CheckUserStatus]
 		public async Task<IActionResult> Get(string? search, bool? upcoming, bool? active, string? organizationName, int? lastReservationId, string? reservationStatus, int resultCount = 10)
 		{
 			string userRole = null;
@@ -237,6 +242,7 @@ namespace SEEMS.Controllers
 		// GET api/Reservations/id
 		// Get all user registered for an event
 		[HttpGet("{id}")]
+		[CheckUserStatus]
 		public async Task<IActionResult> Get(int id)
 		{
 			try
@@ -276,7 +282,9 @@ namespace SEEMS.Controllers
 
 		// DELETE api/Reservations/id
 		// Unregister event
+
 		[HttpDelete]
+		[CheckUserStatus]
 		public async Task<IActionResult> Delete([FromBody] ReservationDTO reservationDTO)
 		{
 			try
@@ -316,6 +324,7 @@ namespace SEEMS.Controllers
 		}
 
 		[HttpGet("profile/{email}")]
+		[CheckUserStatus]
 		public async Task<IActionResult> GetProfilePage(string email)
 		{
 			try
@@ -337,6 +346,7 @@ namespace SEEMS.Controllers
 						Role = (await _repoManager.UserMeta.GetRolesAsync(user.Email, false)).MetaValue,
 						OrganizationName = user.OrganizationName.ToString(),
 						RegisteredEventsNum = _repoManager.Reservation.GetRegisteredEventsNumOfUser(user.Id),
+						ConsecutiveAbsentEventsNum = _repoManager.Reservation.GetConsecutiveAbsentNum(user.Id),
 						FeedbackedEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Feedbacked"),
 						NoFeedbackEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Attended"),
 						AbsentEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Absent"),
@@ -363,13 +373,6 @@ namespace SEEMS.Controllers
 				return BadRequest(new Response(ResponseStatusEnum.Error, "", ex.Message));
 			}
 		}
-
-		//[HttpGet("is-banned/{userId}")]
-		//public async Task<IActionResult> IsBanned(int userId)
-		//{
-		//	List<RegisteredEventsDTO> registeredEventsDTOs = _repoManager.Reservation.GetListRegisteredEvents(userId).ToList();
-
-		//}
 
 		private Task<User> GetCurrentUser(string email) => _repoManager.User.GetUserAsync(email, false);
 	}
