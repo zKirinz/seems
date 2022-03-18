@@ -99,7 +99,7 @@ namespace SEEMS.Controllers
 				}
 
 				var role = (await _repoManager.UserMeta.GetRoleByUserIdAsync(currentUser.Id, false)).MetaValue;
-				if(!role.Contains(RoleTypes.ADM.ToString())  && !role.Contains(RoleTypes.ORG.ToString()))
+				if(!role.Contains(RoleTypes.ADM.ToString()) && !role.Contains(RoleTypes.ORG.ToString()))
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
 				}
@@ -110,10 +110,24 @@ namespace SEEMS.Controllers
 					return Ok(new Response(ResponseStatusEnum.Fail, "", "Invalid reservationId"));
 				}
 
-				reservation.Attend = attendance.Attend;
-				_context.Reservations.Update(reservation);
-				_context.SaveChanges();
-				return Ok(new Response(ResponseStatusEnum.Success, ""));
+				if(reservation.Attend)
+				{
+					return Ok(
+						new Response(
+							ResponseStatusEnum.Success,
+							new { ErrorCode = "ALREADY_ATTENDED" },
+							"Already attended",
+							200
+						)
+					);
+				}
+				else
+				{
+					reservation.Attend = attendance.Attend;
+					_context.Reservations.Update(reservation);
+					_context.SaveChanges();
+					return Ok(new Response(ResponseStatusEnum.Success, ""));
+				}
 			}
 			catch(Exception ex)
 			{
