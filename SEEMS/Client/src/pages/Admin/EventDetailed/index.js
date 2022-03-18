@@ -10,6 +10,7 @@ import { blueGrey, grey } from '@mui/material/colors'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import useEventAction from '../../../recoil/event/action'
+import Loading from '../../Loading'
 import CheckAttendanceButton from './CheckAttendanceButton'
 import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
@@ -29,6 +30,8 @@ const EventDetailed = () => {
         event: {},
         numberRootComments: 0,
     })
+    const [isFirstRender, setIsFirstRender] = useState(true)
+
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
@@ -42,6 +45,9 @@ const EventDetailed = () => {
                     event: responseEvent,
                     numberRootComments: responseEvent.rootCommentsNum,
                 })
+                setTimeout(() => {
+                    setIsFirstRender(false)
+                }, 500)
             })
             .catch(() => {
                 showSnackbar({
@@ -49,6 +55,9 @@ const EventDetailed = () => {
                     children: 'Something went wrong, please try again later.',
                 })
                 setError(true)
+                setTimeout(() => {
+                    setIsFirstRender(false)
+                }, 500)
             })
 
         checkIsMyEvent(id)
@@ -66,7 +75,9 @@ const EventDetailed = () => {
     }, [])
 
     if (error)
-        return (
+        return isFirstRender ? (
+            <Loading />
+        ) : (
             <Box
                 sx={{
                     height: '85vh',
@@ -85,7 +96,9 @@ const EventDetailed = () => {
             </Box>
         )
 
-    return (
+    return isFirstRender ? (
+        <Loading />
+    ) : (
         <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>
             <Grid container>
                 <Grid item xs={12} sm={4}>
