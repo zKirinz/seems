@@ -4,7 +4,19 @@ import { grey } from '@mui/material/colors'
 const ReservationSummaryInfo = ({ title, content }) => {
     return (
         <CardContent sx={{ px: 8, py: 4 }}>
-            <Typography fontWeight={700} color="primary" variant="h5">
+            <Typography
+                fontWeight={700}
+                color="primary"
+                variant="h5"
+                sx={{
+                    width: '75%',
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitBoxOrient: 'vertical',
+                    WebkitLineClamp: '2',
+                    textOverflow: 'ellipsis',
+                }}
+            >
                 {title}
             </Typography>
             <Typography

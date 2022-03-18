@@ -100,7 +100,6 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                         },
                     ],
                 }
-
                 setUserProfile(user)
                 setUserEventStatistic(statistic)
                 setTotalRegisteredEvent(user.registeredEventsNum)
