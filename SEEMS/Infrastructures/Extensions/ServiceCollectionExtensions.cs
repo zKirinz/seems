@@ -102,6 +102,7 @@ public static class ServiceCollectionExtensions
 		services.AddScoped<IRepositoryManager, RepositoryManager>();
 		services.AddScoped<IControllerBaseServices<User>, ControllerBaseServices<User>>();
 		services.AddScoped<RoleBasedAuthorizationAttribute>();
+		services.AddScoped<CheckUserStatus>();
 		services.AddScoped<IEmailService, EmailService>();
 		services.AddScoped<IQRGeneratorService, QRGeneratorService>();
 		services.AddScoped<AuthManager>();
