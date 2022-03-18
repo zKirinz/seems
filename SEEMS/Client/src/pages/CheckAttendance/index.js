@@ -61,7 +61,7 @@ const CheckAttendance = () => {
         try {
             if (data !== null && data.text) {
                 const { Email, EventId, ReservationId } = JSON.parse(data.text)
-                if (EventId !== id) {
+                if (EventId !== parseInt(id)) {
                     showSnackbar({
                         severity: 'error',
                         children: 'This is not QR Code of this event!',

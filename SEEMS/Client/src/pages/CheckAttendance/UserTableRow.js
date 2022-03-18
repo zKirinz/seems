@@ -33,10 +33,6 @@ const UserTableRow = ({ userName, imageUrl, email, attend, reservationId, resetH
                 return
             })
 
-        showSnackbar({
-            severity: 'success',
-            children: `Update user ${email} successfully.`,
-        })
         resetHandler()
     }
 
