@@ -87,7 +87,6 @@ namespace SEEMS.Services
             responseComment.ModifiedAt = comment.ModifiedAt;
             responseComment.NumberReplyComment = dbContext.Comments.Where(x => x.ParentCommentId == comment.Id).Count();
             responseComment.NumberLikeComment = dbContext.LikeComments.Where(x => x.CommentId == comment.Id).Count();
-            responseComment.NumberCommentDeleted = responseComment.NumberReplyComment + 1;
             return responseComment;
         }
 
