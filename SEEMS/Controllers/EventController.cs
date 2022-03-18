@@ -435,7 +435,7 @@ namespace SEEMS.Controller
 			catch(Exception ex)
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError,
-					new Response(ResponseStatusEnum.Error, msg: ex.InnerException.Message));
+					new Response(ResponseStatusEnum.Error, msg: ex.Message));
 			}
 		}
 
