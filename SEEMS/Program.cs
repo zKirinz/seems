@@ -237,7 +237,9 @@ services.Configure<ApiBehaviorOptions>(options =>
 // }
 
 using System.Configuration;
+
 using Quartz;
+
 using SEEMS;
 using SEEMS.Infrastructures.Extensions;
 using SEEMS.Services.Jobs;
@@ -246,7 +248,7 @@ public class Program
 {
 	public static void Main(string[] args)
 	{
-		CreateHostBuilder(args).Build().Run();	
+		CreateHostBuilder(args).Build().Run();
 	}
 
 	public static IHostBuilder CreateHostBuilder(string[] args) =>
