@@ -27,11 +27,11 @@ const methodsContact = [
     },
     {
         name: 'Phone',
-        content: '0948264856',
+        content: '0948264246',
     },
     {
         name: 'Email',
-        content: 'hienbui27g@gmail.com',
+        content: 'hienbui69g@gmail.com',
     },
 ]
 

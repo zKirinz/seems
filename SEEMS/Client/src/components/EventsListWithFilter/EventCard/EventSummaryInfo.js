@@ -13,7 +13,14 @@ const EventSummaryInfo = ({ title, content }) => {
                 fontWeight={700}
                 color="primary"
                 variant="h5"
-                sx={{ width: `${auth.email ? '75%' : '100%'}` }}
+                sx={{
+                    width: `${auth.email ? '75%' : '100%'}`,
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitBoxOrient: 'vertical',
+                    WebkitLineClamp: '2',
+                    textOverflow: 'ellipsis',
+                }}
             >
                 {title}
             </Typography>
