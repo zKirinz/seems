@@ -110,7 +110,7 @@ namespace SEEMS.Controllers
 					return Ok(new Response(ResponseStatusEnum.Fail, "", "Invalid reservationId"));
 				}
 
-				if(reservation.Attend)
+				if(reservation.Attend && attendance.Attend)
 				{
 					return Ok(
 						new Response(
