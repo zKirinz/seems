@@ -248,7 +248,7 @@ const EventsList = ({ page }) => {
             ) : (
                 <Box display="flex" justifyContent="center">
                     <Alert icon={<EventBusyIcon />} variant="outlined" severity="warning">
-                        {auth.role === 'Organizer' ? (
+                        {auth.role === 'Admin' || auth.role === 'Organizer' ? (
                             <React.Fragment>
                                 There is not any events here, let&apos;s{' '}
                                 <RouterLink
