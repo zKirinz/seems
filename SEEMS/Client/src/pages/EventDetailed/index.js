@@ -18,6 +18,7 @@ import { blueGrey, grey } from '@mui/material/colors'
 import { useSnackbar } from '../../HOCs/SnackbarContext'
 import atom from '../../recoil/auth'
 import useEventAction from '../../recoil/event/action'
+import Loading from '../Loading'
 import CheckAttendanceButton from './CheckAttendanceButton'
 import CommentsSection from './Comments/index'
 import EditEventButton from './EditEventButton'
@@ -41,6 +42,7 @@ const EventDetailed = () => {
         event: {},
         numberRootComments: 0,
     })
+    const [isFirstRender, setIsFirstRender] = useState(true)
 
     useEffect(() => {
         getDetailedEvent(id)
@@ -56,6 +58,9 @@ const EventDetailed = () => {
                     numberRootComments: responseEvent.rootCommentsNum,
                 })
                 setIsRegistered(registered)
+                setTimeout(() => {
+                    setIsFirstRender(false)
+                }, 500)
             })
             .catch(() => {
                 showSnackbar({
@@ -63,6 +68,9 @@ const EventDetailed = () => {
                     children: 'Something went wrong, please try again later.',
                 })
                 setError(true)
+                setTimeout(() => {
+                    setIsFirstRender(false)
+                }, 500)
             })
 
         if (auth.role === 'Organizer') {
@@ -82,7 +90,9 @@ const EventDetailed = () => {
     }, [reset])
 
     if (error)
-        return (
+        return isFirstRender ? (
+            <Loading />
+        ) : (
             <Box
                 sx={{
                     height: '85vh',
@@ -101,7 +111,9 @@ const EventDetailed = () => {
             </Box>
         )
 
-    return (
+    return isFirstRender ? (
+        <Loading />
+    ) : (
         <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>
             <Grid container>
                 <Grid item xs={12} sm={4}>
@@ -115,7 +127,12 @@ const EventDetailed = () => {
                             justifyContent="space-between"
                             sx={{ mb: 1.5 }}
                         >
-                            <Typography variant="h4" color="primary" fontWeight={700}>
+                            <Typography
+                                variant="h4"
+                                color="primary"
+                                fontWeight={700}
+                                sx={{ width: '85%' }}
+                            >
                                 {detailedEvent.event.eventTitle}
                             </Typography>
                             <Box display="flex" alignItems="center">
@@ -124,9 +141,9 @@ const EventDetailed = () => {
                                 <Typography>{detailedEvent.event.participantNum}</Typography>
                             </Box>
                         </Box>
-                        <Box display="flex" alignItems="center" sx={{ my: 1 }}>
-                            <Box display="flex" alignItems="center">
-                                <Home color="primary" fontSize="medium" />
+                        <Box display="flex" sx={{ my: 1 }}>
+                            <Box display="flex">
+                                <Home color="primary" sx={{ fontSize: 30 }} />
                                 <Typography
                                     fontWeight={500}
                                     variant="h6"
@@ -138,8 +155,8 @@ const EventDetailed = () => {
                             <Typography sx={{ mx: 2 }} variant="h6">
                                 -
                             </Typography>
-                            <Box display="flex" alignItems="center">
-                                <SupervisedUserCircle color="primary" />
+                            <Box display="flex">
+                                <SupervisedUserCircle color="primary" sx={{ fontSize: 30 }} />
                                 <Typography
                                     color="secondary"
                                     fontWeight={500}
