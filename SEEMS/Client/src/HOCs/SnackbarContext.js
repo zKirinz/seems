@@ -40,7 +40,7 @@ const SnackbarProvider = ({ children }) => {
                     vertical: 'bottom',
                 }}
                 TransitionComponent={SlideTransition}
-                autoHideDuration={3000}
+                autoHideDuration={2500}
             >
                 <Alert variant="filled" {...alert} onClose={handleClose} />
             </Snackbar>

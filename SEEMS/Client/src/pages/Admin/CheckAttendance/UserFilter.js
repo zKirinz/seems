@@ -1,7 +1,15 @@
-import { Search as SearchIcon } from '@mui/icons-material'
-import { Box, FormControl, InputLabel, Input, InputAdornment, IconButton } from '@mui/material'
+import { Search as SearchIcon, Sync as SyncIcon } from '@mui/icons-material'
+import {
+    Box,
+    FormControl,
+    InputLabel,
+    Input,
+    InputAdornment,
+    IconButton,
+    Button,
+} from '@mui/material'
 
-const UserFilter = ({ emailFilter, setEmailFilter }) => {
+const UserFilter = ({ emailFilter, setEmailFilter, setSyncDataCounter }) => {
     return (
         <Box display="flex" justifyContent="flex-end">
             <FormControl variant="standard" sx={{ width: '200px', mx: 1 }}>
@@ -20,6 +28,16 @@ const UserFilter = ({ emailFilter, setEmailFilter }) => {
                     label="Email"
                 />
             </FormControl>
+            <Box display="flex" alignItems="center">
+                <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<SyncIcon />}
+                    onClick={setSyncDataCounter}
+                >
+                    Sync Data
+                </Button>
+            </Box>
         </Box>
     )
 }

@@ -247,11 +247,15 @@ const EventsList = ({ page }) => {
             ) : (
                 <Box display="flex" justifyContent="center">
                     <Alert icon={<EventBusyIcon />} variant="outlined" severity="warning">
-                        {auth.role === 'Organizer' ? (
+                        {auth.role === 'Admin' || auth.role === 'Organizer' ? (
                             <React.Fragment>
                                 There is not any events here, let&apos;s{' '}
                                 <RouterLink
-                                    to={isAdmin ? '/admin/events/create' : '/events/create'}
+                                    to={
+                                        auth.role === 'Admin'
+                                            ? '/admin/events/create'
+                                            : '/events/create'
+                                    }
                                 >
                                     <Link component="span">create one!</Link>
                                 </RouterLink>{' '}
