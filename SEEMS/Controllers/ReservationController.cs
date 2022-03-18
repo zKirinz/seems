@@ -84,7 +84,7 @@ namespace SEEMS.Controllers
 			}
 		}
 
-		// PUT api/Reservations/id
+		// PUT api/Reservations/
 		// Check/Uncheck attendance
 		[HttpPut]
 		[CheckUserStatus]
@@ -98,8 +98,8 @@ namespace SEEMS.Controllers
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Login to continue."));
 				}
 
-				var role = _context.UserMetas.SingleOrDefault(x => x.UserId == currentUser.Id).MetaValue;
-				if(!role.Contains(RoleTypes.ADM) || !role.Contains(RoleTypes.ORG))
+				var role = (await _repoManager.UserMeta.GetRoleByUserIdAsync(currentUser.Id, false)).MetaValue;
+				if(!role.Contains(RoleTypes.ADM.ToString())  && !role.Contains(RoleTypes.ORG.ToString()))
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
 				}
