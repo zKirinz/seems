@@ -99,7 +99,7 @@ namespace SEEMS.Controllers
 				}
 
 				var role = (await _repoManager.UserMeta.GetRoleByUserIdAsync(currentUser.Id, false)).MetaValue;
-				if(!role.Contains(RoleTypes.ADM.ToString()) && !role.Contains(RoleTypes.ORG.ToString()))
+				if(!role.Contains(RoleTypes.Admin.ToString()) && !role.Contains(RoleTypes.Organizer.ToString()))
 				{
 					return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
 				}
