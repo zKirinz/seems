@@ -11,7 +11,7 @@ namespace SEEMS.Data.Repositories
 		int GetRegisteredEventsNumByStatus(int userId, string status);
 		int GetConsecutiveAbsentNum(int userId);
 
-		public Task<List<Reservation>> GetReservationsByEventId(int eventId, bool trackChanges);
+		public Task<IEnumerable<Reservation>> GetReservationsByEventId(int eventId, bool trackChanges);
 
 		public Task<IEnumerable<Reservation>> GetReservationsByEventId(DateTime from, bool trackChanges);
 

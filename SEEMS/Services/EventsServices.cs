@@ -26,10 +26,10 @@ namespace SEEMS.Services
 				failedCheck = true;
 				validationInfo.StartDate = $"Start date must after current time at least {EventValidationInfo.MinDayBeforeStarted} days";
 			}
-			if(eventDTO.EndDate.Subtract(eventDTO.StartDate).TotalMinutes < EventValidationInfo.MinMinutesOfEvent)
+			if(eventDTO.EndDate.Subtract(eventDTO.StartDate).TotalHours < EventValidationInfo.MinHoursOfEvent)
 			{
 				failedCheck = true;
-				validationInfo.EndDate = $"End time must after start time at least {EventValidationInfo.MinMinutesOfEvent} minutes";
+				validationInfo.EndDate = $"End time must after start time at least {EventValidationInfo.MinHoursOfEvent} hours";
 
 			}
 			if(eventDTO.RegistrationDeadline != null && (eventDTO.StartDate.Subtract((DateTime) eventDTO.RegistrationDeadline).TotalHours < EventValidationInfo.MinHoursRegistrationFromStart || ((DateTime) eventDTO.RegistrationDeadline).Subtract(DateTime.Now).Add(TimeSpan.FromHours(7)).TotalHours < EventValidationInfo.MinHoursRegistrationFromNow))

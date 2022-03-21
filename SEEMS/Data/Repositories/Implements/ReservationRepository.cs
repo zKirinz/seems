@@ -20,7 +20,7 @@ namespace SEEMS.Data.Repositories.Implements
 			return _context.Reservations.Where(r => r.EventId == eventId).Count();
 		}
 
-		public async Task<List<Reservation>> GetReservationsByEventId(int eventId, bool trackChanges) =>
+		public async Task<IEnumerable<Reservation>> GetReservationsByEventId(int eventId, bool trackChanges) =>
 			await FindByCondition(r => r.EventId == eventId, trackChanges)
 				.ToListAsync();
 

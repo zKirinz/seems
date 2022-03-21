@@ -5,7 +5,7 @@ namespace SEEMS.Data.Entities.RequestFeatures;
 
 public class EmailMeta
 {
-    [Required, EmailAddress]
+    [Required]
     public string FromName { get; set; }
     [Required, EmailAddress]
     public string FromEmail { get; set; }
@@ -19,5 +19,5 @@ public class EmailMeta
     [Required]
     public object Message { get; set; }
     
-    public Attachment Attachment { get; set; }
+    public Attachment? Attachment { get; set; }
 }
