@@ -21,6 +21,8 @@ public interface IUserRepository
 
 	Task<User> GetUserAsync(string email, bool trackChanges);
 
+	Task<User> GetActiveUserAsync(string email, bool trackChanges);
+
 	Task<User> GetUserAsync(int id, bool trackChanges);
 
 	int GetCount(List<User> except, bool trackChanges);

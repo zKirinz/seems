@@ -31,7 +31,7 @@ public class RoleBasedAuthorizationAttribute : Attribute, IAuthorizationFilter
                 DisplayResponse(context, 401, "Your token is invalid");
             }
 
-            if (!role.Equals(RoleBased))
+            if (!ValidRoles(RoleBased, role))
             {
                 DisplayResponse(context, 403, $"{role} is not allowed to operate this process");
             }
@@ -47,13 +47,16 @@ public class RoleBasedAuthorizationAttribute : Attribute, IAuthorizationFilter
         }
     }
 
-    private async Task<User> GetUserFromEmailAsync(string email) => await _repoManager.User.GetUserAsync(email, false);
+    private bool ValidRoles(string complexRole, string valueToCompare) =>
+        complexRole.Split(',').Contains(valueToCompare);
+
+    private async Task<User> GetUserFromEmailAsync(string email) => await _repoManager.User.GetActiveUserAsync(email, false);
 
     private bool IsValidTokenByEmail(string email, string role)
     {
         var userFromEmail = GetUserFromEmailAsync(email).Result;
 
-        return userFromEmail != null && role.Equals(RoleBased);
+        return userFromEmail != null && ValidRoles(RoleBased, role);
     }
 
     private void DisplayResponse(AuthorizationFilterContext context, int statusCode, string message)

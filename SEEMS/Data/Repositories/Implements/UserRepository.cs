@@ -46,11 +46,13 @@ namespace SEEMS.Data.Repositories.Implements
 		}
 
 		public async Task<User> GetUserAsync(string email, bool trackChanges) =>
-#pragma warning disable CS8603 // Possible null reference return.
 		   await FindByCondition(u => u.Email.Equals(email), trackChanges)
 			.SingleOrDefaultAsync();
-#pragma warning restore CS8603 // Possible null reference return.
-
+		
+		public async Task<User> GetActiveUserAsync(string email, bool trackChanges) =>
+			await FindByCondition(u => u.Email.Equals(email) && u.Active == true, trackChanges)
+				.SingleOrDefaultAsync();
+		
 		public async Task<User> GetUserAsync(int id, bool trackChanges) =>
 			 await FindByCondition(u => u.Id == id, trackChanges)
 				 .SingleOrDefaultAsync();
