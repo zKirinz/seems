@@ -158,7 +158,7 @@ namespace SEEMS.Controllers
             }
 
             var role = _context.UserMetas.FirstOrDefault(x => x.UserId == currentUser.Id).MetaValue;
-            if (!role.Contains(RoleTypes.ADM) && !role.Contains(RoleTypes.ORG))
+            if (!role.Contains(RoleTypes.Admin) && !role.Contains(RoleTypes.Organizer))
             {
                 return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You do not have permission."));
             }
