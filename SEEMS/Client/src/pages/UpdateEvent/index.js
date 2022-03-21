@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 
+// import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
 import { useHistory, useLocation, useParams } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../HOCs/SnackbarContext'
 import { useEventAction } from '../../recoil/event'
+// import { storage } from '../../utils/Firebase'
 import Loading from '../Loading'
 import UpdateEventForm from './UpdateEventForm'
 
@@ -18,7 +20,7 @@ const UpdateEvent = () => {
     const history = useHistory()
     const { pathname } = useLocation()
     const [updateEventDisable, setUpdateEventDisable] = useState(true)
-    const [activeUpdateDelete, setActiveUpdateDelete] = useState(false)
+    // const [activeUpdateDelete, setActiveUpdateDelete] = useState(false)
 
     useEffect(() => {
         checkIsMyEvent(id)
@@ -42,6 +44,7 @@ const UpdateEvent = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     const updateEventHandler = (eventData) => {
+        console.log(eventData)
         eventActions
             .updateEvent(id, eventData)
             .then(() => {
@@ -53,6 +56,7 @@ const UpdateEvent = () => {
                 history.push(newUrl)
             })
             .catch((errorResponse) => {
+                console.log(errorResponse.response)
                 if (errorResponse.response.status === 400) {
                     const errorData = errorResponse.response.data.data
                     setError({

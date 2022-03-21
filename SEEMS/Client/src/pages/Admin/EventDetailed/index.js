@@ -99,7 +99,7 @@ const EventDetailed = () => {
     return isFirstRender ? (
         <Loading />
     ) : (
-        <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>
+        <Container fixed sx={{ mt: 20, px: 0, mb: 12.5 }}>
             <Grid container>
                 <Grid item xs={12} sm={4}>
                     <EventPoster src={detailedEvent.event.imageUrl} size="contain" />

@@ -7,6 +7,7 @@ import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
 import {
     Box,
     Button,
+    Checkbox,
     FormControl,
     FormControlLabel,
     FormHelperText,
@@ -43,7 +44,9 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     const [endDate, setEndDate] = useState({})
     const [registrationTime, setRegistrationTime] = useState({})
     const [isLoading, setIsLoading] = useState(false)
-    // const [poster, setPoster] = useState({ src, file: null })
+    const [poster, setPoster] = useState({ src: {}, file: null })
+    const [sendingEmail, setSendingEmail] = useState(false)
+
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
         setEventName((previousValue) => ({ ...previousValue, value: event.target.value }))
@@ -83,6 +86,23 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
         else setEndDate(new Date(eventFields.endDate))
     }
 
+    const uploadImageHandler = (event) => {
+        const file = event.target.files[0]
+        if (!file) return
+
+        const { type } = file
+        if (!(type.endsWith('jpeg') || type.endsWith('png') || type.endsWith('jpg'))) {
+            showSnackbar({
+                severity: 'error',
+                children: 'Event poster can only be jpeg, png and jpg file.',
+            })
+            return
+        }
+
+        const imageUrl = URL.createObjectURL(event.target.files[0])
+        setPoster({ src: imageUrl, file })
+    }
+
     const registrationTimeChangeHandler = (newDate) => {
         error?.registrationDeadline &&
             setError((previousError) => ({ ...previousError, registrationDeadline: null }))
@@ -109,6 +129,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
             endDate: endDate,
             participantNum: eventFields.participantNum,
             registrationDeadline: registrationTime,
+            allowEmail: sendingEmail,
         }
         updateEventHandler(eventDetailed)
     }
@@ -141,6 +162,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                 setStartDate(new Date(responseEvent.startDate))
                 setEndDate(new Date(responseEvent.endDate))
                 setRegistrationTime(new Date(responseEvent.registrationDeadline))
+                setPoster((previousValue) => ({ ...previousValue, src: responseEvent.imageUrl }))
                 setTimeout(() => {
                     setIsLoading(false)
                 }, 500)
@@ -167,7 +189,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                         <Box
                             component="img"
                             alt="school-image"
-                            src={eventFields.imageUrl}
+                            src={poster.src}
                             sx={{
                                 width: '100%',
                                 aspectRatio: '1 / 1',
@@ -235,13 +257,12 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                         id="upload-photo"
                                         type="file"
                                         accept="image/*"
-                                        disabled
+                                        onChange={uploadImageHandler}
                                     />
                                     <Button
                                         variant="outlined"
                                         component="span"
                                         startIcon={<CameraAlt />}
-                                        disabled
                                     >
                                         Upload
                                     </Button>
@@ -275,7 +296,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                 )}
                             </FormControl>
                             <FormControl
-                                sx={{ mx: 1.5, my: 1, flexDirection: 'row', alignItems: 'center' }}
+                                sx={{ mx: 1.5, mt: 1, flexDirection: 'row', alignItems: 'center' }}
                                 fullWidth
                             >
                                 <Typography
@@ -307,6 +328,14 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                 </RadioGroup>
                             </FormControl>
                         </Box>
+                        <FormControl sx={{ mx: 1.5, mb: 1.5 }}>
+                            <FormControlLabel
+                                control={<Checkbox />}
+                                label="Sending email for updating notification"
+                                onChange={() => setSendingEmail((previousValue) => !previousValue)}
+                                checked={sendingEmail}
+                            />
+                        </FormControl>
                         <Box sx={{ mx: 1.5, mb: 4, mt: 1 }}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <Box
