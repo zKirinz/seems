@@ -31,7 +31,7 @@ public class UserController : ControllerBase
 		_mapper = mapper;
 	}
 
-	[RoleBasedAuthorization(RoleBased = RoleTypes.ADM)]
+	[RoleBasedAuthorization(RoleBased = RoleTypes.Admin)]
 	[HttpGet("")]
 	public async Task<IActionResult> GetListUsers([FromQuery] UserParams userParams)
 	{
@@ -46,11 +46,11 @@ public class UserController : ControllerBase
 	}
 
 	[ValidateModel]
-	[RoleBasedAuthorization(RoleBased = RoleTypes.ADM)]
+	[RoleBasedAuthorization(RoleBased = RoleTypes.Admin)]
 	[HttpPut("{id}")]
 	public async Task<IActionResult> SetRole(int id, [FromBody] RoleToUpdateDto dto)
 	{
-		string[] roleCanBeUpdated = { RoleTypes.CUSR, RoleTypes.ORG };
+		string[] roleCanBeUpdated = { RoleTypes.User, RoleTypes.Organizer };
 
 		if(!roleCanBeUpdated.Contains(dto.Role))
 			return UnprocessableEntity(new Response(ResponseStatusEnum.Fail, "", $"Can not update {dto.Role}  role", 422));
@@ -72,7 +72,7 @@ public class UserController : ControllerBase
 	}
 
 	[ValidateModel]
-	[RoleBasedAuthorization(RoleBased = RoleTypes.ADM)]
+	[RoleBasedAuthorization(RoleBased = RoleTypes.Admin)]
 	[HttpPut("edit/{id}")]
 	public async Task<IActionResult> PartialUpdateUser(int id, [FromBody] UserForUpdateDto dto)
 	{

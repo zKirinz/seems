@@ -33,6 +33,12 @@ namespace SEEMS.Data.Repositories.Implements
 			await FindByCondition(e => e.EndDate == from || e.EndDate.AddMinutes(5) == from, trackChanges)
 				.ToListAsync();
 
+		public void DeleteEvent(Event @event) => Delete(@event);
+
+		public async Task<IEnumerable<Event>> GetAllEventsRecentlyModifiedFor5Minutes(DateTime from, bool trackChanges) =>
+			await FindByCondition(e => from.AddMinutes(-5) <= e.ModifiedAt, trackChanges)
+				.ToListAsync();
+
 		public async Task<Event> GetEventAsync(int id, bool trackChanges) =>
 			await FindByCondition(e => e.Id == id, trackChanges).SingleOrDefaultAsync();
 

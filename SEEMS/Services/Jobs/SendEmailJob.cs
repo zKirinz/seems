@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Quartz;
 using SEEMS.Data.Entities.RequestFeatures;
+using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services.Interfaces;
 using static System.Drawing.Imaging.ImageFormat;
@@ -69,7 +70,8 @@ public class SendEmailJob : IJob
                 mailToUser.Attachment = new Attachment(CreateTempFile(qr, Png.ToString()), "image/png");
                 var stream = new MemoryStream(qr);
                            
-                mailToUser.Message = _emailService.InitEmailContext(reservation);
+                mailToUser.Message = _emailService.GetEmailTemplate(EmailTypes.InformRegistration, 
+                    _emailService.InitTemplates(reservation));
                 var isEmailed = IsEmailedReservation(_repoManager, reservation).Result;
                 if (isEmailed)
                 {
