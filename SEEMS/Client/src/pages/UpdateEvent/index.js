@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 
-// import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
+import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
 import { useHistory, useLocation, useParams } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../HOCs/SnackbarContext'
 import { useEventAction } from '../../recoil/event'
-// import { storage } from '../../utils/Firebase'
+import { storage } from '../../utils/Firebase'
 import Loading from '../Loading'
 import UpdateEventForm from './UpdateEventForm'
 
@@ -25,7 +25,6 @@ const UpdateEvent = () => {
     useEffect(() => {
         checkIsMyEvent(id)
             .then((response) => {
-                console.log(response)
                 const isMine = response.data.data.isMine
                 if (isMine === false) {
                     const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
@@ -43,17 +42,60 @@ const UpdateEvent = () => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-    const updateEventHandler = (eventData) => {
-        console.log(eventData)
+    const updateEventHandler = ({ eventData, poster }) => {
         eventActions
             .updateEvent(id, eventData)
-            .then(() => {
-                showSnackbar({
-                    severity: 'success',
-                    children: 'Update event successfully.',
-                })
-                const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
-                history.push(newUrl)
+            .then((response) => {
+                const { id: eventId } = response.data.data
+
+                if (poster.file) {
+                    let fileType = 'png'
+                    if (poster.file.type.endsWith('jpg')) fileType = 'jpg'
+                    else if (poster.file.type.endsWith('jpeg')) fileType = 'jpeg'
+                    const storageRef = ref(storage, `event-poster/${eventId}.${fileType}`)
+                    const uploadTask = uploadBytesResumable(storageRef, poster.file)
+
+                    uploadTask.on(
+                        'state_changed',
+                        () => {},
+                        () => {
+                            showSnackbar({
+                                severity: 'error',
+                                children: 'Something went wrong, cannot upload event poster.',
+                            })
+                        },
+                        () => {
+                            getDownloadURL(uploadTask.snapshot.ref)
+                                .then((downloadURL) =>
+                                    eventActions.updateEvent(eventId, {
+                                        //Error at here
+                                        imageUrl: downloadURL,
+                                    })
+                                )
+                                .then(() => {
+                                    showSnackbar({
+                                        severity: 'success',
+                                        children: 'Update event successfully.',
+                                    })
+                                    const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
+                                    history.push(newUrl)
+                                })
+                                .catch(() => {
+                                    showSnackbar({
+                                        severity: 'error',
+                                        children: 'Something went wrong, please try again later.',
+                                    })
+                                })
+                        }
+                    )
+                } else {
+                    showSnackbar({
+                        severity: 'success',
+                        children: 'Update event successfully.',
+                    })
+                    const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
+                    history.push(newUrl)
+                }
             })
             .catch((errorResponse) => {
                 console.log(errorResponse.response)

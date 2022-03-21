@@ -46,6 +46,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [poster, setPoster] = useState({ src: {}, file: null })
     const [sendingEmail, setSendingEmail] = useState(false)
+    const [participantsLimited, setParticipantsLimited] = useState(10)
 
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
@@ -84,6 +85,10 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
         error?.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
         if (newDate !== null) setEndDate(newDate)
         else setEndDate(new Date(eventFields.endDate))
+    }
+
+    const limitationChangeHandler = (event) => {
+        setParticipantsLimited(event.target.value)
     }
 
     const uploadImageHandler = (event) => {
@@ -131,7 +136,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
             registrationDeadline: registrationTime,
             allowEmail: sendingEmail,
         }
-        updateEventHandler(eventDetailed)
+        updateEventHandler({ eventData: eventDetailed, poster })
     }
     const eventNameIsInValid = isEmpty(eventName.value) && eventName.isTouched
     const locationIsInValid = isEmpty(location.value) && location.isTouched
@@ -163,6 +168,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                 setEndDate(new Date(responseEvent.endDate))
                 setRegistrationTime(new Date(responseEvent.registrationDeadline))
                 setPoster((previousValue) => ({ ...previousValue, src: responseEvent.imageUrl }))
+                setParticipantsLimited(responseEvent.participantNum)
                 setTimeout(() => {
                     setIsLoading(false)
                 }, 500)
@@ -193,6 +199,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                             sx={{
                                 width: '100%',
                                 aspectRatio: '1 / 1',
+                                objectFit: 'contain',
                             }}
                         />
                     </Box>
@@ -408,7 +415,8 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                         inputMode: 'numeric',
                                         pattern: '[0-9]*',
                                     }}
-                                    value={eventFields.participantNum}
+                                    value={participantsLimited}
+                                    onChange={limitationChangeHandler}
                                     sx={{
                                         'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button':
                                             { display: 'none' },

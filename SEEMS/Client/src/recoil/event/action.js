@@ -65,10 +65,9 @@ const useEventAction = () => {
             return res
         })
 
-    const updateEvent = (eventId, eventData) => {
-        console.log(eventData)
-        return put({
-            endpoint: `/api/events/${eventId}?allowEmail=${eventData.allowEmail}`,
+    const updateEvent = (eventId, eventData) =>
+        put({
+            endpoint: `/api/events/${eventId}?allowEmail=${eventData.allowEmail ? true : false}`,
             body: eventData,
         }).then((res) => {
             if (res.data.data && res.data.data.errorCode === 'BANNED_USER') {
@@ -77,7 +76,6 @@ const useEventAction = () => {
             }
             return res
         })
-    }
 
     const checkIsMyEvent = (id) =>
         get({ endpoint: `/api/events/is-mine/${id}` }).then((res) => {

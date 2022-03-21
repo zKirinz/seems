@@ -162,7 +162,7 @@ const CommentsSection = ({ eventId: EventId, numberComments, numberRootComments 
                     {quantityComment} comments
                 </Typography>
             </Box>
-            <Box sx={{ maxWidth: 1000, mx: 'auto', mb: 18 }}>
+            <Box sx={{ maxWidth: 1000, mx: 'auto' }}>
                 <Box sx={{ mb: 2 }}>
                     <Divider sx={{ mb: 1 }} />
                     <Button
