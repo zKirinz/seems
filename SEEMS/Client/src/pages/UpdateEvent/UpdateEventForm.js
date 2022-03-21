@@ -21,21 +21,27 @@ import {
 } from '@mui/material'
 import { grey } from '@mui/material/colors'
 
+import { useSnackbar } from '../../HOCs/SnackbarContext'
 import usePrompt from '../../hooks/use-prompt'
 import { useEventAction } from '../../recoil/event'
 
 const defaultTextFieldValue = { value: '', isTouched: false }
 
 const isEmpty = (incomeValue) => incomeValue?.trim().length === 0
+const dayCalculation = (numDay = 1) => numDay * 24 * 60 * 60 * 1000
 
 const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
+    const showSnackbar = useSnackbar()
     const { getDetailedEvent } = useEventAction()
     const { routerPrompt, setFormIsTouched } = usePrompt('Changes you made may not be saved.')
     const [eventName, setEventName] = useState(defaultTextFieldValue)
     const [location, setLocation] = useState(defaultTextFieldValue)
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [eventFields, setEventFields] = useState({})
-
+    const [startDate, setStartDate] = useState({})
+    const [endDate, setEndDate] = useState({})
+    const [registrationTime, setRegistrationTime] = useState({})
+    // const [poster, setPoster] = useState({ src, file: null })
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
         setEventName((previousValue) => ({ ...previousValue, value: event.target.value }))
@@ -63,6 +69,24 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
         setDescription((previousValue) => ({ ...previousValue, isTouched: true }))
     }
 
+    const startDateChangeHandler = (newDate) => {
+        error?.startDate && setError((previousError) => ({ ...previousError, startDate: null }))
+        if (newDate !== null) setStartDate(newDate)
+        else setStartDate(new Date(eventFields.startDate))
+    }
+
+    const endDateChangeHandler = (newDate) => {
+        error?.endDate && setError((previousError) => ({ ...previousError, endDate: null }))
+        if (newDate !== null) setEndDate(newDate)
+        else setEndDate(new Date(eventFields.endDate))
+    }
+
+    const registrationTimeChangeHandler = (newDate) => {
+        error?.registrationDeadline &&
+            setError((previousError) => ({ ...previousError, registrationDeadline: null }))
+        if (newDate !== null) setRegistrationTime(newDate)
+        else setRegistrationTime(new Date(eventFields.registrationDeadline))
+    }
     const formIsEntering = () => {
         setFormIsTouched(true)
     }
@@ -70,6 +94,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     const finishFormEntering = () => {
         setFormIsTouched(false)
     }
+
     const submitHandler = (event) => {
         event.preventDefault()
         const eventDetailed = {
@@ -78,10 +103,10 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
             eventDescription: description.value,
             imageUrl: eventFields.imageUrl,
             isPrivate: eventFields.isPrivate,
-            startDate: eventFields.startDate,
-            endDate: eventFields.endDate,
+            startDate: startDate,
+            endDate: endDate,
             participantNum: eventFields.participantNum,
-            registrationDeadline: eventFields.registrationDeadline,
+            registrationDeadline: registrationTime,
         }
         updateEventHandler(eventDetailed)
     }
@@ -90,7 +115,6 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     const descriptionIsInValid = isEmpty(description.value) && description.isTouched
     const overallTextFieldIsValid =
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
-
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
@@ -111,6 +135,9 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                     ...previousValue,
                     value: responseEvent.eventDescription,
                 }))
+                setStartDate(new Date(responseEvent.startDate))
+                setEndDate(new Date(responseEvent.endDate))
+                setRegistrationTime(new Date(responseEvent.registrationDeadline))
             })
             .catch(() => {
                 showSnackbar({
@@ -120,7 +147,6 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
             })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-
     return (
         <React.Fragment>
             {routerPrompt}
@@ -281,26 +307,48 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                         mb: 2,
                                     }}
                                 >
-                                    <FormControl disabled>
+                                    <FormControl>
                                         <MobileDateTimePicker
-                                            disabled
-                                            value={eventFields.startDate}
+                                            value={startDate}
+                                            onChange={(newValue) => {
+                                                startDateChangeHandler(newValue)
+                                            }}
+                                            minDate={
+                                                new Date(new Date().getTime() + dayCalculation(1))
+                                            }
                                             label="Start Date"
                                             inputFormat="yyyy/MM/dd hh:mm a"
                                             mask="___/__/__ __:__ _M"
                                             renderInput={(params) => <TextField {...params} />}
                                         />
+                                        {error?.startDate && (
+                                            <FormHelperText error={!!error?.startDate}>
+                                                {error?.startDate && `${error.startDate}`}
+                                            </FormHelperText>
+                                        )}
                                     </FormControl>
                                     <Box sx={{ mx: { sm: 2 }, my: { xs: 2, sm: 0 } }}>To</Box>
                                     <FormControl>
                                         <MobileDateTimePicker
-                                            disabled
-                                            value={eventFields.endDate}
+                                            value={endDate}
                                             label="End Date"
+                                            onChange={(newValue) => {
+                                                endDateChangeHandler(newValue)
+                                            }}
+                                            minDate={
+                                                startDate.getTime
+                                                    ? new Date(startDate.getTime() + 5 * 60 * 1000)
+                                                    : new Date()
+                                            }
                                             inputFormat="yyyy/MM/dd hh:mm a"
                                             mask="___/__/__ __:__ _M"
                                             renderInput={(params) => <TextField {...params} />}
                                         />
+                                        {error?.endDate && (
+                                            <FormHelperText error={!!error?.endDate}>
+                                                {error?.endDate && `${error.endDate}`}
+                                            </FormHelperText>
+                                        )}
                                     </FormControl>
                                 </Box>
                             </LocalizationProvider>
@@ -311,7 +359,6 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                                     Participants limitation
                                 </InputLabel>
                                 <OutlinedInput
-                                    disabled
                                     id="limit"
                                     label="Participants limitation"
                                     inputProps={{
@@ -331,13 +378,31 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <FormControl sx={{ mx: 2 }}>
                                     <MobileDateTimePicker
-                                        disabled
-                                        value={eventFields.registrationDeadline}
+                                        onChange={(newDate) =>
+                                            registrationTimeChangeHandler(newDate)
+                                        }
+                                        value={registrationTime}
                                         label="Close registration date"
+                                        minDate={
+                                            new Date(new Date().getTime() + dayCalculation(0.5))
+                                        }
+                                        maxDateTime={
+                                            startDate.getTime
+                                                ? new Date(
+                                                      startDate.getTime() - dayCalculation(0.25)
+                                                  )
+                                                : new Date()
+                                        }
                                         inputFormat="yyyy/MM/dd hh:mm a"
                                         mask="___/__/__ __:__ _M"
                                         renderInput={(params) => <TextField {...params} />}
                                     />
+                                    {error?.registrationDeadline && (
+                                        <FormHelperText error={!!error?.registrationDeadline}>
+                                            {error?.registrationDeadline &&
+                                                `${error.registrationDeadline}`}
+                                        </FormHelperText>
+                                    )}
                                 </FormControl>
                             </LocalizationProvider>
                         </Box>
