@@ -2,6 +2,7 @@
 
 using SEEMS.Data.DTO;
 using SEEMS.Data.DTOs;
+using SEEMS.Data.DTOs.Event;
 using SEEMS.Data.DTOs.FeedBack;
 using SEEMS.Data.Models;
 using SEEMS.DTOs;
@@ -16,6 +17,14 @@ public class MappingProfile : Profile
 	{
 		CreateMap<Event, EventDTO>();
 		CreateMap<EventDTO, Event>();
+		CreateMap<EventForUpdateDTO, Event>()
+			.ForMember(e => e.EventTitle, opt => opt.MapFrom(e => e.EventTitle))
+			.ForMember(e => e.EventDescription, opt => opt.MapFrom(e => e.EventDescription))
+			.ForMember(e => e.Location, opt => opt.MapFrom(e => e.Location))
+			.ForMember(e => e.ImageUrl, opt => opt.MapFrom(e => e.ImageUrl))
+			.ForMember(e => e.StartDate, opt => opt.MapFrom(e => e.StartDate))
+			.ForMember(e => e.EndDate, opt => opt.MapFrom(e => e.EndDate))
+			.ForMember(e => e.RegistrationDeadline, opt => opt.MapFrom(e => e.RegistrationDeadline));
 		CreateMap<CommentDTO, Comment>().ForMember(x => x.Id, opt => opt.Ignore())
 			.ForMember(x => x.CreatedAt, opt => opt.Ignore())
 			.ForMember(x => x.ModifiedAt, opt => opt.Ignore());

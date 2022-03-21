@@ -301,13 +301,13 @@ public class EventController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<bool>> Update(int id, [FromBody] EventForUpdateDTO eventDTO,
+    public async Task<IActionResult> Update(int id, [FromBody] EventForUpdateDTO? eventDTO,
         [FromQuery] bool allowEmail)
     {
         try
         {
-            var myEvent = _context.Events.AsNoTracking().FirstOrDefault(e => e.Id == id);
-            if (myEvent == null)
+            var @event = await _repository.Event.GetEventAsync(id, true);
+            if (@event == null)
                 return BadRequest(
                     new Response(ResponseStatusEnum.Fail,
                         false,
@@ -320,22 +320,16 @@ public class EventController : ControllerBase
                     new Response(ResponseStatusEnum.Fail,
                         eventValidationInfo,
                         "Some fields didn't match requirements"));
-            if (eventDTO.EventTitle != null)
-                myEvent.EventTitle = eventDTO.EventTitle;
-            if (eventDTO.EventDescription != null)
-                myEvent.EventDescription = eventDTO.EventDescription;
-            if (eventDTO.Location != null)
-                myEvent.Location = eventDTO.Location;
-            if (eventDTO.ImageUrl != null)
-                myEvent.ImageUrl = eventDTO.ImageUrl;
-            _context.Update(myEvent);
-            await _context.SaveChangesAsync();
+            _mapper.Map(eventDTO, @event);
+            await _repository.SaveAsync();
 
-            if (allowEmail) SendEmailInformChangedEvent(myEvent, TrackingState.Update);
+            var returnEvent = await _repository.Event.GetEventAsync(id, false);
+
+            if (allowEmail) SendEmailInformChangedEvent(returnEvent, TrackingState.Update);
             return Ok(
                 new Response(
                     ResponseStatusEnum.Success,
-                    myEvent,
+                    returnEvent,
                     "Successfully Update"
                 )
             );
@@ -477,6 +471,13 @@ public class EventController : ControllerBase
                 msg: "Event does not existed!"
             )
         );
+    }
+
+    private DateTime? GetValidDeadline(EventDTO eventDTO)
+    {
+        return eventDTO.RegistrationDeadline == null
+            ? eventDTO.StartDate.Subtract(TimeSpan.FromHours(6))
+            : eventDTO.RegistrationDeadline;
     }
 
     private async Task<User> GetCurrentUser(HttpRequest req)
