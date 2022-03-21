@@ -179,7 +179,7 @@ const EventDetailed = () => {
                             {detailedEvent.event.eventDescription}
                         </Typography>
                     </CardContent>
-                    <Box sx={{ mt: 4 }}>
+                    <Box sx={{ mt: 6 }}>
                         {auth.role === 'User' && isRegistered && (
                             <Box
                                 sx={{

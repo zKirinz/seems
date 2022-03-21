@@ -43,6 +43,7 @@ const UpdateEvent = () => {
         eventActions
             .updateEvent(id, eventData)
             .then(() => {
+                console.log(eventData)
                 showSnackbar({
                     severity: 'success',
                     children: 'Update event successfully.',
@@ -57,6 +58,9 @@ const UpdateEvent = () => {
                         title: errorData.title,
                         location: errorData.location,
                         description: errorData.description,
+                        startDate: errorData.startDate,
+                        endDate: errorData.endDate,
+                        registrationDeadline: errorData.registrationDeadline,
                     })
                 }
                 showSnackbar({
