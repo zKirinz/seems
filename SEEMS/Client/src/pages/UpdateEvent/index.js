@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useHistory, useLocation, useParams } from 'react-router-dom'
 
@@ -18,10 +18,12 @@ const UpdateEvent = () => {
     const history = useHistory()
     const { pathname } = useLocation()
     const [updateEventDisable, setUpdateEventDisable] = useState(true)
+    const [activeUpdateDelete, setActiveUpdateDelete] = useState(false)
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         checkIsMyEvent(id)
             .then((response) => {
+                console.log(response)
                 const isMine = response.data.data.isMine
                 if (isMine === false) {
                     const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
@@ -43,7 +45,6 @@ const UpdateEvent = () => {
         eventActions
             .updateEvent(id, eventData)
             .then(() => {
-                console.log(eventData)
                 showSnackbar({
                     severity: 'success',
                     children: 'Update event successfully.',

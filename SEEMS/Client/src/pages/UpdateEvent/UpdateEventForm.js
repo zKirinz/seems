@@ -24,6 +24,7 @@ import { grey } from '@mui/material/colors'
 import { useSnackbar } from '../../HOCs/SnackbarContext'
 import usePrompt from '../../hooks/use-prompt'
 import { useEventAction } from '../../recoil/event'
+import Loading from '../Loading'
 
 const defaultTextFieldValue = { value: '', isTouched: false }
 
@@ -41,6 +42,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     const [startDate, setStartDate] = useState({})
     const [endDate, setEndDate] = useState({})
     const [registrationTime, setRegistrationTime] = useState({})
+    const [isLoading, setIsLoading] = useState(false)
     // const [poster, setPoster] = useState({ src, file: null })
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
@@ -116,6 +118,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     const overallTextFieldIsValid =
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
     useEffect(() => {
+        setIsLoading(true)
         getDetailedEvent(id)
             .then((response) => {
                 const { event: responseEvent } = response.data.data
@@ -138,16 +141,24 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                 setStartDate(new Date(responseEvent.startDate))
                 setEndDate(new Date(responseEvent.endDate))
                 setRegistrationTime(new Date(responseEvent.registrationDeadline))
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 500)
             })
             .catch(() => {
                 showSnackbar({
                     severity: 'error',
                     children: 'Something went wrong, please try again later.',
                 })
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 500)
             })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-    return (
+    return isLoading ? (
+        <Loading />
+    ) : (
         <React.Fragment>
             {routerPrompt}
             <Grid container component={Paper} elevation={3}>
@@ -409,8 +420,11 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                         <Box
                             sx={{ m: 1.5, mt: { sm: 9, xs: 3 } }}
                             display="flex"
-                            justifyContent="flex-end"
+                            justifyContent="space-between"
                         >
+                            <Button variant="contained" type="submit" color="error">
+                                Delete
+                            </Button>
                             <Button
                                 variant="contained"
                                 type="submit"
