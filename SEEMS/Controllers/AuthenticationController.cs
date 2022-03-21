@@ -59,7 +59,7 @@ public class AuthenticationController : ControllerBase
         if (await _repoService.User.GetUserAsync(currentUser.Email, false) == null)
         {
             CreateNewUser(currentUser); 
-            _repoService.UserMeta.RegisterRole(currentUser, RoleTypes.CUSR);
+            _repoService.UserMeta.RegisterRole(currentUser, RoleTypes.User);
             await _repoService.SaveAsync(); 
         }
         else

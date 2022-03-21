@@ -413,7 +413,7 @@ namespace SEEMS.Controller
             }
             else
             {
-                if (userId != comment.UserId && role.Contains(RoleTypes.CUSR))
+                if (userId != comment.UserId && role.Contains(RoleTypes.User))
                 {
                     return false;
                 }
