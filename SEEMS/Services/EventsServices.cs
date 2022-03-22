@@ -32,7 +32,7 @@ namespace SEEMS.Services
 				validationInfo.EndDate = $"End time must after start time at least {EventValidationInfo.MinHoursOfEvent} hours";
 
 			}
-			if(eventDTO.RegistrationDeadline != null && (eventDTO.StartDate.Subtract((DateTime) eventDTO.RegistrationDeadline).TotalHours < EventValidationInfo.MinHoursRegistrationFromStart || ((DateTime) eventDTO.RegistrationDeadline).Subtract(DateTime.Now).Add(TimeSpan.FromHours(7)).TotalHours < EventValidationInfo.MinHoursRegistrationFromNow))
+			if(eventDTO.StartDate.Subtract((DateTime) eventDTO.RegistrationDeadline).TotalHours < EventValidationInfo.MinHoursRegistrationFromStart || ((DateTime) eventDTO.RegistrationDeadline).Subtract(DateTime.Now).Add(TimeSpan.FromHours(7)).TotalHours < EventValidationInfo.MinHoursRegistrationFromNow)
 			{
 				failedCheck = true;
 				validationInfo.RegistrationDeadline = $"Registration deadline must before start date at least {EventValidationInfo.MinHoursRegistrationFromStart} hours and after now at least {EventValidationInfo.MinHoursRegistrationFromNow} hours";
@@ -67,7 +67,7 @@ namespace SEEMS.Services
 				validationInfo.EndDate = $"End time must after start time at least {EventValidationInfo.MinHoursOfEvent} hours";
 			
 			}
-			if(eventDTO.RegistrationDeadline != null && (eventDTO.StartDate.Subtract((DateTime) eventDTO.RegistrationDeadline).TotalHours < EventValidationInfo.MinHoursRegistrationFromStart || ((DateTime) eventDTO.RegistrationDeadline).Subtract(DateTime.Now).Add(TimeSpan.FromHours(7)).TotalHours < EventValidationInfo.MinHoursRegistrationFromNow))
+			if(eventDTO.StartDate.Subtract((DateTime) eventDTO.RegistrationDeadline).TotalHours < EventValidationInfo.MinHoursRegistrationFromStart || ((DateTime) eventDTO.RegistrationDeadline).Subtract(DateTime.Now).Add(TimeSpan.FromHours(7)).TotalHours < EventValidationInfo.MinHoursRegistrationFromNow)
 			{
 				failedCheck = true;
 				validationInfo.RegistrationDeadline = $"Registration deadline must before start date at least {EventValidationInfo.MinHoursRegistrationFromStart} hours and after now at least {EventValidationInfo.MinHoursRegistrationFromNow} hours";
