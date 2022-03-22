@@ -1,4 +1,3 @@
-using Google.Apis.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SEEMS.Services;
@@ -15,6 +14,7 @@ public class ValidateModelAttribute : ActionFilterAttribute
             .Select(v => v.ErrorMessage)
             .ToList();
         context.HttpContext.Response.StatusCode = 422;
-        context.Result = new JsonResult(new Response(ResponseStatusEnum.Fail, "", errors[0], 422));
+        context.Result = new JsonResult(new Response(ResponseStatusEnum.Fail, errors[0],
+            "Some fields didn't match requirements", 422));
     }
 }
