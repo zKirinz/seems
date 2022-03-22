@@ -56,6 +56,9 @@ public class EventController : ControllerBase
             var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
             var registeredNum = _repository.Reservation.GetRegisteredNum(foundEvent.Id);
             dtoEvent.CanRegister = _repository.Event.CanRegister(id);
+            dtoEvent.StartDate = dtoEvent.StartDate.AddHours(7);
+            dtoEvent.EndDate = dtoEvent.EndDate.AddHours(7);
+            dtoEvent.RegistrationDeadline = dtoEvent.RegistrationDeadline.Value.AddHours(7);
             return Ok(
                 new Response(
                     ResponseStatusEnum.Success,
