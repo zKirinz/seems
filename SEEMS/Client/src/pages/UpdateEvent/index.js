@@ -44,7 +44,7 @@ const UpdateEvent = () => {
     }, [])
     const updateEventHandler = ({ eventData, poster }) => {
         eventActions
-            .updateEvent(id, eventData)
+            .updateEvent(id, eventData, 1)
             .then((response) => {
                 const { id: eventId } = response.data.data
 
@@ -67,10 +67,14 @@ const UpdateEvent = () => {
                         () => {
                             getDownloadURL(uploadTask.snapshot.ref)
                                 .then((downloadURL) => {
-                                    eventActions.updateEvent(eventId, {
-                                        ...eventData,
-                                        imageUrl: downloadURL,
-                                    })
+                                    eventActions.updateEvent(
+                                        eventId,
+                                        {
+                                            ...eventData,
+                                            imageUrl: downloadURL,
+                                        },
+                                        2
+                                    )
                                 })
                                 .then(() => {
                                     showSnackbar({
@@ -98,7 +102,6 @@ const UpdateEvent = () => {
                 }
             })
             .catch((errorResponse) => {
-                console.log(errorResponse.response)
                 if (errorResponse.response.status === 400) {
                     const errorData = errorResponse.response.data.data
                     setError({
@@ -125,8 +128,8 @@ const UpdateEvent = () => {
                 })
                 history.push('/events')
             })
-            .catch((error) => {
-                console.log(error.response)
+            .catch(() => {
+                // console.log(error.response)
                 showSnackbar({
                     severity: 'error',
                     children: 'Delete event unsuccessfully',

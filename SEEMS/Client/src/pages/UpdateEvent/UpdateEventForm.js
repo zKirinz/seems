@@ -94,7 +94,6 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
     }
 
     const openDialog = (event) => {
-        console.log(true)
         event.stopPropagation()
         setConfirmDialog(true)
     }

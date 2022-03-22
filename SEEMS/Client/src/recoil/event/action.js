@@ -65,9 +65,12 @@ const useEventAction = () => {
             return res
         })
 
-    const updateEvent = (eventId, eventData) =>
-        put({
-            endpoint: `/api/events/${eventId}?allowEmail=${eventData.allowEmail ? true : false}`,
+    const updateEvent = (eventId, eventData, numberSendingEmail) => {
+        const isAllowSendingEmail =
+            numberSendingEmail === 1 ? false : eventData.allowEmail === true ? true : false
+
+        return put({
+            endpoint: `/api/events/${eventId}?allowEmail=${isAllowSendingEmail ? true : false}`,
             body: eventData,
         }).then((res) => {
             if (res.data.data && res.data.data.errorCode === 'BANNED_USER') {
@@ -76,6 +79,7 @@ const useEventAction = () => {
             }
             return res
         })
+    }
 
     const checkIsMyEvent = (id) =>
         get({ endpoint: `/api/events/is-mine/${id}` }).then((res) => {
@@ -104,9 +108,14 @@ const useEventAction = () => {
             return res
         })
 
-    const deleteEvent = (eventId) => {
-        return remove({ endpoint: `/api/events/${eventId}` })
-    }
+    const deleteEvent = (eventId) =>
+        remove({ endpoint: `/api/events/${eventId}` }).then((res) => {
+            if (res.data.data && res.data.data.errorCode === 'BANNED_USER') {
+                logout()
+                window.location.reload(false)
+            }
+            return res
+        })
 
     return {
         getUpcomingEvents,
