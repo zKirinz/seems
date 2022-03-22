@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
+import AlertConfirm from '../../components/ConfirmDialog'
 import { CameraAlt, InfoRounded } from '@mui/icons-material'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
@@ -32,7 +33,7 @@ const defaultTextFieldValue = { value: '', isTouched: false }
 const isEmpty = (incomeValue) => incomeValue?.trim().length === 0
 const dayCalculation = (numDay = 1) => numDay * 24 * 60 * 60 * 1000
 
-const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
+const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventHandler }) => {
     const showSnackbar = useSnackbar()
     const { getDetailedEvent } = useEventAction()
     const { routerPrompt, setFormIsTouched } = usePrompt('Changes you made may not be saved.')
@@ -47,6 +48,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
     const [poster, setPoster] = useState({ src: {}, file: null })
     const [sendingEmail, setSendingEmail] = useState(false)
     const [participantsLimited, setParticipantsLimited] = useState(10)
+    const [confirmDialog, setConfirmDialog] = useState(false)
 
     const eventNameChangeHandler = (event) => {
         error?.title && setError((previousError) => ({ ...previousError, title: null }))
@@ -89,6 +91,20 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
 
     const limitationChangeHandler = (event) => {
         setParticipantsLimited(event.target.value)
+    }
+
+    const openDialog = (event) => {
+        console.log(true)
+        event.stopPropagation()
+        setConfirmDialog(true)
+    }
+
+    const closeDialog = () => {
+        setConfirmDialog(false)
+    }
+
+    const onConfirmDialog = () => {
+        deleteEventHandler()
     }
 
     const uploadImageHandler = (event) => {
@@ -188,6 +204,15 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
         <Loading />
     ) : (
         <React.Fragment>
+            <AlertConfirm
+                open={confirmDialog}
+                onClose={closeDialog}
+                btnConfirmText="Delete"
+                title="Are you sure you want to delete this event?"
+                onConfirm={(event) => onConfirmDialog(event)}
+            >
+                Are you sure you want to send this feedback?
+            </AlertConfirm>
             {routerPrompt}
             <Grid container component={Paper} elevation={3}>
                 <Grid item xs={12} sm={5}>
@@ -459,7 +484,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id }) => {
                             display="flex"
                             justifyContent="space-between"
                         >
-                            <Button variant="contained" type="submit" color="error">
+                            <Button variant="contained" color="error" onClick={openDialog}>
                                 Delete
                             </Button>
                             <Button

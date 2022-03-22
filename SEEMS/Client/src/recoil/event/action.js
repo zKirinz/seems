@@ -1,4 +1,4 @@
-import { get, post, put } from '../../utils/ApiCaller'
+import { get, post, put, remove } from '../../utils/ApiCaller'
 import useAuthAction from '../auth/action'
 
 const useEventAction = () => {
@@ -104,6 +104,10 @@ const useEventAction = () => {
             return res
         })
 
+    const deleteEvent = (eventId) => {
+        return remove({ endpoint: `/api/events/${eventId}` })
+    }
+
     return {
         getUpcomingEvents,
         getEvents,
@@ -115,6 +119,7 @@ const useEventAction = () => {
         updateEvent,
         checkIsMyEvent,
         checkCanAttendance,
+        deleteEvent,
     }
 }
 

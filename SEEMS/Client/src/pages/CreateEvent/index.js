@@ -42,6 +42,7 @@ const CreateEvent = () => {
                             getDownloadURL(uploadTask.snapshot.ref)
                                 .then((downloadURL) =>
                                     eventActions.updateEvent(id, {
+                                        ...eventData,
                                         imageUrl: downloadURL,
                                     })
                                 )

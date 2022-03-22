@@ -14,7 +14,7 @@ import UpdateEventForm from './UpdateEventForm'
 const UpdateEvent = () => {
     const showSnackbar = useSnackbar()
     const eventActions = useEventAction()
-    const { checkIsMyEvent } = useEventAction()
+    const { checkIsMyEvent, deleteEvent } = useEventAction()
     const { id } = useParams()
     const [error, setError] = useState(null)
     const history = useHistory()
@@ -66,14 +66,13 @@ const UpdateEvent = () => {
                         },
                         () => {
                             getDownloadURL(uploadTask.snapshot.ref)
-                                .then((downloadURL) =>
+                                .then((downloadURL) => {
                                     eventActions.updateEvent(eventId, {
-                                        // ...eventData,
+                                        ...eventData,
                                         imageUrl: downloadURL,
                                     })
-                                )
+                                })
                                 .then(() => {
-                                    console.log(true)
                                     showSnackbar({
                                         severity: 'success',
                                         children: 'Update event successfully.',
@@ -81,8 +80,7 @@ const UpdateEvent = () => {
                                     const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
                                     history.push(newUrl)
                                 })
-                                .catch((error) => {
-                                    console.log(error.response)
+                                .catch(() => {
                                     showSnackbar({
                                         severity: 'error',
                                         children: 'Something went wrong, please try again later.',
@@ -118,6 +116,24 @@ const UpdateEvent = () => {
                 })
             })
     }
+    const deleteEventHandler = () => {
+        deleteEvent(id)
+            .then(() => {
+                showSnackbar({
+                    severity: 'successful',
+                    children: 'Delete event unsuccessfully',
+                })
+                history.push('/events')
+            })
+            .catch((error) => {
+                console.log(error.response)
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Delete event unsuccessfully',
+                })
+            })
+    }
+
     return updateEventDisable ? (
         <Loading />
     ) : (
@@ -130,6 +146,7 @@ const UpdateEvent = () => {
                 setError={setError}
                 updateEventHandler={updateEventHandler}
                 id={id}
+                deleteEventHandler={deleteEventHandler}
             />
         </Box>
     )
