@@ -68,11 +68,12 @@ const UpdateEvent = () => {
                             getDownloadURL(uploadTask.snapshot.ref)
                                 .then((downloadURL) =>
                                     eventActions.updateEvent(eventId, {
-                                        //Error at here
+                                        // ...eventData,
                                         imageUrl: downloadURL,
                                     })
                                 )
                                 .then(() => {
+                                    console.log(true)
                                     showSnackbar({
                                         severity: 'success',
                                         children: 'Update event successfully.',
@@ -80,7 +81,8 @@ const UpdateEvent = () => {
                                     const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
                                     history.push(newUrl)
                                 })
-                                .catch(() => {
+                                .catch((error) => {
+                                    console.log(error.response)
                                     showSnackbar({
                                         severity: 'error',
                                         children: 'Something went wrong, please try again later.',

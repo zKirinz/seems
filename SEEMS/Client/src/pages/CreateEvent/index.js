@@ -53,12 +53,13 @@ const CreateEvent = () => {
                                     const newUrl = pathname.slice(0, pathname.indexOf('create'))
                                     history.push(`${newUrl}${id}`)
                                 })
-                                .catch(() =>
+                                .catch((error) => {
+                                    console.log(error.response)
                                     showSnackbar({
                                         severity: 'error',
                                         children: 'Something went wrong, please try again later.',
                                     })
-                                )
+                                })
                         }
                     )
                 }
