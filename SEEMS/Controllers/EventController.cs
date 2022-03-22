@@ -326,6 +326,9 @@ public class EventController : ControllerBase
             var returnEvent = await _repository.Event.GetEventAsync(id, false);
 
             if (allowEmail) SendEmailInformChangedEvent(returnEvent, TrackingState.Update);
+            returnEvent.StartDate = returnEvent.StartDate.AddHours(7);
+            returnEvent.EndDate = returnEvent.EndDate.AddHours(7);
+            returnEvent.RegistrationDeadline = returnEvent.RegistrationDeadline.AddHours(7);
             return Ok(
                 new Response(
                     ResponseStatusEnum.Success,
