@@ -13,10 +13,27 @@ public class Dictionaries
         new()
         {
             {TrackingState.Update, "Update information of upcoming {eventName} event"},
-            {TrackingState.Delete, "The event {eventName} you registered has been cancelled recently"} 
+            {TrackingState.Delete, "The event {eventName} you registered has been cancelled recently"}
         };
 
-    public static string ParseArguments(string oldValue, string newValue, string termToReplace) =>
-        termToReplace.Replace(oldValue, newValue);
+    public static string ParseArguments(string oldValue, string newValue, string termToReplace)
+    {
+        return termToReplace.Replace(oldValue, newValue);
+    }
+}
+
+public class ErrorDictionaries
+{
+    public string Message { get; set; }
+
+    public ErrorDictionaries(string key)
+    {
+       Message = ErrorConstraints[key];
+    }
     
+    public static readonly Dictionary<string, string> ErrorConstraints = new()
+    {
+        {"EventTitleRange", "EventTitle must be from 5 to 100 characters"},
+        {"c", "d"}
+    };
 }

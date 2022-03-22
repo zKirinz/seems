@@ -44,18 +44,18 @@ namespace SEEMS.Services
 		{
 			EventValidationInfo validationInfo = new EventValidationInfo();
 			bool failedCheck = false;
-			if(eventDTO.EventTitle != null)
-				validationInfo.Title = ValidationMessageGenerator.GetIntRangeValidateMsg("Event title", eventDTO.EventTitle.Length, EventValidationInfo.MinTitleLength, EventValidationInfo.MaxTitleLength);
-			if(eventDTO.EventDescription != null)
-				validationInfo.Description = ValidationMessageGenerator.GetIntRangeValidateMsg("Event description", eventDTO.EventDescription.Length,
-				EventValidationInfo.MinDescriptionLength, EventValidationInfo.MaxDescriptionLength);
-			if(eventDTO.Location != null)
-				validationInfo.Location = ValidationMessageGenerator.GetIntRangeValidateMsg("Event location", eventDTO.Location.Length,
-				EventValidationInfo.MinLocationLength, EventValidationInfo.MaxLocationLength);
-			if(validationInfo.Title != null || validationInfo.Location != null || validationInfo.Description != null)
-			{
-				failedCheck = true;
-			}
+			// if(eventDTO.EventTitle != null)
+			// 	validationInfo.Title = ValidationMessageGenerator.GetIntRangeValidateMsg("Event title", eventDTO.EventTitle.Length, EventValidationInfo.MinTitleLength, EventValidationInfo.MaxTitleLength);
+			// if(eventDTO.EventDescription != null)
+			// 	validationInfo.Description = ValidationMessageGenerator.GetIntRangeValidateMsg("Event description", eventDTO.EventDescription.Length,
+			// 	EventValidationInfo.MinDescriptionLength, EventValidationInfo.MaxDescriptionLength);
+			// if(eventDTO.Location != null)
+			// 	validationInfo.Location = ValidationMessageGenerator.GetIntRangeValidateMsg("Event location", eventDTO.Location.Length,
+			// 	EventValidationInfo.MinLocationLength, EventValidationInfo.MaxLocationLength);
+			// if(validationInfo.Title != null || validationInfo.Location != null || validationInfo.Description != null)
+			// {
+			// 	failedCheck = true;
+			// }
 			if(eventDTO.StartDate.Subtract(DateTime.Now).Add(TimeSpan.FromHours(7)).TotalDays <= EventValidationInfo.MinDayBeforeStarted)
 			{
 				failedCheck = true;
@@ -65,7 +65,7 @@ namespace SEEMS.Services
 			{
 				failedCheck = true;
 				validationInfo.EndDate = $"End time must after start time at least {EventValidationInfo.MinHoursOfEvent} hours";
-
+			
 			}
 			if(eventDTO.RegistrationDeadline != null && (eventDTO.StartDate.Subtract((DateTime) eventDTO.RegistrationDeadline).TotalHours < EventValidationInfo.MinHoursRegistrationFromStart || ((DateTime) eventDTO.RegistrationDeadline).Subtract(DateTime.Now).Add(TimeSpan.FromHours(7)).TotalHours < EventValidationInfo.MinHoursRegistrationFromNow))
 			{
