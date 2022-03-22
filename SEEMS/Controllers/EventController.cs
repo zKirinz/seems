@@ -305,8 +305,14 @@ public class EventController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] EventForUpdateDTO? eventDTO,
         [FromQuery] bool allowEmail)
     {
+        var eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
         try
         {
+            if (eventValidationInfo != null)
+                return BadRequest(
+                    new Response(ResponseStatusEnum.Fail,
+                        eventValidationInfo,
+                        "Some fields didn't match requirements"));
             var @event = await _repository.Event.GetEventAsync(id, true);
             if (@event == null)
                 return BadRequest(
