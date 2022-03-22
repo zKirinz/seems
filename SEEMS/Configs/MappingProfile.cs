@@ -24,7 +24,8 @@ public class MappingProfile : Profile
 			.ForMember(e => e.ImageUrl, opt => opt.MapFrom(e => e.ImageUrl))
 			.ForMember(e => e.StartDate, opt => opt.MapFrom(e => e.StartDate))
 			.ForMember(e => e.EndDate, opt => opt.MapFrom(e => e.EndDate))
-			.ForMember(e => e.RegistrationDeadline, opt => opt.MapFrom(e => e.RegistrationDeadline));
+			.ForMember(e => e.RegistrationDeadline, opt => opt.MapFrom(e => e.RegistrationDeadline))
+			.ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 		CreateMap<CommentDTO, Comment>().ForMember(x => x.Id, opt => opt.Ignore())
 			.ForMember(x => x.CreatedAt, opt => opt.Ignore())
 			.ForMember(x => x.ModifiedAt, opt => opt.Ignore());

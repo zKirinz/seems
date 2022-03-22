@@ -300,6 +300,7 @@ public class EventController : ControllerBase
         }
     }
 
+    [ValidateModel]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] EventForUpdateDTO? eventDTO,
         [FromQuery] bool allowEmail)
@@ -313,13 +314,7 @@ public class EventController : ControllerBase
                         false,
                         "ID not found")
                 );
-
-            var eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
-            if (eventValidationInfo != null)
-                return BadRequest(
-                    new Response(ResponseStatusEnum.Fail,
-                        eventValidationInfo,
-                        "Some fields didn't match requirements"));
+            FuckingDate(eventDTO, @event);
             _mapper.Map(eventDTO, @event);
             await _repository.SaveAsync();
 
@@ -510,4 +505,24 @@ public class EventController : ControllerBase
             _emailService.SendEmail(mailToUser);
         }
     }
+
+    private void FuckingDate(EventForUpdateDTO src, Event dst)
+    {
+        if (src.StartDate == DateTime.MinValue)
+        {
+            src.StartDate = dst.StartDate;
+        }
+
+        if (src.EndDate == DateTime.MinValue)
+        {
+            src.EndDate = dst.EndDate;
+        }
+
+        if (src.RegistrationDeadline == DateTime.MinValue)
+        {
+            src.RegistrationDeadline = dst.RegistrationDeadline;
+        }
+        
+    }
+
 }
