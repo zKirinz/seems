@@ -352,18 +352,20 @@ namespace SEEMS.Controllers
 				}
 				else
 				{
+					var userRole = (await _repoManager.UserMeta.GetRolesAsync(user.Email, false)).MetaValue;
+					bool isAdmin = userRole.Equals("Admin");
 					var profileDTO = new ProfilePageDTO()
 					{
 						Email = user.Email,
 						ImageURL = user.ImageUrl,
 						Username = user.UserName,
-						Role = (await _repoManager.UserMeta.GetRolesAsync(user.Email, false)).MetaValue,
+						Role = userRole,
 						OrganizationName = user.OrganizationName.ToString(),
-						RegisteredEventsNum = _repoManager.Reservation.GetRegisteredEventsNumOfUser(user.Id),
-						ConsecutiveAbsentEventsNum = _repoManager.Reservation.GetConsecutiveAbsentNum(user.Id),
-						FeedbackedEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Feedbacked"),
-						NoFeedbackEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Attended"),
-						AbsentEventsNum = _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Absent"),
+						RegisteredEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumOfUser(user.Id),
+						ConsecutiveAbsentEventsNum = isAdmin ? null : _repoManager.Reservation.GetConsecutiveAbsentNum(user.Id),
+						FeedbackedEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Feedbacked"),
+						NoFeedbackEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Attended"),
+						AbsentEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Absent"),
 					};
 					return Ok(
 						new Response(
@@ -371,10 +373,10 @@ namespace SEEMS.Controllers
 							new
 							{
 								UserInfo = profileDTO,
-								UserEventInfo = new int[] {
-									profileDTO.FeedbackedEventsNum,
-									profileDTO.NoFeedbackEventsNum,
-									profileDTO.AbsentEventsNum
+								UserEventInfo = isAdmin ? null : new int[] {
+									(int) profileDTO.FeedbackedEventsNum,
+									(int) profileDTO.NoFeedbackEventsNum,
+									(int) profileDTO.AbsentEventsNum
 								}
 							},
 							"Success!"
