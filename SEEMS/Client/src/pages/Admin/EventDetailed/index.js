@@ -112,17 +112,24 @@ const EventDetailed = () => {
                             justifyContent="space-between"
                             sx={{ mb: 1.5 }}
                         >
-                            <Typography variant="h4" color="primary" fontWeight={700}>
+                            <Typography
+                                variant="h4"
+                                color="primary"
+                                fontWeight={700}
+                                sx={{ width: '85%' }}
+                            >
                                 {detailedEvent.event.eventTitle}
                             </Typography>
-                            <Box display="flex" alignItems="center">
-                                <GroupsOutlined fontSize="medium" sx={{ mr: 1 }} />
-                                <Typography>{detailedEvent.event.registeredNum} / </Typography>
-                                <Typography>{detailedEvent.event.participantNum}</Typography>
-                            </Box>
+                            {detailedEvent.event.participantNum !== 0 && (
+                                <Box display="flex" alignItems="center">
+                                    <GroupsOutlined fontSize="medium" sx={{ mr: 1 }} />
+                                    <Typography>{detailedEvent.event.registeredNum} / </Typography>
+                                    <Typography>{detailedEvent.event.participantNum}</Typography>
+                                </Box>
+                            )}
                         </Box>
-                        <Box display="flex" alignItems="center" sx={{ my: 1 }}>
-                            <Box display="flex" alignItems="center">
+                        <Box display="flex" sx={{ my: 1 }}>
+                            <Box display="flex">
                                 <Home color="primary" fontSize="medium" />
                                 <Typography
                                     fontWeight={500}
@@ -135,8 +142,8 @@ const EventDetailed = () => {
                             <Typography sx={{ mx: 2 }} variant="h6">
                                 -
                             </Typography>
-                            <Box display="flex" alignItems="center">
-                                <SupervisedUserCircle color="primary" />
+                            <Box display="flex">
+                                <SupervisedUserCircle color="primary" sx={{ fontSize: 30 }} />
                                 <Typography
                                     color="secondary"
                                     fontWeight={500}

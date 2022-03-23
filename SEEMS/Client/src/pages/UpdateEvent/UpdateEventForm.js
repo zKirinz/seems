@@ -89,6 +89,13 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
         else setEndDate(new Date(eventFields.endDate))
     }
 
+    const registrationTimeChangeHandler = (newDate) => {
+        error?.registrationDeadline &&
+            setError((previousError) => ({ ...previousError, registrationDeadline: null }))
+        if (newDate !== null) setRegistrationTime(newDate)
+        else setRegistrationTime(new Date(eventFields.registrationDeadline))
+    }
+
     const limitationChangeHandler = (event) => {
         setParticipantsLimited(event.target.value)
     }
@@ -123,12 +130,6 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
         setPoster({ src: imageUrl, file })
     }
 
-    const registrationTimeChangeHandler = (newDate) => {
-        error?.registrationDeadline &&
-            setError((previousError) => ({ ...previousError, registrationDeadline: null }))
-        if (newDate !== null) setRegistrationTime(newDate)
-        else setRegistrationTime(new Date(eventFields.registrationDeadline))
-    }
     const formIsEntering = () => {
         setFormIsTouched(true)
     }
@@ -147,7 +148,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
             isPrivate: eventFields.isPrivate,
             startDate: startDate,
             endDate: endDate,
-            participantNum: eventFields.participantNum,
+            participantNum: participantsLimited,
             registrationDeadline: registrationTime,
             allowEmail: sendingEmail,
         }
@@ -158,6 +159,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
     const descriptionIsInValid = isEmpty(description.value) && description.isTouched
     const overallTextFieldIsValid =
         !isEmpty(eventName.value) && !isEmpty(location.value) && !isEmpty(description.value)
+
     useEffect(() => {
         setIsLoading(true)
         getDetailedEvent(id)
