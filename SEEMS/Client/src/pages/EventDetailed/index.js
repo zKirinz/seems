@@ -135,13 +135,13 @@ const EventDetailed = () => {
                             >
                                 {detailedEvent.event.eventTitle}
                             </Typography>
-                            {detailedEvent.event.participantNum !== 0 && (
-                                <Box display="flex" alignItems="center">
-                                    <GroupsOutlined fontSize="medium" sx={{ mr: 1 }} />
-                                    <Typography>{detailedEvent.event.registeredNum} / </Typography>
-                                    <Typography>{detailedEvent.event.participantNum}</Typography>
-                                </Box>
-                            )}
+                            <Box display="flex" alignItems="center">
+                                <GroupsOutlined fontSize="medium" sx={{ mr: 1 }} />
+                                <Typography>{detailedEvent.event.registeredNum}</Typography>
+                                {detailedEvent.event.participantNum !== 0 && (
+                                    <Typography>/ {detailedEvent.event.participantNum}</Typography>
+                                )}
+                            </Box>
                         </Box>
                         <Box display="flex" sx={{ my: 1 }}>
                             <Box display="flex">
