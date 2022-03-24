@@ -29,7 +29,12 @@ public static class ServiceCollectionExtensions
 	public static void ConfigureSql(this IServiceCollection services, IConfiguration configuration) =>
 		services.AddDbContext<ApplicationDbContext>(options =>
 		{
-			options.UseSqlServer(configuration.GetConnectionString("AppConnection"));
+			options.UseSqlServer(configuration.GetConnectionString("AppConnection"),
+				sqlOptions =>
+				{
+					sqlOptions.EnableRetryOnFailure();
+					sqlOptions.MinBatchSize(1).MaxBatchSize(10);
+				});
 		});
 
 	public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
@@ -73,7 +78,7 @@ public static class ServiceCollectionExtensions
 			.AddCookie()
 			.AddGoogle(options =>
 			{
-				IConfigurationSection googleAuthNSection = configuration.GetSection("Authentication:Google");
+				var googleAuthNSection = configuration.GetSection("Authentication:Google");
 				options.ClientId = googleAuthNSection["ClientId"];
 				options.ClientSecret = googleAuthNSection["ClientSecret"];
 				options.Scope.Add("profile");
