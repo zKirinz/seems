@@ -114,7 +114,7 @@ const EventDetailed = () => {
     return isFirstRender ? (
         <Loading />
     ) : (
-        <Container fixed sx={{ mt: 15, px: 0, mb: 8 }}>
+        <Container fixed sx={{ mt: 20, px: 0, mb: 12.5 }}>
             <Grid container>
                 <Grid item xs={12} sm={4}>
                     <EventPoster src={detailedEvent.event.imageUrl} size="contain" />
@@ -137,8 +137,10 @@ const EventDetailed = () => {
                             </Typography>
                             <Box display="flex" alignItems="center">
                                 <GroupsOutlined fontSize="medium" sx={{ mr: 1 }} />
-                                <Typography>{detailedEvent.event.registeredNum} / </Typography>
-                                <Typography>{detailedEvent.event.participantNum}</Typography>
+                                <Typography>{detailedEvent.event.registeredNum}</Typography>
+                                {detailedEvent.event.participantNum !== 0 && (
+                                    <Typography>/ {detailedEvent.event.participantNum}</Typography>
+                                )}
                             </Box>
                         </Box>
                         <Box display="flex" sx={{ my: 1 }}>

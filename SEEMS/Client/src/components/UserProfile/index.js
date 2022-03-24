@@ -138,7 +138,12 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                     </Box>
                 ) : (
                     <React.Fragment>
-                        <Box display="flex" alignItems="center" sx={{ mb: 4 }}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            sx={{ mb: 4 }}
+                            justifyContent="center"
+                        >
                             <Avatar
                                 alt="avatar"
                                 src={userProfile.imageURL}

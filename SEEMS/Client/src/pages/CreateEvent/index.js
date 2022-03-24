@@ -41,9 +41,14 @@ const CreateEvent = () => {
                         () => {
                             getDownloadURL(uploadTask.snapshot.ref)
                                 .then((downloadURL) =>
-                                    eventActions.updateEvent(id, {
-                                        imageUrl: downloadURL,
-                                    })
+                                    eventActions.updateEvent(
+                                        id,
+                                        {
+                                            ...eventData,
+                                            imageUrl: downloadURL,
+                                        },
+                                        1
+                                    )
                                 )
                                 .then(() => {
                                     showSnackbar({
@@ -53,12 +58,12 @@ const CreateEvent = () => {
                                     const newUrl = pathname.slice(0, pathname.indexOf('create'))
                                     history.push(`${newUrl}${id}`)
                                 })
-                                .catch(() =>
+                                .catch(() => {
                                     showSnackbar({
                                         severity: 'error',
                                         children: 'Something went wrong, please try again later.',
                                     })
-                                )
+                                })
                         }
                     )
                 }
