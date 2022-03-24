@@ -1,4 +1,4 @@
-import { get, post, put } from '../../utils/ApiCaller'
+import { get, post, put, remove } from '../../utils/ApiCaller'
 import useAuthAction from '../auth/action'
 
 const useEventAction = () => {
@@ -65,14 +65,21 @@ const useEventAction = () => {
             return res
         })
 
-    const updateEvent = (eventId, eventData) =>
-        put({ endpoint: `/api/events/${eventId}`, body: eventData }).then((res) => {
+    const updateEvent = (eventId, eventData, numberSendingEmail) => {
+        const isAllowSendingEmail =
+            numberSendingEmail === 1 ? false : eventData.allowEmail === true ? true : false
+
+        return put({
+            endpoint: `/api/events/${eventId}?allowEmail=${isAllowSendingEmail ? true : false}`,
+            body: eventData,
+        }).then((res) => {
             if (res.data.data && res.data.data.errorCode === 'BANNED_USER') {
                 logout()
                 window.location.reload(false)
             }
             return res
         })
+    }
 
     const checkIsMyEvent = (id) =>
         get({ endpoint: `/api/events/is-mine/${id}` }).then((res) => {
@@ -101,6 +108,15 @@ const useEventAction = () => {
             return res
         })
 
+    const deleteEvent = (eventId) =>
+        remove({ endpoint: `/api/events/${eventId}` }).then((res) => {
+            if (res.data.data && res.data.data.errorCode === 'BANNED_USER') {
+                logout()
+                window.location.reload(false)
+            }
+            return res
+        })
+
     return {
         getUpcomingEvents,
         getEvents,
@@ -112,6 +128,7 @@ const useEventAction = () => {
         updateEvent,
         checkIsMyEvent,
         checkCanAttendance,
+        deleteEvent,
     }
 }
 

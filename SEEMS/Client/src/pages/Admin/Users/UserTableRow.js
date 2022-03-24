@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
-import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material'
+import UserProfile from '../../../components/UserProfile'
+import { Edit as EditIcon, Save as SaveIcon, Person as PersonIcon } from '@mui/icons-material'
 import { LoadingButton } from '@mui/lab'
 import { Select, Avatar, Button, FormControl, MenuItem, TableCell, TableRow } from '@mui/material'
 import { Box } from '@mui/system'
@@ -20,6 +21,7 @@ const UserTableRow = ({
 }) => {
     const userAction = useUsersAction()
     const [isEdit, setIsEdit] = useState(false)
+    const [openDialog, setOpenDialog] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [editedRole, setEditedRole] = useState(role)
     const [editedOrganization, setEditedOrganization] = useState(organization)
@@ -123,6 +125,15 @@ const UserTableRow = ({
                 )}
             </TableCell>
             <TableCell align="center">
+                <Button
+                    variant="outlined"
+                    color="info"
+                    startIcon={<PersonIcon />}
+                    onClick={() => setOpenDialog(true)}
+                    sx={{ mr: 2 }}
+                >
+                    Detail
+                </Button>
                 {role !== 'Admin' && (
                     <React.Fragment>
                         {isEdit ? (
@@ -149,6 +160,13 @@ const UserTableRow = ({
                     </React.Fragment>
                 )}
             </TableCell>
+            {role === 'User' && openDialog && (
+                <UserProfile
+                    open={openDialog}
+                    onClose={() => setOpenDialog(false)}
+                    userEmail={email}
+                />
+            )}
         </TableRow>
     )
 }

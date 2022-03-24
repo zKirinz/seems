@@ -1,25 +1,28 @@
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
+import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
 import { useHistory, useLocation, useParams } from 'react-router-dom'
 
 import { Box, Typography } from '@mui/material'
 
 import { useSnackbar } from '../../HOCs/SnackbarContext'
 import { useEventAction } from '../../recoil/event'
+import { storage } from '../../utils/Firebase'
 import Loading from '../Loading'
 import UpdateEventForm from './UpdateEventForm'
 
 const UpdateEvent = () => {
     const showSnackbar = useSnackbar()
     const eventActions = useEventAction()
-    const { checkIsMyEvent } = useEventAction()
+    const { checkIsMyEvent, deleteEvent } = useEventAction()
     const { id } = useParams()
     const [error, setError] = useState(null)
     const history = useHistory()
     const { pathname } = useLocation()
     const [updateEventDisable, setUpdateEventDisable] = useState(true)
+    // const [activeUpdateDelete, setActiveUpdateDelete] = useState(false)
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         checkIsMyEvent(id)
             .then((response) => {
                 const isMine = response.data.data.isMine
@@ -39,17 +42,64 @@ const UpdateEvent = () => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-    const updateEventHandler = (eventData) => {
+    const updateEventHandler = ({ eventData, poster }) => {
         eventActions
-            .updateEvent(id, eventData)
-            .then(() => {
-                console.log(eventData)
-                showSnackbar({
-                    severity: 'success',
-                    children: 'Update event successfully.',
-                })
-                const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
-                history.push(newUrl)
+            .updateEvent(id, eventData, 1)
+            .then((response) => {
+                const { id: eventId } = response.data.data
+
+                if (poster.file) {
+                    let fileType = 'png'
+                    if (poster.file.type.endsWith('jpg')) fileType = 'jpg'
+                    else if (poster.file.type.endsWith('jpeg')) fileType = 'jpeg'
+                    const storageRef = ref(storage, `event-poster/${eventId}.${fileType}`)
+                    const uploadTask = uploadBytesResumable(storageRef, poster.file)
+
+                    uploadTask.on(
+                        'state_changed',
+                        () => {},
+                        () => {
+                            showSnackbar({
+                                severity: 'error',
+                                children: 'Something went wrong, cannot upload event poster.',
+                            })
+                        },
+                        () => {
+                            getDownloadURL(uploadTask.snapshot.ref)
+                                .then((downloadURL) => {
+                                    eventActions.updateEvent(
+                                        eventId,
+                                        {
+                                            ...eventData,
+                                            imageUrl: downloadURL,
+                                        },
+                                        2
+                                    )
+                                })
+                                .then(() => {
+                                    showSnackbar({
+                                        severity: 'success',
+                                        children: 'Update event successfully.',
+                                    })
+                                    const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
+                                    history.push(newUrl)
+                                })
+                                .catch(() => {
+                                    showSnackbar({
+                                        severity: 'error',
+                                        children: 'Something went wrong, please try again later.',
+                                    })
+                                })
+                        }
+                    )
+                } else {
+                    showSnackbar({
+                        severity: 'success',
+                        children: 'Update event successfully.',
+                    })
+                    const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
+                    history.push(newUrl)
+                }
             })
             .catch((errorResponse) => {
                 if (errorResponse.response.status === 400) {
@@ -69,6 +119,24 @@ const UpdateEvent = () => {
                 })
             })
     }
+    const deleteEventHandler = () => {
+        deleteEvent(id)
+            .then(() => {
+                showSnackbar({
+                    severity: 'successful',
+                    children: 'Delete event unsuccessfully',
+                })
+                history.push('/events')
+            })
+            .catch(() => {
+                // console.log(error.response)
+                showSnackbar({
+                    severity: 'error',
+                    children: 'Delete event unsuccessfully',
+                })
+            })
+    }
+
     return updateEventDisable ? (
         <Loading />
     ) : (
@@ -81,6 +149,7 @@ const UpdateEvent = () => {
                 setError={setError}
                 updateEventHandler={updateEventHandler}
                 id={id}
+                deleteEventHandler={deleteEventHandler}
             />
         </Box>
     )
