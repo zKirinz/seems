@@ -24,7 +24,7 @@ public static class ContextExtension
     {
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
-            foreach(Action<IMutableEntityType> action in Conventions)
+            foreach(var action in Conventions)
                 action(entityType);
         }
 

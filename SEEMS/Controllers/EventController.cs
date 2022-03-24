@@ -329,7 +329,18 @@ public class EventController : ControllerBase
 
             var returnEvent = await _repository.Event.GetEventAsync(id, false);
 
-            if (allowEmail) SendEmailInformChangedEvent(returnEvent, TrackingState.Update);
+            if (allowEmail)
+            {
+                try
+                {
+                    SendEmailInformChangedEvent(returnEvent, TrackingState.Update);
+                }
+                catch (InvalidOperationException e)
+                {
+                   _logger.LogError(e.Message); 
+                }
+                
+            }
             returnEvent.StartDate = returnEvent.StartDate.AddHours(7);
             returnEvent.EndDate = returnEvent.EndDate.AddHours(7);
             returnEvent.RegistrationDeadline = returnEvent.RegistrationDeadline.AddHours(7);
@@ -494,15 +505,26 @@ public class EventController : ControllerBase
         return user;
     }
 
-    private async void SendEmailInformChangedEvent(Event updatedEvent, TrackingState state)
+    private async Task SendEmailInformChangedEvent(Event updatedEvent, TrackingState state)
     {
         var reservations =
-            await _repository.Reservation.GetReservationsByEventId(updatedEvent.Id, false);
+            _repository.Reservation.GetReservationsByEventId(updatedEvent.Id, false).Result;
+
+        if (!reservations.Any())
+        {
+            throw new InvalidOperationException($"There are no reservations qualified with this eventId: {updatedEvent.Id}");
+        }
+        
         foreach (var reservation in reservations)
         {
             var mailToUser = new EmailMeta();
-            reservation.User = await _repository.User.GetUserAsync((int) reservation.UserId, false);
-            reservation.Event = await _repository.Event.GetEventAsync(reservation.EventId, false);
+            reservation.User = _repository.User.GetUserAsync((int) reservation.UserId, false).Result;
+            reservation.Event = _repository.Event.GetEventAsync(reservation.EventId, false).Result;
+
+            if (reservation.User == null || reservation.Event == null)
+            {
+                throw new InvalidOperationException("Invalid operations");
+            }
 
             mailToUser.ToEmail = reservation.User.Email;
             var x = Dictionaries.MsgTemplates[state];
@@ -512,6 +534,7 @@ public class EventController : ControllerBase
             mailToUser.Subject = Dictionaries.ParseArguments("{eventName}", $"{updatedEvent.EventTitle}",
                 Dictionaries.SubjectTemplates[state]);
             _emailService.SendEmail(mailToUser);
+            _logger.LogInformation(mailToUser.Message.ToString());
         }
     }
 

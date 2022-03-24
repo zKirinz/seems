@@ -130,7 +130,7 @@ public class AuthenticationController : ControllerBase
         return _baseServices.GetUiDomain() + "/login";
     }
 
-    private async void CreateNewUser(User currentUser)
+    private async Task CreateNewUser(User currentUser)
     {
         currentUser.OrganizationName = OrganizationEnum.FPTer;
         currentUser.Active = true;
