@@ -15,7 +15,7 @@ import UpdateEventForm from './UpdateEventForm'
 const UpdateEvent = () => {
     const showSnackbar = useSnackbar()
     const eventActions = useEventAction()
-    const { checkIsMyEvent, deleteEvent } = useEventAction()
+    const { checkIsMyEvent, deleteEvent, isUpdateEventAvailable } = useEventAction()
     const { id } = useParams()
     const [error, setError] = useState(null)
     const history = useHistory()
@@ -24,6 +24,14 @@ const UpdateEvent = () => {
     // const [activeUpdateDelete, setActiveUpdateDelete] = useState(false)
 
     useEffect(() => {
+        isUpdateEventAvailable(id)
+            .then((res) => {
+                console.log(res)
+            })
+            .catch((error) => {
+                console.log(error.response)
+            })
+
         checkIsMyEvent(id)
             .then((response) => {
                 const isMine = response.data.data.isMine
@@ -124,6 +132,10 @@ const UpdateEvent = () => {
     const deleteEventHandler = () => {
         deleteEvent(id)
             .then(() => {
+                showSnackbar({
+                    severity: 'success',
+                    children: 'Delete event successfully',
+                })
                 history.push('/events')
             })
             .catch(() => {
