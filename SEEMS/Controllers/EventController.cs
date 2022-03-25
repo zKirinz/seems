@@ -393,10 +393,6 @@ public class EventController : ControllerBase
     [CheckUserStatus]
     public async Task<ActionResult> AddEvent(EventDTO eventDTO)
     {
-        //eventDTO.StartDate = eventDTO.StartDate.ToLocalTime();
-        //eventDTO.EndDate = eventDTO.EndDate.ToLocalTime();
-        //eventDTO.RegistrationDeadline ??= ((DateTime) eventDTO.RegistrationDeadline).ToLocalTime();
-
         var eventValidationInfo = EventsServices.GetValidatedEventInfo(eventDTO);
         try
         {

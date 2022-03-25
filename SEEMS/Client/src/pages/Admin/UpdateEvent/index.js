@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage'
 import { useHistory, useLocation, useParams } from 'react-router-dom'
 
-import { Box, Typography } from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
+import { grey } from '@mui/material/colors'
 
 import { useSnackbar } from '../../../HOCs/SnackbarContext'
 import { useEventAction } from '../../../recoil/event'
@@ -38,6 +39,7 @@ const UpdateEvent = () => {
                     severity: 'error',
                     children: 'Something went wrong, please try again later.',
                 })
+                setError(true)
             })
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,19 +124,35 @@ const UpdateEvent = () => {
     const deleteEventHandler = () => {
         deleteEvent(id)
             .then(() => {
-                showSnackbar({
-                    severity: 'successful',
-                    children: 'Delete event unsuccessfully',
-                })
                 history.push('/admin/events')
             })
             .catch(() => {
-                // console.log(error.response)
                 showSnackbar({
                     severity: 'error',
                     children: 'Delete event unsuccessfully',
                 })
             })
+    }
+
+    if (error === true) {
+        return (
+            <Box
+                sx={{
+                    height: '90vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                }}
+            >
+                <Typography variant="h5" fontWeight={700} sx={{ color: grey[800] }}>
+                    Something went wrong, does not find the event.
+                </Typography>
+                <Button variant="contained" sx={{ mt: 1 }} onClick={() => history.goBack()}>
+                    Go back
+                </Button>
+            </Box>
+        )
     }
 
     return updateEventDisable ? (
