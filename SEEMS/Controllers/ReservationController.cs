@@ -366,6 +366,7 @@ namespace SEEMS.Controllers
 						FeedbackedEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Feedbacked"),
 						NoFeedbackEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Attended"),
 						AbsentEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Absent"),
+						RegisteredPendingEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Pending")
 					};
 					return Ok(
 						new Response(
