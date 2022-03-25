@@ -4,6 +4,8 @@ namespace SEEMS.Data.Repositories
 {
 	public interface IEventRepository
 	{
+		int GetHostedEventsNum(int userId);
+		int GetFinishedHostedEventsNum (int userId);	
 		IEnumerable<Event> GetAllEvents(bool trackChanges = false);
 		Event GetEvent(int id, bool trackChanges = false);
 
@@ -16,7 +18,7 @@ namespace SEEMS.Data.Repositories
 		public Task<IEnumerable<Event>> GetAllEventsShouldBeChangedToInactive(DateTime from, bool trackChanges);
 
 		void DeleteEvent(Event @event);
-		
+
 		Task<Event> GetEventAsync(int id, bool trackChanges);
 
 		bool CanUnregister(int id, int minHourToUnregister);
