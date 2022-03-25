@@ -25,6 +25,11 @@ namespace SEEMS.Database.Configurations
 				})
 				;
 			}
+			reservations.ForEach(reservation => {
+				if (reservation.UserId >= -1 && reservation.UserId <= -10) {
+					reservation.UserId -= 11; // -1 -> -10 is Admin user, can not register
+				}
+			});
 			builder.HasData(reservations);
 		}
 	}
