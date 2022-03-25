@@ -47,7 +47,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
     const [isLoading, setIsLoading] = useState(false)
     const [poster, setPoster] = useState({ src: {}, file: null })
     const [sendingEmail, setSendingEmail] = useState(false)
-    const [participantsLimited, setParticipantsLimited] = useState(10)
+    const [participantsLimited, setParticipantsLimited] = useState(0)
     const [confirmDialog, setConfirmDialog] = useState(false)
 
     const eventNameChangeHandler = (event) => {
@@ -436,8 +436,6 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
                                     label="Participants limitation"
                                     inputProps={{
                                         type: 'number',
-                                        min: 10,
-                                        max: 1500,
                                         inputMode: 'numeric',
                                         pattern: '[0-9]*',
                                     }}
