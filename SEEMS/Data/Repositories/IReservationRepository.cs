@@ -13,6 +13,8 @@ namespace SEEMS.Data.Repositories
 
 		public Task<IEnumerable<Reservation>> GetReservationsByEventId(int eventId, bool trackChanges);
 
+		void BulkDeleteReservations(IEnumerable<Reservation> locationIds);
+
 		public Task<IEnumerable<Reservation>> GetReservationsByEventId(DateTime from, bool trackChanges);
 
 		public Task<Reservation> GetReservationAsync(int id, bool trackChanges);
