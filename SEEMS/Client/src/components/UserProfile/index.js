@@ -241,7 +241,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                         )}
                         {totalRegisteredEvent !== 0 && (
                             <Box sx={{ mt: 3 }}>
-                                <Grid container spacing={2}>
+                                <Grid container spacing={2} justifyContent="center">
                                     <Grid item sm={6} xs={12}>
                                         <Box
                                             display="flex"
@@ -257,7 +257,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                             >
                                                 {totalRegisteredEvent}
                                             </Typography>
-                                            <Typography variant="body2">
+                                            <Typography variant="body2" align="center">
                                                 Total Registration
                                             </Typography>
                                         </Box>
@@ -277,8 +277,8 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                             >
                                                 {totalFeedbackAnEvent}
                                             </Typography>
-                                            <Typography variant="body2">
-                                                Participation with feedback
+                                            <Typography variant="body2" align="center">
+                                                Total participation with feedback
                                             </Typography>
                                         </Box>
                                     </Grid>
@@ -297,8 +297,8 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                             >
                                                 {totalNoFeedbackAnEvent}
                                             </Typography>
-                                            <Typography variant="body2">
-                                                Participation without feedback
+                                            <Typography variant="body2" align="center">
+                                                Total participation without feedback
                                             </Typography>
                                         </Box>
                                     </Grid>
@@ -317,8 +317,28 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                             >
                                                 {totalAbsence}
                                             </Typography>
-                                            <Typography variant="body2">
-                                                Registration without attendance
+                                            <Typography variant="body2" align="center">
+                                                Total registration without attendance
+                                            </Typography>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item sm={6} xs={12}>
+                                        <Box
+                                            display="flex"
+                                            alignItems="center"
+                                            flexDirection="column"
+                                            sx={{ border: '1px solid #d81b60', p: 2 }}
+                                        >
+                                            <Pending fontSize="large" color="secondary" />
+                                            <Typography
+                                                fontWeight={700}
+                                                variant="h5"
+                                                sx={{ my: 1, color: blueGrey[800] }}
+                                            >
+                                                4
+                                            </Typography>
+                                            <Typography variant="body2" align="center">
+                                                Total pending event
                                             </Typography>
                                         </Box>
                                     </Grid>
