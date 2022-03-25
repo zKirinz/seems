@@ -13,5 +13,13 @@
 		public int? ConsecutiveAbsentEventsNum { get; set; }
 		public int? FeedbackedEventsNum { get; set; }
 		public int? RegisteredPendingEventsNum { get; set; }
+
+		#region NonNormalUserField
+		public int? HostedEventsNum { get; set; }
+		public int? HostedFinishedEventsNum { get; set; }
+		public int? TotalAttendedOnReceivedReseravationsNum { get; set; }
+		public int? TotalReceivedReservationsNum{ get; set; }
+		public int? TotalReceivedFeedbacks { get; set; }
+		#endregion
 	}
 }

@@ -354,6 +354,8 @@ namespace SEEMS.Controllers
 				{
 					var userRole = (await _repoManager.UserMeta.GetRolesAsync(user.Email, false)).MetaValue;
 					bool isAdmin = userRole.Equals("Admin");
+					bool isOrganizer = userRole.Equals("Organizer");
+					bool isNonNormalUser = isAdmin || isOrganizer;
 					var profileDTO = new ProfilePageDTO()
 					{
 						Email = user.Email,
@@ -366,7 +368,9 @@ namespace SEEMS.Controllers
 						FeedbackedEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Feedbacked"),
 						NoFeedbackEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Attended"),
 						AbsentEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Absent"),
-						RegisteredPendingEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Pending")
+						RegisteredPendingEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Pending"),
+						HostedEventsNum = isNonNormalUser ? _repoManager.Event.GetHostedEventsNum(user.Id) : null,		
+						HostedFinishedEventsNum = isNonNormalUser ? _repoManager.Event.GetFinishedHostedEventsNum(user.Id) : null,	
 					};
 					return Ok(
 						new Response(
