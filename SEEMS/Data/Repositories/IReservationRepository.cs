@@ -13,6 +13,7 @@ namespace SEEMS.Data.Repositories
 		int GetAttendedReservationsOfMyEvents(int userId);
 		int GetAllReservationsOfMyEvents(int userId);
 		int GetAllFeedbacksOfMyEvents(int userId);
+		void SetAttendanceCheckedForConsecutiveAbsences(int userId);
 		public Task<IEnumerable<Reservation>> GetReservationsByEventId(int eventId, bool trackChanges);
 
 		void BulkDeleteReservations(IEnumerable<Reservation> locationIds);
