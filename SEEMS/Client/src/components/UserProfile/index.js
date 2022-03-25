@@ -68,12 +68,10 @@ const UserProfile = ({ userEmail, onClose, open }) => {
     const [totalFeedbackAnEvent, setTotalFeedbackAnEvent] = useState(0)
     const [totalNoFeedbackAnEvent, setTotalNoFeedbackAnEvent] = useState(0)
     const [totalAbsence, setTotalAbsence] = useState(0)
+    const [totalRegisteredPendingEventsNum, setRegisteredPendingEventsNum] = useState(0)
     const [consecutiveAbsenceCount, setConsecutiveAbsenceCount] = useState(0)
     const [isLoading, setIsLoading] = useState(false)
     const showSnackbar = useSnackbar()
-
-    const isUpdateStatisticEvent =
-        totalFeedbackAnEvent !== 0 || totalNoFeedbackAnEvent !== 0 || totalAbsence !== 0
 
     useLayoutEffect(() => {
         setIsLoading(true)
@@ -85,16 +83,18 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                         'Participation with feedback',
                         'Participation without feedback',
                         'No participation',
+                        'Pending event',
                     ],
                     datasets: [
                         {
                             label: 'Event statistic',
                             data: response.data.data.userEventInfo,
-                            backgroundColor: ['#2e7d32', '#0288d1', '#d32f2f'],
+                            backgroundColor: ['#2e7d32', '#0288d1', '#d32f2f', '#ffeb3b'],
                             borderColor: [
                                 'rgba(96, 255, 86, 1)',
                                 'rgba(54, 162, 235, 1)',
                                 'rgba(255, 99, 132, 1)',
+                                'rgba(255, 233, 42, 1)',
                             ],
                             borderWidth: 1,
                         },
@@ -107,6 +107,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                 setTotalNoFeedbackAnEvent(user.noFeedbackEventsNum)
                 setTotalAbsence(user.absentEventsNum)
                 setConsecutiveAbsenceCount(user.consecutiveAbsentEventsNum)
+                setRegisteredPendingEventsNum(user.registeredPendingEventsNum)
                 setTimeout(() => {
                     setIsLoading(false)
                 }, 1000)
@@ -278,7 +279,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                                 {totalFeedbackAnEvent}
                                             </Typography>
                                             <Typography variant="body2" align="center">
-                                                Total participation with feedback
+                                                Participation with feedback
                                             </Typography>
                                         </Box>
                                     </Grid>
@@ -298,7 +299,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                                 {totalNoFeedbackAnEvent}
                                             </Typography>
                                             <Typography variant="body2" align="center">
-                                                Total participation without feedback
+                                                Participation without feedback
                                             </Typography>
                                         </Box>
                                     </Grid>
@@ -318,7 +319,7 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                                 {totalAbsence}
                                             </Typography>
                                             <Typography variant="body2" align="center">
-                                                Total registration without attendance
+                                                Registration without attendance
                                             </Typography>
                                         </Box>
                                     </Grid>
@@ -327,41 +328,25 @@ const UserProfile = ({ userEmail, onClose, open }) => {
                                             display="flex"
                                             alignItems="center"
                                             flexDirection="column"
-                                            sx={{ border: '1px solid #d81b60', p: 2 }}
+                                            sx={{ border: '1px solid #ffeb3b', p: 2 }}
                                         >
-                                            <Pending fontSize="large" color="secondary" />
+                                            <Pending fontSize="large" sx={{ color: '#ffeb3b' }} />
                                             <Typography
                                                 fontWeight={700}
                                                 variant="h5"
                                                 sx={{ my: 1, color: blueGrey[800] }}
                                             >
-                                                4
+                                                {totalRegisteredPendingEventsNum}
                                             </Typography>
                                             <Typography variant="body2" align="center">
-                                                Total pending event
+                                                Pending events
                                             </Typography>
                                         </Box>
                                     </Grid>
                                 </Grid>
-                                {isUpdateStatisticEvent ? (
-                                    <Box sx={{ width: 400, mx: 'auto', mt: 5 }}>
-                                        <Pie data={userEventStatistic} options={options} />
-                                    </Box>
-                                ) : (
-                                    <Box
-                                        display="flex"
-                                        alignItems="center"
-                                        justifyContent="center"
-                                        sx={{ mt: 3 }}
-                                    >
-                                        <Pending color="info" />
-                                        <Typography
-                                            sx={{ color: blueGrey[900], ml: 1, fontWeight: 500 }}
-                                        >
-                                            Your event statistic will be updated later.
-                                        </Typography>
-                                    </Box>
-                                )}
+                                <Box sx={{ width: 400, mx: 'auto', mt: 5 }}>
+                                    <Pie data={userEventStatistic} options={options} />
+                                </Box>
                             </Box>
                         )}
                     </React.Fragment>
