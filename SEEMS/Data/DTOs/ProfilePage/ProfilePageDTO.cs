@@ -12,5 +12,6 @@
 		public int? AbsentEventsNum { get; set; }
 		public int? ConsecutiveAbsentEventsNum { get; set; }
 		public int? FeedbackedEventsNum { get; set; }
+		public int? RegisteredPendingEventsNum { get; set; }
 	}
 }
