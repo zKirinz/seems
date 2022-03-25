@@ -21,6 +21,8 @@ public abstract class RepositoryBase<T> : IRepositoryBase<T> where T : class
 
     public void Delete(T entity) => _context.Set<T>().Remove(entity);
 
+    public void BulkDelete(IEnumerable<T> entities) => _context.Set<T>().RemoveRange(entities);
+
     public IQueryable<T> FindAll(bool trackChanges) =>
         !trackChanges ?
             _context.Set<T>().AsNoTracking() : _context.Set<T>();
