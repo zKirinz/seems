@@ -335,65 +335,65 @@ public class EventController : ControllerBase
 
 			var returnEvent = await _repository.Event.GetEventAsync(id, false);
 
-			if(allowEmail)
-			{
-				try
-				{
-					SendEmailInformChangedEvent(returnEvent, TrackingState.Update);
-				}
-				catch(InvalidOperationException e)
-				{
-					_logger.LogError(e.Message);
-				}
+            if (allowEmail)
+                try
+                {
+                    SendEmailInformChangedEvent(returnEvent, TrackingState.Update);
+                }
+                catch (InvalidOperationException e)
+                {
+                    _logger.LogError(e.Message);
+                }
 
-			}
-			returnEvent.StartDate = returnEvent.StartDate.AddHours(7);
-			returnEvent.EndDate = returnEvent.EndDate.AddHours(7);
-			returnEvent.RegistrationDeadline = returnEvent.RegistrationDeadline.AddHours(7);
-			return Ok(
-				new Response(
-					ResponseStatusEnum.Success,
-					returnEvent,
-					"Successfully Update"
-				)
-			);
-		}
-		catch(Exception ex)
-		{
-			return StatusCode(
-				StatusCodes.Status500InternalServerError,
-				new Response(ResponseStatusEnum.Error,
-					msg: ex.Message)
-			);
-		}
-	}
+            returnEvent.StartDate = returnEvent.StartDate.AddHours(7);
+            returnEvent.EndDate = returnEvent.EndDate.AddHours(7);
+            returnEvent.RegistrationDeadline = returnEvent.RegistrationDeadline.AddHours(7);
+            return Ok(
+                new Response(
+                    ResponseStatusEnum.Success,
+                    returnEvent,
+                    "Successfully Update"
+                )
+            );
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new Response(ResponseStatusEnum.Error,
+                    msg: ex.Message)
+            );
+        }
+    }
 
-	[RoleBasedAuthorization(RoleBased = RoleTypes.AdminOrOrganizer)]
-	[HttpDelete("{id}")]
-	public async Task<ActionResult> Delete(int id)
-	{
-		try
-		{
-			var @event = await _repository.Event.GetEventAsync(id, false);
-			if(@event is null)
-				return BadRequest(
-					new Response(ResponseStatusEnum.Fail,
-						false,
-						"ID not found"));
-			_repository.Event.DeleteEvent(@event);
-			await _repository.SaveAsync();
-			SendEmailInformChangedEvent(@event, TrackingState.Delete);
-			return Ok(
-				new Response(ResponseStatusEnum.Success,
-					true,
-					"Delete event successfully"));
-		}
-		catch(Exception ex)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError,
-				new Response(ResponseStatusEnum.Error, msg: ex.Message));
-		}
-	}
+    [RoleBasedAuthorization(RoleBased = RoleTypes.AdminOrOrganizer)]
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(int id)
+    {
+        try
+        {
+            var @event = await _repository.Event.GetEventAsync(id, false);
+            if (@event is null)
+                return BadRequest(
+                    new Response(ResponseStatusEnum.Fail,
+                        false,
+                        "ID not found"));
+            _repository.Reservation.BulkDeleteReservations(
+                await _repository.Reservation.GetReservationsByEventId(@event.Id, false));
+            _repository.Event.DeleteEvent(@event);
+            await _repository.SaveAsync();
+            SendEmailInformChangedEvent(@event, TrackingState.Delete);
+            return Ok(
+                new Response(ResponseStatusEnum.Success,
+                    true,
+                    "Delete event successfully"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new Response(ResponseStatusEnum.Error, msg: ex.Message));
+        }
+    }
 
 	[HttpPost]
 	[CheckUserStatus]
@@ -540,21 +540,18 @@ public class EventController : ControllerBase
 		var reservations =
 			_repository.Reservation.GetReservationsByEventId(updatedEvent.Id, false).Result;
 
-		if(!reservations.Any())
-		{
-			throw new InvalidOperationException($"There are no reservations qualified with this eventId: {updatedEvent.Id}");
-		}
+        if (!reservations.Any())
+            throw new InvalidOperationException(
+                $"There are no reservations qualified with this eventId: {updatedEvent.Id}");
 
-		foreach(var reservation in reservations)
-		{
-			var mailToUser = new EmailMeta();
-			reservation.User = _repository.User.GetUserAsync((int) reservation.UserId, false).Result;
-			reservation.Event = _repository.Event.GetEventAsync(reservation.EventId, false).Result;
+        foreach (var reservation in reservations)
+        {
+            var mailToUser = new EmailMeta();
+            reservation.User = _repository.User.GetUserAsync((int) reservation.UserId, false).Result;
+            reservation.Event = _repository.Event.GetEventAsync(reservation.EventId, false).Result;
 
-			if(reservation.User == null || reservation.Event == null)
-			{
-				throw new InvalidOperationException("Invalid operations");
-			}
+            if (reservation.User == null || reservation.Event == null)
+                throw new InvalidOperationException("Invalid operations");
 
 			mailToUser.ToEmail = reservation.User.Email;
 			var x = Dictionaries.MsgTemplates[state];
@@ -568,23 +565,12 @@ public class EventController : ControllerBase
 		}
 	}
 
-	private void FuckingDate(EventForUpdateDTO src, Event dst)
-	{
-		if(src.StartDate == DateTime.MinValue)
-		{
-			src.StartDate = dst.StartDate;
-		}
+    private void FuckingDate(EventForUpdateDTO src, Event dst)
+    {
+        if (src.StartDate == DateTime.MinValue) src.StartDate = dst.StartDate;
 
-		if(src.EndDate == DateTime.MinValue)
-		{
-			src.EndDate = dst.EndDate;
-		}
+        if (src.EndDate == DateTime.MinValue) src.EndDate = dst.EndDate;
 
-		if(src.RegistrationDeadline == DateTime.MinValue)
-		{
-			src.RegistrationDeadline = dst.RegistrationDeadline;
-		}
-
-	}
-
+        if (src.RegistrationDeadline == DateTime.MinValue) src.RegistrationDeadline = dst.RegistrationDeadline;
+    }
 }
