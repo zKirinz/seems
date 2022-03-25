@@ -369,8 +369,11 @@ namespace SEEMS.Controllers
 						NoFeedbackEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Attended"),
 						AbsentEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Absent"),
 						RegisteredPendingEventsNum = isAdmin ? null : _repoManager.Reservation.GetRegisteredEventsNumByStatus(user.Id, "Pending"),
-						HostedEventsNum = isNonNormalUser ? _repoManager.Event.GetHostedEventsNum(user.Id) : null,		
-						HostedFinishedEventsNum = isNonNormalUser ? _repoManager.Event.GetFinishedHostedEventsNum(user.Id) : null,	
+						HostedEventsNum = isNonNormalUser ? _repoManager.Event.GetHostedEventsNum(user.Id) : null,
+						HostedFinishedEventsNum = isNonNormalUser ? _repoManager.Event.GetFinishedHostedEventsNum(user.Id) : null,
+						TotalAttendedOnReceivedReservationsNum = isNonNormalUser ? _repoManager.Reservation.GetAttendedReservationsOfMyEvents(user.Id) : null,
+						TotalReceivedReservationsNum = isNonNormalUser ? _repoManager.Reservation.GetAllReservationsOfMyEvents(user.Id) : null,
+						TotalReceivedFeedbacks = isNonNormalUser ? _repoManager.Reservation.GetAllFeedbacksOfMyEvents(user.Id) : null
 					};
 					return Ok(
 						new Response(
