@@ -35,6 +35,7 @@ namespace SEEMS.Services.Jobs
 					us.Active = false;
 					_repoManager.User.UpdateUser(us);
 					_repoManager.UserMeta.SaveConsecutiveAbsences(us.Id, 0); //to reset 
+					_repoManager.Reservation.SetAttendanceCheckedForConsecutiveAbsences(us.Id);
 					_logger.LogInformation($"User {us.Email} was inactivated because of having 3 consecutive absences");
 				}
 				else

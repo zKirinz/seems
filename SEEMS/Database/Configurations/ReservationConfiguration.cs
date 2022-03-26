@@ -14,7 +14,7 @@ namespace SEEMS.Database.Configurations
 			const int totalUser = 25;
 			int tmpEventId;
 			int tmpUserId;
-			for(int i = 1; i <= 100; i++)
+			for(int i = 1; i <= 200; i++)
 			{
 				reservations.Add(new Reservation()
 				{
@@ -22,9 +22,17 @@ namespace SEEMS.Database.Configurations
 					Attend = new Random().Next(2) == 1,
 					EventId = new Random().Next(1, totalEvent + 1) * -1,
 					UserId = new Random().Next(1, totalUser + 1) * -1,
+					IsAttendanceChecked = false,
 				})
 				;
 			}
+			reservations.ForEach(reservation =>
+			{
+				if(reservation.UserId >= -1 && reservation.UserId <= -10)
+				{
+					reservation.UserId -= 10; // -1 -> -10 is Admin user, can not register
+				}
+			});
 			builder.HasData(reservations);
 		}
 	}
