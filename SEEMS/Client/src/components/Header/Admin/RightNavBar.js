@@ -3,7 +3,12 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useRecoilValue } from 'recoil'
 
-import { Logout as LogoutIcon, Add as AddIcon, Event as EventIcon } from '@mui/icons-material'
+import {
+    Logout as LogoutIcon,
+    Add as AddIcon,
+    Event as EventIcon,
+    AccountCircle,
+} from '@mui/icons-material'
 import {
     Box,
     Tooltip,
@@ -18,6 +23,7 @@ import {
 } from '@mui/material'
 
 import authAtom, { useAuthAction } from '../../../recoil/auth'
+import UserProfile from '../../UserProfile'
 
 const RightNavBar = () => {
     const history = useHistory()
@@ -25,7 +31,14 @@ const RightNavBar = () => {
     const authAction = useAuthAction()
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
+    const [openDialog, setOpenDialog] = useState(false)
 
+    const handleOpenDialog = () => {
+        setOpenDialog(true)
+    }
+    const handleCloseDialog = () => {
+        setOpenDialog(false)
+    }
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget)
     }
@@ -119,6 +132,12 @@ const RightNavBar = () => {
                             </ListItemIcon>
                             <Typography ml={1}>Create event</Typography>
                         </MenuItem>
+                        <MenuItem sx={{ display: 'flex', px: 5 }} onClick={handleOpenDialog}>
+                            <ListItemIcon>
+                                <AccountCircle fontSize="large" />
+                            </ListItemIcon>
+                            <Typography ml={1}>My Account</Typography>
+                        </MenuItem>
                     </Box>
 
                     <MenuItem sx={{ display: 'flex', px: 5 }} onClick={handleClickLogout}>
@@ -129,6 +148,14 @@ const RightNavBar = () => {
                     </MenuItem>
                 </Menu>
             </Box>
+            {openDialog && (
+                <UserProfile
+                    open={openDialog}
+                    onClose={handleCloseDialog}
+                    userEmail={auth.email}
+                    role={auth.role}
+                />
+            )}
         </React.Fragment>
     )
 }
