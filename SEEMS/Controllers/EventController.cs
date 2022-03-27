@@ -339,9 +339,9 @@ public class EventController : ControllerBase
                     _logger.LogError(e.Message);
                 }
 
-            returnEvent.StartDate = returnEvent.StartDate.AddHours(7);
-            returnEvent.EndDate = returnEvent.EndDate.AddHours(7);
-            returnEvent.RegistrationDeadline = returnEvent.RegistrationDeadline.AddHours(7);
+            // returnEvent.StartDate = returnEvent.StartDate.AddHours(7);
+            // returnEvent.EndDate = returnEvent.EndDate.AddHours(7);
+            // returnEvent.RegistrationDeadline = returnEvent.RegistrationDeadline.AddHours(7);
             return Ok(
                 new Response(
                     ResponseStatusEnum.Success,
@@ -372,8 +372,7 @@ public class EventController : ControllerBase
                     new Response(ResponseStatusEnum.Fail,
                         false,
                         "ID not found"));
-            _repository.Reservation.BulkDeleteReservations(
-                await _repository.Reservation.GetReservationsByEventId(@event.Id, false));
+            DeleteRelationalChildResources(@event);
             _repository.Event.DeleteEvent(@event);
             await _repository.SaveAsync();
             SendEmailInformChangedEvent(@event, TrackingState.Delete);
@@ -390,6 +389,7 @@ public class EventController : ControllerBase
     }
 
     [HttpPost]
+    [RoleBasedAuthorization(RoleBased = RoleTypes.AdminOrOrganizer)]
     [CheckUserStatus]
     public async Task<ActionResult> AddEvent(EventDTO eventDTO)
     {
@@ -538,5 +538,31 @@ public class EventController : ControllerBase
         if (src.EndDate == DateTime.MinValue) src.EndDate = dst.EndDate;
 
         if (src.RegistrationDeadline == DateTime.MinValue) src.RegistrationDeadline = dst.RegistrationDeadline;
+    }
+
+    private async Task DeleteRelationalChildResources(Event @event)
+    {
+        var listReservations = await _repository.Reservation.GetReservationsByEventId(@event.Id, false);
+        DeleteRelatedReservations(listReservations); 
+
+        var listComments = await _repository.Comment.GetCommentsByEventId(@event.Id, false);
+        DeleteRelatedComments(listComments);
+    }
+
+    private async Task DeleteRelatedReservations(IEnumerable<Reservation> listReservations)
+    {
+        foreach (var res in listReservations)
+        {
+            var locationIds = await _repository.FeedBack.GetFeedbacksByReservationId(res.Id, false);
+
+            _repository.FeedBack.BulkDeleteFeedbacks(locationIds);
+        }
+
+        _repository.Reservation.BulkDeleteReservations(listReservations);
+    }
+
+    private async Task DeleteRelatedComments(IEnumerable<Comment> listComments)
+    {
+        _repository.Comment.BulkDeleteComments(listComments); 
     }
 }

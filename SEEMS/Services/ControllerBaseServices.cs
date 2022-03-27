@@ -11,14 +11,14 @@ public class ControllerBaseServices<T> : IControllerBaseServices<T>
     {
         _config = config;
     }
-    
+
     public string GetUiDomain()
     {
-       return _config.GetSection("Domain").GetSection("BaseUiDomain").Value; 
+        return _config.GetSection("Domain").GetSection("BaseUiDomain").Value;
     }
 
     public void AddPaginationHeaders(HttpResponse response, PaginatedList<T> data)
     {
         response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(data.Meta));
-    }  
+    }
 }

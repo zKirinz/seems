@@ -26,10 +26,7 @@ public class ReservationRepository : RepositoryBase<Reservation>, IReservationRe
 
     public void BulkDeleteReservations(IEnumerable<Reservation> locationIds)
     {
-        if (locationIds.Any())
-        {
-            BulkDelete(locationIds);
-        }
+        if (locationIds.Any()) BulkDelete(locationIds);
     }
 
 

@@ -1,22 +1,17 @@
-﻿using SEEMS.Data.Entities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using SEEMS.Data.Entities;
 
-namespace SEEMS.Models
+namespace SEEMS.Models;
+
+public class FeedBack : AbstractEntity<int>
 {
-    public class FeedBack : AbstractEntity<int>
-    {
-        [StringLength(100)]
-        public String Content { get; set; }
+    [StringLength(100)] public string Content { get; set; }
 
-        [ForeignKey("Reservation")]
-        public int ReservationId { get; set; }
+    [ForeignKey("Reservation")] public int ReservationId { get; set; }
 
-        public int Rating { get; set; }
+    public int Rating { get; set; }
 
-        [JsonIgnore]
-        public Reservation Reservation { get; set; }
-
-    }
+    [JsonIgnore] public Reservation Reservation { get; set; }
 }

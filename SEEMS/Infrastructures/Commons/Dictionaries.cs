@@ -24,16 +24,16 @@ public class Dictionaries
 
 public class ErrorDictionaries
 {
-    public string Message { get; set; }
-
-    public ErrorDictionaries(string key)
-    {
-       Message = ErrorConstraints[key];
-    }
-    
     public static readonly Dictionary<string, string> ErrorConstraints = new()
     {
         {"EventTitleRange", "EventTitle must be from 5 to 100 characters"},
         {"c", "d"}
     };
+
+    public ErrorDictionaries(string key)
+    {
+        Message = ErrorConstraints[key];
+    }
+
+    public string Message { get; set; }
 }

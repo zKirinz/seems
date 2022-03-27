@@ -1,22 +1,17 @@
-﻿using SEEMS.Data.Entities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using SEEMS.Data.Entities;
 
-namespace SEEMS.Models
+namespace SEEMS.Models;
+
+public class EventMeta : AbstractEntity<int>
 {
-    public class EventMeta : AbstractEntity<int>
-    {
-        [ForeignKey("Event")]
-        public int EventId { get; set; }
+    [ForeignKey("Event")] public int EventId { get; set; }
 
-        [StringLength(20)]
-        public String MetaKey { get; set; }
+    [StringLength(20)] public string MetaKey { get; set; }
 
-        [StringLength(20)]
-        public String MetaValue { get; set; }
+    [StringLength(20)] public string MetaValue { get; set; }
 
-        [JsonIgnore]
-        public Event Event { get; set; }
-    }
+    [JsonIgnore] public Event Event { get; set; }
 }

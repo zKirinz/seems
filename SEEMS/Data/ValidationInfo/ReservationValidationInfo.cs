@@ -1,8 +1,7 @@
-﻿namespace SEEMS.Data.ValidationInfo
+﻿namespace SEEMS.Data.ValidationInfo;
+
+public class ReservationValidationInfo
 {
-    public class ReservationValidationInfo
-    {
-        public const int MinDayToRegister = 1;
-        public const int MinHourToUnregister = 1;
-    }
+    public const int MinDayToRegister = 1;
+    public const int MinHourToUnregister = 1;
 }

@@ -1,8 +1,7 @@
-﻿namespace SEEMS.Data.DTOs
+﻿namespace SEEMS.Data.DTOs;
+
+public class ReservationDTO
 {
-    public class ReservationDTO
-    {
-        public int EventId { get; set; }
-        private bool Attend { get; set; } = false;
-    }
+    public int EventId { get; set; }
+    private bool Attend { get; set; } = false;
 }

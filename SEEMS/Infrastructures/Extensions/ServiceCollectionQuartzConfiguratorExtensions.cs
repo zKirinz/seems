@@ -18,9 +18,7 @@ public static class ServiceCollectionQuartzConfiguratorExtensions
 
         // Some minor validation
         if (string.IsNullOrEmpty(cronSchedule))
-        {
             throw new Exception($"No Quartz.NET Cron schedule found for job in configuration at {configKey}");
-        }
 
         // register the job as before
         var jobKey = new JobKey(jobName);
@@ -30,5 +28,5 @@ public static class ServiceCollectionQuartzConfiguratorExtensions
             .ForJob(jobKey)
             .WithIdentity(jobName + "-trigger")
             .WithCronSchedule(cronSchedule)); // use the schedule from configuration
-    } 
+    }
 }

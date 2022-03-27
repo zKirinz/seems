@@ -1,5 +1,4 @@
 using SEEMS.Data.Models;
-using SEEMS.Models;
 
 namespace SEEMS.Data.DTOs;
 

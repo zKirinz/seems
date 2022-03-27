@@ -1,7 +1,6 @@
-﻿namespace SEEMS.Data.DTOs
+﻿namespace SEEMS.Data.DTOs;
+
+public class CommentId
 {
-    public class CommentId
-    {
-        public int reactCommentId { get; set; }
-    }
+    public int reactCommentId { get; set; }
 }

@@ -8,7 +8,6 @@ namespace SEEMS.Services;
 
 public class JobSchedular : IHostedService
 {
-    public IScheduler Scheduler { get; set; }
     private readonly IJobFactory _jobFactory;
     private readonly List<JobMeta> _jobMeta;
     private readonly ISchedulerFactory _schedulerFactory;
@@ -19,13 +18,16 @@ public class JobSchedular : IHostedService
         _schedulerFactory = schedulerFactory;
         _jobMeta = jobMeta;
     }
+
+    public IScheduler Scheduler { get; set; }
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         Scheduler = await _schedulerFactory.GetScheduler();
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddScoped<IRepositoryManager, RepositoryManager>();
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        
+
         Scheduler.JobFactory = _jobFactory;
 
         _jobMeta.ForEach(jobMetadata =>
@@ -35,6 +37,12 @@ public class JobSchedular : IHostedService
             Scheduler.ScheduleJob(jobDetail, trigger, cancellationToken).GetAwaiter();
         });
         await Scheduler.Start(cancellationToken);
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        Debug.Assert(Scheduler != null, nameof(Scheduler) + " != null");
+        await Scheduler.Shutdown();
     }
 
     private ITrigger CreateTrigger(JobMeta jobMetadata)
@@ -53,10 +61,4 @@ public class JobSchedular : IHostedService
             .WithDescription(jobMetadata.JobName)
             .Build();
     }
-
-    public async Task StopAsync(CancellationToken cancellationToken)
-    {
-        Debug.Assert(Scheduler != null, nameof(Scheduler) + " != null");
-        await Scheduler.Shutdown();
-    } 
 }

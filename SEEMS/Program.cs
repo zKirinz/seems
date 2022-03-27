@@ -236,25 +236,18 @@ services.Configure<ApiBehaviorOptions>(options =>
 // 	}
 // }
 
-using System.Configuration;
-
-using Quartz;
-
 using SEEMS;
-using SEEMS.Infrastructures.Extensions;
-using SEEMS.Services.Jobs;
 
 public class Program
 {
-	public static void Main(string[] args)
-	{
-		CreateHostBuilder(args).Build().Run();
-	}
+    public static void Main(string[] args)
+    {
+        CreateHostBuilder(args).Build().Run();
+    }
 
-	public static IHostBuilder CreateHostBuilder(string[] args) =>
-		Host.CreateDefaultBuilder(args)
-			.ConfigureWebHostDefaults(webBuilders =>
-			{
-				webBuilders.UseStartup<Startup>();
-			});
+    public static IHostBuilder CreateHostBuilder(string[] args)
+    {
+        return Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilders => { webBuilders.UseStartup<Startup>(); });
+    }
 }
