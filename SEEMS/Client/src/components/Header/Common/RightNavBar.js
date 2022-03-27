@@ -161,17 +161,12 @@ const RightNavBar = () => {
                                 </MenuItem>
                             )}
 
-                            {auth.role !== 'Admin' && (
-                                <MenuItem
-                                    sx={{ display: 'flex', px: 5 }}
-                                    onClick={handleOpenDialog}
-                                >
-                                    <ListItemIcon>
-                                        <AccountCircle fontSize="large" />
-                                    </ListItemIcon>
-                                    <Typography ml={1}>My Account</Typography>
-                                </MenuItem>
-                            )}
+                            <MenuItem sx={{ display: 'flex', px: 5 }} onClick={handleOpenDialog}>
+                                <ListItemIcon>
+                                    <AccountCircle fontSize="large" />
+                                </ListItemIcon>
+                                <Typography ml={1}>My Account</Typography>
+                            </MenuItem>
 
                             <MenuItem sx={{ display: 'flex', px: 5 }} onClick={handleClickLogout}>
                                 <ListItemIcon>
@@ -200,7 +195,12 @@ const RightNavBar = () => {
                 )}
             </Box>
             {openDialog && (
-                <UserProfile open={openDialog} onClose={handleCloseDialog} userEmail={auth.email} />
+                <UserProfile
+                    open={openDialog}
+                    onClose={handleCloseDialog}
+                    userEmail={auth.email}
+                    role={auth.role}
+                />
             )}
         </React.Fragment>
     )

@@ -124,6 +124,10 @@ const UpdateEvent = () => {
     const deleteEventHandler = () => {
         deleteEvent(id)
             .then(() => {
+                showSnackbar({
+                    severity: 'success',
+                    children: 'Delete event successfully',
+                })
                 history.push('/admin/events')
             })
             .catch(() => {
