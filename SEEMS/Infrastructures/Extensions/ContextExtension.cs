@@ -5,7 +5,7 @@ namespace SEEMS.Infrastructures.Extensions;
 
 public static class ContextExtension
 {
-    private static List<Action<IMutableEntityType>> Conventions = new();
+    private static readonly List<Action<IMutableEntityType>> Conventions = new();
 
     public static void AddRemovePluralizeConvention(this ModelBuilder builder)
     {
@@ -23,10 +23,8 @@ public static class ContextExtension
     public static void ApplyConventions(this ModelBuilder builder)
     {
         foreach (var entityType in builder.Model.GetEntityTypes())
-        {
-            foreach(var action in Conventions)
-                action(entityType);
-        }
+        foreach (var action in Conventions)
+            action(entityType);
 
         Conventions.Clear();
     }

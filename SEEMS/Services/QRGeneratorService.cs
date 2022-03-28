@@ -1,5 +1,5 @@
 using System.Drawing;
-using Microsoft.AspNetCore.Mvc;
+using System.Drawing.Imaging;
 using QRCoder;
 using SEEMS.Services.Interfaces;
 
@@ -15,12 +15,12 @@ public class QRGeneratorService : IQRGeneratorService
         return BitmapToBytes(qrCode.GetGraphic(20));
         //return File(BitmapToBytes(qrCodeImage), "image/jpeg");	 
     }
-    
+
     private static byte[] BitmapToBytes(Bitmap img)
     {
         using (var stream = new MemoryStream())
         {
-            img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            img.Save(stream, ImageFormat.Png);
             return stream.ToArray();
         }
     }

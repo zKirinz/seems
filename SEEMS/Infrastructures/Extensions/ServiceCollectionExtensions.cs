@@ -25,233 +25,235 @@ namespace SEEMS.Infrastructures.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    public static void ConfigureSql(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<ApplicationDbContext>(options =>
+        {
+            options.UseSqlServer(configuration.GetConnectionString("AppConnection"),
+                sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure();
+                    sqlOptions.MinBatchSize(1).MaxBatchSize(10);
+                });
+        });
+    }
 
-	public static void ConfigureSql(this IServiceCollection services, IConfiguration configuration) =>
-		services.AddDbContext<ApplicationDbContext>(options =>
-		{
-			options.UseSqlServer(configuration.GetConnectionString("AppConnection"),
-				sqlOptions =>
-				{
-					sqlOptions.EnableRetryOnFailure();
-					sqlOptions.MinBatchSize(1).MaxBatchSize(10);
-				});
-		});
+    public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var jwtSettings = configuration.GetSection("JwtSettings");
 
-	public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
-	{
-		var jwtSettings = configuration.GetSection("JwtSettings");
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = true;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("SecretKey"))),
+                    ValidateLifetime = true,
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidIssuer = jwtSettings.GetSection("ValidIssuer").Value,
+                    ValidAudience = jwtSettings.GetSection("ValidAudience").Value
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
+                            context.Response.Headers.Add("Token-Expired", "true");
+                        return Task.CompletedTask;
+                    }
+                };
+            })
+            .AddCookie()
+            .AddGoogle(options =>
+            {
+                var googleAuthNSection = configuration.GetSection("Authentication:Google");
+                options.ClientId = googleAuthNSection["ClientId"];
+                options.ClientSecret = googleAuthNSection["ClientSecret"];
+                options.Scope.Add("profile");
+                options.Events.OnCreatingTicket = context =>
+                {
+                    var picture = context.User.GetProperty("picture").GetString();
+                    context.Identity.AddClaim(new Claim("picture", picture));
 
-		services.AddAuthentication(options =>
-		{
-			options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-			options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-			options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-		})
-			.AddJwtBearer(options =>
-			{
-				options.RequireHttpsMetadata = true;
-				options.SaveToken = true;
-				options.TokenValidationParameters = new TokenValidationParameters
-				{
-					ValidateIssuerSigningKey = true,
-					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("SecretKey"))),
-					ValidateLifetime = true,
-					ValidateAudience = true,
-					ValidateIssuer = true,
-					ClockSkew = TimeSpan.Zero,
-					ValidIssuer = jwtSettings.GetSection("ValidIssuer").Value,
-					ValidAudience = jwtSettings.GetSection("ValidAudience").Value
-				};
-				options.Events = new JwtBearerEvents
-				{
+                    return Task.CompletedTask;
+                };
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.SaveTokens = true;
+                options.ReturnUrlParameter = "~/";
+            });
 
-					OnAuthenticationFailed = context =>
-					{
-						if(context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-						{
-							context.Response.Headers.Add("Token-Expired", "true");
-						}
-						return Task.CompletedTask;
-					}
-				};
-			})
-			.AddCookie()
-			.AddGoogle(options =>
-			{
-				var googleAuthNSection = configuration.GetSection("Authentication:Google");
-				options.ClientId = googleAuthNSection["ClientId"];
-				options.ClientSecret = googleAuthNSection["ClientSecret"];
-				options.Scope.Add("profile");
-				options.Events.OnCreatingTicket = (context) =>
-				{
-					var picture = context.User.GetProperty("picture").GetString();
-					context.Identity.AddClaim(new Claim("picture", picture));
+        services.Configure<CookiePolicyOptions>(options =>
+        {
+            options.CheckConsentNeeded = context => true;
+            options.MinimumSameSitePolicy = SameSiteMode.Strict;
+        });
+    }
 
-					return Task.CompletedTask;
-				};
-				options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-				options.SaveTokens = true;
-				options.ReturnUrlParameter = "~/";
-			});
+    public static void ConfigureScope(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IAuthManager, AuthManager>();
+        services.AddScoped<IRepositoryManager, RepositoryManager>();
+        services.AddScoped<IControllerBaseServices<User>, ControllerBaseServices<User>>();
+        services.AddScoped<RoleBasedAuthorizationAttribute>();
+        services.AddScoped<CheckUserStatus>();
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IQRGeneratorService, QRGeneratorService>();
+        services.AddScoped<AuthManager>();
+        services.AddSingleton<IJobFactory, JobFactory>();
+        services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+        services.AddScoped<SendEmailJob>();
+        services.AddScoped<InactivateEventJob>();
+        services.AddScoped<InactivateUserJob>();
 
-		services.Configure<CookiePolicyOptions>(options =>
-		{
-			options.CheckConsentNeeded = context => true;
-			options.MinimumSameSitePolicy = SameSiteMode.Strict;
-		});
-	}
+        #region Quartz
 
-	public static void ConfigureScope(this IServiceCollection services, IConfiguration configuration)
-	{
-		services.AddScoped<IAuthManager, AuthManager>();
-		services.AddScoped<IRepositoryManager, RepositoryManager>();
-		services.AddScoped<IControllerBaseServices<User>, ControllerBaseServices<User>>();
-		services.AddScoped<RoleBasedAuthorizationAttribute>();
-		services.AddScoped<CheckUserStatus>();
-		services.AddScoped<IEmailService, EmailService>();
-		services.AddScoped<IQRGeneratorService, QRGeneratorService>();
-		services.AddScoped<AuthManager>();
-		services.AddSingleton<IJobFactory, JobFactory>();
-		services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
-		services.AddScoped<SendEmailJob>();
-		services.AddScoped<InactivateEventJob>();
-		services.AddScoped<InactivateUserJob>();
+        var metas = new List<JobMeta>();
+        metas.Add(GetJobMeta(typeof(SendEmailJob), configuration));
+        metas.Add(GetJobMeta(typeof(UpdateEventActiveness), configuration));
+        metas.Add(GetJobMeta(typeof(InactivateEventJob), configuration));
+        metas.Add(GetJobMeta(typeof(InactivateUserJob), configuration));
+        services.AddSingleton(metas);
+        services.AddHostedService<JobSchedular>();
 
-		#region Quartz
-		var metas = new List<JobMeta>();
-		metas.Add(GetJobMeta(typeof(SendEmailJob), configuration));
-		metas.Add(GetJobMeta(typeof(UpdateEventActiveness), configuration));
-		metas.Add(GetJobMeta(typeof(InactivateEventJob), configuration));
-		metas.Add(GetJobMeta(typeof(InactivateUserJob), configuration));
-		services.AddSingleton(metas);
-		services.AddHostedService<JobSchedular>();
-		#endregion
-	}
+        #endregion
+    }
 
-	public static void ConfigureSwagger(this IServiceCollection services)
-	{
-		services.AddEndpointsApiExplorer();
-		services.AddSwaggerGen(s =>
-		{
-			s.SwaggerDoc("v1", new OpenApiInfo { Title = "Seem API", Version = "v1" });
+    public static void ConfigureSwagger(this IServiceCollection services)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(s =>
+        {
+            s.SwaggerDoc("v1", new OpenApiInfo {Title = "Seem API", Version = "v1"});
 
-			s.AddSecurityDefinition("token", new OpenApiSecurityScheme
-			{
-				Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+            s.AddSecurityDefinition("token", new OpenApiSecurityScheme
+            {
+                Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
                       Enter 'Bearer' [space] and then your token in the text input below.
                       \r\n\r\nExample: 'Bearer 12345abcdef'",
-				Type = SecuritySchemeType.ApiKey,
-				In = ParameterLocation.Header,
-				Name = HeaderNames.Authorization,
-				Scheme = "Bearer"
-			});
-			s.OperationFilter<SecureEndpointAuthRequirementFilter>();
-		});
-	}
+                Type = SecuritySchemeType.ApiKey,
+                In = ParameterLocation.Header,
+                Name = HeaderNames.Authorization,
+                Scheme = "Bearer"
+            });
+            s.OperationFilter<SecureEndpointAuthRequirementFilter>();
+        });
+    }
 
-	public static void ConfigureAutoMapper(this IServiceCollection services) =>
-		services.AddAutoMapper(typeof(MappingProfile));
+    public static void ConfigureAutoMapper(this IServiceCollection services)
+    {
+        services.AddAutoMapper(typeof(MappingProfile));
+    }
 
-	public static void ConfigureFilter(this IServiceCollection services) =>
-		services.AddMvc(opt => opt.Filters.Add(typeof(ValidateModelAttribute)));
+    public static void ConfigureFilter(this IServiceCollection services)
+    {
+        services.AddMvc(opt => opt.Filters.Add(typeof(ValidateModelAttribute)));
+    }
 
-	public static void ConfigureApiBehaviour(this IServiceCollection services) =>
-		services.Configure<ApiBehaviorOptions>(options =>
-		{
-			options.SuppressModelStateInvalidFilter = true;
-		});
+    public static void ConfigureApiBehaviour(this IServiceCollection services)
+    {
+        services.Configure<ApiBehaviorOptions>(options => { options.SuppressModelStateInvalidFilter = true; });
+    }
 
-	public static void ConfigureJson(this IServiceCollection services) =>
-		services.AddControllersWithViews().AddJsonOptions(options =>
-		{
-			// True to indent the JSON output
-			options.JsonSerializerOptions.WriteIndented = true;
-		});
+    public static void ConfigureJson(this IServiceCollection services)
+    {
+        services.AddControllersWithViews().AddJsonOptions(options =>
+        {
+            // True to indent the JSON output
+            options.JsonSerializerOptions.WriteIndented = true;
+        });
+    }
 
-	public static void ConfigureQuartzJob(this IServiceCollection services, IConfiguration configuration)
-	{
-		services.AddQuartz(q =>
-		{
-			//    q.UseMicrosoftDependencyInjectionScopedJobFactory();
+    public static void ConfigureQuartzJob(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddQuartz(q =>
+        {
+            //    q.UseMicrosoftDependencyInjectionScopedJobFactory();
 
-			//    // Register the job, loading the schedule from configuration
-			//    q.AddJobAndTrigger<SendEmailQualityControlJob>(hostContext.Configuration);
-			//});
+            //    // Register the job, loading the schedule from configuration
+            //    q.AddJobAndTrigger<SendEmailQualityControlJob>(hostContext.Configuration);
+            //});
 
-			//services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+            //services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
-			q.UseMicrosoftDependencyInjectionJobFactory();
+            q.UseMicrosoftDependencyInjectionJobFactory();
 
-			// var jobType = typeof(UpdateEventActiveness);
-			// var configKey = $"Quartz:{jobType.Name}";
-			// var cronSchedule = configuration[configKey];
-			//
-			// var jobKey = new JobKey(jobType.Name);
+            // var jobType = typeof(UpdateEventActiveness);
+            // var configKey = $"Quartz:{jobType.Name}";
+            // var cronSchedule = configuration[configKey];
+            //
+            // var jobKey = new JobKey(jobType.Name);
 
-			var firstJob = GetJobMeta(typeof(UpdateEventActiveness), configuration);
-			var firstKey = new JobKey(firstJob.JobName);
+            var firstJob = GetJobMeta(typeof(UpdateEventActiveness), configuration);
+            var firstKey = new JobKey(firstJob.JobName);
 
-			q.AddJob<UpdateEventActiveness>(opts => opts.WithIdentity(firstKey));
+            q.AddJob<UpdateEventActiveness>(opts => opts.WithIdentity(firstKey));
 
-			// Create a trigger for the job
-			q.AddTrigger(opts => opts
-				.ForJob(firstKey)
-				.WithIdentity($"{firstJob.JobName}-trigger")
-				.WithCronSchedule(firstJob.CronExpression));
+            // Create a trigger for the job
+            q.AddTrigger(opts => opts
+                .ForJob(firstKey)
+                .WithIdentity($"{firstJob.JobName}-trigger")
+                .WithCronSchedule(firstJob.CronExpression));
 
-			// var emailJob = typeof(SendEmailJob);
-			// var configKeyEmail = $"Quartz:{emailJob.Name}";
-			// var cron = configuration[configKeyEmail];
+            // var emailJob = typeof(SendEmailJob);
+            // var configKeyEmail = $"Quartz:{emailJob.Name}";
+            // var cron = configuration[configKeyEmail];
+        });
+        services.AddQuartz(q =>
+        {
+            q.UseMicrosoftDependencyInjectionJobFactory();
+            var secondJob = GetJobMeta(typeof(SendEmailJob), configuration);
+            var secondKey = new JobKey(secondJob.JobName);
 
+            q.AddJob<SendEmailJob>(opts => opts.WithIdentity(secondKey));
 
-		});
-		services.AddQuartz(q =>
-		{
-			q.UseMicrosoftDependencyInjectionJobFactory();
-			var secondJob = GetJobMeta(typeof(SendEmailJob), configuration);
-			var secondKey = new JobKey(secondJob.JobName);
+            q.AddTrigger(opts => opts
+                .ForJob(secondKey)
+                .WithIdentity($"{secondJob.JobName}-trigger")
+                .WithCronSchedule(secondJob.CronExpression));
+        });
+        services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+    }
 
-			q.AddJob<SendEmailJob>(opts => opts.WithIdentity(secondKey));
+    private static JobMeta GetJobMeta(Type jobType, IConfiguration configuration)
+    {
+        var configKey = $"Quartz:{jobType.Name}";
+        var cronSchedule = configuration[configKey];
 
-			q.AddTrigger(opts => opts
-				.ForJob(secondKey)
-				.WithIdentity($"{secondJob.JobName}-trigger")
-				.WithCronSchedule(secondJob.CronExpression));
-		});
-		services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-	}
-
-	private static JobMeta GetJobMeta(Type jobType, IConfiguration configuration)
-	{
-		var configKey = $"Quartz:{jobType.Name}";
-		var cronSchedule = configuration[configKey];
-
-		return new JobMeta(Guid.NewGuid(), jobType, jobType.Name, cronSchedule);
-	}
+        return new JobMeta(Guid.NewGuid(), jobType, jobType.Name, cronSchedule);
+    }
 }
 
 internal class SecureEndpointAuthRequirementFilter : IOperationFilter
 {
-	public void Apply(OpenApiOperation operation, OperationFilterContext context)
-	{
-		if(!context.ApiDescription
-				.ActionDescriptor
-				.EndpointMetadata
-				.OfType<RoleBasedAuthorizationAttribute>()
-				.Any())
-		{
-			return;
-		}
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        if (!context.ApiDescription
+                .ActionDescriptor
+                .EndpointMetadata
+                .OfType<RoleBasedAuthorizationAttribute>()
+                .Any())
+            return;
 
-		operation.Security = new List<OpenApiSecurityRequirement>
-		{
-			new()
-			{
-				[new OpenApiSecurityScheme
-				{
-					Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "token" }
-				}] = new List<string>()
-			}
-		};
-	}
+        operation.Security = new List<OpenApiSecurityRequirement>
+        {
+            new()
+            {
+                [new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference {Type = ReferenceType.SecurityScheme, Id = "token"}
+                }] = new List<string>()
+            }
+        };
+    }
 }

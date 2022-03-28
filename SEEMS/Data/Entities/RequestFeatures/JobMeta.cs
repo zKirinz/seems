@@ -2,11 +2,6 @@ namespace SEEMS.Data.Entities.RequestFeatures;
 
 public class JobMeta
 {
-    public Guid JobId { get; set; }
-    public Type JobType { get; }
-    public string JobName { get; }
-    public string CronExpression { get; }
-    
     public JobMeta(Guid id, Type jobType, string jobName,
         string cronExpression)
     {
@@ -14,5 +9,10 @@ public class JobMeta
         JobType = jobType;
         JobName = jobName;
         CronExpression = cronExpression;
-    } 
+    }
+
+    public Guid JobId { get; set; }
+    public Type JobType { get; }
+    public string JobName { get; }
+    public string CronExpression { get; }
 }

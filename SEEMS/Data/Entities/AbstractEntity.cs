@@ -1,19 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace SEEMS.Data.Entities
+namespace SEEMS.Data.Entities;
+
+public class AbstractEntity<TKey> : BaseCreationTimestamp where TKey : IEquatable<TKey>
 {
-    public class AbstractEntity<TKey> : BaseCreationTimestamp where TKey : IEquatable<TKey>
+    protected AbstractEntity()
     {
-        protected AbstractEntity() { }
-
-        [Key]
-        [Required]
-        public virtual TKey Id { get; set; }
-
     }
+
+    [Key] [Required] public virtual TKey Id { get; set; }
 }

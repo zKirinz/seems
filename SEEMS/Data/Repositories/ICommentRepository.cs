@@ -1,7 +1,12 @@
-﻿namespace SEEMS.Data.Repositories
+﻿using SEEMS.Models;
+
+namespace SEEMS.Data.Repositories;
+
+public interface ICommentRepository
 {
-	public interface ICommentRepository
-	{
-		public int CountCommentsOfEvent( int eventId );
-	}
+    public int CountCommentsOfEvent(int eventId);
+
+    public Task<IEnumerable<Comment>> GetCommentsByEventId(int eventId, bool trackChanges);
+
+    void BulkDeleteComments(IEnumerable<Comment> locationIds);
 }

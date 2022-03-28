@@ -1,129 +1,120 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.IdentityModel.Tokens;
-using SEEMS.Data.Models;
-using SEEMS.Services.Interfaces;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using Microsoft.OpenApi.Extensions;
-using SEEMS.Data.Entities;
-using SEEMS.Infrastructures.Commons;
+using SEEMS.Data.Models;
 using SEEMS.Models;
+using SEEMS.Services.Interfaces;
 
-namespace SEEMS.Services
+namespace SEEMS.Services;
+
+public class AuthManager : IAuthManager
 {
-    public class AuthManager : IAuthManager
+    private readonly IConfiguration _configuration;
+    private readonly IRepositoryManager _repoManager;
+
+    public readonly DateTime EXPIRED_AT = DateTime.UtcNow.AddMinutes(20);
+
+    public AuthManager(IConfiguration config, IRepositoryManager repoManager)
     {
+        _configuration = config;
+        _repoManager = repoManager;
+    }
 
-        private readonly IConfiguration _configuration;
-        private readonly IRepositoryManager _repoManager;
 
-        public readonly DateTime EXPIRED_AT = DateTime.UtcNow.AddMinutes(20);
+    public async Task<string> GenerateToken(User user, UserMeta roleMeta)
+    {
+        var signinCredentials = GetSigninCredentials();
+        var claims = await GetClaims(user, roleMeta);
+        var tokenOptions = GenerateTokenOptions(signinCredentials, claims);
 
-        public AuthManager(IConfiguration config, IRepositoryManager repoManager)
+        return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+    }
+
+    public JwtSecurityToken DecodeToken(string token)
+    {
+        var parsedToken = token.Replace("Bearer ", string.Empty);
+        var handler = new JwtSecurityTokenHandler();
+        return handler.ReadJwtToken(parsedToken);
+    }
+
+    public User? GetUserInfo(AuthenticateResult info)
+    {
+        var email = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
+        User user;
+        if (email != null && !email.Value.EndsWith("fpt.edu.vn")) return null;
+
         {
-            _configuration = config;
-            _repoManager = repoManager;
-        }
+            var name = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
+            var image = info.Principal.Claims.FirstOrDefault(x => x.Type == "picture");
 
-
-        public async Task<string> GenerateToken(User user, UserMeta roleMeta)
-        {
-            var signinCredentials = GetSigninCredentials();
-            var claims = await GetClaims(user, roleMeta);
-            var tokenOptions = GenerateTokenOptions(signinCredentials, claims);
-
-            return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-
-        }
-
-        public JwtSecurityToken DecodeToken(string token)
-        {
-            string parsedToken = token.Replace("Bearer ", string.Empty);
-            var handler = new JwtSecurityTokenHandler();
-            return handler.ReadJwtToken(parsedToken);
-        }
-
-        private SigningCredentials GetSigninCredentials()
-        {
-            var key = Encoding.UTF8.GetBytes(_configuration.GetValue<string>("SecretKey"));
-            var secret = new SymmetricSecurityKey(key);
-
-            return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
-        }
-
-        private Task<List<Claim>> GetClaims(User user, UserMeta roleMeta)
-        {
-            var claims = new List<Claim>
+            user = new User
             {
-               new Claim("email", user.Email),
-               new Claim("name", user.UserName),
-               new Claim("organization", user.OrganizationName.ToString()),
-               new Claim("role", roleMeta.MetaValue),
-               new Claim("image", user.ImageUrl)
+                Email = email.Value,
+                UserName = name.Value,
+                ImageUrl = image.Value
             };
 
-            return Task.FromResult(claims);
+            return user;
         }
+    }
 
-        private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
+    public string? GetCurrentEmail(HttpRequest request)
+    {
+        string currentUser = null;
+        try
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-
-            var tokenOptions = new JwtSecurityToken
-                (
-                    jwtSettings.GetSection("ValidIssuer").Value,
-                    jwtSettings.GetSection("ValidAudience").Value,
-                    claims,
-                    expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings.GetSection("expires").Value)),
-                    signingCredentials: signingCredentials
-                );
-
-            return tokenOptions;
+            if (request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
+            {
+                var token = headers.First();
+                currentUser = DecodeToken(token).Claims.FirstOrDefault(e => e.Type == "email").Value;
+            }
         }
-
-        public User? GetUserInfo(AuthenticateResult info)
+        catch
         {
-            var email = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email);
-            User user; 
-            if (email != null && !email.Value.EndsWith("fpt.edu.vn")) {
-                return null;
-            }
-
-            {
-                var name = info.Principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name);
-                var image = info.Principal.Claims.FirstOrDefault(x => x.Type == "picture");
-            
-                user = new User()
-                {
-                    Email = email.Value,
-                    UserName = name.Value,
-                    ImageUrl = image.Value
-                };
-            
-                return user;
-            }
-
+            return null;
         }
 
-        public string? GetCurrentEmail(HttpRequest request)
+        return currentUser;
+    }
+
+    private SigningCredentials GetSigninCredentials()
+    {
+        var key = Encoding.UTF8.GetBytes(_configuration.GetValue<string>("SecretKey"));
+        var secret = new SymmetricSecurityKey(key);
+
+        return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
+    }
+
+    private Task<List<Claim>> GetClaims(User user, UserMeta roleMeta)
+    {
+        var claims = new List<Claim>
         {
-            string currentUser = null;
-            try
-            {
-                if (request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
-                {
-                    string token = headers.First();
-                    currentUser = DecodeToken(token).Claims.FirstOrDefault(e => e.Type == "email").Value;
-                }
-            }
-            catch
-            {
-                return null;
-            }
+            new("email", user.Email),
+            new("name", user.UserName),
+            new("organization", user.OrganizationName.ToString()),
+            new("role", roleMeta.MetaValue),
+            new("image", user.ImageUrl)
+        };
 
-            return currentUser;
-        }
+        return Task.FromResult(claims);
+    }
+
+    private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
+    {
+        var jwtSettings = _configuration.GetSection("JwtSettings");
+
+        var tokenOptions = new JwtSecurityToken
+        (
+            jwtSettings.GetSection("ValidIssuer").Value,
+            jwtSettings.GetSection("ValidAudience").Value,
+            claims,
+            expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings.GetSection("expires").Value)),
+            signingCredentials: signingCredentials
+        );
+
+        return tokenOptions;
     }
 }

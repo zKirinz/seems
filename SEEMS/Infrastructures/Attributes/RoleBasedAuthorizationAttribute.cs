@@ -13,11 +13,11 @@ public class RoleBasedAuthorizationAttribute : Attribute, IAuthorizationFilter
     private IRepositoryManager? _repoManager;
 
     public string? RoleBased { get; set; }
-    
+
     public void OnAuthorization(AuthorizationFilterContext context)
     {
         _authManager = context.HttpContext.RequestServices.GetService<IAuthManager>();
-        _repoManager = context.HttpContext.RequestServices.GetService<IRepositoryManager>(); 
+        _repoManager = context.HttpContext.RequestServices.GetService<IRepositoryManager>();
 
         if (context.HttpContext.Request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
         {
@@ -26,10 +26,7 @@ public class RoleBasedAuthorizationAttribute : Attribute, IAuthorizationFilter
 
             var role = _repoManager?.UserMeta.GetRolesAsync(currentEmail, false).Result.MetaValue;
 
-            if (!IsValidTokenByEmail(currentEmail, role))
-            {
-                DisplayResponse(context, 401, "Your token is invalid");
-            }
+            if (!IsValidTokenByEmail(currentEmail, role)) DisplayResponse(context, 401, "Your token is invalid");
 
             if (!ValidRoles(RoleBased, role))
             {
@@ -38,7 +35,6 @@ public class RoleBasedAuthorizationAttribute : Attribute, IAuthorizationFilter
             else
             {
                 context.HttpContext.Response.Headers.Add(HeaderNames.Authorization, $"{token}");
-                return;
             }
         }
         else
@@ -47,10 +43,15 @@ public class RoleBasedAuthorizationAttribute : Attribute, IAuthorizationFilter
         }
     }
 
-    private bool ValidRoles(string complexRole, string valueToCompare) =>
-        complexRole.Split(',').Contains(valueToCompare);
+    private bool ValidRoles(string complexRole, string valueToCompare)
+    {
+        return complexRole.Split(',').Contains(valueToCompare);
+    }
 
-    private async Task<User> GetUserFromEmailAsync(string email) => await _repoManager.User.GetActiveUserAsync(email, false);
+    private async Task<User> GetUserFromEmailAsync(string email)
+    {
+        return await _repoManager.User.GetActiveUserAsync(email, false);
+    }
 
     private bool IsValidTokenByEmail(string email, string role)
     {

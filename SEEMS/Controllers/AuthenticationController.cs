@@ -2,13 +2,9 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
-using Microsoft.OpenApi.Extensions;
-using SEEMS.Data.Entities;
 using SEEMS.Data.Models;
 using SEEMS.Infrastructures.Commons;
-using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
 
@@ -22,9 +18,9 @@ namespace SEEMS.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private readonly IAuthManager _authService;
-    private readonly IRepositoryManager _repoService;
-    private readonly IMapper _mapper;
     private readonly IControllerBaseServices<User> _baseServices;
+    private readonly IMapper _mapper;
+    private readonly IRepositoryManager _repoService;
 
     public AuthenticationController(IAuthManager authService, IRepositoryManager repoService, IMapper mapper,
         IControllerBaseServices<User> baseServices)
@@ -34,7 +30,7 @@ public class AuthenticationController : ControllerBase
         _mapper = mapper;
         _baseServices = baseServices;
     }
-        
+
     [HttpGet("")]
     public IActionResult ExternalLogin()
     {
@@ -52,29 +48,23 @@ public class AuthenticationController : ControllerBase
 
         var currentUser = _authService.GetUserInfo(info);
 
-        if (currentUser == null)
-        {
-            return Redirect($"{MapLoginUiDomain()}?error=fpt-invalid-email");
-        }
+        if (currentUser == null) return Redirect($"{MapLoginUiDomain()}?error=fpt-invalid-email");
         if (await _repoService.User.GetUserAsync(currentUser.Email, false) == null)
         {
-            CreateNewUser(currentUser); 
+            CreateNewUser(currentUser);
             _repoService.UserMeta.RegisterRole(currentUser, RoleTypes.User);
-            await _repoService.SaveAsync(); 
+            await _repoService.SaveAsync();
         }
         else
         {
             var user = await _repoService.User.GetUserAsync(currentUser.Email, true);
-            if (!user.Active)
-            {
-                return Redirect($"{MapLoginUiDomain()}?error=inactive-user");
-            }
+            if (!user.Active) return Redirect($"{MapLoginUiDomain()}?error=inactive-user");
 
             currentUser.OrganizationName = user.OrganizationName;
             _mapper.Map(currentUser, user);
             await _repoService.SaveAsync();
-        } 
-            
+        }
+
         var currentRole = await _repoService.UserMeta.GetRolesAsync(currentUser.Email, false);
         var accessToken = await _authService.GenerateToken(currentUser, currentRole);
 
@@ -82,33 +72,31 @@ public class AuthenticationController : ControllerBase
         {
             HttpOnly = true
         });
-        
-        return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
+        return Ok(accessToken);
+        // return Redirect($"{MapLoginUiDomain()}?token={accessToken}");
     }
-        
+
     [HttpPost]
     [Route("auth")]
     public async Task<IActionResult> IsAuthenticated()
     {
-        ResponseStatusEnum status = ResponseStatusEnum.Fail;
+        var status = ResponseStatusEnum.Fail;
         try
         {
             if (Request.Headers.TryGetValue(HeaderNames.Authorization, out var headers))
             {
-                string token = headers.First();
+                var token = headers.First();
                 var jwtToken = _authService.DecodeToken(token);
 
                 var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email").Value;
                 var roleClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "role").Value;
 
                 var roleBasedEmail = await _repoService.UserMeta.GetRolesAsync(emailClaim, false);
-                        
+
                 if (await _repoService.User.GetUserAsync(emailClaim, false) != null)
                 {
                     if (!roleBasedEmail.MetaValue.Equals(roleClaim))
-                    {
                         return Unauthorized(new Response(status, "", "You don't have permission for this request"));
-                    }
                     status = ResponseStatusEnum.Success;
                 }
                 else
@@ -121,7 +109,7 @@ public class AuthenticationController : ControllerBase
         {
             return BadRequest(new Response(status, "", e.Message));
         }
-            
+
         return Ok(new Response(status, ""));
     }
 
@@ -137,5 +125,3 @@ public class AuthenticationController : ControllerBase
         _repoService.User.CreateUser(currentUser);
     }
 }
-
-
