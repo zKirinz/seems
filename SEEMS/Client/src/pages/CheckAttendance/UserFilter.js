@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { Search as SearchIcon, Sync as SyncIcon } from '@mui/icons-material'
 import {
     Box,
@@ -9,18 +11,27 @@ import {
     Button,
 } from '@mui/material'
 
-const UserFilter = ({ emailFilter, setEmailFilter, setSyncDataCounter }) => {
+const UserFilter = ({ setEmailFilter, setSyncDataCounter }) => {
+    const [email, setEmail] = useState('')
+
+    const onEnterSearch = (e) => {
+        if (e.keyCode == 13) {
+            setEmailFilter(email)
+        }
+    }
+
     return (
         <Box display="flex" justifyContent="flex-end">
             <FormControl variant="standard" sx={{ width: '200px', mx: 2 }}>
                 <InputLabel>Email</InputLabel>
                 <Input
                     type="text"
-                    value={emailFilter}
-                    onChange={(e) => setEmailFilter(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={onEnterSearch}
                     endAdornment={
                         <InputAdornment position="end">
-                            <IconButton>
+                            <IconButton onClick={() => setEmailFilter(email)}>
                                 <SearchIcon />
                             </IconButton>
                         </InputAdornment>

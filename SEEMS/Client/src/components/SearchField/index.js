@@ -23,7 +23,7 @@ const SearchField = ({ submitHandler, defaultText = '', label = 'Search for even
                 onKeyDown={onEnterSearch}
                 endAdornment={
                     <InputAdornment position="end">
-                        <IconButton onClick={submitHandler} edge="end">
+                        <IconButton onClick={() => submitHandler(searchText)} edge="end">
                             <SearchIcon />
                         </IconButton>
                     </InputAdornment>

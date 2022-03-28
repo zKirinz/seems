@@ -151,7 +151,6 @@ const CheckAttendance = () => {
                         </Button>
                     </Box>
                     <UserFilter
-                        emailFilter={emailFilter}
                         setEmailFilter={setEmailFilter}
                         setSyncDataCounter={() => setSyncDataCounter(syncDataCounter + 1)}
                     />
