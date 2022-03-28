@@ -125,15 +125,17 @@ const UserTableRow = ({
                 )}
             </TableCell>
             <TableCell align="center">
-                <Button
-                    variant="outlined"
-                    color="info"
-                    startIcon={<PersonIcon />}
-                    onClick={() => setOpenDialog(true)}
-                    sx={{ mr: 2 }}
-                >
-                    Detail
-                </Button>
+                {role !== 'Admin' && (
+                    <Button
+                        variant="outlined"
+                        color="info"
+                        startIcon={<PersonIcon />}
+                        onClick={() => setOpenDialog(true)}
+                        sx={{ mr: 2 }}
+                    >
+                        Detail
+                    </Button>
+                )}
                 {role !== 'Admin' && (
                     <React.Fragment>
                         {isEdit ? (
@@ -160,11 +162,12 @@ const UserTableRow = ({
                     </React.Fragment>
                 )}
             </TableCell>
-            {role === 'User' && openDialog && (
+            {role !== 'Admin' && openDialog && (
                 <UserProfile
                     open={openDialog}
                     onClose={() => setOpenDialog(false)}
                     userEmail={email}
+                    role={role}
                 />
             )}
         </TableRow>
