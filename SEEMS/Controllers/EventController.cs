@@ -597,6 +597,5 @@ public class EventController : ControllerBase
             _repository.Comment.DeleteComment(comment);
             _repository.SaveAsync();
         }
-        //_repository.Comment.BulkDeleteComments(listComments); 
     }
 }
