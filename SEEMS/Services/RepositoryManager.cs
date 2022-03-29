@@ -15,6 +15,7 @@ public class RepositoryManager : IRepositoryManager
     private IReservationRepository _reservationRepository;
     private IUserMetaRepository _userMetaRepository;
     private IUserRepository _userRepository;
+    private ILikeCommentRepository _likeCommentRepository;
 
     public RepositoryManager(ApplicationDbContext context)
     {
@@ -74,6 +75,15 @@ public class RepositoryManager : IRepositoryManager
         {
             if (_feedBackRepository == null) _feedBackRepository = new FeedbackRepository(_context);
             return _feedBackRepository;
+        }
+    }
+
+    public ILikeCommentRepository LikeComment
+    {
+        get
+        {
+            if (_likeCommentRepository == null) _likeCommentRepository = new LikeCommentRepository(_context);
+            return _likeCommentRepository;
         }
     }
 

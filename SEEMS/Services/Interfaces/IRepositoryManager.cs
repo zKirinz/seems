@@ -1,4 +1,5 @@
 ﻿using SEEMS.Data.Repositories;
+using SEEMS.Data.Repositories.Implements;
 
 namespace SEEMS.Services.Interfaces;
 
@@ -14,6 +15,8 @@ public interface IRepositoryManager
     IReservationRepository Reservation { get; }
 
     IFeedBackRepository FeedBack { get; }
+    
+    ILikeCommentRepository LikeComment { get; }
 
     Task SaveAsync();
 }

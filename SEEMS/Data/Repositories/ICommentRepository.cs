@@ -8,5 +8,5 @@ public interface ICommentRepository
 
     public Task<IEnumerable<Comment>> GetCommentsByEventId(int eventId, bool trackChanges);
 
-    void BulkDeleteComments(IEnumerable<Comment> locationIds);
+    void DeleteComment(Comment comment);
 }
