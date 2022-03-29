@@ -56,9 +56,9 @@ public class EventController : ControllerBase
             var registered = _context.Reservations.Where(r => r.UserId == user.Id && r.EventId == id).Any();
             var registeredNum = _repository.Reservation.GetRegisteredNum(foundEvent.Id);
             dtoEvent.CanRegister = _repository.Event.CanRegister(id);
-            dtoEvent.StartDate = dtoEvent.StartDate.AddHours(7);
-            dtoEvent.EndDate = dtoEvent.EndDate.AddHours(7);
-            dtoEvent.RegistrationDeadline = dtoEvent.RegistrationDeadline.Value.AddHours(7);
+            dtoEvent.StartDate = dtoEvent.StartDate.ToLocalTime();
+            dtoEvent.EndDate = dtoEvent.EndDate.ToLocalTime();
+            dtoEvent.RegistrationDeadline = dtoEvent.RegistrationDeadline.Value.ToLocalTime();
             return Ok(
                 new Response(
                     ResponseStatusEnum.Success,
@@ -372,7 +372,7 @@ public class EventController : ControllerBase
                     new Response(ResponseStatusEnum.Fail,
                         false,
                         "ID not found"));
-            DeleteRelationalChildResources(@event);
+            await DeleteRelationalChildResources(@event);
             _repository.Event.DeleteEvent(@event);
             await _repository.SaveAsync();
             SendEmailInformChangedEvent(@event, TrackingState.Delete);
@@ -467,7 +467,7 @@ public class EventController : ControllerBase
         var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
         if (myEvent != null)
         {
-            var canTakeAttendance = _repository.Event.CanTakeAttendance(id);
+            var canTakeAttendance = _repository.Event.IsAbleToTakeAttendance(DateTime.Now, myEvent);
             return Ok(
                 new Response(
                     ResponseStatusEnum.Success,
@@ -487,6 +487,33 @@ public class EventController : ControllerBase
         );
     }
 
+    [HttpGet("is-updatable/{eventId}")]
+    [CheckUserStatus]
+    public async Task<ActionResult> IsUpdatable(int eventId)
+    {
+        var user = await GetCurrentUser(Request);
+        var myEvent = _context.Events.FirstOrDefault(e => e.Id == eventId);
+        if(myEvent != null)
+        {
+            return Ok(
+                new Response(
+                    ResponseStatusEnum.Success,
+                    new
+                    {
+                        IsUpdatable = DateTime.Now.AddHours(2) < myEvent.StartDate.ToLocalTime()
+                    }
+                )
+            );
+        }
+
+        return BadRequest(
+            new Response(
+                ResponseStatusEnum.Fail,
+                msg: "Event does not existed!"
+            )
+        );
+    } 
+    
     private DateTime? GetValidDeadline(EventDTO eventDTO)
     {
         return eventDTO.RegistrationDeadline == null
@@ -542,18 +569,18 @@ public class EventController : ControllerBase
 
     private async Task DeleteRelationalChildResources(Event @event)
     {
-        var listReservations = await _repository.Reservation.GetReservationsByEventId(@event.Id, false);
-        DeleteRelatedReservations(listReservations); 
-
         var listComments = await _repository.Comment.GetCommentsByEventId(@event.Id, false);
         DeleteRelatedComments(listComments);
+
+        var listReservations = await _repository.Reservation.GetReservationsByEventId(@event.Id, false);
+        DeleteRelatedReservations(listReservations); 
     }
 
-    private async Task DeleteRelatedReservations(IEnumerable<Reservation> listReservations)
+    private void DeleteRelatedReservations(IEnumerable<Reservation> listReservations)
     {
         foreach (var res in listReservations)
         {
-            var locationIds = await _repository.FeedBack.GetFeedbacksByReservationId(res.Id, false);
+            var locationIds = _repository.FeedBack.GetFeedbacksByReservationId(res.Id, false).Result;
 
             _repository.FeedBack.BulkDeleteFeedbacks(locationIds);
         }
@@ -561,8 +588,14 @@ public class EventController : ControllerBase
         _repository.Reservation.BulkDeleteReservations(listReservations);
     }
 
-    private async Task DeleteRelatedComments(IEnumerable<Comment> listComments)
+    private void DeleteRelatedComments(IEnumerable<Comment> listComments)
     {
-        _repository.Comment.BulkDeleteComments(listComments); 
+        foreach (var comment in listComments)
+        {
+            var locationIds = _repository.LikeComment.GetLikeCommentByCommentIdAsync(comment.Id, false).Result;
+            _repository.LikeComment.BulkDeleteLikeComments(locationIds);
+            _repository.Comment.DeleteComment(comment);
+            _repository.SaveAsync();
+        }
     }
 }

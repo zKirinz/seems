@@ -64,10 +64,13 @@ public class EventRepository : RepositoryBase<Event>, IEventRepository
     {
         var myEvent = _context.Events.SingleOrDefault(e => e.Id == id);
         var now = DateTime.Now;
-        return now.CompareTo(myEvent.StartDate.Subtract(TimeSpan.FromHours(1))) > 0 &&
-               now.CompareTo(myEvent.EndDate) < 0;
+        return now >= myEvent.StartDate.ToLocalTime();
     }
 
+    public bool IsAbleToTakeAttendance(DateTime from, Event @event) {
+        return from.AddHours(1) >= @event.StartDate.ToLocalTime() && from <= @event.EndDate.ToLocalTime();
+    }
+    
     public string? GetMyEventStatus(int eventId)
     {
         var myEvent = _context.Events.FirstOrDefault(e => e.Id == eventId);

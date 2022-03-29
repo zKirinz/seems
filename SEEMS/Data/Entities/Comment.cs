@@ -14,7 +14,7 @@ public class Comment : AbstractEntity<int>
 
     public int? CommentRating { get; set; }
 
-    [ForeignKey("Comment")] public int? ParentCommentId { get; set; }
+    public int? ParentCommentId { get; set; }
 
     [ForeignKey("Event")] public int EventId { get; set; }
 

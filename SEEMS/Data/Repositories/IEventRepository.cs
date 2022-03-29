@@ -11,6 +11,8 @@ public interface IEventRepository
 
     bool CanTakeAttendance(int id);
 
+    bool IsAbleToTakeAttendance(DateTime from, Event @event);
+
     Task<IEnumerable<Event>> GetAllEventsAboutToStartIn30Min(DateTime from, bool trackChanges);
 
     public Task<IEnumerable<Event>> GetAllEventsShouldBeChangedToInactive(DateTime from, bool trackChanges);
