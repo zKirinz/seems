@@ -148,7 +148,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
             isPrivate: eventFields.isPrivate,
             startDate: startDate,
             endDate: endDate,
-            participantNum: participantsLimited,
+            participantNum: eventFields.participantNum,
             registrationDeadline: registrationTime,
             allowEmail: sendingEmail,
         }
@@ -164,6 +164,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
         setIsLoading(true)
         getDetailedEvent(id)
             .then((response) => {
+                console.log(response)
                 const { event: responseEvent } = response.data.data
                 setEventFields(responseEvent)
 
@@ -432,6 +433,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
                                     Participants limitation
                                 </InputLabel>
                                 <OutlinedInput
+                                    disabled
                                     id="limit"
                                     label="Participants limitation"
                                     inputProps={{

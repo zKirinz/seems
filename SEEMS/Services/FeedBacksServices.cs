@@ -8,7 +8,7 @@ public class FeedBacksServices
     {
         var feedBackValidation = new FeedBackValidationInfo();
         var failCheck = false;
-        if (rating < FeedBackValidationInfo.MinimumContent || rating > FeedBackValidationInfo.MaximumRating)
+        if (rating < FeedBackValidationInfo.MinimumRating || rating > FeedBackValidationInfo.MaximumRating)
         {
             feedBackValidation.Rating = "You have to rate quality before sending feedback";
             failCheck = true;

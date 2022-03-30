@@ -51,6 +51,7 @@ const FeedBack = ({ eventId, isMyEvent }) => {
                 })
             })
             .catch((error) => {
+                console.log(error.response)
                 if (error.response.data.code === 422) {
                     if (error.response.data.message) {
                         showSnackBar({
