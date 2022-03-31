@@ -21,7 +21,6 @@ const UpdateEvent = () => {
     const history = useHistory()
     const { pathname } = useLocation()
     const [updateEventDisable, setUpdateEventDisable] = useState(true)
-    // const [activeUpdateDelete, setActiveUpdateDelete] = useState(false)
 
     useEffect(() => {
         checkIsMyEvent(id)
