@@ -117,16 +117,14 @@ const useEventAction = () => {
             return res
         })
 
-    const isUpdateEventAvailable = (eventId) => {
-        console.log(`/api/events/is-updatable/${eventId}`)
-        return get({ endpoint: `/api/events/is-updatable/${eventId}` }).then((res) => {
+    const isUpdateEventAvailable = (eventId) =>
+        get({ endpoint: `/api/events/is-updatable/${eventId}` }).then((res) => {
             if (res.data.data && res.data.data.errorCode === 'BANNED_USER') {
                 logout()
                 window.location.reload(false)
             }
             return res
         })
-    }
 
     return {
         getUpcomingEvents,

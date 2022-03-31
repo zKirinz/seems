@@ -7,7 +7,7 @@ namespace SEEMS.Models;
 
 public class FeedBack : AbstractEntity<int>
 {
-    [StringLength(100)] public string Content { get; set; }
+    public string Content { get; set; }
 
     [ForeignKey("Reservation")] public int ReservationId { get; set; }
 

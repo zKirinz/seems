@@ -20,10 +20,11 @@ import FeedBack from './FeedBack'
 const EventDetailed = () => {
     const history = useHistory()
     const { id } = useParams()
-    const { getDetailedEvent, checkIsMyEvent } = useEventAction()
+    const showSnackbar = useSnackbar()
+    const { getDetailedEvent, checkIsMyEvent, isUpdateEventAvailable } = useEventAction()
     const [error, setError] = useState(false)
     const [isMyEvent, setIsMyEvent] = useState(false)
-    const showSnackbar = useSnackbar()
+    const [editEventAvailable, setEditEventAvailable] = useState(false)
     const [isEventEnd, setIsEventEnd] = useState(false)
     const [detailedEvent, setDetailedEvent] = useState({
         numberComments: 0,
@@ -44,6 +45,10 @@ const EventDetailed = () => {
                     numberComments: responseEvent.commentsNum,
                     event: responseEvent,
                     numberRootComments: responseEvent.rootCommentsNum,
+                })
+                isUpdateEventAvailable(id).then((res) => {
+                    const isUpdatable = res.data.data.isUpdatable
+                    setEditEventAvailable(isUpdatable)
                 })
                 setTimeout(() => {
                     setIsFirstRender(false)
@@ -169,7 +174,7 @@ const EventDetailed = () => {
                     <Box sx={{ mt: 4 }}>
                         {isMyEvent && (
                             <React.Fragment>
-                                <EditEventButton />
+                                <EditEventButton isEditable={editEventAvailable} />
                                 <CheckAttendanceButton
                                     eventId={id}
                                     onClickHandler={() =>
