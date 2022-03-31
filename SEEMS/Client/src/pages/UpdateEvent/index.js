@@ -24,14 +24,6 @@ const UpdateEvent = () => {
     // const [activeUpdateDelete, setActiveUpdateDelete] = useState(false)
 
     useEffect(() => {
-        isUpdateEventAvailable(id)
-            .then((res) => {
-                console.log(res)
-            })
-            .catch((error) => {
-                console.log(error.response)
-            })
-
         checkIsMyEvent(id)
             .then((response) => {
                 const isMine = response.data.data.isMine
@@ -39,6 +31,20 @@ const UpdateEvent = () => {
                     const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
                     history.push(newUrl)
                 } else {
+                    isUpdateEventAvailable(id)
+                        .then((res) => {
+                            const isUpdatable = res.data.data.isUpdatable
+                            if (isUpdatable === false) {
+                                const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
+                                history.push(newUrl)
+                            }
+                        })
+                        .catch(() => {
+                            showSnackbar({
+                                severity: 'error',
+                                children: 'Something went wrong, please try again later.',
+                            })
+                        })
                     setUpdateEventDisable(false)
                 }
             })

@@ -20,7 +20,6 @@ const CreateFeedback = ({ open, onClose, onCreateFeedback, error, setError }) =>
     const [ratingValue, setRatingValue] = useState({ value: 0, isTouched: false })
     const [confirmDialog, setConfirmDialog] = useState(false)
     const [feedbackContent, setFeedBackContent] = useState({ value: '', isTouched: false })
-
     const ratingChangeHandler = (newValue) => {
         error?.rating && setError((previousError) => ({ ...previousError, rating: null }))
         setRatingValue((previousValue) => ({ ...previousValue, value: +newValue }))
