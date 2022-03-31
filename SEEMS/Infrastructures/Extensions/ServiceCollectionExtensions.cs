@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
                 {
                     sqlOptions.EnableRetryOnFailure();
                     sqlOptions.MinBatchSize(1).MaxBatchSize(10);
+                    sqlOptions.CommandTimeout(50);
                 });
         });
     }
