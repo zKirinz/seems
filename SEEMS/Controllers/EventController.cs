@@ -599,11 +599,9 @@ public class EventController : ControllerBase
     {
         foreach (var comment in listComments)
         {
-            // var locationIds = _repository.LikeComment.GetLikeCommentByCommentIdAsync(comment.Id, false).Result;
-            // _repository.LikeComment.BulkDeleteLikeComments(locationIds);
-            // _repository.Comment.DeleteComment(comment);
-            _context.Comments.Remove(comment);
-            _context.SaveChanges(true);
+            var locationIds = _repository.LikeComment.GetLikeCommentByCommentIdAsync(comment.Id, false).Result;
+            if (locationIds.Any()) _repository.LikeComment.BulkDeleteLikeComments(locationIds);
+            _repository.Comment.DeleteComment(comment);
         }
     }
 }
