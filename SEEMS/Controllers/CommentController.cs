@@ -187,11 +187,16 @@ public class CommentController : ControllerBase
 
                 if (!CheckValidToAffectComment(userId, role, id))
                     return BadRequest(new Response(ResponseStatusEnum.Fail, "",
-                        "You do not have the permission to delête this comment."));
+                        "You do not have the permission to delete this comment."));
 
                 var comment = _context.Comments.FirstOrDefault(x => x.Id == id);
                 var listSubComment = _context.Comments.Where(x => x.ParentCommentId == id).ToList();
-                foreach (var subComment in listSubComment) _context.Comments.Remove(subComment);
+                foreach (var subComment in listSubComment)
+                {
+                    RemoveLikeComment(subComment);
+                    _context.Comments.Remove(subComment);
+                }   
+                RemoveLikeComment(comment);
                 _context.Comments.Remove(comment);
                 _context.SaveChanges(true);
                 var numberCommentDeleted = listSubComment.Count() + 1;
@@ -375,5 +380,18 @@ public class CommentController : ControllerBase
         }
 
         return true;
+    }
+
+    private void RemoveLikeComment(Comment comment)
+    {
+        var listLikeComment = _context.LikeComments.Where(x => x.CommentId == comment.Id).ToList();
+        if (listLikeComment.Any())
+        {
+            listLikeComment.ForEach(likeComment =>
+            {
+                _context.LikeComments.Remove(likeComment);
+                _context.SaveChanges();
+            });
+        }
     }
 }
