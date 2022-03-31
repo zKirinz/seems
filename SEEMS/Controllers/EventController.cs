@@ -375,11 +375,18 @@ public class EventController : ControllerBase
             await DeleteRelationalChildResources(@event);
             _repository.Event.DeleteEvent(@event);
             await _repository.SaveAsync();
-            SendEmailInformChangedEvent(@event, TrackingState.Delete);
+            await SendEmailInformChangedEvent(@event, TrackingState.Delete);
             return Ok(
                 new Response(ResponseStatusEnum.Success,
                     true,
                     "Delete event successfully"));
+        }
+        catch (InvalidOperationException)
+        {
+            return Ok(
+                new Response(ResponseStatusEnum.Success,
+                    true,
+                    "Delete event successfully")); 
         }
         catch (Exception ex)
         {
@@ -570,10 +577,10 @@ public class EventController : ControllerBase
     private async Task DeleteRelationalChildResources(Event @event)
     {
         var listComments = await _repository.Comment.GetCommentsByEventId(@event.Id, false);
-        DeleteRelatedComments(listComments);
+        if (listComments.Any()) DeleteRelatedComments(listComments);
 
         var listReservations = await _repository.Reservation.GetReservationsByEventId(@event.Id, false);
-        DeleteRelatedReservations(listReservations); 
+        if (listReservations.Any()) DeleteRelatedReservations(listReservations); 
     }
 
     private void DeleteRelatedReservations(IEnumerable<Reservation> listReservations)
@@ -592,10 +599,11 @@ public class EventController : ControllerBase
     {
         foreach (var comment in listComments)
         {
-            var locationIds = _repository.LikeComment.GetLikeCommentByCommentIdAsync(comment.Id, false).Result;
-            _repository.LikeComment.BulkDeleteLikeComments(locationIds);
-            _repository.Comment.DeleteComment(comment);
-            _repository.SaveAsync();
+            // var locationIds = _repository.LikeComment.GetLikeCommentByCommentIdAsync(comment.Id, false).Result;
+            // _repository.LikeComment.BulkDeleteLikeComments(locationIds);
+            // _repository.Comment.DeleteComment(comment);
+            _context.Comments.Remove(comment);
+            _context.SaveChanges(true);
         }
     }
 }
