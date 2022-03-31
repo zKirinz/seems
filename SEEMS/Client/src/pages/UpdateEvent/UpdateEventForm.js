@@ -164,7 +164,6 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
         setIsLoading(true)
         getDetailedEvent(id)
             .then((response) => {
-                console.log(response)
                 const { event: responseEvent } = response.data.data
                 setEventFields(responseEvent)
 

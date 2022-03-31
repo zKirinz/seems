@@ -28,14 +28,15 @@ import RegisterButton from './RegisterButton'
 
 const EventDetailed = () => {
     const auth = useRecoilValue(atom)
+    const showSnackbar = useSnackbar()
     const history = useHistory()
     const { id } = useParams()
-    const { getDetailedEvent, checkIsMyEvent } = useEventAction()
+    const { getDetailedEvent, checkIsMyEvent, isUpdateEventAvailable } = useEventAction()
     const [isMyEvent, setIsMyEvent] = useState(false)
     const [error, setError] = useState(false)
     const [isRegistered, setIsRegistered] = useState(false)
     const [reset, setReset] = useState(0)
-    const showSnackbar = useSnackbar()
+    const [editEventAvailable, setEditEventAvailable] = useState(false)
     const [isEventEnd, setIsEventEnd] = useState(false)
     const [detailedEvent, setDetailedEvent] = useState({
         numberComments: 0,
@@ -58,6 +59,11 @@ const EventDetailed = () => {
                     numberRootComments: responseEvent.rootCommentsNum,
                 })
                 setIsRegistered(registered)
+                isUpdateEventAvailable(id).then((res) => {
+                    const isUpdatable = res.data.data.isUpdatable
+                    setEditEventAvailable(isUpdatable)
+                })
+
                 setTimeout(() => {
                     setIsFirstRender(false)
                 }, 500)
@@ -240,7 +246,7 @@ const EventDetailed = () => {
                         )}
                         {auth.role === 'Organizer' && isMyEvent && (
                             <React.Fragment>
-                                <EditEventButton />
+                                <EditEventButton isEditable={editEventAvailable} />
                                 <CheckAttendanceButton
                                     eventId={id}
                                     onClickHandler={() =>

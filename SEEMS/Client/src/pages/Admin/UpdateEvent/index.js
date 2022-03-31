@@ -15,7 +15,7 @@ import UpdateEventForm from './UpdateEventForm'
 const UpdateEvent = () => {
     const showSnackbar = useSnackbar()
     const eventActions = useEventAction()
-    const { checkIsMyEvent, deleteEvent } = useEventAction()
+    const { checkIsMyEvent, deleteEvent, isUpdateEventAvailable } = useEventAction()
     const { id } = useParams()
     const [error, setError] = useState(null)
     const history = useHistory()
@@ -31,6 +31,20 @@ const UpdateEvent = () => {
                     const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
                     history.push(newUrl)
                 } else {
+                    isUpdateEventAvailable(id)
+                        .then((res) => {
+                            const isUpdatable = res.data.data.isUpdatable
+                            if (isUpdatable === false) {
+                                const newUrl = pathname.slice(0, pathname.indexOf('update') - 1)
+                                history.push(newUrl)
+                            }
+                        })
+                        .catch(() => {
+                            showSnackbar({
+                                severity: 'error',
+                                children: 'Something went wrong, please try again later.',
+                            })
+                        })
                     setUpdateEventDisable(false)
                 }
             })
