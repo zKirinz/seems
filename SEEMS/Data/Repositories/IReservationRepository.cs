@@ -17,8 +17,6 @@ public interface IReservationRepository
 
     void BulkDeleteReservations(IEnumerable<Reservation> locationIds);
 
-    public Task<IEnumerable<Reservation>> GetReservationsByEventId(DateTime from, bool trackChanges);
-
     public Task<Reservation> GetReservationAsync(int id, bool trackChanges);
     string GetRegisterEventStatus(int reservationId);
     IEnumerable<RegisteredEventsDTO> GetListRegisteredEvents(int userId);
