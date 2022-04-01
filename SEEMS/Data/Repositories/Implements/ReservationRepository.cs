@@ -106,28 +106,88 @@ public class ReservationRepository : RepositoryBase<Reservation>, IReservationRe
         var listRegistered = GetListRegisteredEvents(userId);
         var listRegisteredEnded = listRegistered.Where(e => e.EndDate.CompareTo(DateTime.Now) < 0).ToList();
         listRegisteredEnded.Sort(RegisteredEventsDTO.CompareByEndDate);
-        var listAttendStatus = listRegisteredEnded.ConvertAll(x => (bool) x.Attend);
+        var listAttendStatus = listRegisteredEnded.ConvertAll(x => (bool) x.Attend).TakeLast(3).ToList();
         var consecutiveAbsent = 0;
         var returnResult = 0;
 
-        if (listAttendStatus.Count >= 3)
-            for (var i = 0; i <= listAttendStatus.Count - 3; i++)
+        if(listAttendStatus.Count >= 3)
+            for(var i = 0; i <= listAttendStatus.Count - 3; i++)
             {
                 consecutiveAbsent = 0;
-                if (!listAttendStatus[i])
+                if(!listAttendStatus[i] && !listRegisteredEnded[i].IsAttendanceChecked)
                 {
                     consecutiveAbsent++;
-                    if (!listAttendStatus[i + 1])
+                    if(!listAttendStatus[i + 1] && !listRegisteredEnded[i + 1].IsAttendanceChecked)
                     {
                         consecutiveAbsent++;
-                        if (!listAttendStatus[i + 2]) consecutiveAbsent++;
+                        if(!listAttendStatus[i + 2] && !listRegisteredEnded[i + 2].IsAttendanceChecked)
+                            consecutiveAbsent++;
                     }
                 }
 
                 returnResult = Math.Max(returnResult, consecutiveAbsent);
-                if (consecutiveAbsent == 3) break;
+                if(consecutiveAbsent == 3)
+                    break;
             }
 
         return returnResult;
+    }
+
+    public int GetAttendedReservationsOfMyEvents(int userId)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+        var myEvents = _context.Events.Where(e => e.OrganizationName.Equals(user.OrganizationName));
+        var myReservationsIds = myEvents.Join(
+                                        _context.Reservations,
+                                        ev => ev.Id,
+                                        rs => rs.EventId,
+                                        (ev, rs) => new { rs.Id }
+                                );
+        return myReservationsIds.ToList().Count(rs => GetRegisterEventStatus(rs.Id).Equals("Attended"));
+    }
+
+    public int GetAllReservationsOfMyEvents(int userId)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+        var myEvents = _context.Events.Where(e => e.OrganizationName.Equals(user.OrganizationName));
+        var myReservationsIds = myEvents.Join(
+                                        _context.Reservations,
+                                        ev => ev.Id,
+                                        rs => rs.EventId,
+                                        (ev, rs) => new { ReservationId = rs.Id, EventEndDate = ev.EndDate }
+                                );
+        return myReservationsIds.ToList().Count(rs => rs.EventEndDate.CompareTo(DateTime.Now) < 0);
+    }
+
+    public int GetAllFeedbacksOfMyEvents(int userId)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+        var myEvents = _context.Events.Where(e => e.OrganizationName.Equals(user.OrganizationName));
+        var myReservationsIds = myEvents.Join(
+                                        _context.Reservations,
+                                        ev => ev.Id,
+                                        rs => rs.EventId,
+                                        (ev, rs) => new { rs.Id }
+                                );
+        return myReservationsIds.ToList().Count(rs => GetRegisterEventStatus(rs.Id).Equals("Feedbacked"));
+    }
+
+    public void SetAttendanceCheckedForConsecutiveAbsences(int userId)
+    {
+        var listRegistered = GetListRegisteredEvents(userId);
+        var listRegisteredEnded = listRegistered.Where(e => e.EndDate.CompareTo(DateTime.Now) < 0).ToList();
+        listRegisteredEnded.Sort(RegisteredEventsDTO.CompareByEndDate);
+        var listEndedCount = listRegisteredEnded.Count();
+        var last3Reservations = _context.Reservations.Where(rs =>
+                                                                rs.Id == listRegisteredEnded.ElementAt(listEndedCount - 1).ReservationId
+                                                            || rs.Id == listRegisteredEnded.ElementAt(listEndedCount - 2).ReservationId
+                                                            || rs.Id == listRegisteredEnded.ElementAt(listEndedCount - 3).ReservationId
+                                                            ).ToList();
+        last3Reservations.ForEach(rs =>
+        {
+            rs.IsAttendanceChecked = true;
+            _context.Reservations.Update(rs);
+        });
+        _context.SaveChanges();
     }
 }
