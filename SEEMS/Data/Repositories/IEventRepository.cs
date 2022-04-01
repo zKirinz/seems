@@ -4,6 +4,8 @@ namespace SEEMS.Data.Repositories;
 
 public interface IEventRepository
 {
+    int GetHostedEventsNum(int userId);
+    int GetFinishedHostedEventsNum(int userId);
     IEnumerable<Event> GetAllEvents(bool trackChanges = false);
     Event GetEvent(int id, bool trackChanges = false);
 
