@@ -21,7 +21,7 @@ public class UpdateEventActiveness : IJob
     {
         _logger.LogInformation($"Update Activeness for Events: {context.JobDetail.JobType}");
 
-        var result = _repoManager.Event.GetAllEventsAboutToStartIn30Min(DateTime.Now, false).Result;
+        var result = _repoManager.Event.GetAllEventsAboutToStartIn30Min(DateTime.UtcNow, false).Result;
         if (!result.Any()) _logger.LogInformation("No event is about going to start in 30 minutes");
         foreach (var @event in result)
         {
