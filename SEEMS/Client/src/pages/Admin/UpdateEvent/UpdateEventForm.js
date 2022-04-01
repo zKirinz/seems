@@ -221,7 +221,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
                         <Box
                             component="img"
                             alt="school-image"
-                            src={eventFields.imageUrl}
+                            src={poster.src}
                             sx={{
                                 width: '100%',
                                 aspectRatio: '1 / 1',

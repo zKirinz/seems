@@ -85,7 +85,7 @@ const EventDetailed = () => {
         ) : (
             <Box
                 sx={{
-                    height: '85vh',
+                    height: '90vh',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
