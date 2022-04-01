@@ -34,7 +34,7 @@ import { Pie } from 'react-chartjs-2'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-const User = ({ userEmail, onClose, open }) => {
+const User = ({ userEmail, onClose, open, isAdmin }) => {
     const history = useHistory()
     const { getUserEventStatistic } = useUsersAction()
     const [userProfile, setUserProfile] = useState({})
@@ -198,7 +198,7 @@ const User = ({ userEmail, onClose, open }) => {
                                 )}
                             </Box>
                         )}
-                        {totalRegisteredEvent === 0 && (
+                        {totalRegisteredEvent === 0 && !isAdmin && (
                             <Box
                                 sx={{
                                     mb: 2,

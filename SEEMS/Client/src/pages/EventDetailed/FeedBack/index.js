@@ -50,8 +50,7 @@ const FeedBack = ({ eventId, isMyEvent }) => {
                     children: 'Sending feedback successfully, thank you for you feedback',
                 })
             })
-            .catch((error) => {
-                console.log(error.response)
+            .catch(() => {
                 if (error.response.data.code === 422) {
                     if (error.response.data.message) {
                         showSnackBar({
