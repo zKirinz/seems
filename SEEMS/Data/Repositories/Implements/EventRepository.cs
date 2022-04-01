@@ -99,4 +99,17 @@ public class EventRepository : RepositoryBase<Event>, IEventRepository
         return await FindByCondition(e => from.AddMinutes(-5) <= e.ModifiedAt, trackChanges)
             .ToListAsync();
     }
+
+    public int GetHostedEventsNum(int userId)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+        return _context.Events.Count(e => e.OrganizationName.Equals(user.OrganizationName));
+    }
+
+    public int GetFinishedHostedEventsNum(int userId)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+        var foundList = _context.Events.Where(e => e.OrganizationName.Equals(user.OrganizationName)).ToList();
+        return foundList.Count(e => GetMyEventStatus(e.Id).Equals("Finished"));
+    }
 }
