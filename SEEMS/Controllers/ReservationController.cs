@@ -1,7 +1,10 @@
-﻿using AutoMapper;
+﻿using System.Net.Mail;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SEEMS.Contexts;
 using SEEMS.Data.DTOs;
+using SEEMS.Data.Entities.RequestFeatures;
 using SEEMS.Data.Models;
 using SEEMS.Data.ValidationInfo;
 using SEEMS.Infrastructures.Attributes;
@@ -9,6 +12,7 @@ using SEEMS.Infrastructures.Commons;
 using SEEMS.Models;
 using SEEMS.Services;
 using SEEMS.Services.Interfaces;
+using static System.Drawing.Imaging.ImageFormat;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -22,14 +26,20 @@ public class ReservationController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IRepositoryManager _repoManager;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<ReservationController> _logger;
+    private readonly IQRGeneratorService _qrGenerator;
 
     public ReservationController(ApplicationDbContext context, IMapper mapper, IAuthManager authManager,
-        IRepositoryManager repoManager)
+        IRepositoryManager repoManager, IEmailService emailService, ILogger<ReservationController> logger, IQRGeneratorService qrGenerator)
     {
         _context = context;
         _mapper = mapper;
         _authManager = authManager;
         _repoManager = repoManager;
+        _emailService = emailService;
+        _logger = logger;
+        _qrGenerator = qrGenerator;
     }
 
     // POST api/Reservations
@@ -64,7 +74,8 @@ public class ReservationController : ControllerBase
             reservation.UserId = userId;
             _context.Add(reservation);
             _context.SaveChanges();
-
+            
+            SendEmailInformNewReservation(reservation, TrackingState.Create);
             return Ok(new Response(ResponseStatusEnum.Success, reservation));
         }
         catch (Exception ex)
@@ -348,5 +359,48 @@ public class ReservationController : ControllerBase
     private Task<User> GetCurrentUser(string email)
     {
         return _repoManager.User.GetUserAsync(email, false);
+    }
+    
+    private void SendEmailInformNewReservation(Reservation reservation, TrackingState state)
+    {
+        try
+        {
+            var mailToUser = new EmailMeta();
+            reservation.User = _repoManager.User.GetUserAsync((int) reservation.UserId, false).Result;
+            reservation.Event = _repoManager.Event.GetEventAsync(reservation.EventId, false).Result;
+
+            if (reservation.User == null || reservation.Event == null)
+                throw new InvalidOperationException("Invalid operations");
+
+            mailToUser.ToEmail = reservation.User.Email;
+            mailToUser.Subject = Dictionaries.ParseArguments("{eventName}", $"{reservation.Event.EventTitle}",
+                Dictionaries.SubjectTemplates[state]);
+
+            var payload = new EmailPayload
+            {
+                Email = reservation.User.Email,
+                EventId = reservation.Event.Id,
+                ReservationId = reservation.Id
+            };
+
+            var qr = _qrGenerator.GenerateQRCode(JsonConvert.SerializeObject(payload));
+            mailToUser.Attachment = new Attachment(CreateTempFile(qr, Png.ToString()), "image/png");
+            var stream = new MemoryStream(qr);
+            mailToUser.Message = _emailService.GetEmailTemplate(EmailTypes.InformRegistration,
+                _emailService.InitTemplates(reservation));
+            _emailService.SendEmail(mailToUser);
+            _logger.LogInformation(mailToUser.Message.ToString());
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message); 
+        }
+    }
+    
+    private string CreateTempFile(byte[] fileData, string extension)
+    {
+        var fileName = Path.GetTempFileName() + "." + extension;
+        System.IO.File.WriteAllBytes(fileName, fileData);
+        return fileName;
     }
 }

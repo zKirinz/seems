@@ -29,14 +29,6 @@ public class ReservationRepository : RepositoryBase<Reservation>, IReservationRe
         if (locationIds.Any()) BulkDelete(locationIds);
     }
 
-
-    public async Task<IEnumerable<Reservation>> GetReservationsByEventId(DateTime from, bool trackChanges)
-    {
-        return await FindByCondition(r => r.CreatedAt <= from.AddMinutes(30) && r.IsEmailed == false,
-                trackChanges)
-            .ToListAsync();
-    }
-
     public async Task<Reservation> GetReservationAsync(int id, bool trackChanges)
     {
         return await FindByCondition(r => r.Id == id, trackChanges)

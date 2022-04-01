@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Net.Mail;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SEEMS.Contexts;
@@ -323,7 +324,7 @@ public class EventController : ControllerBase
                         false,
                         "ID not found")
                 );
-            FuckingDate(eventDTO, @event);
+            ExplicitInvalidDate(eventDTO, @event);
             _mapper.Map(eventDTO, @event);
             await _repository.SaveAsync();
 
@@ -372,10 +373,10 @@ public class EventController : ControllerBase
                     new Response(ResponseStatusEnum.Fail,
                         false,
                         "ID not found"));
+            await SendEmailInformChangedEvent(@event, TrackingState.Delete);
             await DeleteRelationalChildResources(@event);
             _repository.Event.DeleteEvent(@event);
             await _repository.SaveAsync();
-            await SendEmailInformChangedEvent(@event, TrackingState.Delete);
             return Ok(
                 new Response(ResponseStatusEnum.Success,
                     true,
@@ -390,6 +391,7 @@ public class EventController : ControllerBase
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex.StackTrace);
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new Response(ResponseStatusEnum.Error, msg: ex.Message));
         }
@@ -554,8 +556,6 @@ public class EventController : ControllerBase
                 throw new InvalidOperationException("Invalid operations");
 
             mailToUser.ToEmail = reservation.User.Email;
-            var x = Dictionaries.MsgTemplates[state];
-            var y = _emailService.InitTemplates(reservation);
             mailToUser.Message = _emailService.GetEmailTemplate(Dictionaries.MsgTemplates[state],
                 _emailService.InitTemplates(reservation));
             mailToUser.Subject = Dictionaries.ParseArguments("{eventName}", $"{updatedEvent.EventTitle}",
@@ -565,7 +565,7 @@ public class EventController : ControllerBase
         }
     }
 
-    private void FuckingDate(EventForUpdateDTO src, Event dst)
+    private void ExplicitInvalidDate(EventForUpdateDTO src, Event dst)
     {
         if (src.StartDate == DateTime.MinValue) src.StartDate = dst.StartDate;
 
