@@ -99,9 +99,9 @@ public class EventController : ControllerBase
             else
                 foundEvents = (bool) upcoming
                     ? myEvents.Where(
-                        e => e.StartDate.Subtract(DateTime.Now).TotalMinutes >= 30)
+                        e => e.StartDate.Subtract(DateTime.UtcNow).TotalMinutes >= 30)
                     : myEvents.Where(
-                        e => e.StartDate.Subtract(DateTime.Now).TotalMinutes <= 0);
+                        e => e.StartDate.Subtract(DateTime.UtcNow).TotalMinutes <= 0);
 
             //Filter by title
             if (!string.IsNullOrEmpty(search))
@@ -117,7 +117,7 @@ public class EventController : ControllerBase
             {
                 var eMapped = _mapper.Map<EventDTO>(e);
                 eMapped.CommentsNum = _context.Comments.Where(c => c.EventId == e.Id).Count();
-                eMapped.CanTakeAttendance = _repository.Event.CanTakeAttendance(e.Id);
+                eMapped.CanTakeAttendance = _repository.Event.IsAbleToTakeAttendance(DateTime.UtcNow, e);
                 eMapped.MyEventStatus = _repository.Event.GetMyEventStatus(e.Id);
                 foundEventDTOs.Add(eMapped);
             });

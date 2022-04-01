@@ -81,8 +81,8 @@ public class EventRepository : RepositoryBase<Event>, IEventRepository
         if (myEvent != null)
         {
             var registrationDeadline = myEvent.RegistrationDeadline;
-            var now = DateTime.Now;
-            if (CanTakeAttendance(eventId))
+            var now = DateTime.UtcNow;
+            if (IsAbleToTakeAttendance(now, myEvent))
                 statusResult = "TakingAttendance";
             else if (now.CompareTo(myEvent.StartDate.Subtract(TimeSpan.FromHours(1))) < 0)
                 statusResult = "Pending";
