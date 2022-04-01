@@ -28,6 +28,7 @@ const RegisteredEventInfo = ({
     totalRegisteredPendingEventsNum,
     options,
     userEventStatistic,
+    isAdmin,
 }) => {
     const history = useHistory()
 
@@ -63,7 +64,7 @@ const RegisteredEventInfo = ({
                     )}
                 </Box>
             )}
-            {totalRegisteredEvent === 0 && (
+            {totalRegisteredEvent === 0 && !isAdmin && (
                 <Box
                     sx={{
                         mb: 2,

@@ -18,7 +18,7 @@ import useUsersAction from '../../../recoil/user/action'
 import HostedEventInfo from './HostedEventInfo'
 import RegisteredEventInfo from './RegisteredEventInfo'
 
-const Organizer = ({ userEmail, onClose, open }) => {
+const Organizer = ({ userEmail, onClose, open, isAdmin }) => {
     const showSnackbar = useSnackbar()
     const { getUserEventStatistic } = useUsersAction()
     const [userProfile, setUserProfile] = useState({})
@@ -176,6 +176,7 @@ const Organizer = ({ userEmail, onClose, open }) => {
                             totalRegisteredPendingEventsNum={totalRegisteredPendingEventsNum}
                             options={registeredEventOptions}
                             userEventStatistic={userEventStatistic}
+                            isAdmin={isAdmin}
                         />
                         <HostedEventInfo
                             totalHostedEvent={totalHostedEvent}
@@ -184,6 +185,7 @@ const Organizer = ({ userEmail, onClose, open }) => {
                             totalParticipant={totalParticipant}
                             totalReservation={totalReservation}
                             onClose={onClose}
+                            isAdmin={isAdmin}
                         />
                     </React.Fragment>
                 )}

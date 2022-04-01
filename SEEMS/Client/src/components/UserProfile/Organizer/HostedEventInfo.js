@@ -13,12 +13,13 @@ const HostedEventInfo = ({
     totalParticipant,
     totalReservation,
     onClose,
+    isAdmin,
 }) => {
     const history = useHistory()
 
     return (
         <React.Fragment>
-            {totalHostedEvent === 0 && (
+            {totalHostedEvent === 0 && !isAdmin && (
                 <Box
                     sx={{
                         mt: 2,
