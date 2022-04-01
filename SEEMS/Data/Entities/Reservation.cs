@@ -19,7 +19,5 @@ public class Reservation : AbstractEntity<int>
 
     [JsonIgnore] public FeedBack FeedBack { get; set; }
 
-    public bool IsEmailed { get; set; } = false;
-
     public bool IsAttendanceChecked { get; set; } = false;
 }

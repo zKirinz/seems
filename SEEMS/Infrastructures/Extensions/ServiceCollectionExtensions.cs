@@ -113,14 +113,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<AuthManager>();
         services.AddSingleton<IJobFactory, JobFactory>();
         services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
-        services.AddScoped<SendEmailJob>();
         services.AddScoped<InactivateEventJob>();
         services.AddScoped<InactivateUserJob>();
 
         #region Quartz
 
         var metas = new List<JobMeta>();
-        metas.Add(GetJobMeta(typeof(SendEmailJob), configuration));
         metas.Add(GetJobMeta(typeof(UpdateEventActiveness), configuration));
         metas.Add(GetJobMeta(typeof(InactivateEventJob), configuration));
         metas.Add(GetJobMeta(typeof(InactivateUserJob), configuration));
@@ -179,21 +177,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddQuartz(q =>
         {
-            //    q.UseMicrosoftDependencyInjectionScopedJobFactory();
-
-            //    // Register the job, loading the schedule from configuration
-            //    q.AddJobAndTrigger<SendEmailQualityControlJob>(hostContext.Configuration);
-            //});
-
-            //services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-
             q.UseMicrosoftDependencyInjectionJobFactory();
-
-            // var jobType = typeof(UpdateEventActiveness);
-            // var configKey = $"Quartz:{jobType.Name}";
-            // var cronSchedule = configuration[configKey];
-            //
-            // var jobKey = new JobKey(jobType.Name);
 
             var firstJob = GetJobMeta(typeof(UpdateEventActiveness), configuration);
             var firstKey = new JobKey(firstJob.JobName);
@@ -206,22 +190,10 @@ public static class ServiceCollectionExtensions
                 .WithIdentity($"{firstJob.JobName}-trigger")
                 .WithCronSchedule(firstJob.CronExpression));
 
-            // var emailJob = typeof(SendEmailJob);
-            // var configKeyEmail = $"Quartz:{emailJob.Name}";
-            // var cron = configuration[configKeyEmail];
         });
         services.AddQuartz(q =>
         {
             q.UseMicrosoftDependencyInjectionJobFactory();
-            var secondJob = GetJobMeta(typeof(SendEmailJob), configuration);
-            var secondKey = new JobKey(secondJob.JobName);
-
-            q.AddJob<SendEmailJob>(opts => opts.WithIdentity(secondKey));
-
-            q.AddTrigger(opts => opts
-                .ForJob(secondKey)
-                .WithIdentity($"{secondJob.JobName}-trigger")
-                .WithCronSchedule(secondJob.CronExpression));
         });
         services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
     }

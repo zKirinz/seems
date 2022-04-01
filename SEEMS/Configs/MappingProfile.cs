@@ -44,7 +44,6 @@ public class MappingProfile : Profile
         CreateMap<User, ReservationForAttendanceResDTO>();
         CreateMap<Event, Event>();
         CreateMap<Reservation, Reservation>()
-            .ForMember(x => x.IsEmailed, opt => opt.MapFrom(x => x.IsEmailed))
             .ForMember(x => x.User, opt => opt.Ignore())
             .ForMember(x => x.Event, opt => opt.Ignore());
         CreateMap<Event, RegisteredEventsDTO>();

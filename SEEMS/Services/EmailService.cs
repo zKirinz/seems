@@ -43,7 +43,7 @@ public class EmailService : IEmailService
         };
         message.To.Add(toEmail);
         message.IsBodyHtml = true;
-        if (message.Attachments.Any()) message.Attachments.Add(model.Attachment);
+        if (model.Attachment != null) message.Attachments.Add(model.Attachment);
         client.SendMailAsync(message);
     }
 
@@ -97,6 +97,8 @@ public class EmailService : IEmailService
                + "<p>"
                + $"Sorry to inform you that the event ${reservation.Event.EventTitle} you registered has been cancelled recently"
                + "</p>"
+               + "<p>Best regards,<p>"
+               + "<p>SEEM </p>"
                + "</body>"
                + "</html>";
     }
@@ -116,7 +118,7 @@ public class EmailService : IEmailService
                + $"<li>DESCRIPTION: {reservation.Event.EventDescription}</li>"
                + "</ul>"
                + $"<p>Don't forget to get your attached QR code at {reservation.Event.StartDate} for taking attendance!!!</p>"
-               + "<p>Best,</p>"
+               + "<p>Best regards,</p>"
                + "<p>SEEM</p>"
                + "</body>"
                + "</html>";
