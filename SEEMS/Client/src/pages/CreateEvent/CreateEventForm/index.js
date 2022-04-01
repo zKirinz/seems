@@ -338,7 +338,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                                 endDateChangeHandler(newValue)
                                             }}
                                             label="End date"
-                                            minDate={new Date(startDate.getTime() + 5 * 60 * 1000)}
+                                            minDate={new Date(startDate.getTime() + 60 * 60 * 1000)}
                                             inputFormat="yyyy/MM/dd hh:mm a"
                                             mask="___/__/__ __:__ _M"
                                             renderInput={(params) => <TextField {...params} />}

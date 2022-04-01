@@ -191,7 +191,12 @@ public class CommentController : ControllerBase
 
                 var comment = _context.Comments.FirstOrDefault(x => x.Id == id);
                 var listSubComment = _context.Comments.Where(x => x.ParentCommentId == id).ToList();
-                foreach (var subComment in listSubComment) _context.Comments.Remove(subComment);
+                foreach (var subComment in listSubComment)
+                {
+                    DeleteLikeComment(subComment);
+                    _context.Comments.Remove(subComment);
+                }
+                DeleteLikeComment(comment);
                 _context.Comments.Remove(comment);
                 _context.SaveChanges(true);
                 var numberCommentDeleted = listSubComment.Count() + 1;
@@ -375,5 +380,18 @@ public class CommentController : ControllerBase
         }
 
         return true;
+    }
+
+    private void DeleteLikeComment(Comment comment)
+    {
+        var listLikeComments = _context.LikeComments.Where(x => x.CommentId == comment.Id).ToList();
+        if (listLikeComments.Any())
+        {
+            listLikeComments.ForEach(x =>
+            {
+                _context.LikeComments.Remove(x);
+            });
+            _context.SaveChanges();
+        }
     }
 }

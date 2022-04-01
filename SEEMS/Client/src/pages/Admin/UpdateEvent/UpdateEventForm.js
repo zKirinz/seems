@@ -410,7 +410,7 @@ const UpdateEventForm = ({ error, setError, updateEventHandler, id, deleteEventH
                                             }}
                                             minDate={
                                                 startDate.getTime
-                                                    ? new Date(startDate.getTime() + 5 * 60 * 1000)
+                                                    ? new Date(startDate.getTime() + 60 * 60 * 1000)
                                                     : new Date()
                                             }
                                             inputFormat="yyyy/MM/dd hh:mm a"
