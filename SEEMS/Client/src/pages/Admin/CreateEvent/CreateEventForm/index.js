@@ -53,7 +53,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
     const [description, setDescription] = useState(defaultTextFieldValue)
     const [isPrivate, setIsPrivate] = useState(false)
     const [poster, setPoster] = useState({ src, file: null })
-    const [participantsLimited, setParticipantsLimited] = useState(10)
+    const [participantsLimited, setParticipantsLimited] = useState(0)
     const showSnackbar = useSnackbar()
 
     useEffect(() => {
@@ -363,8 +363,6 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
                                     label="Participants limitation"
                                     inputProps={{
                                         type: 'number',
-                                        min: 10,
-                                        max: 1500,
                                         inputMode: 'numeric',
                                         pattern: '[0-9]*',
                                     }}
