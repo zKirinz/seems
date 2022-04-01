@@ -94,11 +94,12 @@ const CommentsSection = ({ eventId: EventId, numberComments, numberRootComments 
     const deleteCommentHandler = (commentId) => {
         commentsActions
             .deleteComment(commentId)
-            .then(() => {
+            .then((response) => {
+                const numberCommentDeleted = response.data.data.numberCommentDeleted
                 setComments((prevComments) =>
                     prevComments.filter((comment) => comment.id !== commentId)
                 )
-                setQuantityComment((previousQuantity) => previousQuantity - 1)
+                setQuantityComment((previousQuantity) => previousQuantity - numberCommentDeleted)
                 setQuantityRootComment((previousQuantity) => previousQuantity - 1)
             })
             .catch(() => {
