@@ -32,7 +32,10 @@ public class EventRepository : RepositoryBase<Event>, IEventRepository
 
     public async Task<IEnumerable<Event>> GetAllEventsShouldBeChangedToInactive(DateTime from, bool trackChanges)
     {
-        return await FindByCondition(e => e.EndDate == from || e.EndDate.AddMinutes(5) == from, trackChanges)
+        return await FindByCondition(
+                e => e.EndDate < from ||
+                     e.StartDate > from.AddMinutes(30),
+                trackChanges)
             .ToListAsync();
     }
 

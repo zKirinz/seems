@@ -21,7 +21,7 @@ public class InactivateEventJob : IJob
     {
         _logger.LogInformation($"Inactivate events: {context.JobDetail.JobType}");
 
-        var result = _repoManager.Event.GetAllEventsShouldBeChangedToInactive(DateTime.Now, false).Result;
+        var result = _repoManager.Event.GetAllEventsShouldBeChangedToInactive(DateTime.UtcNow, false).Result;
         if (!result.Any()) _logger.LogInformation("No event is about going to end");
         foreach (var @event in result)
         {
