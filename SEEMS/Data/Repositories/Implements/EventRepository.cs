@@ -53,8 +53,8 @@ public class EventRepository : RepositoryBase<Event>, IEventRepository
     {
         var myEvent = _context.Events.FirstOrDefault(e => e.Id == id);
         var registeredNum = _context.Reservations.Count(r => r.EventId == id);
-        return myEvent.RegistrationDeadline.ToLocalTime().CompareTo(DateTime.Now) > 0 &&
-               (registeredNum == 0 || registeredNum < myEvent.ParticipantNum);
+        return myEvent.RegistrationDeadline.CompareTo(DateTime.Now) > 0 &&
+               (myEvent.ParticipantNum == 0 || registeredNum < myEvent.ParticipantNum);
     }
 
     public bool CanUnregister(int id, int minHourToUnregister)
