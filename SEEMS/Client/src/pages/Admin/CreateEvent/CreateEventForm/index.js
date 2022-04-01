@@ -38,7 +38,7 @@ const CreateEventForm = ({ onCreateEvent, error, setError }) => {
         return new Date(new Date().getTime() + dayCalculation())
     }, [])
     const endDateDefault = useMemo(() => {
-        return new Date(new Date().getTime() + dayCalculation() + 5 * 60 * 1000)
+        return new Date(new Date().getTime() + dayCalculation() + 60 * 60 * 1000)
     }, [])
     const closeRegistrationDateDefault = useMemo(() => {
         return new Date(startDateDefault.getTime() - dayCalculation(0.5))
