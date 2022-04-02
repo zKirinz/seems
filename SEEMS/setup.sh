@@ -38,7 +38,7 @@ function add_connection_string() {
   echo -e "${YLW}===== ADD CONNECTION STRING =====${NOC}"
   echo "Your DB instance name(default: 'localhost'):"
   read db_instance
- 
+
   if [ -z "$db_instance" ]; then
     db_instance="localhost"
   fi 
@@ -47,7 +47,7 @@ function add_connection_string() {
   read db_name
   echo "Your SQL login user(default: 'sa'):"
   read usr
- 
+
   if [ -z "$usr" ]; then
     usr="sa"
   fi
@@ -66,24 +66,32 @@ function add_connection_string() {
 }
 
 function setup_secret_keys() {
-  dotnet user-secrets set "Authentication:Google:ClientId" "1009282259598-4iq97kaf9rdv0mri48a756en0ovnvit2.apps.googleusercontent.com" 
-  dotnet user-secrets set "Authentication:Google:ClientSecret" "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"
-  dotnet user-secrets set "SecretKey" "randOmKey4pi adsfa;djslfk asdjkfk qweuoprqpoeiwrpoq"
-  dotnet user-secrets set "Mailjet:ApiKey" "39617654584a3f94859990d4665274a9"
-  dotnet user-secrets set "Mailjet:SecretKey" "9d7f0034edf41ee61c52cdfc28c3c849"
-}
+  echo -e "${YLW}===== SETUP SECRET KEY =====${NOC}"
+  echo "Your Google ClientId:"
+  read google_client_id
 
-function setup_env_client() {
-  current_directory=$(pwd)
-  touch $current_directory/CLient/.env.local
-  echo -e "${GRN}Created .env.local successfully${NOC}"
+  echo "Your Google Secret Key:"
+  read google_secret_key
 
-  echo $'BROWSER=none\nPORT=44449\nREACT_APP_ROOT_URL=http://localhost:44449\nREACT_APP_API_URL=http://localhost:5148' >> $current_directory/Client/.env.local
+  echo "Your Secret Key for JWT Token:"
+  read jwt_secret_key
+
+  echo "Your Mailjet ApiKey:"
+  read mailjet_api_key
+  
+  echo "Your Mailjet SecretKey:"
+  read mailjet_secret_key
+
+  dotnet user-secrets set "Authentication:Google:ClientId" "$google_client_id" 
+  dotnet user-secrets set "Authentication:Google:ClientSecret" "${google_secret_key}"
+  dotnet user-secrets set "SecretKey" "${jwt_secret_key}"
+  dotnet user-secrets set "Mailjet:ApiKey" "${mailjet_api_key}"
+  dotnet user-secrets set "Mailjet:SecretKey" "${mailjet_secret_key}"
 }
 
 title="SETUP PROJECT SEEM"
 prompt="Pick an option:"
-options=("Add ConnectionStrings" "Init migration" "Setup secret key" "Setup env local client")
+options=("Add ConnectionStrings" "Init migration" "Setup secret key")
 
 echo "$title"
 PS3="$prompt "
@@ -92,7 +100,6 @@ select opt in "${options[@]}" "Quit"; do
     1) add_connection_string;;
     2) setup_ef;;
     3) setup_secret_keys;;
-    4) setup_env_client;;
     $((${#options[@]}+1))) echo -e "${GRN}Goodbye!${NOC}"; break;;
     *) echo -e "${RED}Invalid option. Try another one.${NOC}";continue;;
     esac
