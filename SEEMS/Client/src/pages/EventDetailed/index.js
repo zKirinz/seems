@@ -48,7 +48,6 @@ const EventDetailed = () => {
     useEffect(() => {
         getDetailedEvent(id)
             .then((response) => {
-                console.log(response)
                 const { event: responseEvent, registered } = response.data.data
                 const isEventOver =
                     new Date().getTime() - new Date(responseEvent.endDate).getTime() > 0
