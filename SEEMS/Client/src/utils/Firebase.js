@@ -1,14 +1,24 @@
 import { initializeApp } from 'firebase/app'
 import { getStorage } from 'firebase/storage'
 
+import {
+    FIREBASE_apiKey,
+    FIREBASE_authDomain,
+    FIREBASE_projectId,
+    FIREBASE_storageBucket,
+    FIREBASE_messagingSenderId,
+    FIREBASE_appId,
+    FIREBASE_measurementId,
+} from '../config'
+
 const firebaseConfig = {
-    apiKey: 'AIzaSyDycImjluiHcVVAGKke_UqqbNjxFz8xrwU',
-    authDomain: 'my-web-apps-875f8.firebaseapp.com',
-    projectId: 'my-web-apps-875f8',
-    storageBucket: 'my-web-apps-875f8.appspot.com',
-    messagingSenderId: '216048446416',
-    appId: '1:216048446416:web:76399f497386f240b927d5',
-    measurementId: 'G-WQ96671RZL',
+    apiKey: FIREBASE_apiKey,
+    authDomain: FIREBASE_authDomain,
+    projectId: FIREBASE_projectId,
+    storageBucket: FIREBASE_storageBucket,
+    messagingSenderId: FIREBASE_messagingSenderId,
+    appId: FIREBASE_appId,
+    measurementId: FIREBASE_measurementId,
 }
 
 // Initialize Firebase
