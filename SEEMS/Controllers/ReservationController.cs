@@ -63,16 +63,18 @@ public class ReservationController : ControllerBase
 				_context.Reservations.FirstOrDefault(x => x.UserId == userId && x.EventId == reservationDTO.EventId);
 			if(reservation != null)
 				return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You already registered this event "));
+			if(!_repoManager.Event.CanRegister(myEvent.Id))
+				return BadRequest(new Response(ResponseStatusEnum.Fail, "", "You can not register the event "));
 
-			if(myEvent.RegistrationDeadline.CompareTo(DateTime.Now) < 0)
-				return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Registration time has expired."));
+			//if(myEvent.RegistrationDeadline.CompareTo(DateTime.Now) < 0)
+			//	return BadRequest(new Response(ResponseStatusEnum.Fail, "", "Registration time has expired."));
 
-			var registeredNum = _context.Reservations.Count(r => r.EventId == reservationDTO.EventId);
-			if(!(registeredNum < myEvent.ParticipantNum))
-				return BadRequest(new Response(ResponseStatusEnum.Fail, "",
-					"This event has full slot. You can not register the event"));
+			//var registeredNum = _context.Reservations.Count(r => r.EventId == reservationDTO.EventId);
+			//if(!(registeredNum < myEvent.ParticipantNum))
+			//	return BadRequest(new Response(ResponseStatusEnum.Fail, "",
+			//		"This event has full slot. You can not register the event"));
 
-            reservation = _mapper.Map<Reservation>(reservationDTO);
+			reservation = _mapper.Map<Reservation>(reservationDTO);
             reservation.UserId = userId;
             _context.Add(reservation);
             _context.SaveChanges();
