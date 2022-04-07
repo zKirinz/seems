@@ -22,7 +22,7 @@
   - react-qr-scanner - Library for scanning QR Code.
 - Backend
   - Firebase - Storage.
-  - Database - Microsoft SQL Server
+  - Microsoft SQL Server - Database Engine/Server.
   - ORM - Entity Framework with Code First Approach
 
 ## Some preview images
